@@ -18,5 +18,11 @@ for lib in (
     "services/memory_gateway",
     "services/knowledge_gateway",
     "services/decision_gateway",
+    "services/tool_registry",
+    "services/tool_gateway",
+    "services/tool_executor",
+    "services/llm_router",
+    "services/integration_registry",
+    "services/integration_gateway",
 ):
     sys.path.insert(0, str(ROOT / lib))

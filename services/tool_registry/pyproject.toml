@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "tool-registry"
+version = "0.1.0"
+description = "Agent OS Tool Registry - governs tool existence (realizes 12.6.1, 21B 19)."
+authors = ["Agent OS"]
+packages = [{ include = "tool_registry" }]
+
+[tool.poetry.dependencies]
+python = ">=3.11,<3.13"
+kernel = { path = "../../libs/kernel", develop = true }
+core = { path = "../../libs/core", develop = true }
+persistence = { path = "../../libs/persistence", develop = true }
+security-gateway = { path = "../security_gateway", develop = true }
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2"
+mypy = "^1.10"
+ruff = "^0.4.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

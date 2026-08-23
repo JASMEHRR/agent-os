@@ -2,10 +2,10 @@
 
 ## Project Status
 
-- **Current Stage:** S5 — Authority (implementation complete, gates pass locally)
-- **Current Module:** none in progress — S5 exit criterion met; next executable work item is Stage S6 (`integration_registry`/`integration_gateway`, `tool_registry`/`tool_gateway`/`tool_executor`, `llm_router`)
-- **Repository Status:** Layer 0 substrate complete (all nine universal Gateway mechanisms of 21A §5.2 now implemented), plus the Trust, Truth, Instrumentation, Economic, Cognition and Authority planes
-- **Overall Progress:** 11 / 26 modules implemented to their stage exit criteria (`kernel`, `core`, `persistence`, `schema_registry`, `security_gateway`, `event_bus`, `observability_gateway` at its ingestion-only profile, `cost_manager`, `memory_gateway`, `knowledge_gateway`, `decision_gateway`); 0 / 26 at full Definition-of-Done — Section 39 criterion 2 (Conformance Gates) still requires the CI pipeline to actually execute, and Poetry-managed reproducible builds and `docker compose up` do not exist yet
+- **Current Stage:** S6 — Effect (implementation complete for the four unblocked modules; Integration Platform specification-conformant, construction-blocked)
+- **Current Module:** none in progress — S6 exit criterion met for the unblocked modules; next executable work item is Stage S7, FIRST LIGHT (`agent_runtime`, `workflow_engine`)
+- **Repository Status:** Layer 0 complete, plus the Trust, Truth, Instrumentation, Economic, Cognition, Authority and Effect planes. The system can reason, decide, remember and invoke internal tools; it cannot reach the external ecosystem while CIR-001 blocks the Integration Platform
+- **Overall Progress:** 17 / 26 modules addressed — 15 implemented to their stage exit criteria (`kernel`, `core`, `persistence`, `schema_registry`, `security_gateway`, `event_bus`, `observability_gateway` at its ingestion-only profile, `cost_manager`, `memory_gateway`, `knowledge_gateway`, `decision_gateway`, `tool_registry`, `tool_gateway`, `tool_executor`, `llm_router`) and 2 at specification-conformant, construction-blocked status (`integration_registry`, `integration_gateway`, both CIR-001). 0 / 26 at full Definition-of-Done — Section 39 criterion 2 still requires the CI pipeline to actually execute, and Poetry-managed reproducible builds and `docker compose up` do not exist yet
 
 ---
 
@@ -268,3 +268,51 @@
 
 - **Commit Hash:** (pending)
 - **Notes:** Section 39 status is **implementation complete, gates pending** — criterion 2 still requires the CI pipeline to actually execute. The Stage S5 exit criterion is demonstrated end to end in `tests/s5_integration/`, including the adversarial test the Validation Criteria explicitly demand: four distinct attacks on the Class D approval gate (outlast the window repeatedly, self-approve as proposer, answer as a non-human service, commit without an approval at all), every one of which must fail — and does. Standing conformance guards added this stage: the Approval Orchestrator exposes no auto-approval method, and the Decision Gateway exposes no `execute`/`dispatch` method, since 21B §18.7 is explicit that it records commitments and does not execute them.
+
+### 2026-08-24 — Stage S6: Effect (Tool Platform, LLM Router, Integration Platform)
+
+- **Stage:** S6 — Effect
+- **Modules:** `tool_registry`, `tool_gateway`, `tool_executor`, `llm_router` (full); `integration_registry`, `integration_gateway` (**specification-conformant, construction-blocked**)
+- **Work Item:** Realize document 12 in full with its mandatory three-way separation, document 17 and 02.3.8 plus the ten-stage prompt pipeline of 02.8.5.
+- **Files Created:**
+  - `services/tool_registry/` — `manifests.py` (sandbox tiers, contracts, compensation, lifecycle), `registry.py` (registration validation, Trust Engine, discovery, health), `security_adapter.py`, `tests/` (29 tests)
+  - `services/tool_gateway/` — `contracts.py` (the eight-component invocation contract of 12.17, attribution chain, invocation record), `gateway.py` (ordered verification sequence, sandbox assignment, composition, circuit breaker, output validation, compensation), `adapters.py`
+  - `services/tool_executor/` — `executor.py` (Sandbox Manager across four tiers, Resource Governor, Secret Injector, Egress Controller, Cost Monitor, Cleanup Guarantor), `security_adapter.py`
+  - `services/llm_router/` — `pipeline.py` (the ten stages, Sanitizer, Grounding Validator, Response Cache), `router.py` (tier routing with failover), `adapters.py`, `tests/` (28 tests)
+  - `services/integration_registry/` — `manifests.py` (manifest schema, capability abstractions, risk tiers, data-classification ceilings, portability, and the `ConstructionBlocked` guard), `tests/` (29 tests)
+  - `services/integration_gateway/` — `gateway.py` (boundary classification enforcement, per-instance approval rule, construction block)
+  - `tests/s6_integration/test_s6_exit_criterion.py` — 18 tests
+  - `docs/modules/tool_platform.md`, `docs/modules/integration_platform.md`, `docs/modules/llm_router.md`
+- **Files Modified:** `conftest.py`, `pyproject.toml`, `IMPLEMENTATION_JOURNAL.md`
+- **Tests Added:** 104. Repository total: 601.
+- **Validation Performed:**
+  - `python -m pytest -q` → 601 passed
+  - `python -m ruff check libs services tests` → clean; `ruff format` applied
+  - `python -m mypy .` (`--strict`) → no issues in 160 source files
+  - `python -m bandit -r libs services --exclude "*/tests/*"` → exit 0, zero findings
+  - Coverage 97.03% against the 90% CI gate
+- **Build Status:** Passing locally on every gate. Not run through CI, Poetry environments, or `docker compose`.
+
+- **CIR-001 handling (the defining constraint of this stage):** `integration_registry` and `integration_gateway` are built to **specification-conformant, construction-blocked** status exactly as Build Spec Section 6 and Part V require, and no further. The manifest schema, capability abstraction model, risk tiers, data-classification ceilings, portability declarations and the per-instance approval rule of 17.14.1 are all implemented and genuinely enforced — that is the specification half, and the validation is real rather than decorative. Every operation constituting construction (`register`, `approve`, `activate`, `connect`, `probe_health`, `resolve` on the Registry; `resolve_abstraction`, `consume`, `provider_health`, `record_consumption`, `retire` on the Gateway) raises `ConstructionBlocked` carrying the blocker text. They raise rather than no-op deliberately: Section 24 requires this debt never to be "silently converted to Done status", and a quiet no-op would let a caller believe an integration had been activated. A parametrized test asserts every construction verb raises, so the block cannot decay as the modules are edited. **Neither module is Done and neither may be marked Done** until a Governance ruling at G3 or G4 resolves CIR-001; Section 6 rule 9 forbids resolving it by unilateral interpretation, and nothing here guesses.
+
+- **The downstream consequence, not hidden:** 21B §19.6 has the Tool Gateway verify that a tool's declared capability abstraction is backed by an active, approved integration. Nothing can legitimately back an abstraction while construction is blocked, so `UnbackedIntegrationSource` reports every abstraction unbacked and the Tool Gateway **refuses** such tools. This means the S6 test-list clause "a registered tool **backed by an approved integration** executes..." cannot be satisfied. `tests/s6_integration/` states this in a named test (`test_a_tool_needing_an_integration_is_refused_while_cir_001_blocks`) rather than stubbing a fake integration to make the suite green. Tools that reach nothing external are unaffected and exercise the rest of the clause in full. The stage exit criterion is scoped to the unblocked modules per the Build Specification, and this is where that scoping bites.
+
+- **Issues Encountered (four real defects, all found by tests):**
+  1. **The Executor passed the consuming agent as the secret requester.** The Security Gateway correctly refused it — 14 rule 12 forbids a secret grant reaching an agent at all. 21B §19.10 makes the *Executor* the party authorized to inject, so the Executor now holds its own Service identity and injects under that. The original code would have made secret-using tools impossible to run, and for the right reason.
+  2. **`InferenceResult` reported nine of ten pipeline stages.** The result was constructed before stage 10 was entered, so a response misreported its own pipeline. Stage 10 is now recorded before the result is built.
+  3. **A cache hit returned the stored result verbatim**, so it carried the original request's id and claimed `cache_hit=False` — a consumer could not distinguish a cached answer from a fresh one. It now returns a copy labelled for the current request.
+  4. **A test assumed the circuit breaker would gate repeated failure**; in fact trust decay bites first, because three failures out of three drop a tool below the autonomous threshold before the breaker reaches its fifth. Both protections are correct and the earlier one wins. Rather than weaken either, the test now pins the actual ordering as defence in depth, and the breaker is exercised separately in isolation where trust cannot pre-empt it.
+
+- **Resolution:** All four resolved in-branch; each has a regression test.
+
+- **Open Items (deferred, not silently absorbed):**
+  - **No real sandbox runtime.** `Sandbox` models the four tiers and enforces the egress allowlist and the cleanup contract, but Docker, gVisor and Firecracker are not wired in. Sandbox *semantics* are implemented; sandbox *isolation* is not, and that gap is the single largest one in this stage. A sandbox escape is modelled and escalated correctly, but nothing yet prevents one.
+  - **Timeout enforcement is post-hoc**, checked after the tool returns rather than interrupting it mid-flight. Real pre-emption needs the process isolation the runtime would provide.
+  - **No real model backend.** `ModelBackend` is a Protocol; Ollama, vLLM and LiteLLM are not wired in. Token estimation is four-characters-per-token, not a tokenizer.
+  - **Grounding validation is vocabulary overlap**, deliberately simple, and will not catch a subtle fabrication. What it enforces reliably is that an ungrounded answer never reaches the cache. The semantic cache is exact-match only.
+  - `event_bus` is not wired into any S6 module for lifecycle emission (21B §19.6, §20.6).
+  - Performance is unvalidated against the 21B §19.12 and §20 latency tables.
+  - CIR-004 remains open and the Tool Gateway's p50 20ms authorization budget is named in 21B §19.12 as a principal input to it.
+
+- **Commit Hash:** (pending)
+- **Notes:** Section 39 status for the four unblocked modules is **implementation complete, gates pending**; for the two blocked modules it is **specification-conformant, construction-blocked**, which is a distinct status and not a step toward Done. Standing conformance guards added this stage: the Registry exposes no dispatch verb (12.6.1), the Executor exposes no authority verb (12.6.3, 12.17.4), every Integration construction verb raises, and each module's cross-subsystem imports are confined to a single adapter file. The three-way Registry/Gateway/Executor separation that 12.6 mandates is therefore enforced by test rather than by convention.
