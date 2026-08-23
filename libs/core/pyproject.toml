@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "core"
+version = "0.1.0"
+description = "Agent OS shared domain models, event schemas, exceptions, and constants."
+authors = ["Agent OS"]
+packages = [{ include = "core" }]
+
+[tool.poetry.dependencies]
+python = ">=3.11,<3.13"
+pydantic = "^2.7.0"
+kernel = { path = "../kernel", develop = true }
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2"
+mypy = "^1.10"
+ruff = "^0.4.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "kernel"
+version = "0.1.0"
+description = "Agent OS Layer 0 substrate: universal Gateway mechanisms (identity, lifecycle, boundary enforcement, immutable journal, failure classification, panic protocol)."
+authors = ["Agent OS"]
+packages = [{ include = "kernel" }]
+
+[tool.poetry.dependencies]
+python = ">=3.11,<3.13"
+pydantic = "^2.7.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2"
+mypy = "^1.10"
+ruff = "^0.4.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
