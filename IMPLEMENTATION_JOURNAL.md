@@ -2,10 +2,10 @@
 
 ## Project Status
 
-- **Current Stage:** S1 — Trust (implementation complete, gates pass locally)
-- **Current Module:** none in progress — S1 exit criterion met; next executable work item is Stage S2 (`event_bus`)
-- **Repository Status:** Layer 0 substrate plus the Trust Plane implemented and tested
-- **Overall Progress:** 5 / 26 modules implemented to their stage exit criteria (`kernel`, `core`, `persistence`, `schema_registry`, `security_gateway`); 0 / 26 at full Definition-of-Done — Section 39 criterion 2 (Conformance Gates) still requires the CI pipeline to actually execute, and Poetry-managed reproducible builds and `docker compose up` do not exist yet
+- **Current Stage:** S2 — Truth (implementation complete, gates pass locally)
+- **Current Module:** none in progress — S2 exit criterion met; next executable work item is Stage S3 (`observability_gateway` ingestion profile, `cost_manager`)
+- **Repository Status:** Layer 0 substrate plus the Trust and Truth planes implemented and tested
+- **Overall Progress:** 6 / 26 modules implemented to their stage exit criteria (`kernel`, `core`, `persistence`, `schema_registry`, `security_gateway`, `event_bus`); 0 / 26 at full Definition-of-Done — Section 39 criterion 2 (Conformance Gates) still requires the CI pipeline to actually execute, and Poetry-managed reproducible builds and `docker compose up` do not exist yet
 
 ---
 
@@ -97,3 +97,46 @@
   - `poetry lock` / `poetry install` still not run; no lockfiles exist.
 - **Commit Hash:** (pending)
 - **Notes:** Section 39 status is **implementation complete, gates pending** — not Done. Criteria 1, 3, 4 and 5 hold; criterion 2 (all Conformance Gate categories pass) requires the CI pipeline to actually execute, which it has not. The Stage S1 exit criterion itself is demonstrated end to end in `tests/test_s1_exit_criterion.py` and retained as a standing regression test, together with an assertion that the module imports nothing outside `kernel`/`core`/`persistence` (Section 25(a) prohibited-edge check). Part VI "Kernel Ready" is also satisfied: `security_gateway` reuses the kernel's lifecycle engine, six-boundary enforcement engine, immutable journal and panic hook without a single modification to the substrate.
+
+### 2026-08-23 — Stage S2: Truth (`event_bus`)
+
+- **Stage:** S2 — Truth
+- **Module:** `services/event_bus`
+- **Work Item:** Realize document 08 in full plus 02.3.4, per 21B §15 — the six Public Interfaces of §15.5 over the thirteen Internal Components of §15.3.
+- **Files Created:**
+  - `services/event_bus/pyproject.toml`
+  - `event_bus/envelope.py` — the six domain categories (08.5.1), canonical delivery states and transition guards (08.8), the 08.15.4 retention schedule verbatim, `Provenance` (08.12.2), immutable `PublishedEvent`
+  - `event_bus/admission.py` — Admission Controller with the four ordered checks; `TrustPlane` and `SchemaSource` ports
+  - `event_bus/streams.py` — Stream Store (append-only, category/tenant partitioned), Stream Writer, Gap Detector
+  - `event_bus/consumers.py` — Consumer Group Registry, Router (metadata-only, tenant-isolating), per-group `RetryPolicy`
+  - `event_bus/delivery.py` — Delivery Manager, Retry Scheduler, Dead Letter Manager
+  - `event_bus/causality.py` — Causality Tracker implementing the three happens-before clauses of 08.13.4
+  - `event_bus/backpressure.py` — Backpressure Controller, Archive Manager
+  - `event_bus/replay.py` — Replay Engine with sandboxed, replay-tagged output
+  - `event_bus/security_adapter.py` — the only module importing `security_gateway`
+  - `event_bus/schema_adapter.py` — version narrowing for the Schema Registry
+  - `event_bus/bus.py` — composition of the six §15.5 interfaces plus Panic Protocol participation
+  - `event_bus/tests/` — `conftest.py` plus four test modules (61 tests)
+  - `docs/modules/event_bus.md` — architecture note and interface map
+- **Files Modified:** `conftest.py` (S1/S2 packages on the test path), `pyproject.toml` (isort first-party, mypy path), `IMPLEMENTATION_JOURNAL.md`
+- **Tests Added:** 61 (admission 12, delivery/routing/retry/dead-letter 19, causality/streams/backpressure/retention 20, S2 exit criterion and constraints 10). Repository total: 216.
+- **Validation Performed:**
+  - `python -m pytest -q` → 216 passed
+  - `python -m ruff check libs services tests` → clean; `ruff format` applied
+  - `python -m mypy .` (`--strict`) → no issues in 80 source files
+  - `python -m bandit -r libs services --exclude "*/tests/*"` → exit 0, zero findings
+  - Coverage 97.86% overall against the 90% CI gate
+- **Build Status:** Passing locally on every gate. Not run through CI, Poetry environments, or `docker compose`.
+- **Integration note:** The S2 suite wires the Bus against a **real Security Gateway and a real Schema Registry**, not stubs. A producer genuinely authenticates, the live permission graph genuinely authorizes the emission, and an authorization denial genuinely comes from the Permission Intersection Rule. These are integration tests across the S1→S2 dependency edge rather than unit tests with a mock in the seam.
+- **Issues Encountered:**
+  1. **Schema version spelling differs between S0 and S2.** `08.4.1` calls `schema_version` a semantic version and `core.Event` defaults it to `1.0.0`; the Schema Registry keys entries by `major.minor`, because 08's evolution rules only distinguish additive minors from breaking majors. Rather than redesign a Done module's interface (Part IV, 17), `schema_adapter.py` narrows the version on the way in and the discrepancy is carried as an open item below.
+  2. **`assert` in the replay scoping branch** would vanish under `python -O`, which Bandit flagged (B101). Rewritten as an ordinary branch.
+- **Resolution:** Both resolved in-branch.
+- **Open Items (deferred, not silently absorbed):**
+  - The schema version discrepancy above needs a real decision by the Schema Registry's owner; the adapter is a bridge, not a resolution.
+  - **Performance is entirely unvalidated.** 21B §15.12 publishes a full constitutional latency table (emission→publication p50 10ms, 50,000 events/second sustained) but the store is the in-memory adapter. The Redis Streams binding of the canonical stack does not exist, so nothing meaningful has been measured. This is the largest gap in the module.
+  - Encryption in transit and at rest (08.18.3) arrives with the real transport and storage adapters.
+  - CIR-002 (transport binding) is still unresolved; delivery *semantics* are implemented, the transport mechanism is not chosen.
+  - Consumer delivery-timeout redelivery is driven by explicit failure signalling and the retry scheduler; a wall-clock timeout sweep for consumers that go silent without signalling is not implemented.
+- **Commit Hash:** (pending)
+- **Notes:** Section 39 status is **implementation complete, gates pending** — criterion 2 still requires the CI pipeline to actually run. The Stage S2 exit criterion is demonstrated end to end in `tests/test_s2_exit_criterion.py`, which runs all five clauses in one narrative. Two architectural-conformance tests are retained as standing guards: one asserts the Bus exposes no authorization method of its own (21A §5.4.2 — it is not a Gateway), and one asserts `security_gateway` is imported in exactly one module, so the permitted S1→S2 dependency edge stays visible in the adapter instead of spreading through the subsystem.

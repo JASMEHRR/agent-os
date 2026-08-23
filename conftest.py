@@ -6,5 +6,11 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).parent
-for lib in ("libs/kernel", "libs/core", "libs/persistence"):
+for lib in (
+    "libs/kernel",
+    "libs/core",
+    "libs/persistence",
+    "services/schema_registry",
+    "services/security_gateway",
+):
     sys.path.insert(0, str(ROOT / lib))
