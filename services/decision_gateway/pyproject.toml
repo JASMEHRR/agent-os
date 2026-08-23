@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "decision-gateway"
+version = "0.1.0"
+description = "Agent OS Decision Gateway - the constitutional checkpoint (realizes document 11, 21B 18)."
+authors = ["Agent OS"]
+packages = [{ include = "decision_gateway" }]
+
+[tool.poetry.dependencies]
+python = ">=3.11,<3.13"
+kernel = { path = "../../libs/kernel", develop = true }
+core = { path = "../../libs/core", develop = true }
+persistence = { path = "../../libs/persistence", develop = true }
+security-gateway = { path = "../security_gateway", develop = true }
+knowledge-gateway = { path = "../knowledge_gateway", develop = true }
+memory-gateway = { path = "../memory_gateway", develop = true }
+cost-manager = { path = "../cost_manager", develop = true }
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2"
+mypy = "^1.10"
+ruff = "^0.4.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
