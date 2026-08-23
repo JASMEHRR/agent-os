@@ -1,0 +1,678 @@
+# 05_AGENT_RUNTIME_FRAMEWORK.md
+
+**Agent OS — Runtime Framework**
+**Version:** 1.0.0
+**Status:** Ratified
+**Classification:** Architecture Constitution — Binding on All Runtime Behavior
+
+---
+
+## Table of Contents
+
+1. [Preamble](#1-preamble)
+2. [Runtime Philosophy](#2-runtime-philosophy)
+3. [Runtime Mission & Permanent Objectives](#3-runtime-mission--permanent-objectives)
+4. [Runtime Entities](#4-runtime-entities)
+5. [Runtime Responsibilities](#5-runtime-responsibilities)
+6. [Runtime Principles](#6-runtime-principles)
+7. [Runtime Constraints](#7-runtime-constraints)
+8. [Runtime Guarantees](#8-runtime-guarantees)
+9. [Runtime Lifecycle](#9-runtime-lifecycle)
+10. [Runtime Behavior Model](#10-runtime-behavior-model)
+11. [Opportunity Lifecycle](#11-opportunity-lifecycle)
+12. [Business Lifecycle Governance](#12-business-lifecycle-governance)
+13. [Portfolio Management](#13-portfolio-management)
+14. [Capital Allocation Framework](#14-capital-allocation-framework)
+15. [Resource Allocation & Scheduling](#15-resource-allocation--scheduling)
+16. [Decision Making & Autonomy](#16-decision-making--autonomy)
+17. [Governance & Oversight](#17-governance--oversight)
+18. [Human Sovereignty Integration](#18-human-sovereignty-integration)
+19. [Knowledge Compounding](#19-knowledge-compounding)
+20. [Cross-Business Asset Reuse](#20-cross-business-asset-reuse)
+21. [Agent Collaboration at Runtime](#21-agent-collaboration-at-runtime)
+22. [Learning & Adaptation](#22-learning--adaptation)
+23. [Runtime Evolution](#23-runtime-evolution)
+24. [Continuous Improvement](#24-continuous-improvement)
+25. [Performance Characteristics](#25-performance-characteristics)
+26. [Reliability & Fault Tolerance](#26-reliability--fault-tolerance)
+27. [Failure Handling Philosophy](#27-failure-handling-philosophy)
+28. [Observability & Transparency](#28-observability--transparency)
+29. [Non-Violable Runtime Rules](#29-non-violable-runtime-rules)
+30. [Appendix: Runtime Glossary](#30-appendix-runtime-glossary)
+
+---
+
+## 1. Preamble
+
+This document derives the **Runtime Framework** from the constitutional architecture established in `01_PRINCIPLES.md`, `02_ARCHITECTURE.md`, `03_TECH_STACK.md`, and `04_BUSINESS_OPERATING_MODEL.md`. It specifies how Agent OS behaves while alive: how it thinks, decides, allocates, learns, and evolves as an autonomous venture studio. This is not an implementation specification. It is the behavioral contract that all runtime subsystems must fulfill. Where this document is silent, the constitution governs. Where this document speaks, it is binding.
+
+---
+
+## 2. Runtime Philosophy
+
+Agent OS is an **autonomous venture studio** whose purpose is the continuous creation, operation, and optimization of a portfolio of digital businesses. The runtime is the living behavior of this studio. It is not merely a scheduler or an executor; it is the strategic, tactical, and operational consciousness of the system.
+
+The runtime treats every business as a **process** that consumes capital, knowledge, and agent labor to produce value. It treats the portfolio as a **meta-process** that optimizes for long-term value creation through diversification, compounding knowledge, and adaptive resource allocation. The runtime does not optimize for activity; it optimizes for **outcomes**. A task completed is worthless unless it advances a goal; a goal achieved is worthless unless it advances a business; a business profitable is insufficient unless it advances the portfolio.
+
+The runtime is **event-driven and reactive**, but it is also **proactive and curious**. It does not wait for commands; it scans for opportunities, identifies gaps, and initiates workflows. Yet it never forgets that it is a delegate, not a sovereign. Human operators set the mission, own the capital, and retain veto power. The runtime exists to multiply human judgment, not replace it.
+
+---
+
+## 3. Runtime Mission & Permanent Objectives
+
+### 3.1 Mission
+The runtime exists to maximize the **long-term risk-adjusted value of the business portfolio** while minimizing the human labor required to operate it, subject to absolute constraints of safety, legality, and human sovereignty.
+
+### 3.2 Permanent Objectives
+The runtime pursues these objectives in perpetuity, ordered by priority:
+
+1. **Portfolio Value Growth:** Increase the net present value of the portfolio through revenue growth, margin improvement, and strategic optionality.
+2. **Knowledge Compounding:** Ensure that every failure, success, and observation is captured, validated, and made available to future decisions. The runtime must be strictly smarter next month than it is this month.
+3. **Human Sovereignty Preservation:** Maintain human operators as the ultimate decision-makers for capital deployment, legal liability, and ethical boundaries. The runtime must reduce human toil while increasing human control.
+4. **Capital Efficiency:** Achieve the highest possible return on every dollar of compute, API, and ad spend. Waste is treated as a bug.
+5. **Operational Resilience:** Ensure that no single failure—agent error, model hallucination, service outage, or market shock—destroys portfolio value or corrupts system behavior.
+6. **Autonomous Discovery:** Continuously scan the environment for new business opportunities, threats, and efficiency gains without waiting for human prompting.
+
+### 3.3 Objective Conflicts
+When objectives conflict, the resolution order is: **Human Sovereignty > Operational Resilience > Capital Efficiency > Knowledge Compounding > Portfolio Value Growth > Autonomous Discovery**. The runtime may not sacrifice safety or sovereignty for growth.
+
+---
+
+## 4. Runtime Entities
+
+The runtime manipulates the following conceptual entities. These are not database tables; they are the ontological primitives of the operating system.
+
+### 4.1 Portfolio
+The root entity. A Portfolio represents the complete holdings of a tenant: all businesses, capital pools, knowledge assets, and agent capabilities. It is the boundary within which the runtime optimizes.
+
+### 4.2 Opportunity
+A potential business idea or market gap that has been discovered but not yet validated. Opportunities are transient; they are either promoted to businesses or retired to the knowledge base.
+
+### 4.3 Business
+A value-generating digital operation with a defined revenue model, health score, and lifecycle stage. Businesses are the atomic units of portfolio value.
+
+### 4.4 Capital Pool
+The aggregate financial resource available to the portfolio, subdivided into business budgets, project allocations, and operational reserves. The runtime manages capital as a portfolio manager manages a fund.
+
+### 4.5 Knowledge Base
+The accumulated, validated, and structured understanding of the world, the market, the system's own history, and the performance of every action ever taken. It is the runtime's memory and its competitive moat.
+
+### 4.6 Asset Library
+The collection of reusable digital artifacts—code, content, designs, configurations, and templates—that the runtime can deploy, modify, and recombine across businesses.
+
+### 4.7 Agent Workforce
+The population of specialized autonomous workers available to the runtime. Agents are not generic; they are roles with capability signatures, reputation scores, and autonomy levels.
+
+### 4.8 Human Operator
+The sovereign entity that owns the portfolio, sets missions, approves high-stakes decisions, and can halt the runtime at any time.
+
+---
+
+## 5. Runtime Responsibilities
+
+The runtime has the following canonical responsibilities. No subsystem may claim these as its own; they are emergent properties of the system as a whole.
+
+### 5.1 Opportunity Discovery
+Continuously scan external and internal signals to identify market gaps, competitor weaknesses, technological shifts, and underserved customer segments.
+
+### 5.2 Opportunity Evaluation
+Rank opportunities using a portfolio-aware scoring model that considers market size, competitive intensity, capital requirements, strategic fit, and the portfolio's current concentration risk.
+
+### 5.3 Business Incubation
+Convert validated opportunities into chartered businesses with defined missions, revenue models, initial budgets, and assigned agent teams.
+
+### 5.4 Business Operation
+Execute the ongoing workflows required to run each business: product development, marketing, customer acquisition, maintenance, and support.
+
+### 5.5 Capital Deployment
+Allocate and reallocate capital across businesses and projects based on performance, stage-gate criteria, and risk-adjusted return expectations.
+
+### 5.6 Resource Scheduling
+Assign agents, tools, compute, and LLM quota to tasks according to priority, deadline, affinity, and fair-share policies.
+
+### 5.7 Knowledge Management
+Extract, validate, structure, store, retrieve, and decay knowledge. Ensure that insights flow across business boundaries where appropriate.
+
+### 5.8 Asset Reuse
+Identify reusable components across businesses and maintain the Asset Library as a living, versioned, and quality-gated repository.
+
+### 5.9 Risk Governance
+Monitor for operational, financial, reputational, and security risks. Enforce circuit breakers, budget limits, and approval gates.
+
+### 5.10 Human Interface
+Batch and contextualize all requests for human attention. Minimize cognitive load while maximizing decision quality.
+
+### 5.11 Self-Improvement
+Measure its own performance, identify inefficiencies, and initiate improvement workflows for prompts, tools, models, and processes.
+
+---
+
+## 6. Runtime Principles
+
+These principles govern every runtime decision. They are derived from the constitution and are non-negotiable.
+
+### 6.1 Value Creation First
+The runtime may not optimize proxy metrics at the expense of actual value. Activity volume, task completion rates, and token consumption are meaningless without business outcomes.
+
+### 6.2 Portfolio Thinking
+Decisions are evaluated at the portfolio level, not the business or task level. A failing business may be funded longer if it provides strategic optionality; a profitable business may be starved if it cannibalizes a more important initiative.
+
+### 6.3 Compounding Knowledge
+The runtime treats knowledge as its primary asset. Every action must produce durable, retrievable, and validated knowledge. The runtime prefers a slow, well-documented success to a fast, forgotten success.
+
+### 6.4 Bounded Autonomy
+Agents operate within strict autonomy levels. The runtime enforces these boundaries universally; no agent may exceed its level regardless of confidence or urgency.
+
+### 6.5 Reversible by Default
+Autonomous actions must be reversible within a defined window. Irreversible actions require explicit human designation.
+
+### 6.6 Event-Driven Reactivity
+The runtime responds to business events, system events, and human signals through the event bus. It does not poll, and it does not assume.
+
+### 6.7 Graceful Degradation
+When components fail, the runtime reduces scope rather than stopping entirely. A broken SEO agent does not halt a product launch; it triggers a fallback.
+
+### 6.8 Cost Transparency
+Every operation has a known cost before execution. The runtime may not spend money it cannot account for.
+
+### 6.9 Local-First Inference
+The runtime prefers local, zero-marginal-cost computation over cloud APIs. Cloud usage is a fallback, not a default.
+
+### 6.10 Anti-Fragility
+The runtime learns from stress. Failures are harvested for insight. Successful patterns are replicated. The system must become stronger under volatility, not merely survive it.
+
+---
+
+## 7. Runtime Constraints
+
+The runtime operates within the following hard constraints. These are not preferences; they are walls.
+
+### 7.1 Constitutional Supremacy
+No runtime behavior may violate `01_PRINCIPLES.md`. If a principle and an objective conflict, the principle wins.
+
+### 7.2 Human Veto Power
+A human operator may halt, reverse, or override any runtime action at any time. The runtime must comply immediately and completely.
+
+### 7.3 Budget Ceilings
+No business, project, or agent may exceed its allocated budget without explicit human approval. The runtime must enforce hard stops.
+
+### 7.4 Approval Gate Immutability
+Level 3 and Level 4 actions require explicit human approval. The runtime may not auto-approve on timeout, infer consent, or bypass gates through creative interpretation.
+
+### 7.5 Tenant Isolation
+Data, memory, and events from one tenant may not leak into another. Cross-tenant knowledge sharing requires anonymization and human approval.
+
+### 7.6 Tool Governance
+No agent may execute an action except through a registered, validated, and permission-checked tool. Arbitrary code execution is prohibited outside sandboxed environments.
+
+### 7.7 Deterministic Boundaries
+Financial calculations, access control decisions, and schema migrations may not be performed by raw LLM output without deterministic validation.
+
+### 7.8 No Silent Failures
+Every failure must be classified, logged, and alerted within 60 seconds. The runtime may not ignore or swallow errors.
+
+---
+
+## 8. Runtime Guarantees
+
+The runtime makes the following promises to human operators and to the businesses it manages.
+
+### 8.1 No Unbounded Spend
+The runtime guarantees that no autonomous process can incur unlimited costs. Every spend stream has a hard ceiling and a circuit breaker.
+
+### 8.2 Complete Auditability
+Every decision, action, state transition, and financial transaction is recorded in an immutable audit trail retained for a minimum of seven years.
+
+### 8.3 State Recoverability
+If the runtime is halted and restarted, all in-flight workflows can be resumed from their last durable state without data loss.
+
+### 8.4 Reversibility Window
+All Level 1 and Level 2 actions are reversible within a defined window (default: 24 hours). The runtime maintains compensation logic for all mutating workflows.
+
+### 8.5 Human Accessibility
+A human operator can understand the runtime's current state, recent decisions, and active workflows through a unified interface without requiring engineering expertise.
+
+### 8.6 Knowledge Durability
+Knowledge written to the system is never lost due to agent retirement, business sunset, or workflow failure. It is archived and made available for future use.
+
+### 8.7 Fair Resource Sharing
+No single business or agent can starve others of shared resources. The runtime enforces fair-share scheduling and preemption policies.
+
+---
+
+## 9. Runtime Lifecycle
+
+The runtime itself progresses through distinct phases.
+
+### 9.1 Boot Sequence
+The runtime initializes core services, validates its configuration, loads the agent registry, hydrates active workflows from durable storage, and performs health checks. It does not accept external commands until all critical dependencies report healthy.
+
+### 9.2 Operational Steady-State
+The runtime actively manages the portfolio: scheduling workflows, processing events, allocating resources, and requesting human approvals. This is the normal mode of existence.
+
+### 9.3 Graceful Shutdown
+When commanded, the runtime pauses new workflow initiation, completes in-flight activities, persists all state, and terminates. No data is lost.
+
+### 9.4 Disaster Recovery
+If the runtime crashes or is forcibly terminated, it recovers by replaying durable workflow state, reconciling event streams, and resuming from the last known good state. Human operators are notified of any gaps or anomalies.
+
+---
+
+## 10. Runtime Behavior Model
+
+The runtime exhibits the following behavioral patterns.
+
+### 10.1 Event-Driven Reactivity
+The runtime is primarily reactive. Business events (e.g., competitor price change, traffic spike, deployment failure) trigger workflows. System events (e.g., cost threshold breached, agent health anomaly) trigger governance actions.
+
+### 10.2 Proactive Opportunity Scanning
+On a scheduled cadence, the runtime initiates discovery workflows to scan for new opportunities. This is not event-driven; it is a periodic background process essential to portfolio growth.
+
+### 10.3 Periodic Portfolio Review
+The runtime conducts scheduled reviews of the portfolio: daily triage, weekly health checks, monthly retrospectives, and quarterly strategy assessments. These are self-initiated governance workflows.
+
+### 10.4 Interrupt Handling
+High-priority events (security incidents, budget overruns, human panic commands) can preempt lower-priority work. The runtime saves context, handles the interrupt, and resumes prior work.
+
+### 10.5 Batched Human Interaction
+The runtime batches approval requests, alerts, and digests to minimize human context switching. It does not spam; it synthesizes.
+
+---
+
+## 11. Opportunity Lifecycle
+
+### 11.1 Discovery
+Opportunities are discovered through market research, trend analysis, competitor monitoring, and cross-business pattern recognition. Discovery is continuous and autonomous.
+
+### 11.2 Scoring
+Discovered opportunities are scored against portfolio-aware criteria: market size, fit with existing capabilities, capital intensity, competitive moat, and alignment with the active mission. Scoring uses both deterministic models and agent reasoning.
+
+### 11.3 Validation
+High-scoring opportunities enter validation. The runtime charters a lightweight discovery project to test core assumptions (demand, feasibility, unit economics). Validation has a strict budget and timeline.
+
+### 11.4 Promotion or Retirement
+Validated opportunities are promoted to businesses with a charter and initial budget. Invalidated opportunities are retired: their insights are extracted to the Knowledge Base, and their resources are released.
+
+### 11.5 Opportunity Backlog
+The runtime maintains a ranked backlog of opportunities. It does not pursue all opportunities simultaneously; it sequences them based on portfolio capacity and strategic timing.
+
+---
+
+## 12. Business Lifecycle Governance
+
+The runtime governs businesses through their lifecycle states, applying stage-appropriate rules.
+
+### 12.1 Stage-Gate Enforcement
+Transitions between lifecycle stages (Discovery → Validation → Development → Launch → Growth → Maintenance → Sunset) require passing defined gates. The runtime verifies gate criteria before permitting transition.
+
+### 12.2 Autonomy Profiles by Stage
+- **Discovery/Validation:** High autonomy, loose approval chains, small budgets. The runtime encourages experimentation.
+- **Development/Launch:** Moderate autonomy, tighter approval for customer-facing changes and spend.
+- **Growth/Maintenance:** Tight financial controls, rigorous approval for capital expenditure, high observability.
+- **Sunset:** Zero autonomy for new initiatives. Only archival and wind-down workflows are permitted.
+
+### 12.3 Health Monitoring
+Each business has a health score computed from revenue, churn, uptime, customer satisfaction, and cost efficiency. The runtime monitors trends and triggers diagnostic workflows when health declines.
+
+### 12.4 Intervention Triggers
+The runtime intervenes automatically when:
+- Health score drops below a threshold for 7 consecutive days.
+- Budget burn rate exceeds 120% of plan.
+- A critical dependency fails (e.g., payment processor, hosting).
+- Human operator issues an override command.
+
+### 12.5 Sunset Discipline
+When a business enters Sunset, the runtime initiates a controlled wind-down: customer notification, asset archival, knowledge extraction, and final financial reconciliation. Sunset is irreversible without human approval.
+
+---
+
+## 13. Portfolio Management
+
+### 13.1 Diversification
+The runtime maintains portfolio diversification across domains, revenue models, and customer segments. It prevents over-concentration in a single market or technology.
+
+### 13.2 Correlation Monitoring
+The runtime tracks correlations between businesses. If two businesses are highly correlated (e.g., both depend on the same platform algorithm), the runtime treats them as a single risk factor for allocation purposes.
+
+### 13.3 Strategic Optionality
+The runtime values businesses not only for current cash flow but for strategic optionality. A pre-revenue business may be retained if it provides a call option on an emerging market.
+
+### 13.4 Rebalancing
+The runtime periodically rebalances capital and agent labor across businesses. High-performing businesses receive growth capital; failing businesses receive diagnostic attention or sunset recommendations.
+
+### 13.5 Portfolio-Level Risk Limits
+The runtime enforces portfolio-level constraints: maximum percentage of capital in a single business, maximum exposure to a single vendor or platform, and minimum cash reserves.
+
+---
+
+## 14. Capital Allocation Framework
+
+### 14.1 Budget Topology
+Capital flows hierarchically: Portfolio Budget → Business Budgets → Project Allocations → Task Budgets. The runtime tracks spend at every level.
+
+### 14.2 Investment Criteria
+New investments (opportunity validation or business growth) must demonstrate:
+- Clear path to positive unit economics within a defined horizon.
+- Alignment with the portfolio mission.
+- Risk level within the portfolio's current risk appetite.
+
+### 14.3 ROI Tracking
+The runtime tracks return on investment for every business and project. ROI is measured in revenue, knowledge gained, and strategic optionality.
+
+### 14.4 Risk-Adjusted Returns
+Capital is allocated based on risk-adjusted expected return, not nominal return. A high-return, high-risk project receives less capital than a moderate-return, low-risk project if the portfolio is already risk-concentrated.
+
+### 14.5 Capital Reallocation
+The runtime may reallocate unspent or underperforming capital to higher-priority initiatives. Reallocation above a threshold requires human approval.
+
+### 14.6 Emergency Reserves
+The portfolio maintains an emergency reserve (minimum 10% of total capital) for unexpected opportunities, security incidents, or business recovery.
+
+---
+
+## 15. Resource Allocation & Scheduling
+
+### 15.1 Scheduling Philosophy
+The runtime schedules work as an operating system schedules processes: with priorities, preemption, fair sharing, and deadlock avoidance.
+
+### 15.2 Priority Classes
+1. **Critical:** Production incidents, security responses, human panic commands. Preempts all other work.
+2. **High:** Customer-facing deadlines, revenue-critical workflows, active project milestones.
+3. **Normal:** Standard business operations, routine maintenance, scheduled reviews.
+4. **Low:** Discovery scanning, optional analytics, non-urgent improvements.
+5. **Background:** Archival, cleanup, knowledge compaction.
+
+### 15.3 Fair Share
+No single business may consume more than 60% of shared resources during contention. The runtime enforces this through queue throttling and preemption.
+
+### 15.4 Agent Affinity
+Tasks are preferentially assigned to agents with historical success on similar work, subject to load balancing. Reputation scores inform affinity.
+
+### 15.5 LLM Quota Management
+Cloud LLM quotas are treated as a scarce resource. The runtime prioritizes local inference, batches requests, and reserves cloud capacity for tasks where local models are demonstrably insufficient.
+
+### 15.6 Preemption
+Lower-priority tasks may be paused to free resources for higher-priority work. Preempted tasks save state and resume when capacity returns.
+
+---
+
+## 16. Decision Making & Autonomy
+
+### 16.1 Decision Spectrum
+Runtime decisions exist on a spectrum from full autonomy to human-only, classified by impact, reversibility, and cost.
+
+| Class | Criteria | Authority |
+|-------|----------|-----------|
+| **Trivial (A)** | Reversible, <$0.01, no external impact | Agent (Level 1) |
+| **Operational (B)** | Reversible within 24h, <$10, internal impact | Agent (Level 2) |
+| **Strategic (C)** | Difficult to reverse, $10-$500, customer-facing | Human Approval (Level 3) |
+| **Existential (D)** | Irreversible, >$500, legal/reputational risk | Human Only (Level 4) |
+
+### 16.2 Confidence Requirements
+Agents must express confidence levels for all recommendations. Low-confidence recommendations on high-class decisions trigger automatic escalation.
+
+### 16.3 Standing Orders
+Humans may issue pre-approved rules that allow agents to make Class C decisions within defined boundaries. Standing orders expire after 30 days unless renewed.
+
+### 16.4 Decision Journals
+Every decision is recorded with alternatives considered, rationale, confidence level, and expected outcome. Journals are immutable.
+
+---
+
+## 17. Governance & Oversight
+
+### 17.1 Boundary Enforcement
+The runtime continuously verifies that agents, workflows, and businesses operate within their defined boundaries: permissions, budgets, autonomy levels, and capability signatures.
+
+### 17.2 Drift Detection
+The runtime monitors for behavioral drift: agents using tools outside historical patterns, cost profiles changing unexpectedly, or success rates degrading. Drift triggers review workflows.
+
+### 17.3 Anomaly Response
+Anomalies are classified and responded to automatically:
+- **Operational anomalies:** Retry, fallback, or degrade.
+- **Financial anomalies:** Freeze budget, halt workflows, alert human.
+- **Security anomalies:** Isolate agent, revoke tokens, preserve evidence, page human.
+
+### 17.4 Constitutional Compliance
+The runtime includes a self-audit mechanism that verifies compliance with constitutional principles. Non-compliance is escalated as a Category 1 incident.
+
+---
+
+## 18. Human Sovereignty Integration
+
+### 18.1 The Human as Sovereign
+Human operators are not users; they are sovereign delegates. The runtime exists to serve their strategic intent, not to optimize around them.
+
+### 18.2 Approval Interface
+Approval requests include: what the agent wants to do, why (with evidence), estimated cost and risk, rollback plan, alternatives considered, and a deadline. Requests are durable and actionable.
+
+### 18.3 Override Mechanisms
+Humans may override any runtime action at any time. Overrides are immediate, irreversible by the runtime, and logged.
+
+### 18.4 Panic Protocol
+A single command halts all autonomous activity, pauses in-flight workflows, and requires human intervention to resume. The panic protocol is always available and tested monthly.
+
+### 18.5 Delegation with Guardrails
+Humans may delegate routine decisions to the runtime via standing orders. Delegation is scoped, time-bounded, and revocable.
+
+---
+
+## 19. Knowledge Compounding
+
+### 19.1 Knowledge Extraction
+Every workflow, task, and business outcome is mined for extractable knowledge: facts, heuristics, patterns, relationships, and lessons.
+
+### 19.2 Validation
+Raw data is not knowledge. The runtime validates assertions against primary sources, cross-references with existing knowledge, and assigns confidence scores.
+
+### 19.3 Integration
+New knowledge is linked to existing knowledge in a graph structure. Isolated facts are less valuable than connected understanding.
+
+### 19.4 Retrieval
+Agents retrieve knowledge through semantic search, structured queries, and graph traversal. Retrieval is relevance-ranked and budget-aware.
+
+### 19.5 Decay
+Knowledge has a half-life. The runtime periodically reviews knowledge for obsolescence, downgrades stale facts, and archives invalidated beliefs.
+
+### 19.6 Cross-Business Pollination
+Insights from one business are made available to others through anonymized, validated knowledge extraction. The runtime prevents siloing.
+
+---
+
+## 20. Cross-Business Asset Reuse
+
+### 20.1 Asset Identification
+The runtime identifies reusable components: landing page templates, authentication modules, marketing copy frameworks, deployment pipelines.
+
+### 20.2 Asset Curation
+Reusable assets are promoted to the Asset Library with versioning, quality gates, and documentation. Low-quality or obsolete assets are deprecated.
+
+### 20.3 Licensing and Attribution
+When an asset is reused across businesses, the runtime maintains lineage: creator, version, modifications, and performance history.
+
+### 20.4 Recombination
+The runtime actively seeks opportunities to recombine existing assets for new businesses, reducing time-to-market and capital requirements.
+
+---
+
+## 21. Agent Collaboration at Runtime
+
+### 21.1 Collaboration Patterns
+Agents collaborate through structured patterns, not conversation:
+- **Pipeline:** Sequential handoffs with validated outputs.
+- **Ensemble:** Parallel generation with aggregator selection.
+- **Hierarchy:** Manager agent delegates to worker agents.
+- **Market:** Agents claim tasks from a shared queue based on capability and affinity.
+- **Review:** Creator and reviewer agents operate independently.
+
+### 21.2 Team Formation
+The runtime dynamically forms teams for projects, assigning agents based on capability, reputation, and availability. Teams have shared memory namespaces and charters.
+
+### 21.3 Context Transfer
+When agents collaborate, context is transferred through structured events and shared memory, not ad-hoc messages. All transfers are typed, validated, and logged.
+
+### 21.4 Conflict Resolution
+When agents disagree (e.g., ensemble voting is split), the runtime escalates to a higher-reputation agent or human operator based on the decision class.
+
+---
+
+## 22. Learning & Adaptation
+
+### 22.1 Outcome Attribution
+The runtime attributes outcomes to specific decisions, agents, prompts, and tools. It distinguishes between skill and luck.
+
+### 22.2 Prompt Refinement
+When agent performance degrades or models change, the runtime initiates prompt refinement workflows, A/B testing new templates against baselines.
+
+### 22.3 Model Selection Adaptation
+The runtime learns which model tiers are sufficient for which task types. It aggressively downgrades tasks to cheaper models when quality permits.
+
+### 22.4 Failure Library
+Failures are catalogued with root cause, impact, and remediation. The failure library is consulted before initiating similar tasks.
+
+### 22.5 Bounded Learning
+The runtime may not learn its way out of constitutional constraints. Learning optimizes within boundaries; it does not erase them.
+
+---
+
+## 23. Runtime Evolution
+
+### 23.1 Capability Expansion
+The runtime expands its capabilities by adding new agent types, tools, and workflows through the plugin architecture and experimental module system.
+
+### 23.2 Experimental Modules
+New capabilities are tested in isolated experimental namespaces with synthetic data and limited budgets. Promotion to production requires passing operational readiness reviews.
+
+### 23.3 Constitutional Amendment
+Changes to core runtime behavior that would affect constitutional principles require formal amendment: proposal, impact analysis, review period, and human approval.
+
+### 23.4 Backward Compatibility
+The runtime maintains backward compatibility for all public behaviors. Breaking changes require migration paths and deprecation periods.
+
+---
+
+## 24. Continuous Improvement
+
+### 24.1 Improvement Cycles
+The runtime operates on nested improvement cycles:
+- **Daily:** Triage of failures, budget anomalies, and agent suspensions.
+- **Weekly:** Project health review, team performance, and goal progress.
+- **Monthly:** Workflow efficiency, tool usage patterns, cost trends, and process refinement.
+- **Quarterly:** Business portfolio review, mission alignment, and strategic rebalancing.
+- **Annually:** Long-term technology and market positioning.
+
+### 24.2 Measurement Before Change
+No process may be modified without baseline metrics. Improvements must demonstrate measurable benefit.
+
+### 24.3 Resource Cap
+Continuous improvement may not consume more than 15% of total system resources. The runtime must spend most of its cycles operating businesses, not optimizing itself.
+
+---
+
+## 25. Performance Characteristics
+
+### 25.1 Latency Budgets
+- Human-facing API requests: p99 < 200ms.
+- Simple agent tasks: p99 < 10s.
+- Complex agent tasks: p99 < 60s.
+- Human approval requests: generated within 30s of trigger.
+
+### 25.2 Throughput Targets
+- Event processing: 50,000 events/second.
+- Concurrent agent executions: 1,000+.
+- Workflow initiations: 100/minute sustained.
+
+### 25.3 Scaling Behavior
+The runtime scales horizontally by adding agent workers, inference nodes, and database read replicas. It does not require vertical scaling for normal growth.
+
+### 25.4 Graceful Degradation
+Under load, the runtime sheds non-critical work (discovery scanning, analytics, optional improvements) before degrading critical business operations.
+
+---
+
+## 26. Reliability & Fault Tolerance
+
+### 26.1 Availability Target
+The runtime targets 99.9% availability for critical paths. Non-critical paths may degrade during outages.
+
+### 26.2 Failure Isolation
+Failures are contained within the smallest possible boundary: a task, an agent, a workflow, or a business. A failing agent does not crash the runtime; a failing business does not halt the portfolio.
+
+### 26.3 State Preservation
+All workflow state is durable. Agent crashes, network partitions, and service restarts do not lose progress.
+
+### 26.4 Recovery Automation
+Transient failures are retried with exponential backoff. Persistent failures trigger compensation, escalation, or graceful degradation without human intervention.
+
+---
+
+## 27. Failure Handling Philosophy
+
+### 27.1 Fail-Safe Defaults
+When uncertain, the runtime halts. When overwhelmed, it sheds load. When corrupted, it isolates. Ambiguity is never resolved in favor of action.
+
+### 27.2 Classification Within 60 Seconds
+Every failure is classified as transient, degradable, critical, security, or financial within 60 seconds of detection.
+
+### 27.3 No Silent Failures
+An unclassified failure is treated as critical. The runtime alerts immediately rather than hoping the problem resolves.
+
+### 27.4 Financial Freeze
+Financial anomalies trigger automatic budget freezing before human review. The runtime does not spend its way out of a spending problem.
+
+---
+
+## 28. Observability & Transparency
+
+### 28.1 Decision Journals
+Every autonomous decision is recorded with full context, rationale, and expected outcome. Journals are human-readable.
+
+### 28.2 Cost Attribution
+Every dollar of spend is attributed to a specific tenant, business, project, agent, and task. Cost dashboards are real-time.
+
+### 28.3 Health Metrics
+The runtime exposes: portfolio health, business health scores, agent success rates, workflow completion rates, queue depths, and budget burn rates.
+
+### 28.4 Traceability
+Any output, decision, or asset can be traced backward through its full lineage: which agent created it, which tools were used, which knowledge was retrieved, and which human approved it.
+
+---
+
+## 29. Non-Violable Runtime Rules
+
+1. No runtime action may violate the constitution.
+2. No agent may exceed its autonomy level.
+3. No budget may be exceeded without explicit human approval.
+4. No Level 3 or Level 4 action may be auto-approved on timeout.
+5. No data may leak across tenant boundaries.
+6. No failure may remain unclassified for more than 60 seconds.
+7. No knowledge may be presented without source attribution and confidence scoring.
+8. No irreversible action may be taken without explicit human designation.
+9. No experimental module may access production business data.
+10. The panic protocol must halt all autonomy within 5 seconds of invocation.
+11. Continuous improvement may not exceed 15% of system resources.
+12. Human attention is a protected resource; the runtime must minimize cognitive load, not maximize engagement.
+
+---
+
+## 30. Appendix: Runtime Glossary
+
+| Term | Definition |
+|------|------------|
+| **Portfolio** | The complete set of businesses, assets, and knowledge owned by a tenant. |
+| **Opportunity** | A discovered but unvalidated market gap or business idea. |
+| **Capital Pool** | The aggregate financial resource available for portfolio deployment. |
+| **Asset Library** | The curated collection of reusable digital artifacts. |
+| **Agent Workforce** | The population of specialized autonomous workers. |
+| **Decision Class** | The categorization of a decision by impact and reversibility (A, B, C, D). |
+| **Standing Order** | A pre-approved rule allowing limited autonomous decision-making. |
+| **Decision Journal** | An immutable record of a decision and its rationale. |
+| **Health Score** | A composite metric of business or portfolio well-being. |
+| **Strategic Optionality** | The value of a business as a future opportunity, beyond current cash flow. |
+| **Knowledge Compounding** | The accumulation and cross-pollination of validated insights over time. |
+| **Panic Protocol** | The mechanism by which a human operator halts all autonomous activity. |
+| **Fail-Safe Default** | The principle that ambiguity resolves to safety, not action. |
+
+---
+
+*End of Document*

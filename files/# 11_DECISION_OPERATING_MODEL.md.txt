@@ -1,0 +1,713 @@
+# 11_DECISION_OPERATING_MODEL.md
+
+**Agent OS — Decision Operating Model**
+**Version:** 1.0.0
+**Status:** Ratified
+**Classification:** Architecture Constitution — Binding on All Decision Behavior
+
+---
+
+## Table of Contents
+
+1. [Preamble](#1-preamble)
+2. [Decision Philosophy](#2-decision-philosophy)
+3. [Decision Mission & Permanent Objectives](#3-decision-mission--permanent-objectives)
+4. [Decision Identity](#4-decision-identity)
+5. [Decision Classification](#5-decision-classification)
+6. [Decision Architecture & Topology](#6-decision-architecture--topology)
+7. [Decision Lifecycle](#7-decision-lifecycle)
+8. [Decision States & Transitions](#8-decision-states--transitions)
+9. [Decision Authority & Autonomy](#9-decision-authority--autonomy)
+10. [Decision Ownership & Boundaries](#10-decision-ownership--boundaries)
+11. [Decision Context & Provenance](#11-decision-context--provenance)
+12. [Decision Evidence & Knowledge Consumption](#12-decision-evidence--knowledge-consumption)
+13. [Decision Confidence & Uncertainty](#13-decision-confidence--uncertainty)
+14. [Decision Risk & Consequence](#14-decision-risk--consequence)
+15. [Decision Objectives & Alignment](#15-decision-objectives--alignment)
+16. [Decision Options & Generation](#16-decision-options--generation)
+17. [Decision Evaluation & Prioritization](#17-decision-evaluation--prioritization)
+18. [Decision Approval & Authorization](#18-decision-approval--authorization)
+19. [Decision Delegation & Standing Orders](#19-decision-delegation--standing-orders)
+20. [Decision Escalation](#20-decision-escalation)
+21. [Decision Reversal & Compensation](#21-decision-reversal--compensation)
+22. [Decision Supersession](#22-decision-supersession)
+23. [Decision Auditability & Journals](#23-decision-auditability--journals)
+24. [Decision Governance & Oversight](#24-decision-governance--oversight)
+25. [Decision Security](#25-decision-security)
+26. [Decision Observability](#26-decision-observability)
+27. [Decision Reliability & Fault Tolerance](#27-decision-reliability--fault-tolerance)
+28. [Decision Performance Characteristics](#28-decision-performance-characteristics)
+29. [Decision Learning & Improvement](#29-decision-learning--improvement)
+30. [Portfolio, Business, Agent & Human Decision Integration](#30-portfolio-business-agent--human-decision-integration)
+31. [Non-Violable Decision Rules](#31-non-violable-decision-rules)
+32. [Appendix: Decision Glossary](#32-appendix-decision-glossary)
+
+---
+
+## 1. Preamble
+
+This document derives the **Decision Operating Model** from the constitutional architecture established in `01_PRINCIPLES.md` through `10_KNOWLEDGE_OPERATING_MODEL.md`. It specifies how commitments to action are formed, authorized, executed, reversed, and learned from inside Agent OS. Where this document is silent, the constitution governs. Where this document speaks, it is binding.
+
+---
+
+## 2. Decision Philosophy
+
+### 2.1 The Commitment Metaphor
+A decision is a **governed commitment to a course of action**. It is the moment the organization transitions from deliberation to obligation. Memory asks what happened; Knowledge asks what is true; Decision asks what shall be done.
+
+### 2.2 Decision vs. Knowledge
+Knowledge is validated belief. Decision is commitment based on that belief. Knowledge can be uncertain and still valuable; a decision with insufficient certainty is a liability.
+
+### 2.3 Decision vs. Runtime
+Runtime governs execution—the *how*. Decision governs whether work should be undertaken at all—the *whether*. Runtime must not execute non-trivial actions without a valid decision commitment.
+
+### 2.4 Decision vs. Agency
+An agent proposes; the Decision subsystem evaluates the proposal against evidence, risk, and authority, and either commits or escalates. Agency is capacity; Decision is permission.
+
+### 2.5 Decision as Sovereignty Preservation
+Decision is the constitutional checkpoint between human will and machine execution. Humans delegate, approve, override, and revoke authority through this subsystem.
+
+---
+
+## 3. Decision Mission & Permanent Objectives
+
+### 3.1 Mission
+The decision subsystem exists to ensure every commitment to action is **evidence-based, authority-bound, risk-aware, reversible by default, and accountable to human sovereignty**, while preserving the autonomous velocity required for portfolio growth.
+
+### 3.2 Permanent Objectives
+1. **Commitment Integrity:** Every non-trivial action is preceded by a valid decision record.
+2. **Authority Enforcement:** No entity may commit beyond its constitutional autonomy level.
+3. **Evidence Grounding:** Every decision is traceable to canonical knowledge or explicit evidentiary gaps.
+4. **Reversibility by Default:** Autonomous commitments are reversible unless explicitly designated otherwise by humans.
+5. **Portfolio Coherence:** Business decisions are evaluated against portfolio objectives and risk concentration.
+6. **Human Sovereignty Preservation:** Humans retain absolute veto, override, delegation, and panic authority.
+7. **Decision Velocity:** Governance must not paralyze autonomy.
+8. **Learning from Commitment:** Expected outcomes are compared to actual outcomes to improve future quality.
+
+### 3.3 Objective Conflicts
+Resolution order: **Human Sovereignty > Authority Enforcement > Commitment Integrity > Evidence Grounding > Reversibility by Default > Portfolio Coherence > Decision Velocity > Learning from Commitment.**
+
+---
+
+## 4. Decision Identity
+
+### 4.1 Identity Primitives
+Every decision entry possesses:
+- **Decision ID:** Unique, sortable, immutable.
+- **Decision Type:** Hierarchical classification (e.g., `decision.business.launch`).
+- **Schema Version:** Semantic version of payload contract.
+- **Timestamp:** Time of commitment.
+- **Source Identity:** Authenticated proposer.
+- **Authority Identity:** Authenticated authorizer (human for Level 3/4).
+- **Tenant/Business/Workspace IDs:** Isolation boundaries.
+- **Decision Class:** A, B, C, or D.
+- **Autonomy Level:** 1, 2, 3, or 4.
+- **Confidence Score:** 0.0–1.0 evidentiary strength.
+- **Risk Score:** Quantified consequence exposure.
+- **Reversibility Flag:** Reversible or Irreversible.
+- **Lineage Reference:** Links to triggering events, supporting knowledge, memory, and predecessor decisions.
+- **Expected Outcome:** Predicted result before execution.
+- **Actual Outcome:** Observed result after execution (nullable until resolved).
+
+### 4.2 Identity Persistence
+Decision identity persists for the statutory retention period (minimum seven years) regardless of disposition. No anonymous decisions are permitted.
+
+---
+
+## 5. Decision Classification
+
+### 5.1 By Impact and Reversibility (Decision Class)
+
+| Class | Criteria | Authority |
+|-------|----------|-----------|
+| **A — Trivial** | Reversible, <$0.01 impact, no external effect | Agent (Level 1) |
+| **B — Operational** | Reversible within 24h, <$10 impact, internal effect only | Agent (Level 2) |
+| **C — Strategic** | Difficult to reverse, $10–$500 impact, customer-facing or cross-business | Human Approval (Level 3) |
+| **D — Existential** | Irreversible, >$500 impact, legal/reputational/strategic existential risk | Human Only (Level 4) |
+
+### 5.2 By Scope
+- **Portfolio:** Affects multiple businesses or capital allocation across the portfolio.
+- **Business:** Affects a single business's strategy, product, or revenue model.
+- **Project:** Affects a bounded initiative within a business.
+- **Task:** Affects a single workflow or agent execution.
+- **Agent:** Internal to an agent's reasoning process with no external effect.
+
+### 5.3 By Evidentiary Burden
+- **Evidence-Rich:** Supported by multiple canonical beliefs with high confidence and no contradictions.
+- **Evidence-Sparse:** Supported by limited or low-confidence knowledge; requires explicit gap acknowledgment.
+- **Evidence-Contradictory:** Supported by knowledge that conflicts with existing canonical beliefs; requires reconciliation before commitment.
+
+### 5.4 By Temporal Urgency
+- **Routine:** Standard cadence; no time pressure.
+- **Expedited:** Time-sensitive; approval windows compressed but gates remain.
+- **Emergency:** Threatens operational resilience or portfolio value; may bypass non-safety gates with post-hoc review.
+- **Panic:** Human operator invokes halt protocol; all non-critical decisions deferred.
+
+---
+
+## 6. Decision Architecture & Topology
+
+### 6.1 Decision Gateway as Unified Access Layer
+No agent, workflow, or service forms, approves, or queries decisions directly. All operations flow through the **Decision Gateway**, which enforces classification, authority verification, evidence validation, optionality checks, and audit logging. The Gateway is the sole boundary between deliberation and commitment.
+
+### 6.2 Producer-Consumer Topology
+**Producers** (agents, workflows, scheduled reviews, human operators) emit decision proposals to the Gateway. **Consumers** (Runtime for execution, Governance for audit, Learning for feedback) receive committed decisions from the Gateway. The Gateway mediates all flow; producers cannot commit directly to Runtime, and Runtime cannot execute non-trivial actions without a committed decision.
+
+### 6.3 Boundary Enforcement
+The Gateway enforces:
+- **Tenant Boundary:** No cross-tenant decision propagation without explicit human approval.
+- **Business Boundary:** Decisions scoped to one business cannot commit resources of another without shared workspace grants.
+- **Authority Boundary:** Proposals are rejected if they exceed the proposer's autonomy level or the delegated scope of a standing order.
+- **Confidence Boundary:** Proposals below the minimum confidence threshold for their class are escalated or rejected.
+
+### 6.4 Relationship to Other Subsystems
+- **Knowledge Gateway:** Decision consumes canonical beliefs, confidence scores, and contradiction status. It does not modify knowledge.
+- **Memory Gateway:** Decision queries episodic context and prior decision history when evidence is sparse.
+- **Event Bus:** Decision emits lifecycle events (`decision.proposed`, `decision.committed`, `decision.reversed`, `decision.superseded`). It consumes trigger events that initiate decision workflows.
+- **Runtime:** Decision emits committed decisions to Runtime for execution. Runtime reports execution status and outcomes back to Decision for journal completion.
+- **Human Interface:** Decision routes approval requests, override commands, and delegation definitions through the human interface layer.
+
+---
+
+## 7. Decision Lifecycle
+
+### 7.1 Trigger
+A decision lifecycle begins from: an agent proposal, a workflow checkpoint, a business event (e.g., health score drop), a scheduled portfolio review, or explicit human initiation.
+
+### 7.2 Option Generation
+The producer must generate and document multiple distinct options, including the null option (do nothing). For Class B and above, single-option proposals are rejected at the Gateway.
+
+### 7.3 Evidence Assembly
+The Gateway assembles canonical knowledge from the Knowledge Gateway and supplementary context from the Memory Gateway. Evidentiary gaps and contradictions are flagged explicitly.
+
+### 7.4 Evaluation
+Options are evaluated against objectives, constraints, risk-adjusted returns, and strategic fit. The Gateway ensures evaluation is portfolio-aware, not merely locally optimal.
+
+### 7.5 Authority Resolution
+The Gateway determines the required authority level based on class, risk, and confidence. If the proposer lacks authority, the decision is routed for approval or escalation.
+
+### 7.6 Approval / Authorization
+For Class C, human approval is requested with full context. For Class D, human-only commitment is required. Standing orders may pre-authorize scoped Class C decisions.
+
+### 7.7 Commitment
+Upon authorization, the decision is committed: identity is finalized, expected outcome is recorded, reversibility is designated, and the decision is emitted to Runtime.
+
+### 7.8 Execution Tracking
+Runtime executes the committed decision and reports progress. Decision tracks execution status but does not interfere with Runtime's execution mechanics.
+
+### 7.9 Outcome Resolution
+After execution completes, the actual outcome is recorded against the expected outcome. Discrepancies trigger learning workflows.
+
+### 7.10 Disposition
+The decision reaches terminal state: **Completed**, **Reversed**, **Superseded**, or **Rejected**. Terminal decisions remain in the journal indefinitely.
+
+---
+
+## 8. Decision States & Transitions
+
+### 8.1 Canonical States
+
+| State | Description |
+|-------|-------------|
+| **Proposed** | Initial formation; options generated, evidence attached, awaiting authority resolution. |
+| **Under Review** | Pending human or delegated authority evaluation. |
+| **Approved** | Authority granted but not yet committed to Runtime. |
+| **Committed** | Emitted to Runtime for execution; resources bound. |
+| **Executing** | Runtime has begun execution; decision is active. |
+| **Completed** | Execution finished; outcome recorded. |
+| **Reversed** | Reversible decision undone within window; compensation executed. |
+| **Superseded** | Replaced by a newer decision; lineage preserved. |
+| **Rejected** | Authority denied or evidence insufficient; no execution. |
+| **Deferred** | Postponed pending additional evidence, conditions, or human input. |
+| **Escalated** | Pushed to higher authority due to risk, confidence, or boundary breach. |
+
+### 8.2 Transition Guards
+
+| From | To | Guard |
+|------|-----|-------|
+| Proposed | Under Review | Class C or D; or evidence-contradictory; or confidence below threshold. |
+| Proposed | Approved | Class A or B; authority matches; evidence sufficient; options valid. |
+| Proposed | Rejected | Evidence insufficient and no escalation path; or authority denies. |
+| Proposed | Deferred | Producer or authority requests delay with defined conditions. |
+| Proposed | Escalated | Risk exceeds proposer scope; or contradiction unresolved; or boundary breach. |
+| Under Review | Approved | Human or delegated authority grants approval with conditions. |
+| Under Review | Rejected | Authority denies; or timeout without response (does NOT auto-approve for C/D). |
+| Under Review | Escalated | Reviewer lacks authority; or anomaly detected. |
+| Approved | Committed | Reversibility designation complete; expected outcome recorded. |
+| Approved | Rejected | Authority revokes before commitment. |
+| Committed | Executing | Runtime acknowledges receipt and begins execution. |
+| Executing | Completed | Runtime reports successful execution; outcome recorded. |
+| Executing | Reversed | Reversibility window open; compensation logic executed; Runtime halts. |
+| Executing | Superseded | New decision invalidates this one; Runtime redirected per supersession logic. |
+| Completed | Reversed | Reversibility window still open and reversal authorized. |
+| Completed | Superseded | New decision retroactively supersedes completed decision (rare; requires high authority). |
+
+### 8.3 State Immutability
+Once a decision enters **Committed**, its core identity, evidence, and rationale are immutable. State transitions apply to lifecycle metadata and execution status only. Corrections append new decisions; they do not mutate committed records.
+
+### 8.4 Emergency Transitions
+Bypassing normal flow (e.g., **Executing → Reversed** for safety halt) is permitted only with Class D authority or Panic Protocol invocation. Emergency transitions are logged as constitutional exceptions.
+
+---
+
+## 9. Decision Authority & Autonomy
+
+### 9.1 The Authority Spectrum
+
+| Level | Title | Scope | Boundaries |
+|-------|-------|-------|------------|
+| **1** | Agent Autonomous | Class A only; trivial, reversible, <$0.01 | No external impact; no cross-business effect; must be reversible within seconds. |
+| **2** | Agent Delegated | Class A and B; operational, reversible within 24h, <$10 | Internal impact only; no customer-facing changes; no capital deployment. |
+| **3** | Human Approval | Class C; strategic, customer-facing, $10–$500 | Requires explicit human approval per decision; no batch auto-approval. |
+| **4** | Human Sovereign | Class D; existential, irreversible, >$500 | Human only; runtime may propose but never commit; absolute veto preserved. |
+
+### 9.2 Confidence Requirements by Authority
+- **Level 1:** Minimum confidence 0.60.
+- **Level 2:** Minimum confidence 0.70.
+- **Level 3:** Minimum confidence 0.80; low-confidence proposals must include explicit uncertainty acknowledgment.
+- **Level 4:** Minimum confidence 0.90; evidence-contradictory proposals are escalated regardless of nominal confidence.
+
+### 9.3 Override Mechanisms
+A human operator may override any decision at any state. Overrides are immediate, irreversible by the runtime, and logged as Class D actions. An override may promote, demote, reverse, or supersede a decision.
+
+### 9.4 Panic Protocol Integration
+Invocation of the Panic Protocol immediately transitions all active decisions to **Deferred** or **Reversed** (depending on reversibility), halts new proposals, and requires human intervention to resume. Panic is a Class D decision executed directly by the human operator.
+
+---
+
+## 10. Decision Ownership & Boundaries
+
+### 10.1 Ownership Hierarchy
+- **Agent:** Owns proposals for Class A decisions within its assigned scope.
+- **Team:** Owns collaborative proposals for Class B decisions within a shared workspace.
+- **Business:** Owns Class C decisions and inherits operational decisions from its agents.
+- **Portfolio:** Owns strategic and cross-business decisions.
+- **Human Sovereign:** Owns Class D decisions and retains ultimate authority over all lower tiers.
+
+### 10.2 Inheritance and Succession
+Business-owned decisions survive agent retirement. Portfolio-owned decisions survive business sunset. Ownership transfers are governed by workspace grants and require audit logging.
+
+### 10.3 Cross-Boundary Impact
+A decision scoped to one business but with potential impact on another (e.g., pricing changes that cannibalize a sister business) must declare cross-boundary impact. The Gateway routes such decisions to portfolio-level authority.
+
+### 10.4 Tenant Isolation
+Decisions from one tenant may not influence another tenant's businesses, assets, or runtime. Cross-tenant decision sharing requires anonymization and explicit human approval.
+
+---
+
+## 11. Decision Context & Provenance
+
+### 11.1 Provenance Dimensions
+Every decision carries:
+- **Trigger Context:** The event, proposal, or review that initiated deliberation.
+- **Knowledge Context:** The canonical beliefs, confidence scores, and contradiction status consumed.
+- **Memory Context:** Relevant episodic history and prior decision outcomes.
+- **Mission Context:** Active business mission, portfolio strategy, and human directives.
+- **Temporal Context:** Validity windows, urgency classification, and market conditions.
+
+### 11.2 Context as Interpretive Frame
+A decision without context is uninterpretable. A commitment to "increase ad spend" without the context that it is a holiday-season test is dangerous. The Gateway ensures context is complete before commitment.
+
+### 11.3 Context Budget
+Provenance metadata consumes bandwidth and attention. The Gateway enforces a maximum context budget per decision class. Non-essential context is summarized or referenced by ID rather than embedded.
+
+---
+
+## 12. Decision Evidence & Knowledge Consumption
+
+### 12.1 Canonical Knowledge as Primary Evidence
+Decisions must be grounded in canonical beliefs from the Knowledge Gateway. Hypotheses, quarantined beliefs, and unvalidated memory may not serve as sole evidence for Class B and above.
+
+### 12.2 Evidentiary Gap Handling
+When canonical knowledge is insufficient, the producer must explicitly flag the gap. The Gateway may: reject the proposal, escalate to higher authority, or permit commitment with an uncertainty rider and enhanced monitoring.
+
+### 12.3 Contradictory Evidence
+When supporting knowledge contradicts existing canonical beliefs, the Gateway halts commitment and triggers reconciliation or escalation. Decisions may not proceed on contradictory evidence without human arbitration.
+
+### 12.4 Evidence Sufficiency by Class
+- **Class A:** No explicit evidence requirement; procedural defaults suffice.
+- **Class B:** At least one canonical belief or explicit gap flag with uncertainty acknowledgment.
+- **Class C:** Multiple canonical beliefs or strong single belief with falsifiability conditions met; no unresolved contradictions.
+- **Class D:** Comprehensive evidentiary basis with cross-reference consistency, risk analysis, and documented alternatives.
+
+---
+
+## 13. Decision Confidence & Uncertainty
+
+### 13.1 Confidence Quantification
+Decision confidence is a quantitative measure (0.0–1.0) representing the strength of evidence, quality of options, and reliability of expected outcomes. It is distinct from knowledge confidence but derived from it.
+
+### 13.2 Confidence Propagation
+Decision confidence propagates from the confidence of supporting canonical beliefs, adjusted for option quality, risk exposure, and temporal relevance. A decision supported by 0.90-confidence knowledge but with high execution risk may have lower decision confidence.
+
+### 13.3 Uncertainty Representation
+Uncertainty must be explicit, not hidden. Proposals must declare: known unknowns, sensitivity of outcome to assumptions, and conditions under which the decision should be revisited.
+
+### 13.4 Confidence Thresholds
+- **< 0.60:** Proposal rejected or quarantined.
+- **0.60–0.79:** Permitted for Class A and B only; must carry uncertainty rider.
+- **0.80–0.94:** Standard range for Class C and most Class D.
+- **0.95–1.00:** Reserved for decisions with axiomatic or definitional backing; requires human ratification for Class D.
+
+### 13.5 Low-Confidence Escalation
+Proposals with confidence below the threshold for their class are automatically escalated to higher authority or deferred pending additional evidence. Agents may not suppress low-confidence warnings.
+
+---
+
+## 14. Decision Risk & Consequence
+
+### 14.1 Risk Dimensions
+Risk is assessed across:
+- **Financial:** Direct capital exposure and opportunity cost.
+- **Operational:** Disruption to business processes, dependencies, or agent workforce.
+- **Reputational:** Impact on brand, customer trust, or market position.
+- **Legal:** Regulatory exposure, liability, or contractual breach.
+- **Strategic:** Portfolio concentration, optionality destruction, or mission misalignment.
+
+### 14.2 Risk Classes
+- **Negligible:** No meaningful downside; reversible trivially.
+- **Low:** Limited downside; recoverable within normal operations.
+- **Moderate:** Significant downside; requires planned mitigation.
+- **High:** Severe downside; may threaten business health.
+- **Existential:** Catastrophic downside; threatens portfolio viability or legal standing.
+
+### 14.3 Risk-Adjusted Authority
+Higher risk classes require higher authority. A Class B decision with High risk is treated as Class C for authority purposes. A Class C decision with Existential risk is escalated to Class D.
+
+### 14.4 Circuit Breakers
+The Gateway enforces portfolio-level circuit breakers: maximum capital at risk per business, maximum correlation exposure, minimum cash reserves. Decisions that would breach circuit breakers are rejected or escalated regardless of local merit.
+
+---
+
+## 15. Decision Objectives & Alignment
+
+### 15.1 Portfolio Thinking
+Decisions are evaluated at the portfolio level, not merely the business or task level. A decision optimal for one business may be rejected if it cannibalizes a more important initiative or concentrates portfolio risk.
+
+### 15.2 Mission Alignment
+Every decision must align with the active mission of its owning business and the portfolio's permanent objectives. Misaligned decisions are rejected or flagged for strategic review.
+
+### 15.3 Strategic Optionality
+Decisions that destroy optionality (e.g., irreversible market exit, exclusive partnerships) receive heightened scrutiny. Optionality-preserving decisions are favored when expected returns are equivalent.
+
+### 15.4 Anti-Cannibalization
+The Gateway evaluates whether a business-level decision harms another business within the portfolio. Cross-business harm requires portfolio-level authority.
+
+---
+
+## 16. Decision Options & Generation
+
+### 16.1 Mandatory Multi-Option Requirement
+For Class B and above, the producer must document at least two distinct options plus the null option. Single-option proposals are rejected. This prevents commitment bias and preserves strategic flexibility.
+
+### 16.2 Option Documentation
+Each option must include: description, supporting evidence, confidence assessment, risk exposure, expected outcome, and reversibility estimate.
+
+### 16.3 Null Option
+The null option (maintain status quo) is always evaluated. It serves as the baseline against which active options are compared. A decision to act must demonstrate superiority to the null option.
+
+### 16.4 Optionality Preservation
+The Gateway favors reversible, modular options over monolithic, irreversible commitments when expected outcomes are equivalent.
+
+---
+
+## 17. Decision Evaluation & Prioritization
+
+### 17.1 Evaluation Criteria
+Options are evaluated against:
+- **Objective Fit:** Alignment with business and portfolio missions.
+- **Risk-Adjusted Return:** Expected value divided by risk exposure.
+- **Strategic Value:** Contribution to portfolio diversification, optionality, and long-term positioning.
+- **Resource Efficiency:** Capital, agent labor, and time required.
+- **Reversibility:** Ease and cost of undoing the commitment.
+
+### 17.2 Portfolio-Aware Scoring
+The Gateway applies portfolio-level weights to local scores. A high-local-score option that increases portfolio concentration receives a penalty. A moderate-local-score option that reduces correlation risk receives a bonus.
+
+### 17.3 Ranking and Recommendation
+The Gateway produces a ranked recommendation with justification. The recommendation is advisory for Class C and D; the authority makes the final commitment.
+
+---
+
+## 18. Decision Approval & Authorization
+
+### 18.1 Approval Request Contents
+Requests for human approval include: what is proposed, why (with evidence), estimated cost and risk, rollback plan, alternatives considered, confidence score, urgency classification, and a deadline.
+
+### 18.2 Gate Enforcement
+The Gateway enforces approval gates absolutely. Class C and D decisions require explicit human approval. The runtime may not auto-approve on timeout, infer consent, or bypass gates through creative interpretation.
+
+### 18.3 Timeout Handling
+Approval requests have defined deadlines. If a deadline passes without response:
+- **Class C:** Decision is deferred, not approved. No default-to-approve.
+- **Class D:** Decision is rejected pending explicit human action.
+- Emergency decisions may use standing orders or pre-delegated authority, but never implicit consent.
+
+### 18.4 Batch Approval
+The Gateway may batch related approval requests to minimize human context switching. Batched items remain individually actionable and are never auto-approved as a group.
+
+---
+
+## 19. Decision Delegation & Standing Orders
+
+### 19.1 Standing Orders as Delegated Authority
+Humans may issue standing orders that pre-approve Class C decisions within defined boundaries: specific decision types, scoped budgets, time windows, and risk thresholds.
+
+### 19.2 Scope and Time Bounds
+Standing orders are scoped by tenant, business, decision type, and maximum cumulative impact. They expire after 30 days unless explicitly renewed.
+
+### 19.3 Revocability
+Standing orders are revocable at any time by the issuing human or a higher authority. Revocation is immediate and does not affect decisions already committed under the order.
+
+### 19.4 Validation
+The Gateway validates every standing-order-eligible decision against the order's boundaries. Violations are escalated to human approval.
+
+---
+
+## 20. Decision Escalation
+
+### 20.1 Escalation Triggers
+- **Authority Insufficiency:** Proposer lacks autonomy for the decision's class or risk.
+- **Low Confidence:** Confidence below threshold for the decision class.
+- **High Risk:** Risk class exceeds the proposer's delegated risk limit.
+- **Contradictory Evidence:** Supporting knowledge conflicts with canonical beliefs.
+- **Boundary Breach:** Cross-business impact, tenant isolation concern, or circuit breaker proximity.
+- **Anomaly Detection:** Unusual pattern in proposal history, cost profile, or agent behavior.
+
+### 20.2 Escalation Paths
+Escalation flows upward: Agent → Team Lead → Business Manager → Portfolio Architect → Human Sovereign. At each level, the recipient may approve, reject, defer, or escalate further.
+
+### 20.3 Escalation Packaging
+Escalated decisions are packaged with full context: original proposal, evidence summary, confidence and risk assessments, alternatives, and the specific trigger for escalation.
+
+### 20.4 Escalation Timeout
+If an escalation level fails to respond within its deadline, the decision is escalated further, not approved by default.
+
+---
+
+## 21. Decision Reversal & Compensation
+
+### 21.1 Reversibility by Default
+All Class A and B decisions are reversible within a default window of 24 hours unless explicitly designated otherwise. Class C decisions are reversible only if designated at commitment time and compensation logic is pre-positioned.
+
+### 21.2 Compensation Logic
+Before a reversible decision is committed, the Gateway verifies that compensation logic exists: a defined procedure to undo the action, restore prior state, and recover resources. Without compensation logic, the decision is treated as irreversible.
+
+### 21.3 Irreversibility Designation
+Irreversible decisions require explicit human designation at commitment time. The Gateway blocks irreversible Class C decisions unless a human has explicitly waived reversibility with full acknowledgment of consequences.
+
+### 21.4 Reversal State Transition
+A reversal transitions the decision to **Reversed**, executes compensation via Runtime, records the actual outcome of reversal, and preserves the original decision in the journal. Reversal is itself a new decision entry, linked via lineage.
+
+---
+
+## 22. Decision Supersession
+
+### 22.1 Supersession Conditions
+A decision is superseded when new knowledge, changed conditions, or higher authority invalidates the original commitment before or after completion. Supersession is not erasure; it is epistemic and operational succession.
+
+### 22.2 Lineage Preservation
+The superseded decision remains in the journal with its identity intact. A new decision is formed, linked to the old via lineage, and committed. The old decision is marked **Superseded**; its state is frozen.
+
+### 22.3 Resource Reallocation
+Upon supersession, the Gateway coordinates with Runtime to unbind resources from the old decision and bind them to the new. Resource reallocation above threshold requires human approval.
+
+---
+
+## 23. Decision Auditability & Journals
+
+### 23.1 Decision Journal Contents
+Every decision journal contains: Decision ID, type, class, timestamp, source, authority, evidence summary, options considered, recommended option, confidence, risk, reversibility flag, expected outcome, actual outcome, and lineage references.
+
+### 23.2 Immutability
+Decision journals are append-only and immutable. No runtime entity may modify, delete, or retroactively alter a journal entry. Corrections append new entries.
+
+### 23.3 Retention
+Journals are retained for a minimum of seven years. Superseded, reversed, and rejected decisions remain in the journal indefinitely.
+
+### 23.4 Forensic Reconstruction
+The journal enables reconstruction of why any commitment was made: the evidence available, the authority responsible, the alternatives rejected, and the outcome achieved.
+
+---
+
+## 24. Decision Governance & Oversight
+
+### 24.1 Self-Audit
+The Gateway continuously audits: decision velocity per business, approval latency, escalation rates, reversal rates, confidence distribution, and authority boundary compliance.
+
+### 24.2 Drift Detection
+The runtime monitors for autonomy drift: agents proposing decisions just below escalation thresholds, confidence inflation to bypass human approval, or standing orders being stretched beyond intent.
+
+### 24.3 Anomaly Response
+- **Volume Anomaly:** Sudden spike in Class C proposals triggers throttling and review.
+- **Authority Anomaly:** Proposals exceeding historical autonomy patterns trigger suspension and alert.
+- **Confidence Anomaly:** Systematic inflation of confidence scores triggers recalibration and audit.
+- **Reversal Anomaly:** High reversal rates trigger diagnostic review of decision quality.
+
+### 24.4 Constitutional Compliance
+Non-compliance with decision authority, approval gate, or reversibility rules is escalated as a Category 1 incident.
+
+---
+
+## 25. Decision Security
+
+### 25.1 Authentication and Authorization
+Every producer and consumer authenticates to the Decision Gateway. Authorization enforces: formation scope, approval authority, consumption boundaries, and sensitivity levels.
+
+### 25.2 Integrity Protection
+Decision journals are tamper-evident. Commitment records are cryptographically bound to their evidence and authority. No decision may be repudiated by its authorizer.
+
+### 25.3 Input Sanitization
+External data included in decision proposals must pass through validation before the Gateway accepts the proposal.
+
+### 25.4 Audit Security
+Access to decision journals is logged immutably. Bulk export of decision data requires Class D authority.
+
+---
+
+## 26. Decision Observability
+
+### 26.1 Metrics
+- **Velocity:** Proposals, commitments, completions per minute by class.
+- **Latency:** Time from proposal to commitment by class and authority level.
+- **Quality:** Reversal rate, supersession rate, expected-vs-actual outcome divergence.
+- **Governance:** Escalation rate, approval latency, standing order utilization.
+- **Health:** Backlog depth, circuit breaker proximity, anomaly count.
+
+### 26.2 Logs and Traces
+All Gateway operations emit structured logs. Distributed traces follow a decision from trigger through commitment to execution and outcome.
+
+### 26.3 Alerting
+Alerts trigger on: approval backlog, autonomy drift, circuit breaker breach, high reversal rate, and unresolved escalation.
+
+---
+
+## 27. Decision Reliability & Fault Tolerance
+
+### 27.1 Graceful Degradation
+If the Decision Gateway is unavailable, Runtime continues executing previously committed decisions but halts new non-trivial commitments. Class A decisions may proceed on cached authority if safety-critical. No workflow fails solely due to Gateway unavailability, but non-trivial execution pauses.
+
+### 27.2 Failure Isolation
+A corrupted or malformed decision proposal is rejected at the Gateway without affecting other proposals or committed decisions.
+
+### 27.3 Consistency
+Read-after-write consistency is guaranteed for decision state: a producer that commits a decision must see it in subsequent queries. Cross-consumer state is eventually consistent.
+
+### 27.4 No Silent Failures
+Every Gateway failure—rejection, timeout, corruption, authority mismatch—is classified and alerted within 60 seconds.
+
+---
+
+## 28. Decision Performance Characteristics
+
+### 28.1 Latency Budgets
+
+| Operation | Target p50 | Target p99 | Maximum |
+|-----------|------------|------------|---------|
+| Class A proposal to commitment | 100ms | 500ms | 2s |
+| Class B proposal to commitment | 500ms | 2s | 10s |
+| Class C approval request generation | 1s | 5s | 30s |
+| Class D package assembly | 2s | 10s | 60s |
+| Outcome recording | 100ms | 500ms | 2s |
+
+### 28.2 Throughput Targets
+- Class A/B proposals: 1,000 per second sustained.
+- Class C/D packages: 100 per minute sustained.
+- Concurrent active decisions: 10,000+.
+
+### 28.3 Scaling Behavior
+The Gateway scales horizontally by partitioning on tenant and business. Scaling does not require changes to authority rules, classification schemas, or audit policies.
+
+### 28.4 Graceful Degradation Under Load
+Under load, the Gateway sheds non-critical analytics and deferred decision reviews before delaying active commitments. Emergency and Panic decisions are never dropped.
+
+---
+
+## 29. Decision Learning & Improvement
+
+### 29.1 Outcome Attribution
+Every committed decision is tracked to its actual outcome. The Gateway compares expected vs. actual results and attributes divergence to: evidence quality, confidence calibration, risk assessment accuracy, or execution variance.
+
+### 29.2 Feedback Loops
+Decision quality feedback informs:
+- **Knowledge:** Revalidation of beliefs that informed poor decisions.
+- **Authority:** Adjustment of autonomy boundaries for agents with consistent overconfidence.
+- **Standing Orders:** Narrowing or revocation of delegation for frequently reversed decisions.
+- **Portfolio:** Rebalancing based on decision outcome patterns.
+
+### 29.3 Bounded Learning
+The decision subsystem may not learn its way out of constitutional constraints. It may not auto-elevate agent autonomy, bypass approval gates, or shorten reversibility windows. Learning optimizes within boundaries; it does not erase them.
+
+---
+
+## 30. Portfolio, Business, Agent & Human Decision Integration
+
+### 30.1 Portfolio Strategic Decisions
+Portfolio-level decisions (capital allocation, business incubation, sunset, mission revision) are Class D. They are proposed by portfolio architects, authorized by human sovereigns, and executed by Runtime across multiple businesses.
+
+### 30.2 Business Tactical Decisions
+Business-level decisions (product launch, pricing change, marketing campaign) are typically Class C. They are proposed by business managers or agent teams, approved by humans or standing orders, and executed within the business scope.
+
+### 30.3 Agent Operational Decisions
+Agent-level decisions (tool selection, task sequencing, content generation) are Class A or B. They are proposed and committed autonomously within delegated boundaries, with journals recorded for audit.
+
+### 30.4 Human Sovereign Decisions
+Humans make Class D decisions, issue standing orders, approve Class C decisions, override any active decision, and invoke the Panic Protocol. Human decisions are not evaluated by the Gateway; they are the terminal authority.
+
+### 30.5 Layer Interaction
+Lower layers propose; higher layers commit or escalate. An agent may propose a Class B decision that, upon evaluation, has cross-business impact and is escalated to portfolio level. A human may issue a Class D decision that cascades into Class B operational decisions executed autonomously by agents. The Gateway ensures each layer operates within its constitutional scope.
+
+---
+
+## 31. Non-Violable Decision Rules
+
+The following rules are absolute. Violation constitutes a Category 1 incident:
+
+1. No decision may be formed without a unique identity, authenticated source, and documented evidence or explicit gap flag.
+2. No Class C or Class D decision may be committed without explicit human approval.
+3. No approval gate may be auto-approved on timeout, inferred consent, or creative interpretation.
+4. No irreversible action may be committed without explicit human designation and acknowledged consequence review.
+5. No agent may commit a decision beyond its constitutional autonomy level.
+6. No decision may bypass the Decision Gateway for direct producer-to-Runtime commitment.
+7. No decision journal may be modified, overwritten, or deleted after formation.
+8. No decision may proceed on unresolved contradictory evidence without human arbitration.
+9. No Class B or higher decision may be committed with only a single option documented.
+10. No decision may be formed without a confidence score and, for Class B+, a risk assessment.
+11. No standing order may exceed 30 days without explicit renewal.
+12. No decision may violate portfolio-level circuit breakers or concentration limits.
+13. No anonymous or pseudonymous decision formation or authorization is permitted.
+14. No decision may cross tenant boundaries without explicit human approval and isolation review.
+15. No decision may suppress uncertainty or present speculative evidence as canonical knowledge.
+16. No decision may be committed without a documented expected outcome.
+17. No reversible decision may be committed without pre-positioned compensation logic.
+18. No decision may override constitutional principles, security boundaries, or human sovereignty.
+19. No decision failure may remain unclassified or unalerted for more than 60 seconds.
+20. The Panic Protocol must halt all active decision commitment within 5 seconds of invocation.
+
+---
+
+## 32. Appendix: Decision Glossary
+
+| Term | Definition |
+|------|------------|
+| **Decision** | A governed, accountable commitment to a course of action based on canonical knowledge, confidence, and constitutional authority. |
+| **Decision Gateway** | The unified access layer through which all decision operations are mediated, validated, and audited. |
+| **Decision Class** | The categorization of a decision by impact and reversibility (A, B, C, D). |
+| **Autonomy Level** | The authority tier (1–4) assigned to an agent or human, determining which decision classes they may commit. |
+| **Commitment** | The binding emission of a decision to Runtime for execution. |
+| **Reversibility** | The property of a decision permitting undoing within a defined window via compensation logic. |
+| **Compensation Logic** | The pre-defined procedure to undo a reversible decision and restore prior state. |
+| **Standing Order** | A pre-approved rule allowing limited autonomous commitment to Class C decisions within defined boundaries. |
+| **Decision Journal** | An immutable record of a decision's full lifecycle, including evidence, rationale, and outcome. |
+| **Escalation** | The upward routing of a decision to higher authority due to risk, confidence, or boundary conditions. |
+| **Supersession** | The replacement of an active or completed decision by a newer decision, with lineage preserved. |
+| **Expected Outcome** | The predicted result of a decision, documented before execution. |
+| **Actual Outcome** | The observed result of a decision, recorded after execution completion. |
+| **Evidence Gap** | An explicit acknowledgment that canonical knowledge is insufficient to fully support a proposal. |
+| **Uncertainty Rider** | A declaration of known unknowns and sensitivity conditions attached to a low-confidence decision. |
+| **Circuit Breaker** | A portfolio-level limit that halts commitments when risk concentration or capital exposure exceeds threshold. |
+| **Panic Protocol** | The mechanism by which a human operator halts all autonomous commitment and defers active decisions. |
+
+---
+
+*End of Document*

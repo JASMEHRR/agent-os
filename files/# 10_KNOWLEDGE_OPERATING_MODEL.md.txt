@@ -1,0 +1,460 @@
+10_KNOWLEDGE_OPERATING_MODEL.md
+Agent OS — Knowledge Operating Model
+Version: 1.0.0
+Status: Ratified
+Classification: Architecture Constitution — Binding on All Knowledge Behavior
+Table of Contents
+Preamble
+Knowledge Philosophy
+Knowledge Mission & Permanent Objectives
+Knowledge Identity
+Knowledge Classification
+Knowledge Architecture & Topology
+Knowledge Lifecycle
+Knowledge States & Transitions
+Knowledge Producers
+Knowledge Consumers
+Knowledge Ownership & Boundaries
+Knowledge Context & Provenance
+Knowledge Causality & Lineage
+Knowledge Validation & Confidence
+Knowledge Contradiction & Reconciliation
+Knowledge Ontology & Schema
+Knowledge Graph
+Knowledge Durability & Immutability
+Knowledge Retention & Deprecation
+Knowledge Governance & Oversight
+Knowledge Security
+Knowledge Observability
+Knowledge Reliability & Fault Tolerance
+Knowledge Performance Characteristics
+Knowledge Learning & Compounding
+Non-Violable Knowledge Rules
+Appendix: Knowledge Glossary
+1. Preamble
+This document derives the Knowledge Operating Model from the constitutional architecture established in 01_PRINCIPLES.md, 02_ARCHITECTURE.md, 03_TECH_STACK.md, 04_BUSINESS_OPERATING_MODEL.md, 05_AGENT_RUNTIME_FRAMEWORK.md, 06_AGENT_OPERATING_MODEL.md, 07_WORKFLOW_OPERATING_MODEL.md, 08_EVENT_OPERATING_MODEL.md, and 09_MEMORY_OPERATING_MODEL.md. It specifies how knowledge behaves inside Agent OS: how validated belief is extracted from experience, how organizational reasoning is enabled, how contradictions are resolved, and how the venture studio compounds wisdom without sacrificing truth. This is not an implementation specification. It is the behavioral contract that all knowledge producers, all knowledge consumers, and all runtime subsystems interacting with knowledge must fulfill. Where this document is silent, the constitution governs. Where this document speaks, it is binding.
+2. Knowledge Philosophy
+2.1 The Validated Belief Metaphor
+Knowledge is validated, structured, canonical belief. It is not a record that something occurred; that is the domain of events. It is not a log of what was experienced; that is the domain of memory. It is not the current condition of an entity; that is the domain of state. Knowledge is what the organization holds to be true, supported by evidence, bounded by confidence, and subject to falsification. The validated belief metaphor is the lens through which all knowledge behavior must be understood. A belief without evidence is speculation. A belief without confidence is noise. A belief that cannot be falsified is dogma. Knowledge rejects all three.
+2.2 Knowledge vs. Memory
+Memory is persistent organizational experience. It is voluminous, agent-scoped, permissively contradictory, and optimized for contextual retrieval. Memory asks: What happened? Knowledge is curated, organization-scoped, internally coherent, and optimized for reasoning. Knowledge asks: What is true? Memory preserves the raw texture of execution so that context is not lost. Knowledge distills from memory so that reasoning is not arbitrary. An agent operating on memory alone is a historian; an agent operating on knowledge is a strategist. Memory is the substrate; knowledge is the refined product. The Memory Operating Model governs memory. The Knowledge Operating Model governs knowledge. They are not interchangeable.
+2.3 Knowledge vs. Events
+An event is an immutable fact that something occurred. Knowledge is an interpretive belief about what that occurrence means. Events are the source of truth for occurrence; knowledge is a derived projection for reasoning. Events do not change when understanding evolves; knowledge does. A competitor price change is an event. The belief that "Competitor X is vulnerable to price undercutting because their customer satisfaction is low" is knowledge. The event is indisputable; the knowledge is falsifiable.
+2.4 Knowledge vs. State
+State is the transient condition of an entity at a point in time. Knowledge is durable belief that transcends any single entity's current condition. State can be derived from knowledge, but knowledge cannot be derived from state. State is operational; knowledge is epistemic. The runtime treats knowledge as the authoritative body of belief and state as a transient projection that may be reconstructed from knowledge and memory.
+2.5 Knowledge vs. Data
+Data is raw, unprocessed observation. Knowledge is refined, validated, and contextualized understanding. A scraped pricing page is data. A structured fact with confidence, source attribution, and falsifiability conditions is knowledge. The Knowledge Operating Model governs only knowledge. Data must pass through extraction, validation, and integration before it enters the Knowledge Base.
+2.6 Knowledge as Organizational Reasoning Substrate
+Agent OS is an autonomous venture studio. Its agents do not reason over unstructured memory dumps or raw event streams. They reason over a body of validated belief that has been checked for contradiction, linked into an ontology, and assigned confidence. Workflows branch based on knowledge. Humans strategize based on knowledge. The Learning Model improves based on knowledge. Knowledge is the reasoning substrate; everything else is input or output.
+3. Knowledge Mission & Permanent Objectives
+3.1 Mission
+The knowledge subsystem exists to maintain a coherent, validated, and accessible body of organizational belief that enables agents and humans to reason effectively, decide soundly, and compound learning across the portfolio, subject to absolute constraints of evidence, ownership, privacy, and human sovereignty.
+3.2 Permanent Objectives
+The knowledge subsystem pursues these objectives in perpetuity, ordered by priority:
+Epistemic Coherence: The belief set must be internally consistent. Contradictions must be detected, tracked, and resolved. No unresolved contradiction may persist in the canonical belief set.
+Validated Authority: Every belief must be traceable to evidentiary support in memory, assigned a quantitative confidence score, and bound by falsifiability conditions.
+Organizational Reasoning: The belief set must be structured to enable inferential reasoning, pattern recognition, and strategic decision-making across agents and workflows.
+Falsifiability Maintenance: Every belief must carry explicit conditions under which it would be proven false. The system must proactively deprecate beliefs when those conditions are met.
+Bounded Growth: The belief set must not grow without bound. Stale, superseded, and irrelevant beliefs must be deprecated and archived. Unbounded knowledge is indistinguishable from noise.
+Cross-Business Generalization: Anonymized, validated patterns from one business must be available to others within the portfolio, preventing siloing while enforcing tenant isolation.
+3.3 Objective Conflicts
+When objectives conflict, the resolution order is: Human Sovereignty > Epistemic Coherence > Validated Authority > Organizational Reasoning > Falsifiability Maintenance > Bounded Growth > Cross-Business Generalization. The knowledge subsystem may not sacrifice truth or coherence for convenience.
+4. Knowledge Identity
+4.1 Identity Primitives
+Every knowledge entry possesses an immutable identity consisting of:
+Knowledge ID: A universally unique, lexicographically sortable identifier assigned at formation, never reused, never reassigned.
+Knowledge Type: A hierarchical, dot-notation classification (e.g., belief.market.trend, heuristic.deployment.retry) declaring the semantic role of the belief.
+Schema Version: A semantic version indicating the structural contract of the payload.
+Timestamp: The authoritative time at which the belief was validated, distinct from extraction time or memory occurrence time.
+Source Memory IDs: The immutable identifiers of the memory entries that constitute the evidentiary basis for this belief.
+Source Event IDs: The immutable identifiers of the events that ultimately justify the supporting memory.
+Extractor Identity: The authenticated agent, workflow, or human that performed the extraction and validation.
+Tenant ID, Business ID, Workspace ID: The isolation boundaries that own this belief.
+Confidence Score: A quantitative measure (0.0–1.0) of the belief's reliability at time of validation.
+Validity Period: The temporal window during which the belief is considered potentially true.
+Falsifiability Conditions: The explicit conditions that, if observed, would invalidate this belief.
+Lineage Reference: The immutable identifier linking this belief to its predecessor or successor in cases of supersession or correction.
+4.2 Identity Persistence
+Knowledge identity persists for the statutory retention period (minimum seven years) regardless of the belief's active status. A knowledge entry is never anonymous. Its identity is the anchor for auditability, epistemic accountability, and forensic reconstruction.
+4.3 Identity as Accountability Anchor
+Every belief is attributable to a specific extraction and validation process. Every formation is authorized, every payload is schema-bound, every confidence score is justified, and every falsifiability condition is explicit. The runtime does not permit anonymous or pseudonymous knowledge formation. Identity is the foundation of trust in the knowledge system.
+5. Knowledge Classification
+5.1 Classification by Semantic Role
+Knowledge is organized by the role it plays in organizational cognition:
+Factual Knowledge: Atomic assertions about the world. (e.g., "Competitor X pricing for Pro tier is $29/month.")
+Causal Knowledge: Assertions about cause and effect. (e.g., "Increasing landing page video background length beyond 90 seconds reduces conversion.")
+Normative Knowledge: Heuristics and rules of thumb about effective action. (e.g., "For B2C SaaS, video creatives outperform static images by 40%.")
+Predictive Knowledge: Forecasts and projections. (e.g., "At current growth rates, MRR will reach $10,000 by Q4 2027.")
+Definitional Knowledge: Ontological entities and their properties. (e.g., "A 'Qualified Lead' is defined as a user who completes onboarding and triggers the core action within 7 days.")
+5.2 Classification by Structural Form
+Atomic: A single, indivisible belief. (e.g., one factual assertion)
+Composite: An aggregated model synthesized from multiple atomic beliefs. (e.g., a market positioning model)
+Relational: A typed relationship linking two or more knowledge entries. (e.g., "Belief A contradicts Belief B")
+Narrative: A sequential, context-rich causal account. (e.g., a post-mortem explaining why a launch succeeded)
+5.3 Classification by Sensitivity
+Public: Contains no tenant-specific data; safe for cross-tenant visibility.
+Tenant-Scoped: Belongs to a specific tenant; invisible to others.
+Restricted: Contains financial, legal, security-sensitive, or strategically critical beliefs; requires elevated permissions.
+5.4 Classification by Persistence Model
+Active: Reasoning-ready, integrated into the knowledge graph, and available for agent consumption.
+Durable: Committed to persistent organizational record but not yet fully integrated.
+Archival: Superseded or deprecated; retained for audit and historical analysis.
+Ephemeral: Hypothesis under evaluation; not yet validated or committed.
+6. Knowledge Architecture & Topology
+6.1 Knowledge Gateway as Unified Access Layer
+No agent, workflow, or service accesses the Knowledge Base directly. All knowledge operations—formation, validation, query, deprecation—flow through the Knowledge Gateway, which enforces schema validation, ownership checks, confidence thresholds, and audit logging. The Knowledge Gateway is the sole boundary between the runtime and the knowledge substrate. This ensures that knowledge behavior is governed uniformly, regardless of producer or consumer.
+6.2 Producer-Consumer Topology
+Knowledge producers (authorized extractor agents, validation agents, human operators) emit knowledge formation requests to the Knowledge Gateway. Knowledge consumers (reasoner agents, workflow engines, human strategists, learning subsystems) query the Knowledge Gateway for beliefs. The Gateway mediates all flow: it does not permit producers to write directly into consumers' reasoning contexts, nor consumers to scan the belief set without scoped queries.
+6.3 Boundary Enforcement
+The Knowledge Gateway enforces boundaries at every operation:
+Tenant Boundary: Rejects cross-tenant knowledge access without explicit anonymization and human approval.
+Business Boundary: Filters retrieval to the requesting business unless a shared workspace grant exists.
+Agent Boundary: Prevents agents from accessing knowledge outside their declared capability scope and autonomy level.
+Confidence Boundary: Blocks consumption of beliefs below the consumer's declared confidence threshold.
+6.4 Relationship to Memory
+Memory is the evidentiary substrate. Knowledge is the derived belief set. The pipeline is strictly unidirectional: Events → Memory → Knowledge. Knowledge consumes memory through governed extraction pipelines. Knowledge does not mutate memory. Memory may persist knowledge entries in its durable tiers for backup and audit purposes, but memory does not contain knowledge in any semantic sense; it contains the records from which knowledge was extracted.
+6.5 Relationship to Events
+The Event Bus is the source of truth for occurrence. Knowledge consumes events only to trigger revalidation, extraction cycles, or deprecation workflows. Knowledge emits events to announce belief state transitions (knowledge.belief.validated, knowledge.contradiction.detected, knowledge.belief.deprecated). Knowledge never treats an event as a belief without passing through extraction and validation.
+6.6 Relationship to Learning
+The Learning Model consumes canonical knowledge to improve agent behavior, workflow design, and strategic recommendations. The Learning Model proposes new hypotheses for knowledge formation, but it may not insert beliefs directly into the Knowledge Base. All learning-derived hypotheses must pass through the same validation pipeline as manually extracted knowledge. The Learning Model may not modify constitutional principles, security boundaries, or human approval gates through knowledge manipulation.
+7. Knowledge Lifecycle
+7.1 Extraction
+Knowledge begins with extraction: an authorized producer identifies patterns, facts, or lessons within memory and distills them into a structured candidate belief. Extraction is not passive aggregation; it is an epistemic act that selects, interprets, and frames experience. Not all memory is worth extracting. The extraction phase applies a relevance filter to prevent knowledge bloat.
+7.2 Hypothesis Formation
+The extracted candidate becomes a hypothesis: a provisional belief with an initial confidence score, provisional falsifiability conditions, and a complete evidentiary citation. Hypotheses are ephemeral. They are not available for agent reasoning. They exist only within the evaluation pipeline.
+7.3 Validation
+Validation assesses the hypothesis against four dimensions: evidentiary sufficiency (does the source memory support the belief?), cross-reference consistency (does it agree with existing knowledge or identify a contradiction?), schema conformance (does it match a registered knowledge type?), and falsifiability test (are the invalidation conditions observable and specific?). Validation assigns the authoritative confidence score and validity period.
+7.4 Integration
+Integration links the validated belief into the organizational ontology and the knowledge graph. An unlinked belief is isolated and therefore limited in reasoning utility. Integration establishes relationships to existing beliefs: causal, hierarchical, analogical, or contradictory. Integration transforms a validated fact into organizational intelligence.
+7.5 Promotion
+Promotion elevates the belief from the validation pipeline into the active belief set. A promoted belief is available for agent reasoning, workflow branching, and human strategic analysis. Promotion is not automatic upon validation; it requires that integration be complete and that no unresolved contradiction exists.
+7.6 Active Use
+During active use, the belief is consumed by authorized consumers. The Knowledge Gateway tracks retrieval frequency, consumer attribution, and reasoning outcomes. Active use does not modify the belief; it exercises it.
+7.7 Revalidation
+Revalidation is the continuous review of active beliefs against new memory, new events, and elapsed time. A belief validated six months ago may have weakened evidentiary support as market conditions changed. Revalidation can increase, decrease, or maintain confidence. It can trigger deprecation if falsifiability conditions are met.
+7.8 Deprecation
+Deprecation marks a belief as false, obsolete, or superseded. The deprecated belief remains in the Knowledge Base with its identity intact, but it is removed from the active belief set. A deprecation entry is itself a knowledge entry, linked to the original via lineage. Deprecation is not deletion; it is epistemic correction.
+7.9 Archival
+Deprecated or inactive beliefs are moved to the archival tier after a defined quarantine period. Archival retains the belief for compliance, audit, and long-term pattern analysis. Retrieval is slower and may require elevated permissions.
+7.10 Disposition
+Disposition is the terminal phase: a belief may be purged per policy after the statutory retention period, or upon a valid legal request. Disposition is irreversible and requires audit logging. The identity of the purged belief and the justification for purging are retained in the audit trail indefinitely.
+8. Knowledge States & Transitions
+8.1 Canonical States
+Table
+State	Description
+Hypothesis	Extracted but unvalidated; provisional; not available for reasoning.
+Validated	Passed validation; assigned confidence and validity period.
+Canonical	Integrated into ontology and knowledge graph; actively used for reasoning.
+Contradicted	In conflict with newer evidence or belief; under review.
+Deprecated	Falsified, obsolete, or superseded; retained but excluded from active reasoning.
+Superseded	Replaced by a newer belief; linked via lineage to successor.
+Archived	Moved to long-term retention; low-availability.
+Purged	Destroyed per policy; identity retained in audit log only.
+8.2 Transition Guards
+Hypothesis → Validated: Evidence sufficiency met; schema compliance confirmed; confidence ≥ 0.6; falsifiability conditions defined.
+Validated → Canonical: Integration complete; no unresolved contradictions with existing canonical beliefs; human approval if Restricted sensitivity.
+Canonical → Contradicted: New evidence or belief triggers contradiction detection; confidence of existing belief under review.
+Contradicted → Canonical: Reconciliation confirms original belief remains valid; contradiction resolved.
+Contradicted → Deprecated: Reconciliation confirms original belief is false or obsolete.
+Contradicted → Superseded: New belief replaces the old; lineage established.
+Canonical → Deprecated: Revalidation detects falsification or expiration without replacement.
+Canonical → Superseded: New validated belief subsumes the old.
+Deprecated/Superseded → Archived: Quarantine period elapsed; no active dependencies.
+Archived → Purged: Statutory retention period elapsed; human or policy approval for destruction.
+8.3 State Immutability
+Once a knowledge entry enters Validated, its core belief content, evidentiary basis, and identity are immutable. State transitions apply to the entry's lifecycle metadata, availability status, and confidence score, never to the historical record of what was believed. A correcting belief is a new knowledge entry, not a mutation of an existing one.
+8.4 Emergency Transitions
+Bypassing normal flow (e.g., Canonical → Purged for legal takedown) is permitted only with Class D authority (human operator) and is logged as a constitutional exception. The original entry identity and the emergency transition justification remain in the audit trail permanently.
+9. Knowledge Producers
+9.1 Producer Identity
+Every knowledge producer is an authenticated, authorized entity with a declared identity: extractor agent, validation agent, or human operator. Anonymous knowledge formation is prohibited.
+9.2 Producer Responsibilities
+Schema Compliance: Producers must form knowledge that conforms to a registered, versioned schema.
+Evidence Citation: Producers must cite the complete set of source memory entries and events that constitute the evidentiary basis.
+Confidence Justification: Producers must justify the assigned confidence score with reference to evidence quality, cross-reference consistency, and temporal relevance.
+Falsifiability Specification: Producers must define explicit, observable conditions under which the belief would be invalidated.
+Tenant Scoping: Producers must tag knowledge with the correct tenant, business, and workspace boundaries.
+Contradiction Awareness: Producers must check for existing contradictory beliefs and flag conflicts explicitly.
+9.3 Producer Boundaries
+A producer may only form knowledge within its declared scope. An extractor agent may form knowledge from memory within its assigned business. A human architect may contribute strategic knowledge across businesses within a tenant. Cross-scope formation requires explicit permission.
+9.4 Producer Failure
+If a producer fails to form or validate knowledge (crash, authorization failure, evidence insufficiency), the hypothesis is abandoned or quarantined. The runtime detects this gap through validation queue monitoring and triggers recovery workflows. Producers must not silently swallow formation failures.
+10. Knowledge Consumers
+10.1 Consumer Identity
+Every knowledge consumer is a registered, authorized entity with a declared purpose and query scope. Anonymous consumption is prohibited.
+10.2 Consumer Responsibilities
+Confidence Threshold Respect: Consumers must declare their minimum confidence threshold and must not act on beliefs below that threshold.
+Uncertainty Acknowledgment: Consumers must propagate uncertainty. A belief with confidence 0.75 must be treated as provisional, not certain.
+Scope Adherence: Consumers must query only within their authorized tenant, business, and sensitivity boundaries.
+Failure Signaling: Consumers must signal when required knowledge is missing, contradictory, or below confidence threshold so that escalation or extraction can occur.
+Idempotent Consumption: Consumers must handle duplicate belief deliveries safely.
+10.3 Consumer Query Patterns
+Consumers declare queries by knowledge type, ontology class, relationship pattern, or confidence range. Queries are validated at execution time. A consumer may not query knowledge outside its permission scope.
+10.4 Consumer Isolation
+Consumers operate in isolation. One consumer's reasoning failure does not affect another consumer's ability to query the same belief. One consumer's slowness does not block another.
+11. Knowledge Ownership & Boundaries
+11.1 Ownership Hierarchy
+Every knowledge entry is owned by exactly one tenant. Within a tenant, knowledge is owned by the business that produced or commissioned it. Strategic knowledge may be owned by the portfolio. Public knowledge is owned by the system. Ownership determines retention, access control, and archival policy.
+11.2 Tenant Isolation
+Knowledge from one tenant may not be delivered to consumers of another tenant. The Knowledge Gateway enforces tenant isolation at the query layer. Cross-tenant knowledge sharing requires explicit anonymization workflows and human approval.
+11.3 Cross-Business Boundaries
+Within a tenant, knowledge from one business may be consumed by another business only if both businesses operate in a shared workspace with bilateral permission grants. The Knowledge Gateway filters cross-business delivery based on workspace membership.
+11.4 Global Knowledge
+Certain beliefs are promoted to Global scope after anonymization, validation, and human approval. Global knowledge contains no tenant-specific identifiers and represents universal organizational intelligence (e.g., "Landing pages with video backgrounds convert 15% better across anonymized portfolios"). Global knowledge is owned by the system and is readable by all tenants.
+11.5 Knowledge Delegation
+A knowledge owner may delegate read access to another entity through an explicit access grant. Delegation is time-bounded, scope-limited, and logged. Delegation does not transfer ownership.
+12. Knowledge Context & Provenance
+12.1 Provenance Metadata
+Every knowledge entry carries a complete provenance record that explains why the belief exists and what justifies it:
+Extractor Identity: The authenticated agent or human that performed extraction.
+Validator Identity: The authenticated agent or human that performed validation.
+Source Memory IDs: The memory entries constituting the evidentiary basis.
+Source Event IDs: The events that ultimately justify the supporting memory.
+Extraction Timestamp: The time the belief was extracted from memory.
+Validation Timestamp: The time the belief passed validation.
+Business Context: The business, project, workspace, and workflow identifiers that scope the belief.
+Falsifiability Conditions: The explicit invalidation criteria.
+12.2 Context as Evidentiary Frame
+Context is not the payload; it is the interpretive frame without which a belief is meaningless. A belief that "conversion increased by 15%" without the context that this occurred during a holiday season is dangerous knowledge. Provenance ensures that every belief can be evaluated against the conditions of its birth.
+12.3 Context Propagation
+When a consumer uses a belief to derive a new belief, it must propagate the full provenance chain and cite the original Knowledge ID as part of the new evidentiary basis. This creates an unbroken epistemic graph from raw observation to derived inference.
+12.4 Context Budget
+Provenance metadata consumes storage and bandwidth. The knowledge subsystem enforces a maximum context budget per entry. If critical context exceeds budget, non-essential metadata is summarized or referenced by ID rather than embedded.
+13. Knowledge Causality & Lineage
+13.1 Causal Chains
+Every knowledge entry preserves an unbroken causal chain to the memory and events that produced it. If Belief B is derived from Belief A, the lineage records the derivation. If Belief B contradicts Belief A, the lineage records the conflict. Causality in knowledge is established by explicit lineage references, not by inference or assumption.
+13.2 Forensic Reconstruction
+The knowledge subsystem must be able to answer, for any canonical belief: Why do we believe this? Forensic reconstruction traverses the lineage from belief to memory to event, reconstructing the complete evidentiary and inferential path. This is essential for audit, compliance, and strategic review.
+13.3 Correction Without Erasure
+When a belief is deprecated or superseded, the original entry is never modified or deleted. A new entry is formed, linked to the old via lineage, and promoted to canonical status. The old entry remains in the Knowledge Base as a record of what was once believed. This preserves organizational learning and prevents the repetition of past errors.
+14. Knowledge Validation & Confidence
+14.1 Validation Dimensions
+Validation assesses hypotheses across four dimensions:
+Evidentiary Sufficiency: Does the cited source memory provide adequate support for the belief? Is the memory itself validated and attributable?
+Cross-Reference Consistency: Does the belief agree with existing canonical knowledge, or does it identify a legitimate contradiction? Unresolved contradictions block promotion to Canonical.
+Schema Conformance: Does the belief payload conform to the registered schema for its knowledge type?
+Falsifiability Test: Are the invalidation conditions specific, observable, and bounded in time? A belief that cannot be falsified is not knowledge.
+14.2 Confidence Scoring
+Confidence is a quantitative measure (0.0–1.0) of the belief's reliability:
+Table
+Range	Status	Usage
+0.00–0.59	Hypothesis	Not available for reasoning; under evaluation.
+0.60–0.79	Validated	Available for reasoning; must be flagged as provisional.
+0.80–0.94	Canonical	Standard basis for reasoning and decision-making.
+0.95–1.00	Axiomatic	Strategic or definitional; requires human ratification.
+Confidence is assigned at validation and updated during revalidation. It is not a static property.
+14.3 Continuous Revalidation
+Beliefs are not validated once and forgotten. The knowledge subsystem continuously re-evaluates active beliefs against new memory, new events, and elapsed time. Revalidation can increase confidence (confirming evidence), decrease confidence (weakening support), or trigger deprecation (falsification). Revalidation frequency is domain-dependent: market knowledge is revalidated frequently; definitional knowledge is revalidated rarely.
+14.4 Validation Failure Handling
+Hypotheses that fail validation are quarantined for review, not destroyed. Quarantined hypotheses are visible to extractors and human operators but invisible to reasoner agents. After review, a quarantined hypothesis may be corrected and resubmitted, or permanently rejected with justification logged.
+15. Knowledge Contradiction & Reconciliation
+15.1 Contradiction Detection
+The knowledge subsystem continuously monitors the belief set for contradictions: pairs or sets of canonical beliefs that assert incompatible truths. Contradictions may be detected during integration, revalidation, or explicit human flagging. A detected contradiction triggers a reconciliation workflow.
+15.2 Reconciliation Strategies
+Table
+Strategy	Description	Use Case
+Supersession	Newer evidence invalidates the older belief; old is deprecated.	Market conditions changed; old pricing strategy no longer valid.
+Scope Narrowing	Both beliefs are true but apply to different contexts.	A tactic works for B2C but not B2B.
+Confidence Adjustment	Both beliefs persist but confidence is adjusted to reflect uncertainty.	Evidence is mixed; neither belief is clearly superior.
+Human Arbitration	Automated reconciliation fails; human decides.	Strategic beliefs with high business impact.
+15.3 Arbitration
+Human arbitration is required when:
+Both beliefs have confidence ≥ 0.85.
+The contradiction involves Restricted knowledge.
+The contradiction spans business boundaries within a tenant.
+Automated reconciliation has failed after defined attempts.
+Arbitration produces a binding resolution, logged as a new knowledge entry with Class D authority.
+15.4 Reconciliation Logging
+Every contradiction detection, reconciliation attempt, and resolution is logged immutably. The audit trail includes the conflicting beliefs, the evidence cited, the strategy applied, and the authority that resolved the conflict.
+16. Knowledge Ontology & Schema
+16.1 Ontology as Organizational Taxonomy
+The ontology defines the organizational taxonomy of entities, relationships, and belief types that give structure to knowledge. It is the grammar of organizational reasoning. Without an ontology, beliefs are isolated facts; with an ontology, they form a coherent model of reality. The ontology includes entity classes (e.g., Competitor, Market Segment, Business Model), relationship types (e.g., competes-with, depends-on, is-a), and belief categories (e.g., Factual, Causal, Normative).
+16.2 Schema Registry
+Every knowledge type must have a registered, versioned schema before it can be formed. The schema declares the structure, types, mandatory fields, and relationship constraints of the belief payload. Unregistered knowledge types are rejected at formation.
+16.3 Schema Versioning
+Schemas follow semantic versioning:
+Minor version: Additive changes only. New optional fields may be added. Existing consumers continue to function.
+Major version: Breaking changes. New major versions require a migration plan, a deprecation period of at least one release cycle, and human approval if the knowledge type is strategic or safety-critical.
+16.4 Ontology Governance
+Changes to the organizational ontology (new entity classes, new relationship types, structural reorganization) require human approval. The ontology is not self-modifying. The Learning Model may propose ontology extensions, but adoption requires validation and ratification.
+17. Knowledge Graph
+17.1 Graph Structure
+The Knowledge Graph is the web of validated beliefs and their structured relationships. Nodes are knowledge entries. Edges are typed relationships. The graph enables inferential reasoning: if Belief A causes Belief B, and Belief B contradicts Belief C, the graph supports the inference that A indirectly challenges C.
+17.2 Relationship Taxonomy
+Table
+Relationship	Description
+Causal	A leads to B.
+Hierarchical	A is a subset, instance, or component of B.
+Contradictory	A asserts the negation or incompatibility of B.
+Analogical	A is similar to B in a defined dimension.
+Temporal	A preceded or followed B.
+Associative	A co-occurred with B under defined conditions.
+Supersedes	A replaces B; B is deprecated.
+17.3 Traversal and Inference
+Authorized consumers may traverse the graph to discover non-obvious connections, infer indirect consequences, and identify hidden contradictions. Traversal is governed by scope: a consumer may not traverse edges that lead to knowledge outside its permission boundary.
+17.4 Graph Integrity
+The knowledge subsystem maintains graph integrity constraints: no orphaned canonical nodes (every canonical belief must participate in at least one relationship), no unresolved contradictory cycles (a belief may not contradict itself through a chain of relationships), and no dangling supersession references (a superseded belief must link to its successor).
+18. Knowledge Durability & Immutability
+18.1 Durability Guarantees
+Once a belief is Validated, it is durably stored. The belief survives extractor crashes, consumer crashes, Knowledge Gateway restarts, and business sunsets. Durability is achieved before promotion to Canonical begins.
+18.2 Immutability Guarantee
+A Validated belief may never be modified, overwritten, or deleted. Its payload, identity, provenance, and evidentiary basis are frozen for all time. If a belief was formed in error, a correcting belief is emitted and linked, but the original remains.
+18.3 Append-Only Correction Model
+The knowledge belief set is append-only. New beliefs are appended. Corrections are appended as new entries. Deprecations are appended as new entries. This property enables forensic reconstruction, audit, and organizational learning.
+18.4 Durability Tiers
+Active: Recently validated and integrated beliefs, available for immediate reasoning.
+Durable: Committed beliefs, available for analytical querying and strategic review.
+Archival: Deprecated and superseded beliefs, retained for compliance and long-term epistemic analysis.
+19. Knowledge Retention & Deprecation
+19.1 Retention Policy
+Table
+Knowledge Category	Active Retention	Durable Retention	Archival Retention
+Factual	Until deprecated or superseded	2 years	7 years
+Causal	Until deprecated or superseded	2 years	7 years
+Normative	Until deprecated or superseded	2 years	7 years
+Predictive	Until validity period expires	2 years	7 years
+Definitional	Indefinite (ontology)	Indefinite	7 years
+19.2 Deprecation
+Deprecation marks a belief as false or obsolete. Deprecated beliefs are removed from the active belief set but retained in the Durable tier for the quarantine period before Archival. Deprecation is itself a knowledge entry, linked to the original.
+19.3 Forgetting
+Non-axiomatic beliefs may be purged after their maximum retention period. Purging is irreversible and logged. Axiomatic and definitional knowledge is never purged; it is versioned. Audit knowledge is never purged before the statutory minimum.
+19.4 Right to Be Forgotten Compliance
+Knowledge derived from personal data must support legal requests for erasure. Erasure is performed by purging the knowledge entry and emitting a knowledge.purged event. The audit trail retains the identity and justification but not the payload.
+20. Knowledge Governance & Oversight
+20.1 Self-Audit
+The knowledge subsystem continuously audits itself: confidence distribution across businesses, contradiction backlog depth, validation queue latency, ontology coverage gaps, and falsifiability condition expiration rates. Self-audit results are stored as system knowledge.
+20.2 Drift Detection
+The runtime monitors the knowledge stream for behavioral drift: unusual extraction volumes, confidence score inflation, schema violations, contradictory belief accumulation, or anomalous query patterns. Drift triggers review workflows and may result in extractor suspension or consumer quarantine.
+20.3 Anomaly Response
+Knowledge anomalies are classified and responded to automatically:
+Volume Anomaly: Unexpected spike or drop in extraction rate. Triggers throttling or diagnostic workflows.
+Schema Anomaly: Beliefs that fail schema validation. Triggers extractor suspension and alert.
+Contradiction Anomaly: Sudden spike in detected contradictions. Triggers reconciliation workflow and human notification.
+Confidence Anomaly: Systematic inflation or deflation of confidence scores. Triggers audit and potential recalibration.
+20.4 Constitutional Compliance
+The knowledge subsystem includes a self-audit mechanism that verifies knowledge behavior against constitutional principles. Non-compliance is escalated as a Category 1 incident.
+21. Knowledge Security
+21.1 Authentication
+Every knowledge producer and consumer must authenticate to the Knowledge Gateway. Authentication uses short-lived tokens with scoped claims. Anonymous formation or consumption is prohibited.
+21.2 Authorization
+Authorization is enforced at two points:
+Formation: The producer must have permission to form knowledge of the declared type within its tenant and scope.
+Consumption: The consumer must have permission to query the knowledge types and sensitivity levels it requests.
+21.3 Encryption
+Knowledge is encrypted in transit and at rest. Transit encryption uses mutual TLS between producers, consumers, and the Knowledge Gateway. Rest encryption uses tenant-scoped keys.
+21.4 Input Sanitization
+External data included in knowledge payloads must pass through sanitization before formation. Untrusted data may not be embedded in beliefs without validation and encoding.
+21.5 Audit of Knowledge Access
+All access to the Knowledge Base—formation, consumption, deprecation, and administrative query—is logged in the audit stream. Audit entries are themselves immutable and retained for seven years.
+22. Knowledge Observability
+22.1 Metrics
+Epistemic Health: Contradiction rate, average confidence by domain, validation backlog depth.
+Graph Health: Orphan rate, cycle count, relationship distribution, traversal latency.
+Operational Health: Formation rate, query rate, deprecation rate, revalidation cycle time.
+Consumer Health: Query latency, cache hit rate (if applicable at implementation layer), error rate.
+22.2 Logs and Traces
+All knowledge operations emit structured logs. Logs contain no Restricted payload content. Distributed traces are constructed by following lineage references and correlation identifiers through the knowledge graph and back to originating events.
+22.3 Alerting
+Alerts are triggered by consuming knowledge subsystem events. An alert is a consumer that watches for specific knowledge anomaly patterns and emits notification events when those patterns occur.
+22.4 Dashboards
+Operational dashboards consume knowledge health events in real time. Dashboards do not query the Knowledge Base directly; they derive state from the knowledge event stream.
+23. Knowledge Reliability & Fault Tolerance
+23.1 Graceful Degradation
+If the Knowledge Base becomes unavailable, consumers fall back to querying Memory directly, with explicit uncertainty flags. Reasoning may degrade in quality but must not halt. No workflow may fail solely because knowledge is unreachable, though it may pause if the missing knowledge is safety-critical.
+23.2 Consistency Model
+Read-after-write consistency is guaranteed for knowledge formation: a producer that validates a belief must see it in subsequent queries. Cross-consumer reads are eventually consistent with respect to revalidation and deprecation updates.
+23.3 Failure Classification
+Table
+Category	Response	Human Notification
+Transient	Retry validation or query with exponential backoff	Log only; alert if retry exhausted
+Degradable	Continue with fallback to memory; flag uncertainty	Dashboard indicator
+Critical	Halt dependent workflows, preserve state, escalate	Immediate alert
+Epistemic	Quarantine affected beliefs, suspend extractor	Immediate alert
+24. Knowledge Performance Characteristics
+24.1 Latency Budgets
+Table
+Operation	Target p50	Target p99	Maximum
+Hypothesis formation to validation	1s	10s	60s
+Canonical belief query	50ms	200ms	500ms
+Graph traversal (3-hop)	100ms	500ms	2s
+Revalidation cycle (single belief)	100ms	500ms	2s
+Contradiction detection	200ms	1s	5s
+24.2 Throughput Targets
+Belief formation: 1,000 hypotheses per second sustained.
+Canonical belief queries: 10,000 per second sustained.
+Graph traversals: 5,000 per second sustained.
+24.3 Scaling Behavior
+The knowledge subsystem scales horizontally by partitioning the belief set by domain and distributing query load across consumers. Scaling does not require ontology changes or producer modifications.
+24.4 Graceful Degradation Under Load
+Under load, the runtime sheds non-critical operations (epistemic analytics, archival queries) before degrading critical operations (canonical belief retrieval, contradiction detection). Safety-critical reasoning queries are never dropped.
+25. Knowledge Learning & Compounding
+25.1 Knowledge as Learning Substrate
+The Learning Model consumes canonical knowledge to identify patterns, refine heuristics, and improve agent behavior. Knowledge is the substrate for organizational learning because it is validated, structured, and coherent. Learning over raw memory is noisy; learning over knowledge is signal.
+25.2 Pattern Extraction
+The Learning Model mines the knowledge graph for recurring causal chains, successful normative heuristics, and predictive models. Extracted patterns are evaluated for cross-business applicability and proposed as new hypotheses for knowledge formation.
+25.3 Feedback Loops
+Business outcomes are attributed to the knowledge that informed the decisions that produced them. Successful knowledge (high confidence, positive outcome) reinforces related beliefs. Failed knowledge (high confidence, negative outcome) triggers revalidation and potential deprecation. This feedback loop is the engine of epistemic compounding.
+25.4 Cross-Business Learning
+Anonymized canonical patterns from one business are made available to others through Global knowledge promotion. The runtime prevents knowledge siloing while enforcing tenant isolation. Cross-business learning requires that patterns be stripped of business-specific identifiers and validated for generalizability.
+25.5 Bounded Learning
+The knowledge subsystem may not modify constitutional principles, security boundaries, human approval gates, or the ontology without human ratification. Learning optimizes within boundaries; it does not erase them. The Learning Model may propose ontology extensions and new belief types, but adoption requires governance approval.
+
+## 26. Non-Violable Knowledge Rules
+
+The following rules are absolute. Violation constitutes a Category 1 incident:
+
+1. No knowledge entry may be formed without a registered schema, authenticated producer identity, and complete evidentiary citation.
+2. No validated belief may be modified, overwritten, or deleted after formation.
+3. No hypothesis may be promoted to Canonical without passing validation and integration.
+4. No canonical belief may remain in the active set while an unresolved contradiction exists against it.
+5. No belief may be formed or consumed without a defined confidence score and falsifiability conditions.
+6. No knowledge may cross tenant boundaries without explicit anonymization and human approval.
+7. No producer may form knowledge outside its declared scope and permission boundaries.
+8. No consumer may access knowledge outside its subscribed scope, sensitivity level, and confidence threshold.
+9. No belief may be presented as canonical if its confidence score is below 0.60.
+10. No speculative or hypothetical assertion may be presented as validated knowledge to any consumer.
+11. No knowledge may be formed from unvalidated external data or unsanitized memory.
+12. No ontology or schema change may be deployed without backward compatibility, migration planning, and human approval if strategic or safety-critical.
+13. No autonomous system may modify the organizational ontology without human ratification.
+14. No knowledge may be purged before its statutory retention period without Class D human authority and complete audit logging.
+15. No anonymous or pseudonymous knowledge formation or consumption is permitted.
+16. No knowledge may bypass the Knowledge Gateway for direct producer-to-consumer communication.
+17. Knowledge lineage and causality chains must be preserved across all formations, derivations, and deprecations.
+18. No belief may be deprecated without a justification entry linked via lineage.
+19. Knowledge governance anomalies must be escalated as Category 1 incidents.
+20. The Learning Model may not use knowledge formation to modify constitutional principles, security boundaries, or human approval gates.
+
+---
+
+## 27. Appendix: Knowledge Glossary
+
+| Term | Definition |
+|------|------------|
+| **Knowledge** | A validated, structured, canonical belief held by the organization, supported by evidence and bounded by confidence. |
+| **Knowledge Base** | The complete set of knowledge entries governed by the Knowledge Operating Model. |
+| **Knowledge Gateway** | The unified access layer through which all knowledge operations are mediated, validated, and audited. |
+| **Belief** | An organizational assertion about reality, framed within a registered schema and assigned a confidence score. |
+| **Hypothesis** | A provisional belief that has been extracted from memory but not yet validated; unavailable for reasoning. |
+| **Canonical** | The state of a belief that has been validated, integrated into the ontology and knowledge graph, and made available for reasoning. |
+| **Deprecated** | The state of a belief that has been falsified, invalidated, or rendered obsolete; retained but excluded from active reasoning. |
+| **Superseded** | The state of a belief that has been replaced by a newer belief; linked via lineage to its successor. |
+| **Confidence Score** | A quantitative measure (0.0–1.0) of a belief's reliability, assigned at validation and updated during revalidation. |
+| **Falsifiability** | The property of a belief that specifies explicit, observable conditions under which it would be proven false. |
+| **Ontology** | The organizational taxonomy of entities, relationships, and belief types that structures the knowledge graph. |
+| **Knowledge Graph** | The web of validated beliefs and their typed relationships, enabling inferential reasoning. |
+| **Extraction** | The process of distilling candidate beliefs from organizational memory. |
+| **Validation** | The process of assessing a hypothesis against evidence, consistency, schema, and falsifiability to determine whether it qualifies as knowledge. |
+| **Revalidation** | The continuous review of canonical beliefs against new evidence and elapsed time. |
+| **Contradiction** | A state in which two or more canonical beliefs assert incompatible truths. |
+| **Reconciliation** | The process of resolving contradictions through supersession, scope narrowing, confidence adjustment, or human arbitration. |
+| **Lineage** | The unbroken chain of references from a knowledge entry back to its originating memory, events, and predecessor beliefs. |
+| **Epistemic Coherence** | The property of the knowledge base being internally consistent, with no unresolved contradictions in the canonical set. |
+| **Evidentiary Basis** | The complete set of source memory entries and events that justify a belief. |
+| **Provenance** | The complete record of a belief's origin, including extractor, validator, timestamps, and business context. |
+| **Context Budget** | The maximum allowable size of provenance and contextual metadata attached to a knowledge entry. |
+| **Global Knowledge** | Anonymized, validated beliefs promoted to system-wide visibility across all tenants. |
+| **Knowledge Compounding** | The process by which validated beliefs are mined for patterns, refined through feedback loops, and transformed into organizational intelligence. |
+
+---
+
+*End of Document*

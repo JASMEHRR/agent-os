@@ -1,0 +1,1922 @@
+03_TECH_STACK.md
+Agent OS — Implementation Specification
+Version: 1.0.0
+Status: Implementation Specification
+Classification: Binding on All Implementation Work
+Table of Contents
+Purpose
+Design Philosophy
+Programming Languages
+Runtime Versions
+Package Management
+Backend Frameworks
+Frontend Stack
+Database Technologies
+Memory Technologies
+Event Bus Technologies
+Workflow Engine
+LLM Infrastructure
+AI Frameworks
+Tool Execution Stack
+Containerization
+Local Development Environment
+Production Infrastructure
+CI/CD Stack
+Testing Stack
+Code Quality Tooling
+Security Tooling
+Secrets Management
+Logging Stack
+Monitoring Stack
+Tracing Stack
+Build System
+Repository Standards
+Branching Strategy
+Versioning Strategy
+Dependency Management
+Documentation Tooling
+API Standards
+SDK Standards
+Plugin Development Standards
+Performance Standards
+Coding Standards
+Configuration Standards
+Migration Standards
+Release Process
+Technology Decision Matrix
+Approved Libraries
+Prohibited Technologies
+Future Migration Strategy
+1. Purpose
+This document translates the architectural blueprint defined in 02_ARCHITECTURE.md into binding implementation decisions. While 02_ARCHITECTURE.md defines what components exist and how they interact, this document specifies exactly which technologies, versions, libraries, tools, and workflows shall be used to construct those components.
+No implementation work may begin on any subsystem without consulting this document. No technology may be introduced to the project that contradicts the decisions herein unless a formal Technology Amendment Process (see Section 43) is completed. This document exists to eliminate decision fatigue, prevent technology drift, and ensure that every engineer and every Claude Code session operates from an identical, pre-approved toolkit.
+2. Design Philosophy
+All technology decisions in Agent OS are governed by the following hierarchy of priorities, derived directly from 01_PRINCIPLES.md:
+Table
+Priority	Principle	Technology Implication
+1	Local First	Prefer self-hostable, on-premise capable technologies. Avoid SaaS-only solutions.
+2	Open Source First	Prefer MIT/Apache-2.0/BSD licenses. Every proprietary dependency requires a written exception.
+3	Free API First	Prefer technologies with generous free tiers or zero marginal cost.
+4	Production Ready	Prefer battle-tested technologies over bleeding-edge experiments.
+5	Observable	Every technology must expose metrics, logs, or traces in open standards.
+6	Cost Optimized	Total cost of ownership (licensing, infrastructure, operational complexity) must be justified in writing.
+Non-Violable Rule: No technology may be adopted that violates Priority 1 or 2 without a constitutional amendment to 01_PRINCIPLES.md.
+3. Programming Languages
+3.1 Primary Language: Python
+Version: 3.11.9 or higher. Python 3.12 is permitted for services that do not depend on C extensions with known 3.12 incompatibilities.
+Why Selected: Python dominates the AI/ML ecosystem. FastAPI, Pydantic, SQLAlchemy, Temporal SDK, and the entire HuggingFace stack are Python-native. The async/await syntax introduced in Python 3.5+ is mature, and type hints are now first-class citizens.
+Alternatives Considered:
+Go: Superior for high-concurrency microservices and smaller binaries. Rejected because the AI/ML ecosystem is anemic in Go, and agent logic requires frequent LLM interaction for which Python libraries are vastly superior.
+Rust: Maximum performance and safety. Rejected due to compile-time overhead, smaller talent pool, and immature async web framework ecosystem for rapid API development.
+TypeScript (Node.js): Excellent for Temporal workflow definitions (see below) but rejected as primary backend language due to Python's dominance in ML tooling.
+Tradeoffs: Python's GIL limits true CPU parallelism within a single process. This is mitigated by process-based worker pools (Celery, Temporal workers) and by offloading CPU-bound work (inference, embedding) to separate services. Python's dynamic typing requires strict enforcement via mypy.
+Best Practices:
+All code must use type hints (PEP 484).
+from __future__ import annotations is required in every module to enable postponed evaluation.
+async/await is mandatory for all I/O-bound operations.
+Synchronous blocking calls (e.g., requests, time.sleep) are prohibited in async contexts.
+Integration with Agent OS: All core services (Gateway, Agent Runtime, Memory Gateway, Tool Registry, LLM Router, Cost Manager) are implemented in Python.
+Future Migration Path: If a service requires performance beyond Python's capabilities (e.g., high-frequency trading agent), it may be rewritten in Rust or Go behind a gRPC interface. The API contract, not the language, is the boundary.
+Non-Violable Rule: All business logic in core services must be Python. Infrastructure glue (Terraform, shell scripts) is exempt.
+3.2 Workflow Definition Language: TypeScript
+Version: TypeScript 5.4+ with Node.js 20 LTS.
+Why Selected: Temporal's TypeScript SDK provides the most mature and type-safe workflow authoring experience. Workflow definitions benefit from static typing for activity interfaces and saga compensation logic.
+Alternatives Considered:
+Python (Temporal Python SDK): Permitted for simple workflows but rejected as the primary workflow language because the TypeScript SDK has superior type inference for workflow state machines and better developer experience for long-running orchestrations.
+Java: Mature Temporal SDK but rejected due to verbosity and JVM operational complexity.
+Tradeoffs: Introduces a second language to the stack. Requires Node.js toolchain in development environments.
+Best Practices:
+Workflows must be pure async functions with no side effects.
+Activities are typed with strict input/output interfaces.
+Workflow code is bundled with esbuild or tsup for fast startup.
+Integration with Agent OS: Workflow definitions live in src/workflow_engine/ and are compiled to JavaScript before deployment.
+Future Migration Path: If Temporal's Python SDK achieves parity with TypeScript, workflow definitions may migrate to Python to reduce stack complexity.
+Non-Violable Rule: All Temporal workflow definitions must be TypeScript. Activity implementations may be Python.
+3.3 Infrastructure Language: HCL (Terraform)
+Version: Terraform 1.7+ or OpenTofu 1.6+.
+Why Selected: Industry standard for infrastructure as code. OpenTofu is preferred for local-first alignment but Terraform is acceptable.
+Alternatives Considered:
+Pulumi: Rejected due to dependency on proprietary service for state management in some configurations.
+CloudFormation/CDK: AWS-only, violates multi-cloud and local-first principles.
+Tradeoffs: HCL is declarative but less expressive than general-purpose languages.
+Non-Violable Rule: No manual cloud console changes. All infrastructure must be in version-controlled HCL.
+3.4 Scripting: Bash and Python
+Why Selected: Universal availability, zero dependencies.
+Best Practices:
+Bash is permitted only for glue scripts (<100 lines).
+Complex automation must be Python with argparse or typer.
+All scripts must have set -euo pipefail.
+4. Runtime Versions
+Table
+Runtime	Minimum Version	Maximum Version	Rationale
+Python	3.11.9	3.12.x	3.11 provides significant async performance improvements. 3.12 permitted where compatible.
+Node.js	20.11 LTS	20.x LTS	Temporal TypeScript SDK requires Node 18+. LTS for stability.
+Docker Engine	25.0	Latest	BuildKit required for multi-stage builds.
+Docker Compose	2.24	Latest	Compose spec v3.8+ for profiles and secrets.
+PostgreSQL	16.3	16.x	pgvector and Apache AGE tested on 16.x.
+Redis	7.2	7.x	Streams consumer groups stable in 7.x.
+Temporal Server	1.22	1.22.x	Pin to minor version for stability.
+Ollama	0.1.38	0.1.x	Rapid development; pin and upgrade intentionally.
+Non-Violable Rule: Services may not depend on runtime versions outside the specified ranges. Upgrades require a Technology Amendment.
+5. Package Management
+5.1 Python: Poetry
+Version: 1.8.0+
+Why Selected: Poetry provides deterministic lock files (poetry.lock), virtual environment management, dependency resolution superior to pip, and built-in publishing. It replaces pip, virtualenv, requirements.txt, and setup.py.
+Alternatives Considered:
+pip + requirements.txt: Rejected due to lack of lock files and poor dependency resolution.
+pipenv: Rejected due to historical bugs, slower resolution, and declining maintenance.
+PDM: Excellent alternative, but Poetry has broader ecosystem maturity and Claude Code familiarity.
+Tradeoffs: Poetry's pyproject.toml format is slightly different from PEP 621 in older versions. Poetry 1.8+ uses PEP 621 compliant [project] tables.
+Best Practices:
+Every service has its own pyproject.toml in its directory.
+poetry.lock is committed to version control for reproducible builds.
+poetry install --no-dev in production images.
+Dependency groups: main, dev, test, docs.
+Integration with Agent OS: Each service in src/ is an independent Poetry project.
+Non-Violable Rule: No requirements.txt files in production services. No unpinned dependencies in Docker images.
+5.2 TypeScript: npm with package-lock.json
+Version: npm 10+ (bundled with Node 20)
+Why Selected: Standard Node.js package manager. package-lock.json ensures reproducible installs.
+Best Practices:
+Exact versions in package-lock.json.
+npm ci in CI/CD and Docker builds (never npm install).
+node_modules is never committed.
+5.3 System Dependencies: apt
+Why Selected: Standard for Debian-based container images.
+Best Practices:
+Pin apt package versions in Dockerfiles where possible.
+Minimize system dependencies to reduce attack surface.
+6. Backend Frameworks
+6.1 Web Framework: FastAPI
+Version: 0.111.0+
+Why Selected: Native async support, automatic OpenAPI generation, Pydantic v2 integration, dependency injection system, and exceptional performance (Starlette + Uvicorn). The auto-generated OpenAPI schemas are consumed directly by the frontend and SDK generators.
+Alternatives Considered:
+Django: Rejected due to ORM lock-in, synchronous heritage, and excessive weight for API-only services.
+Flask: Rejected due to lack of native async and inferior type safety.
+Tornado: Rejected due to smaller ecosystem and declining maintenance.
+Tradeoffs: FastAPI's automatic documentation is excellent but can expose internal schemas if not carefully configured. Its dependency injection is powerful but can become magic-like if overused.
+Best Practices:
+Use APIRouter for modular route organization.
+All request/response models are Pydantic v2 models.
+Use Depends() for authentication, database sessions, and service injection.
+Enable GZip compression for responses >1KB.
+Configure CORS explicitly; never use allow_origins=["*"] in production.
+Use lifespan context managers for startup/shutdown events (not @app.on_event).
+Integration with Agent OS: API Gateway, Tool Registry, LLM Router, Cost Manager, and Plugin Manager are FastAPI services.
+Future Migration Path: FastAPI is the standard for the foreseeable future. If a service requires gRPC (internal high-performance communication), it may add a gRPC server alongside FastAPI, not replacing it.
+Non-Violable Rule: All HTTP services must use FastAPI. No Flask, Django, or raw ASGI frameworks in new services.
+6.2 Validation: Pydantic v2
+Version: 2.7.0+
+Why Selected: Runtime validation, serialization, settings management, and OpenAPI schema generation. Pydantic v2 is 5-50× faster than v1 due to Rust core.
+Alternatives Considered:
+Marshmallow: Rejected due to slower performance and lack of native type hint integration.
+Cerberus: Rejected due to smaller ecosystem.
+Dataclasses + manual validation: Rejected due to boilerplate and error-prone nature.
+Tradeoffs: Pydantic v2 has a stricter coercion model than v1. Some implicit conversions (e.g., string to int) are no longer allowed without explicit configuration.
+Best Practices:
+Use BaseModel for all data transfer objects.
+Use ConfigDict (not deprecated Config class).
+Use Field(..., description="...") for all fields to enrich OpenAPI docs.
+Use model_validator for cross-field validation.
+Use field_validator for single-field transformation.
+Enable strict=True on critical financial and security models.
+Integration with Agent OS: Every input, output, event payload, and configuration object is a Pydantic model.
+Non-Violable Rule: All external inputs must be validated by Pydantic before processing. No raw dict access on request bodies.
+6.3 ORM: SQLAlchemy 2.0
+Version: 2.0.30+
+Why Selected: Mature, async-native ORM with excellent PostgreSQL support. SQLAlchemy 2.0 introduced first-class async support and a modern query API.
+Alternatives Considered:
+Django ORM: Rejected due to Django coupling.
+Tortoise ORM: Rejected due to smaller ecosystem and immature migration tooling.
+Prisma Client Python: Rejected due to dependency on Prisma engine binary and less mature async support.
+Tradeoffs: SQLAlchemy has a steep learning curve and verbose syntax. The 2.0 API is significantly different from 1.x.
+Best Practices:
+Use AsyncSession exclusively. No synchronous sessions in async services.
+Use 2.0-style select() statements, not 1.x query() API.
+Define models with Mapped[] type annotations.
+Use relationship() with explicit lazy="selectin" or lazy="joined" to prevent N+1 queries.
+Database connections are managed via async connection pooling.
+Integration with Agent OS: All PostgreSQL access flows through SQLAlchemy 2.0 models in the Memory Gateway and core services.
+Non-Violable Rule: No raw SQL strings in business logic. Raw SQL is permitted only in migrations and performance-critical read paths with ADR justification.
+6.4 Migrations: Alembic
+Version: 1.13.0+
+Why Selected: The standard migration tool for SQLAlchemy. Supports branching, merging, and offline migrations.
+Best Practices:
+One Alembic environment per database (aos_core, aos_memory, etc.).
+Migrations are auto-generated with alembic revision --autogenerate but must be manually reviewed.
+Migrations must include both upgrade() and downgrade() functions.
+Never delete columns in the same migration that adds them (separate migrations for rollback safety).
+Migration files are named with descriptive slugs, not just timestamps.
+Non-Violable Rule: No database schema change without a corresponding Alembic migration. No manual DDL in production.
+6.5 Async HTTP Client: HTTPX
+Version: 0.27.0+
+Why Selected: The modern async HTTP client for Python. Supports HTTP/2, connection pooling, and streaming. Replaces aiohttp and requests.
+Alternatives Considered:
+aiohttp: Rejected due to complex client API and server/client coupling.
+requests: Rejected due to synchronous blocking nature.
+Best Practices:
+Use AsyncClient with connection pooling.
+Set explicit timeouts on all requests (timeout=Timeout(connect=5.0, read=30.0)).
+Use httpx.AsyncClient as a FastAPI dependency for lifecycle management.
+Non-Violable Rule: No requests library in async services. No urllib3 direct usage.
+6.6 Web Server: Uvicorn
+Version: 0.30.0+
+Why Selected: ASGI server for FastAPI. Gunicorn with Uvicorn workers for production multi-process deployment.
+Best Practices:
+Development: uvicorn main:app --reload
+Production: gunicorn main:app -k uvicorn.workers.UvicornWorker --workers 4
+Workers = (2 × CPU cores) + 1, capped at the database connection pool size.
+Non-Violable Rule: No synchronous WSGI servers (Gunicorn sync workers) for FastAPI services.
+7. Frontend Stack
+7.1 Framework: React 18
+Version: 18.3.1+
+Why Selected: Mature component model, excellent TypeScript support, large ecosystem. The dashboard is a tool for human operators, not a consumer-facing product, so React's stability outweighs the novelty of newer frameworks.
+Alternatives Considered:
+Vue 3: Excellent but smaller enterprise ecosystem.
+Svelte: Rejected due to smaller talent pool and tooling maturity.
+Next.js: Rejected because Agent OS does not need SSR (Single Page App behind API Gateway is sufficient) and Next.js introduces unnecessary complexity.
+Tradeoffs: React requires careful state management to avoid prop drilling and re-render issues.
+Best Practices:
+Functional components with hooks only. No class components.
+React.StrictMode enabled in development.
+Code splitting with React.lazy() and Suspense.
+7.2 Language: TypeScript 5.4+
+Why Selected: Type safety for a complex dashboard. Catches integration errors with the API at compile time.
+Best Practices:
+strict: true in tsconfig.json.
+No any type without explicit // eslint-disable-next-line and justification comment.
+API types are auto-generated from OpenAPI schemas (see Section 32).
+7.3 Build Tool: Vite
+Version: 5.2+
+Why Selected: Fast HMR, native ESM, simpler configuration than webpack.
+Tradeoffs: Vite's dev server and production build can diverge in edge cases.
+7.4 Styling: Tailwind CSS
+Version: 3.4+
+Why Selected: Utility-first CSS reduces CSS file size and eliminates naming conventions. Works well with component libraries.
+Alternatives Considered:
+Styled Components: Rejected due to runtime overhead.
+CSS Modules: Rejected due to verbosity for a small team.
+7.5 State Management: TanStack Query (React Query)
+Version: 5.0+
+Why Selected: Server state management (caching, background refetching, deduplication) without boilerplate. For client-side state, use Zustand (lightweight, no Redux boilerplate).
+Alternatives Considered:
+Redux Toolkit: Rejected due to excessive boilerplate for dashboard needs.
+Apollo Client: Rejected because Agent OS uses REST, not GraphQL.
+7.6 UI Components: Radix UI + Tailwind
+Why Selected: Radix provides accessible, unstyled primitives. Tailwind provides styling. This combination avoids heavy component library lock-in (Material-UI, Chakra).
+Best Practices:
+All interactive components must be keyboard accessible.
+Dark mode support via Tailwind dark: variants.
+7.7 Data Visualization: Tremor / Recharts
+Why Selected: Tremor for dashboard KPI cards and simple charts. Recharts for custom analytics visualizations.
+Non-Violable Rule: The frontend is a dashboard, not a product. No business logic in the frontend. All calculations occur in the API.
+8. Database Technologies
+8.1 Primary Database: PostgreSQL 16.3+
+Why Selected: ACID compliance, JSONB support, rich extension ecosystem, and alignment with the single-database strategy (pgvector and Apache AGE are extensions, not separate databases).
+Alternatives Considered:
+MySQL 8: Rejected due to inferior JSON support and extension ecosystem.
+CockroachDB: Rejected due to operational complexity and cost for local-first deployment.
+SQLite: Rejected for production services due to concurrency limitations, though permitted for CLI tooling and testing.
+Tradeoffs: PostgreSQL requires careful connection management and tuning for high concurrency.
+Best Practices:
+Use pgbouncer in transaction pooling mode in production.
+Enable jit = on for analytical queries.
+Set max_connections conservatively (100-200) and rely on PgBouncer.
+Use UUID primary keys (not serial) for distributed safety.
+Enable WAL archiving for point-in-time recovery.
+Use pg_stat_statements for query performance monitoring.
+Integration with Agent OS: PostgreSQL hosts aos_core, aos_memory, aos_events, aos_analytics, and aos_approval databases.
+Future Migration Path: PostgreSQL is the permanent primary database. If sharding is required at massive scale, Citus extension or application-level sharding by tenant is preferred over migration to a different database.
+Non-Violable Rule: No raw SQL injection vulnerabilities. All queries parameterized. No database engine other than PostgreSQL for production data.
+8.2 Connection Pooling: PgBouncer
+Version: 1.22+
+Why Selected: Essential for managing PostgreSQL connections in high-concurrency async environments. Transaction pooling mode allows many more application connections than database connections.
+Best Practices:
+Transaction pooling mode (not session pooling) for async services.
+pool_mode = transaction
+max_client_conn = 10000
+default_pool_size = 20 per service
+Expose stats on port 6432 for Prometheus scraping.
+8.3 Vector Extension: pgvector
+Version: 0.7.0+
+Why Selected: Native PostgreSQL extension for vector storage and similarity search. Eliminates the need for a separate vector database (Pinecone, Weaviate, Qdrant).
+Alternatives Considered:
+Pinecone: SaaS-only, violates local-first.
+Weaviate: Self-hostable but adds operational complexity of a second database.
+Qdrant: Excellent but still a separate service to operate.
+Tradeoffs: pgvector is slower than dedicated vector databases for billion-scale embeddings. For Agent OS scale (millions of embeddings), it is sufficient.
+Best Practices:
+Use vector type with dimensions matching the embedding model (768 for Nomic, 1536 for OpenAI).
+Create hnsw indexes for approximate nearest neighbor search: CREATE INDEX ON table USING hnsw (embedding vector_cosine_ops);
+Set maintenance_work_mem high enough for index builds.
+Partition large embedding tables by tenant_id and created_at.
+Non-Violable Rule: All vector storage must use pgvector. No separate vector databases without ADR justification.
+8.4 Graph Extension: Apache AGE
+Version: 1.5.0+ (compatible with PostgreSQL 16)
+Why Selected: Graph database functionality as a PostgreSQL extension. Supports Cypher queries on relational data.
+Alternatives Considered:
+Neo4j: Rejected due to separate operational burden and licensing concerns (SSPL).
+ArangoDB: Rejected due to multi-model complexity.
+Tradeoffs: Apache AGE is newer and less mature than Neo4j. Cypher support is not 100% complete.
+Best Practices:
+Use Cypher for graph traversals; SQL for aggregations.
+Graph data is stored in regular PostgreSQL tables with AGE metadata.
+Backup graph data with standard pg_dump.
+Non-Violable Rule: Knowledge graphs must use Apache AGE. No dedicated graph databases in core infrastructure.
+9. Memory Technologies
+9.1 Cache and Pub/Sub: Redis 7.2+
+Why Selected: Required for multiple roles: event bus streams, caching, sessions, distributed locking, and rate limiting. Single operational footprint covers all use cases.
+Alternatives Considered:
+Memcached: Rejected due to lack of persistence, streams, and data structures.
+NATS: Excellent for messaging but rejected to avoid a second infrastructure component when Redis covers messaging + caching.
+RabbitMQ: Rejected due to operational complexity and lack of built-in caching.
+Tradeoffs: Redis is not as durable as Kafka for massive event volumes. For Agent OS scale, Redis Streams with AOF persistence is sufficient.
+Best Practices:
+Enable AOF (appendonly yes) and RDB snapshots.
+Use Redis databases (DB 0-3) for logical separation, not separate instances.
+Set explicit TTLs on all cache keys.
+Use Redis Cluster for production (not Sentinel alone) to support horizontal scaling.
+Monitor memory fragmentation ratio (mem_fragmentation_ratio).
+Integration with Agent OS: Redis serves as the Event Bus (Streams), L2 Cache, Session Store, and Distributed Lock Manager.
+Future Migration Path: If event volume exceeds Redis capacity, Kafka may be introduced as a dedicated event backbone. Redis would remain for caching and sessions.
+Non-Violable Rule: Redis must be configured with persistence enabled. No ephemeral-only Redis in production.
+9.2 Redis Client: redis-py (async)
+Version: 5.0.0+
+Why Selected: Official Redis client with async support via redis.asyncio.
+Best Practices:
+Use redis.asyncio.Redis with connection pooling.
+Use decode_responses=True for string data.
+Use pipelines for batch operations.
+9.3 Distributed Lock: Redlock (redis-py-redlock)
+Version: 2.0+
+Why Selected: Prevents duplicate agent execution in distributed deployments.
+Best Practices:
+Lock TTL: 30 seconds max.
+Auto-extend locks during long operations.
+Always release locks in finally blocks.
+10. Event Bus Technologies
+10.1 Event Backbone: Redis Streams
+Why Selected: Already required for caching. Streams provide consumer groups, persistent logs, and blocking reads. Eliminates need for Kafka in initial phases.
+Alternatives Considered:
+Apache Kafka: Rejected for initial deployment due to ZooKeeper/KRaft operational overhead. Kafka is the designated migration target if scale demands it.
+RabbitMQ Streams: Rejected due to newer feature, less ecosystem maturity.
+NATS JetStream: Rejected to avoid introducing another infrastructure component.
+Tradeoffs: Redis Streams lacks Kafka's compaction, partition rebalancing, and exactly-once semantics. Agent OS uses at-least-once delivery with idempotent consumers to compensate.
+Best Practices:
+Use consumer groups (XGROUP CREATE) for load balancing.
+Use XREADGROUP with BLOCK for efficient consumption.
+Acknowledge messages (XACK) only after successful processing.
+Set MAXLEN on streams with approximate trimming to prevent unbounded growth.
+Archive processed events to MinIO within 5 minutes using a background worker.
+Integration with Agent OS: All services use a shared event bus client library (src/event_bus/) that wraps redis-py with schema validation.
+Future Migration Path: If throughput exceeds 50,000 events/second sustained, migrate to Apache Kafka. The event bus client library abstracts the backend, so services do not change.
+Non-Violable Rule: All inter-service events must flow through the Event Bus. No direct HTTP calls between services for event notification.
+10.2 Schema Validation: JSON Schema (Draft 2020-12)
+Why Selected: Language-agnostic, widely supported, and sufficient for event payload validation.
+Library: jsonschema 4.22+ for Python.
+Best Practices:
+Event schemas are versioned and stored in src/core/events/schemas/.
+Validate events at publish time (best-effort) and consume time (strict).
+Use fastjsonschema for performance-critical paths (it compiles schemas to Python code).
+11. Workflow Engine
+11.1 Engine: Temporal
+Version: Server 1.22.x, Python SDK 1.6.0+, TypeScript SDK 1.10.0+
+Why Selected: Durable execution, saga pattern support, workflow visibility UI, and horizontal scalability. Temporal workflows survive process restarts, network failures, and database outages.
+Alternatives Considered:
+Celery: Rejected due to lack of durable workflow state, saga compensation, and visibility into long-running processes. Celery is permitted for simple background tasks (e.g., cache warming) but not for business workflows.
+Airflow: Rejected due to DAG-oriented design (batch scheduling) rather than event-driven workflow orchestration.
+Camunda: Rejected due to BPMN complexity and Java-centric ecosystem.
+Tradeoffs: Temporal adds operational complexity (Elasticsearch for visibility, Cassandra/PostgreSQL for persistence). It requires careful handling of non-deterministic code in workflows.
+Best Practices:
+Workflows must be deterministic. No Math.random(), no Date.now(), no external API calls in workflow code.
+All side effects (API calls, LLM invocations) must be in Activities.
+Activities have idempotency keys derived from workflow execution ID and activity sequence.
+Use workflow.retry_policy for transient failures.
+Set workflow_execution_timeout and workflow_run_timeout explicitly.
+Use Signals for external events (human approvals) and Queries for state inspection.
+Integration with Agent OS: Temporal Server runs as a container. Workflow definitions are in src/workflow_engine/. Agent Runtime workers are Temporal Activity workers.
+Non-Violable Rule: All multi-step business processes must be Temporal workflows. No Celery chains or custom workflow logic for processes requiring durability.
+11.2 Temporal Persistence: PostgreSQL
+Why Selected: Temporal supports PostgreSQL as its persistence backend. This aligns with the single-database-operational-footprint strategy.
+Best Practices:
+Dedicated PostgreSQL instance or database for Temporal (do not share with application data).
+Enable Temporal's advanced visibility with Elasticsearch if workflow search performance degrades.
+12. LLM Infrastructure
+12.1 Abstraction Layer: LiteLLM Proxy
+Version: 1.40.0+
+Why Selected: Unified OpenAI-compatible API for 100+ providers. Built-in cost tracking, rate limiting, fallbacks, and model routing. Self-hostable.
+Alternatives Considered:
+LangChain LLM classes: Rejected due to framework coupling and abstraction leakage.
+Raw provider SDKs: Rejected due to vendor lock-in and inconsistent APIs.
+Vercel AI SDK: Node.js only, not suitable for Python backend.
+Tradeoffs: LiteLLM is a younger project than enterprise proxies. It requires careful configuration for production reliability.
+Best Practices:
+Deploy LiteLLM as a separate service (FastAPI-based) within the cluster.
+Configure config.yaml with all model endpoints, fallbacks, and rate limits.
+Enable caching via Redis integration.
+Use metadata fields to tag requests with agent_id, tenant_id, and workflow_id for cost attribution.
+Set max_budget per key and per model.
+Integration with Agent OS: The LLM Router service is a wrapper around LiteLLM Proxy with additional Agent OS-specific logic (context retrieval, model tier selection).
+Future Migration Path: If LiteLLM becomes unmaintained or licensing changes, the LLM Router's abstraction layer can be replaced with a custom proxy built on openai-python and httpx. The agent-facing interface remains unchanged.
+Non-Violable Rule: No agent or service may call an LLM provider directly. All LLM traffic flows through the LLM Router / LiteLLM Proxy.
+12.2 Local Inference: Ollama
+Version: 0.1.38+
+Why Selected: Simplifies local model management (pull, run, switch). Excellent developer experience. Runs as a Docker container or native binary.
+Alternatives Considered:
+llama.cpp: Rejected due to lower-level API requiring more custom integration.
+text-generation-inference (TGI): Rejected due to HuggingFace coupling and heavier resource requirements.
+Tradeoffs: Ollama is optimized for ease of use, not maximum throughput. Production inference uses vLLM.
+Best Practices:
+Use Ollama for development and light production loads.
+Pre-pull models in Docker image or startup script.
+Set OLLAMA_NUM_PARALLEL for concurrent requests.
+Use OLLAMA_MAX_LOADED_MODELS to manage memory.
+12.3 Production Inference: vLLM
+Version: 0.5.0+
+Why Selected: State-of-the-art throughput for local LLM serving. PagedAttention, continuous batching, and OpenAI-compatible API.
+Alternatives Considered:
+TGI: Rejected due to lower throughput compared to vLLM for multi-tenant serving.
+TensorRT-LLM: Rejected due to NVIDIA-only lock-in and build complexity.
+Tradeoffs: vLLM requires significant GPU memory. CPU-only fallback is possible but slow.
+Best Practices:
+Deploy on dedicated inference nodes with NVIDIA GPUs.
+Use --tensor-parallel-size for multi-GPU models.
+Enable --enforce-eager only if memory is constrained.
+Expose metrics on /metrics for Prometheus scraping.
+12.4 Embedding Models
+Local: nomic-embed-text-v1.5 (768-dim, Apache-2.0)
+Cloud Fallback: text-embedding-3-small (OpenAI)
+Why Selected: Nomic provides high-quality embeddings with a permissive license and small model size suitable for local CPU inference.
+Integration: Embeddings are computed by the Memory Gateway using sentence-transformers library with ONNX runtime for acceleration.
+13. AI Frameworks
+13.1 Policy on AI Frameworks
+Agent OS adopts a minimal framework philosophy. LLM interactions are primarily handled through LiteLLM (a proxy, not a framework) and Pydantic-structured output parsing. Heavy orchestration frameworks are avoided to prevent abstraction leakage and vendor lock-in.
+13.2 Approved: Instructor
+Version: 1.3.0+
+Why Selected: Lightweight library for structured LLM outputs using Pydantic models. Wraps any OpenAI-compatible API.
+Usage: Use instructor.patch() on the LLM client to enforce JSON schema responses.
+Best Practices:
+Define strict Pydantic models for all LLM outputs.
+Use response_model parameter on every LLM call that produces structured data.
+Set max_retries=2 for automatic retry on validation failure.
+13.3 Approved: Sentence-Transformers
+Version: 3.0.0+
+Why Selected: Standard for embedding generation. Supports ONNX export for CPU acceleration.
+Usage: Memory Gateway uses sentence-transformers for local embedding generation.
+13.4 Prohibited: LangChain (Application Logic)
+Rationale: LangChain's abstraction layers (Chains, Agents, Memory) conflict with Agent OS's explicit architecture. Its "agent" concept is not compatible with Agent OS's multi-agent, event-driven, Temporal-orchestrated design. LangChain encourages prompt logic inside framework classes, violating the Tool Driven principle.
+Exception: Individual LangChain utilities (e.g., langchain.text_splitter for document chunking) may be used as isolated utility functions. The framework's orchestration and agent classes are prohibited.
+13.5 Prohibited: LlamaIndex (Core Systems)
+Rationale: LlamaIndex is a retrieval framework with opinionated data structures. Agent OS has its own Memory Gateway with explicit pgvector, structured, and graph storage. LlamaIndex's abstractions would conflict with the hexagonal architecture.
+Exception: LlamaIndex connectors may be studied for reference when building web scrapers, but no core system may depend on LlamaIndex.
+14. Tool Execution Stack
+14.1 Container Runtime: Docker Engine 25.0+
+Why Selected: Universal standard. Required for development, local inference, and tool sandboxing.
+Best Practices:
+Enable BuildKit (DOCKER_BUILDKIT=1).
+Use docker buildx for multi-platform images.
+Rootless Docker mode preferred for development security.
+14.2 Enhanced Sandboxing: gVisor
+Version: runsc 20240701.0+
+Why Selected: User-space kernel for containers. Provides defense-in-depth beyond Docker's namespace isolation. Used for untrusted tools and plugins.
+Alternatives Considered:
+Kata Containers: Rejected due to heavier VM overhead.
+Firecracker: Used only for maximum isolation (see below) due to microVM startup latency.
+Tradeoffs: gVisor adds 10-20% syscall overhead. Not suitable for performance-critical tools.
+Integration: Tool Executor configures gVisor as the runtime for tools with sandbox_level: gvisor.
+14.3 Maximum Isolation: Firecracker
+Version: 1.7.0+
+Why Selected: AWS-developed microVMs. Used for security-critical tool execution (financial operations, external user code).
+Tradeoffs: Higher startup latency (~100ms) than containers. Requires KVM.
+Integration: Tool Executor spawns Firecracker microVMs for sandbox_level: firecracker.
+14.4 Image Scanning: Trivy
+Version: 0.52.0+
+Why Selected: Fast, comprehensive vulnerability scanner for container images and filesystems.
+Best Practices:
+Scan every image in CI before push to registry.
+Fail builds on CRITICAL or HIGH vulnerabilities.
+Maintain a .trivyignore file with documented exceptions.
+14.5 Seccomp Profiles
+Why Selected: Restricts available syscalls for containerized tools.
+Best Practices:
+Default Docker seccomp profile is the baseline.
+Custom seccomp profiles for high-risk tools, denying network and mount syscalls.
+Profiles stored in infrastructure/security/seccomp/.
+15. Containerization
+15.1 Base Images
+Table
+Service Type	Base Image	Rationale
+Python services	python:3.11-slim-bookworm	Debian-based, minimal, official
+TypeScript workflows	node:20-slim-bookworm	LTS Node, minimal
+Tool sandboxes	distroless/python3-debian12	No shell, minimal attack surface
+Nginx/Traefik	nginx:1.25-alpine or traefik:v3.0	Minimal, official
+Non-Violable Rule: No latest tags in Dockerfiles. All base images pinned to digest or specific version.
+15.2 Multi-Stage Builds
+Why Selected: Reduces final image size by excluding build dependencies.
+Pattern:
+dockerfile
+# Architectural pattern — not implementation code
+FROM python:3.11-slim-bookworm AS builder
+WORKDIR /app
+RUN pip install poetry
+COPY pyproject.toml poetry.lock ./
+RUN poetry install --no-dev --no-root
+
+FROM python:3.11-slim-bookworm AS runtime
+WORKDIR /app
+COPY --from=builder /app/.venv /app/.venv
+ENV PATH="/app/.venv/bin:$PATH"
+COPY src/ ./src/
+CMD ["python", "-m", "src.main"]
+15.3 Image Registry
+Development: Local Docker daemon
+CI/Staging: GitHub Container Registry (GHCR) or self-hosted Harbor
+Production: Same as staging, with image signing via Cosign
+15.4 Docker Compose
+Why Selected: Standard for local development and small-scale production (Docker Swarm).
+Profiles:
+dev: Hot reload, exposed ports, volume mounts, Ollama
+test: TestContainers-compatible, ephemeral databases
+prod-swarm: Production-like, no source mounts, secrets
+Non-Violable Rule: docker compose up must produce a fully functional local environment from a clean clone.
+16. Local Development Environment
+16.1 Required Tools
+Table
+Tool	Version	Purpose
+Git	2.40+	Version control
+Python	3.11.9+	Backend runtime
+Poetry	1.8.0+	Python package management
+Node.js	20.11 LTS	Workflow definitions
+npm	10+	Node package management
+Docker	25.0+	Containerization
+Docker Compose	2.24+	Local orchestration
+Make	4.3+	Task runner
+direnv	2.34+	Environment variable management
+16.2 Environment Setup
+direnv + .envrc:
+Automatically activate Poetry virtual environments per service.
+Load local .env files (gitignored).
+Set PYTHONPATH and NODE_PATH.
+Makefile Targets:
+Table
+Target	Purpose
+make setup	Install all dependencies, pull models, run migrations
+make dev	Start full local stack with docker compose
+make test	Run unit, integration, and contract tests
+make lint	Run ruff, black, mypy
+make security	Run Bandit, Semgrep, Trivy
+make docs	Build documentation
+make clean	Remove containers, volumes, and caches
+16.3 Pre-Commit Hooks
+Framework: pre-commit 3.7+
+Hooks:
+trailing-whitespace
+end-of-file-fixer
+check-yaml
+check-json
+check-toml
+ruff (lint + format)
+mypy (type check)
+bandit (security scan)
+git-secrets (prevent secret commits)
+Non-Violable Rule: pre-commit install is mandatory for all contributors. CI enforces the same checks.
+17. Production Infrastructure
+17.1 Default: Docker Swarm
+Why Selected: Simpler operational model than Kubernetes. Satisfies production requirements for single-region deployments up to ~50 nodes. Aligns with local-first philosophy (can run entirely on-premise without cloud provider).
+Alternatives Considered:
+Kubernetes: Supported but not default. Required only for multi-region, advanced networking, or GPU scheduling beyond Swarm's capabilities.
+Nomad: Rejected due to smaller ecosystem and HashiCorp licensing changes (BSL).
+Tradeoffs: Swarm lacks advanced features like custom schedulers, complex network policies, and extensive ecosystem tooling.
+Best Practices:
+Use Docker Secrets for credential injection.
+Use overlay networks with encryption (--opt encrypted).
+Deploy Traefik as ingress with Docker Swarm provider.
+Use deploy.replicas and deploy.resources in Compose files.
+Enable Swarm manager autolock.
+17.2 Ingress: Traefik
+Version: 3.0+
+Why Selected: Native Docker/Swarm integration, automatic service discovery, Let's Encrypt support, middleware for rate limiting and auth.
+Alternatives Considered:
+Nginx: Excellent but requires manual configuration reloads for new services.
+Caddy: Good but less mature in Docker Swarm contexts.
+Configuration: Traefik configured via Docker labels and a static traefik.yml.
+17.3 Optional: Kubernetes
+When to Use: Multi-region, >50 nodes, complex GPU scheduling, or when service mesh is required.
+Distribution: K3s (lightweight) or standard Kubernetes.
+Add-ons:
+Cilium: eBPF-based networking and observability.
+cert-manager: TLS certificate automation.
+External-DNS: Automatic DNS record management.
+Linkerd: Service mesh for mTLS (optional).
+17.4 Load Balancing
+Swarm: Internal DNS round-robin + Traefik edge routing.
+K8s: MetalLB (bare metal) or cloud load balancer + Nginx Ingress Controller.
+18. CI/CD Stack
+18.1 Platform: GitHub Actions
+Why Selected: Native integration with GitHub repository. Sufficient for Agent OS scale. Self-hosted runners can be added for GPU-dependent jobs.
+Alternatives Considered:
+GitLab CI: Rejected to avoid platform migration; GitHub is the established repository.
+Jenkins: Rejected due to operational overhead and security history.
+Drone CI: Rejected due to smaller ecosystem.
+Workflows:
+Table
+Workflow	Trigger	Jobs
+ci.yml	PR, push to main	Lint, type check, unit tests, integration tests, build images
+security-scan.yml	PR, daily cron	Bandit, Semgrep, Trivy, pip-audit
+contract-test.yml	PR, push to main	Pact contract verification
+chaos-test.yml	Push to main, manual	Staging chaos experiments
+release.yml	Git tag	Build signed images, generate changelog, publish docs
+18.2 Build Tooling
+Docker Buildx: Multi-platform builds, layer caching.
+BuildKit: Parallel stage execution, secret mounts.
+GitHub Actions Cache: actions/cache for Poetry and npm.
+18.3 Image Signing
+Tool: Cosign (Sigstore)
+Why Selected: Free, open-source container signing. No key management infrastructure required (keyless signing via OIDC).
+Integration: All production images are signed in CI. Deployment scripts verify signatures before rollout.
+19. Testing Stack
+19.1 Unit Testing: pytest
+Version: 8.2.0+
+Why Selected: De facto standard for Python testing. Rich plugin ecosystem.
+Plugins:
+pytest-asyncio 0.23+: Async test support
+pytest-cov 5.0+: Coverage reporting
+pytest-xdist 3.6+: Parallel test execution
+pytest-mock 3.14+: Mock utilities
+pytest-timeout 2.3+: Prevent hung tests
+Best Practices:
+Test files named test_*.py.
+Fixtures in conftest.py.
+Use pytest-asyncio mode auto for async tests.
+Mock external services (LLM Router, Memory Gateway) at HTTP/client level, not internal functions.
+Coverage Requirements:
+Minimum 80% line coverage per service.
+100% coverage for critical paths (financial calculations, security logic, schema validation).
+Coverage enforced in CI; PRs fail if coverage drops.
+19.2 Integration Testing: TestContainers
+Version: 4.5.0+
+Why Selected: Spins up real PostgreSQL, Redis, and MinIO containers for integration tests. Tests against real dependencies, not mocks.
+Best Practices:
+Use PostgreSQLContainer, RedisContainer, MinIOContainer.
+One container set per test module (not per test) for performance.
+Clean state between tests via database transaction rollback.
+19.3 Contract Testing: Pact
+Version: Python pact-python 2.2+
+Why Selected: Consumer-driven contract testing ensures API and event schema compatibility between services.
+Best Practices:
+Consumers define expectations.
+Providers verify against expectations in CI.
+Contract files committed to tests/contract/pacts/.
+19.4 Property-Based Testing: Hypothesis
+Version: 6.100.0+
+Why Selected: Generates test cases to find edge cases. Essential for security-critical and financial functions.
+Best Practices:
+Use @given for input generation.
+Define custom strategies for domain objects.
+Run in CI with hypothesis-profile ci (more examples, longer deadline).
+19.5 End-to-End Testing: Playwright
+Version: 1.44+
+Why Selected: Modern browser automation for testing the dashboard and agent web interactions.
+Best Practices:
+Tests run against the full Docker Compose stack.
+Use pytest-playwright integration.
+Tests are non-flaky: explicit waits, no sleep().
+19.6 Chaos Testing: Chaos Mesh (K8s) or Gremlin (cloud) / Custom Scripts
+Why Selected: Validates resilience. For Swarm deployments, custom scripts using pumba or toxiproxy simulate network latency and container kills.
+Best Practices:
+Monthly chaos days.
+Kill API Gateway instances, restart Redis, partition PostgreSQL.
+Verify system degrades gracefully per 02_ARCHITECTURE.md Section 16.
+20. Code Quality Tooling
+20.1 Linter and Formatter: Ruff
+Version: 0.4.0+
+Why Selected: Replaces Flake8, Black, isort, pydocstyle, and pyupgrade in a single Rust-based tool. 10-100× faster.
+Configuration: pyproject.toml
+toml
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "SIM"]
+ignore = ["E501"]  # Line length handled by formatter
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+Non-Violable Rule: All Python code must pass ruff check . and ruff format --check ..
+20.2 Type Checker: mypy
+Version: 1.10.0+
+Why Selected: Standard static type checker for Python.
+Configuration: pyproject.toml
+toml
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+Non-Violable Rule: mypy --strict must pass with zero errors. No # type: ignore without ticket reference.
+20.3 Import Sorting: Ruff (isort rules)
+Why Selected: Ruff implements isort-compatible import sorting. No separate tool needed.
+20.4 Pre-Commit Integration
+All tools run via pre-commit before every commit. CI runs the same tools.
+21. Security Tooling
+21.1 Static Application Security Testing (SAST): Bandit
+Version: 1.7.8+
+Why Selected: Python-specific security linter. Detects hardcoded passwords, SQL injection patterns, unsafe deserialization.
+Best Practices:
+Run with -r (recursive) and -f json for CI parsing.
+Fail CI on MEDIUM or higher severity.
+21.2 SAST: Semgrep
+Version: 1.74.0+
+Why Selected: Multi-language static analysis with a rich rule registry. Detects OWASP patterns, secrets, and custom rules.
+Best Practices:
+Use p/owasp-top-ten, p/python, p/docker rule packs.
+Custom rules in .semgrep/ for Agent OS-specific patterns (e.g., no raw SQL, no direct LLM calls).
+21.3 Dependency Vulnerability Scanning: pip-audit
+Version: 2.7.0+
+Why Selected: Scans Poetry lock files for known CVEs. PyPA-backed tool.
+Best Practices:
+Run in CI on every PR.
+Fail on HIGH/CRITICAL CVEs.
+Use pip-audit --desc for vulnerability descriptions.
+21.4 Secret Detection: git-secrets + GitHub Secret Scanning
+Why Selected: Prevents accidental secret commits.
+Best Practices:
+git-secrets installed via pre-commit.
+GitHub secret scanning enabled on repository.
+If a secret is committed: rotate immediately, do not just revert.
+21.5 Container Scanning: Trivy
+Covered in Section 14.4.
+22. Secrets Management
+22.1 Development: .env Files + Docker Secrets Simulation
+Why Selected: .env files are gitignored and loaded by direnv or python-dotenv in development.
+Best Practices:
+.env.example committed with dummy values.
+.env never committed.
+Use pydantic-settings for validation and type coercion.
+22.2 Production (Swarm): Docker Secrets
+Why Selected: Native Docker Swarm feature. Secrets are mounted as files in /run/secrets/, never exposed as environment variables.
+Best Practices:
+Secrets created via docker secret create.
+Services reference secrets in Compose secrets: section.
+Application code reads from /run/secrets/{secret_name}.
+22.3 Production (K8s): HashiCorp Vault + External Secrets Operator
+Why Selected: Industry standard for Kubernetes secret management.
+Best Practices:
+Vault runs in HA mode.
+Applications use Kubernetes service accounts to authenticate to Vault.
+Secrets synced to K8s secrets via External Secrets Operator.
+Short-lived dynamic credentials where possible (PostgreSQL, Redis).
+22.4 Encryption at Rest: Mozilla SOPS (Optional)
+Why Selected: Encrypts secrets in Git for disaster recovery and configuration management.
+Best Practices:
+Encrypt .env.production files with SOPS + Age keys.
+Age keys stored in password manager, not in repository.
+Non-Violable Rule: No secrets in Git. No secrets in environment variables in production (files only). No secrets in logs.
+23. Logging Stack
+23.1 Structured Logging: structlog
+Version: 24.1.0+
+Why Selected: Produces JSON logs with context binding. Integrates with standard library logging.
+Alternatives Considered:
+Standard logging with python-json-logger: Rejected due to less ergonomic context binding.
+Loguru: Rejected due to global state and difficulty integrating with standard logging pipelines.
+Configuration:
+Python
+# Architectural pattern
+structlog.configure(
+    processors=[
+        structlog.stdlib.filter_by_level,
+        structlog.stdlib.add_logger_name,
+        structlog.stdlib.add_log_level,
+        structlog.stdlib.PositionalArgumentsFormatter(),
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.processors.StackInfoRenderer(),
+        structlog.processors.format_exc_info,
+        structlog.processors.UnicodeDecoder(),
+        structlog.processors.JSONRenderer(),
+    ],
+    context_class=dict,
+    logger_factory=structlog.stdlib.LoggerFactory(),
+    wrapper_class=structlog.stdlib.BoundLogger,
+    cache_logger_on_first_use=True,
+)
+Best Practices:
+Bind trace_id, span_id, agent_id, tenant_id, workflow_id at request entry.
+Use logger.bind() for context, not string formatting.
+Never log secrets, PII, or tokens.
+Log levels: DEBUG (dev only), INFO (standard), WARNING (anomalies), ERROR (failures), CRITICAL (system-wide).
+23.2 Log Aggregation: Grafana Loki
+Version: 3.0+
+Why Selected: Log aggregation designed for Grafana. Label-based indexing (like Prometheus) rather than full-text indexing. More cost-effective than Elasticsearch for log storage.
+Alternatives Considered:
+Elasticsearch + Kibana: Rejected due to JVM overhead and operational complexity.
+Fluentd + BigQuery: Rejected due to cloud dependency.
+Integration: Promtail agent on each node scrapes Docker logs and pushes to Loki.
+23.3 Log Rotation
+Why Selected: Prevents disk exhaustion.
+Tool: Docker native log rotation or logrotate on host.
+Best Practices:
+Max size: 100MB per log file.
+Max files: 10.
+Compress rotated logs.
+24. Monitoring Stack
+24.1 Metrics Collection: Prometheus
+Version: 2.52+
+Why Selected: De facto standard for metrics. Pull-based model aligns with containerized services.
+Client Library: prometheus-client 0.20+ for Python.
+Best Practices:
+Use Counter, Histogram, Gauge, Summary appropriately.
+Prefix all metrics with aos_ (Agent OS).
+Histogram buckets tailored to service SLIs.
+Expose /metrics on a separate port (e.g., 9090) from the application port.
+Required Metrics per Service:
+Table
+Metric	Type	Description
+aos_requests_total	Counter	Total HTTP requests
+aos_request_duration_seconds	Histogram	Request latency
+aos_errors_total	Counter	Total errors by type
+aos_active_connections	Gauge	Current DB/Redis connections
+24.2 Visualization: Grafana
+Version: 11.0+
+Why Selected: Native Prometheus and Loki integration. Rich dashboard ecosystem.
+Best Practices:
+Dashboards as code: JSON definitions in infrastructure/observability/grafana/dashboards/.
+Version controlled dashboards.
+Alert rules in infrastructure/observability/grafana/alerts/.
+24.3 Alerting: Alertmanager
+Version: 0.27+
+Why Selected: Native Prometheus alert routing. Supports PagerDuty, Slack, email, webhooks.
+Alert Severity Levels:
+Table
+Level	Response Time	Routing
+P1 (Critical)	15 minutes	Page on-call engineer
+P2 (High)	1 hour	Slack alert + email
+P3 (Medium)	4 hours	Email digest
+P4 (Low)	24 hours	Dashboard only
+25. Tracing Stack
+25.1 Distributed Tracing: OpenTelemetry
+Version: Python SDK 1.25+, Collector 0.102+
+Why Selected: CNCF standard. Vendor-neutral. Supports Prometheus, Tempo, Jaeger, and commercial APMs.
+Alternatives Considered:
+Jaeger Client: Rejected due to deprecation in favor of OpenTelemetry.
+Zipkin: Rejected due to smaller ecosystem.
+Best Practices:
+Auto-instrumentation for FastAPI (opentelemetry-instrumentation-fastapi).
+Manual spans for agent execution, LLM calls, and tool invocations.
+Baggage propagation for tenant_id and agent_id.
+Sampling: 100% in development, 10% in production (adjustable).
+25.2 Trace Backend: Grafana Tempo
+Version: 2.4+
+Why Selected: Designed for Grafana integration. Object-storage backend (MinIO/S3). Cost-effective for high-volume traces.
+Alternatives Considered:
+Jaeger: Rejected due to Cassandra/Elasticsearch dependency for scaling.
+AWS X-Ray: Rejected due to cloud lock-in.
+25.3 Trace-Log Correlation
+Why Selected: Essential for debugging distributed systems.
+Implementation: trace_id and span_id included in every log entry. Grafana can pivot from metric → trace → logs seamlessly.
+26. Build System
+26.1 Python Build: Poetry
+Covered in Section 5.1.
+Additional Build Practices:
+poetry build produces wheels for internal libraries (src/core/, src/security/, src/observability/).
+Wheels are published to a private PyPI repository (DevPI or cloud) or installed directly from Git.
+Services install core libraries as editable dependencies in development.
+26.2 TypeScript Build: tsup
+Version: 8.0+
+Why Selected: Fast bundler for TypeScript. Produces ESM and CJS outputs. Used for Temporal workflow bundling.
+26.3 Task Runner: Make
+Why Selected: Universal, simple, no dependencies beyond what developers already have.
+Alternatives Considered:
+Just: Rejected due to non-universal availability.
+Invoke (Python): Rejected due to Python dependency overhead for simple tasks.
+26.4 CI Build: GitHub Actions + BuildKit
+Covered in Section 18.
+27. Repository Standards
+27.1 Monorepo Structure
+Why Selected: All services, agents, tools, docs, and infrastructure in a single repository. Enables atomic changes across components.
+Alternatives Considered:
+Polyrepo: Rejected due to difficulty coordinating cross-service changes and dependency management.
+Tradeoffs: Larger repository, longer CI times, potential for tight coupling if boundaries are not respected.
+Best Practices:
+Service boundaries enforced by CODEOWNERS and CI path filters.
+Each service has independent pyproject.toml and can be built independently.
+Shared libraries (src/core/, src/security/, src/observability/) are versioned independently.
+27.2 CODEOWNERS
+Why Selected: Enforces review requirements for critical paths.
+Pattern:
+plain
+# Global fallback
+* @agent-os/maintainers
+
+# Core services require senior review
+src/gateway/ @agent-os/security-team
+src/security/ @agent-os/security-team
+src/agent_runtime/ @agent-os/agent-team
+
+# Infrastructure changes
+infrastructure/ @agent-os/platform-team
+
+# Documentation
+docs/ @agent-os/docs-team
+27.3 PR Templates
+Required Sections:
+Description
+Related ADR (if applicable)
+Testing performed
+Security considerations
+Breaking changes (yes/no)
+27.4 Issue Templates
+Types: Bug Report, Feature Request, Security Vulnerability, Architecture Decision.
+28. Branching Strategy
+28.1 Trunk-Based Development
+Why Selected: Short-lived branches merged to main frequently. Aligns with CI/CD and feature flags.
+Alternatives Considered:
+GitFlow: Rejected due to release branch complexity and merge hell.
+GitHub Flow: Similar to trunk-based but less explicit about feature flags.
+Tradeoffs: Requires mature CI/CD and feature flag discipline. Incomplete features must be hidden behind flags.
+Branch Rules:
+Table
+Branch	Purpose	Protection
+main	Production-ready code	Require PR, require review, require CI pass
+feature/*	Short-lived features (<3 days)	Delete after merge
+hotfix/*	Critical production fixes	Fast-track review, still requires CI
+Best Practices:
+Branch from main, merge to main.
+Maximum branch lifetime: 3 days.
+Feature flags (--feature-flag=xyz) for incomplete features.
+Squash merge preferred for clean history.
+Non-Violable Rule: No long-lived feature branches. No direct pushes to main.
+29. Versioning Strategy
+29.1 Service Versioning: Semantic Versioning (SemVer)
+Format: MAJOR.MINOR.PATCH
+Rules:
+MAJOR: Breaking API or event schema changes.
+MINOR: New features, backward compatible.
+PATCH: Bug fixes, backward compatible.
+Why Selected: Industry standard. Clear contract for consumers.
+29.2 API Versioning: URI Path
+Format: /v1/, /v2/
+Rules:
+Major versions in URI path.
+Minor versions in Accept header or query param (optional).
+Old versions supported for minimum 2 major releases (per 01_PRINCIPLES.md).
+29.3 Documentation Versioning: Calendar Versioning (CalVer)
+Format: YYYY.MM.DD or YYYY.MM
+Why Selected: Documentation is tied to point-in-time accuracy, not feature compatibility.
+29.4 Docker Image Tagging
+Table
+Tag	Meaning
+latest	Latest stable release (used cautiously)
+v1.2.3	Specific release
+sha-abc1234	Specific commit (development)
+main	Latest main branch build (staging)
+Non-Violable Rule: Production deployments use exact version tags, never latest.
+30. Dependency Management
+30.1 Python Dependencies
+Tool: Poetry (Section 5.1)
+Best Practices:
+poetry.lock committed for reproducibility.
+poetry update run intentionally, never automatically in CI.
+Weekly dependency review meeting.
+pip-audit scans in CI.
+30.2 Dependency Update Automation: Renovate
+Why Selected: Automated PRs for dependency updates with configurable schedules and grouping.
+Alternatives Considered:
+Dependabot: Rejected due to less flexible configuration and noisy PRs.
+Configuration: .github/renovate.json
+Group patch updates.
+Separate PRs for major updates.
+Auto-merge patch updates if CI passes.
+Schedule: Weekly, Monday mornings.
+30.3 License Compliance
+Tool: pip-licenses or fossa-cli
+Why Selected: Ensures all dependencies comply with open-source first principles.
+Best Practices:
+Whitelist: MIT, Apache-2.0, BSD-2/3-Clause, ISC, PSF.
+Require review: LGPL, MPL.
+Prohibit: GPL-3.0, AGPL, proprietary (without exception).
+Run in CI.
+Non-Violable Rule: No GPL or AGPL dependencies in core services without legal review and ADR.
+31. Documentation Tooling
+31.1 Documentation Site: MkDocs
+Version: 1.6.0+ with mkdocs-material theme
+Why Selected: Markdown-native, excellent navigation, search, and versioning plugins. Material theme provides professional appearance.
+Alternatives Considered:
+Docusaurus: Rejected due to React/Node complexity for simple documentation.
+Sphinx: Rejected due to reStructuredText requirement and dated appearance.
+Plugins:
+mkdocs-material: Theme
+mkdocs-awesome-pages: Navigation
+mkdocs-minify-plugin: Performance
+mkdocs-git-revision-date-localized-plugin: Last updated
+31.2 API Documentation: OpenAPI + Redoc
+Why Selected: FastAPI auto-generates OpenAPI 3.1 specs. Redoc provides beautiful, interactive documentation.
+Integration: OpenAPI specs served at /openapi.json by FastAPI. Redoc UI at /docs.
+31.3 Diagrams: ASCII + Mermaid
+Why Selected: ASCII diagrams are version-control friendly and render everywhere. Mermaid for complex interactive diagrams in Markdown.
+Best Practices:
+ASCII for architecture overviews (as in 02_ARCHITECTURE.md).
+Mermaid for sequence diagrams and flowcharts in documentation.
+PlantUML permitted for complex UML but not required.
+31.4 ADR Template
+Location: docs/architecture/ADRs/adr-template.md
+Format: Nygard format (Context, Decision, Consequences, Status).
+32. API Standards
+32.1 REST API Design
+Standard: OpenAPI 3.1, JSON:API v1.0 (subset)
+Why Selected: OpenAPI is the industry standard for API contracts. JSON:API provides consistent pagination, filtering, and error formatting.
+URL Conventions:
+Resource names: plural nouns (/agents, /businesses)
+Actions: POST to sub-resources (/businesses/{id}/deployments)
+Filtering: query params (?status=active&sort=-created_at)
+Pagination: cursor-based (?cursor=abc123&limit=50), not offset-based
+
+### 32.2 HTTP Methods and Status Codes
+
+| Method | Usage | Success | Client Error | Server Error |
+|--------|-------|---------|--------------|--------------|
+| `GET` | Retrieve resource(s) | `200 OK`, `204 No Content` | `400 Bad Request`, `404 Not Found` | `500 Internal Server Error` |
+| `POST` | Create resource, execute action | `201 Created`, `202 Accepted` | `400`, `409 Conflict`, `422 Unprocessable Entity` | `500`, `503 Service Unavailable` |
+| `PUT` | Full resource replacement | `200 OK`, `204 No Content` | `400`, `404`, `409`, `412 Precondition Failed` | `500` |
+| `PATCH` | Partial resource update | `200 OK`, `204 No Content` | `400`, `409`, `422` | `500` |
+| `DELETE` | Remove resource | `204 No Content`, `200 OK` | `400`, `404`, `409` | `500` |
+
+**Idempotency:** All mutating endpoints (`POST`, `PUT`, `PATCH`, `DELETE`) must accept an `Idempotency-Key` header. The API Gateway stores idempotency keys for 24 hours and returns the cached response for duplicate keys.
+
+### 32.3 Error Response Format
+
+All errors return a consistent JSON structure:
+
+```json
+{
+  "error": {
+    "code": "BUSINESS_RULE_VIOLATION",
+    "message": "Human-readable description",
+    "details": {
+      "field": "price",
+      "issue": "must be greater than 0"
+    },
+    "trace_id": "abc-123-def",
+    "request_id": "req-456",
+    "timestamp": "2026-07-31T14:20:00Z"
+  }
+}
+```
+
+**Error Code Registry:** All error codes are defined in `src/core/exceptions.py` and documented in the API spec. No ad-hoc error strings.
+
+### 32.4 Authentication
+
+**Standard:** OAuth2 with JWT (RFC 7519).
+
+**Implementation:**
+- API Gateway validates JWT signatures using JWKS from the internal identity provider.
+- Access tokens: 15-minute TTL.
+- Refresh tokens: 7-day TTL, rotated on use.
+- Service-to-service: mTLS + short-lived JWT with service account claims.
+
+**Headers:**
+- `Authorization: Bearer <token>` for users and agents.
+- `X-Service-Account: <token>` for internal service authentication.
+
+### 32.5 Rate Limiting
+
+**Headers (RFC 6585 + draft-ietf-httpapi-ratelimit-headers):**
+- `RateLimit-Limit`: Request quota per window.
+- `RateLimit-Remaining`: Remaining requests.
+- `RateLimit-Reset`: Unix timestamp when limit resets.
+
+**Implementation:** Redis-backed token bucket algorithm via `slowapi` (FastAPI integration) or custom middleware.
+
+**Tiers:**
+| Tier | Requests/Minute | Burst |
+|------|----------------|-------|
+| Anonymous | 10 | 10 |
+| Authenticated | 100 | 150 |
+| Service Account | 1000 | 2000 |
+| Internal | 10000 | 15000 |
+
+### 32.6 Pagination
+
+**Cursor-based pagination mandatory for all list endpoints.**
+
+**Request:**
+```
+GET /v1/businesses?cursor=eyJpZCI6MTAwfQ&limit=50
+```
+
+**Response:**
+```json
+{
+  "data": [...],
+  "pagination": {
+    "next_cursor": "eyJpZCI6MTUwfQ",
+    "prev_cursor": null,
+    "limit": 50,
+    "total_count": 1000
+  }
+}
+```
+
+**Non-Violable Rule:** No offset-based pagination (`?page=2&limit=50`) in production APIs.
+
+### 32.7 gRPC for Internal Services
+
+**When to Use:** High-frequency internal communication where REST overhead is unacceptable (e.g., Memory Gateway queries from Agent Runtime).
+
+**Standard:** gRPC 1.64+ with Protocol Buffers 3 (proto3).
+
+**Best Practices:**
+- Proto files in `src/core/protos/`.
+- Generate Python stubs with `grpcio-tools`.
+- Use `grpc.aio` for async clients and servers.
+- Enable compression (`grpc-encoding: gzip`).
+- Keep-alive pings for connection health.
+
+**Non-Violable Rule:** gRPC is for internal services only. External clients interact via REST through the API Gateway.
+
+### 32.8 WebSocket Standards
+
+**Use Case:** Real-time dashboard updates, approval notifications, agent execution progress.
+
+**Protocol:** WebSocket with JSON messages.
+
+**Message Format:**
+```json
+{
+  "type": "agent.execution.progress",
+  "timestamp": "2026-07-31T14:20:00Z",
+  "payload": {...}
+}
+```
+
+**Implementation:** FastAPI WebSocket endpoints with Redis Pub/Sub for horizontal scaling.
+
+---
+
+## 33. SDK Standards
+
+### 33.1 SDK Philosophy
+
+Agent OS exposes its capabilities via SDKs for external integration and plugin development. SDKs are thin wrappers around the REST API and Event Bus.
+
+### 33.2 Python SDK
+
+**Package Name:** `agent-os-sdk`
+
+**Technology:** Python 3.11+, `httpx`, `pydantic`, `websockets`.
+
+**Structure:**
+- `AgentOSClient`: HTTP client with automatic retries, auth, and pagination.
+- `EventConsumer`: Async consumer for the Event Bus (Redis Streams wrapper).
+- `AgentBuilder`: Helper for constructing agent manifests programmatically.
+
+**Best Practices:**
+- Pydantic models for all request/response objects, auto-generated from OpenAPI specs.
+- Context manager support (`async with client:`).
+- Automatic token refresh.
+- Exponential backoff with jitter for retries.
+
+### 33.3 TypeScript SDK
+
+**Package Name:** `@agent-os/sdk`
+
+**Technology:** TypeScript 5.4+, `fetch` API, `zod` for runtime validation.
+
+**Structure:** Mirrors Python SDK with idiomatic TypeScript patterns.
+
+### 33.4 SDK Versioning
+
+SDK major versions match API major versions. SDK `v2.x` is compatible with API `/v2/`.
+
+### 33.5 Auto-Generation
+
+API types in SDKs are auto-generated from OpenAPI specs using:
+- Python: `openapi-python-client` or custom generator.
+- TypeScript: `openapi-typescript`.
+
+**Non-Violable Rule:** SDK models must be auto-generated from the canonical OpenAPI spec. No hand-written models that could drift from the API.
+
+---
+
+## 34. Plugin Development Standards
+
+### 34.1 Plugin Manifest
+
+Every plugin must include `plugin.yaml`:
+
+```yaml
+plugin:
+  id: "com.example.seo-enhancer"
+  version: "1.0.0"
+  name: "SEO Enhancer"
+  description: "Advanced SEO optimization for content"
+  author: "Example Corp"
+  license: "MIT"
+  
+  runtime:
+    type: "docker"
+    image: "example/seo-enhancer:1.0.0"
+    sandbox: "gvisor"
+    resources:
+      cpu: "1"
+      memory: "512Mi"
+      
+  capabilities:
+    provides:
+      - "tool:seo.enhance"
+    consumes:
+      - "event:business.content.created"
+      
+  permissions:
+    - "memory:read:content"
+    - "memory:write:seo_metadata"
+    
+  api:
+    port: 8080
+    protocol: "grpc"
+    health_endpoint: "/health"
+```
+
+### 34.2 Plugin Interface
+
+Plugins expose a gRPC service with the following mandatory methods:
+
+| Method | Purpose |
+|--------|---------|
+| `HealthCheck` | Liveness probe |
+| `GetCapabilities` | Advertise provided tools and event subscriptions |
+| `ExecuteTool` | Execute a tool invocation |
+| `HandleEvent` | Receive subscribed events |
+
+### 34.3 Plugin Lifecycle
+
+1. **Submit:** Developer submits plugin manifest + container image.
+2. **Validate:** Plugin Manager validates manifest schema and scans image.
+3. **Sandbox:** Plugin deployed in isolated network namespace.
+4. **Register:** Tools and event subscriptions registered in Tool Registry and Event Bus.
+5. **Monitor:** Health checks every 30 seconds.
+6. **Revoke:** On failure or policy violation, plugin is disabled and container stopped.
+
+### 34.4 Plugin Security
+
+- Plugins run in gVisor or Firecracker by default.
+- Network egress denied by default; explicit allowlist in manifest.
+- No access to core service databases; all data access via Memory Gateway API.
+- Plugin filesystem is ephemeral; persistent storage only via MinIO API.
+
+### 34.5 Plugin Distribution
+
+- **Internal:** Git repository + container registry.
+- **External (Future):** Signed container images from verified publishers.
+
+**Non-Violable Rule:** No plugin may run in the same process space as core services. No plugin may access core service databases directly.
+
+---
+
+## 35. Performance Standards
+
+### 35.1 Latency Budgets
+
+| Operation | Target p50 | Target p99 | Maximum |
+|-----------|-----------|-----------|---------|
+| API Gateway request (no LLM) | 50ms | 200ms | 500ms |
+| Agent execution (simple) | 2s | 10s | 30s |
+| Agent execution (complex) | 10s | 60s | 300s |
+| LLM inference (local, Nano) | 100ms | 500ms | 2s |
+| LLM inference (local, Standard) | 1s | 5s | 15s |
+| LLM inference (cloud, Premium) | 2s | 10s | 30s |
+| Tool execution (container) | 500ms | 3s | 10s |
+| Memory query (structured) | 10ms | 50ms | 100ms |
+| Memory query (semantic) | 50ms | 200ms | 500ms |
+
+### 35.2 Throughput Targets
+
+| Component | Target | Notes |
+|-------------|--------|-------|
+| API Gateway | 10,000 req/s | Per instance, horizontally scalable |
+| Event Bus | 50,000 events/s | Redis Streams, shardable |
+| Agent Runtime | 1,000 concurrent agents | Limited by Temporal workers and LLM capacity |
+| LLM Router (local) | 100 req/s | Per GPU node, vLLM with continuous batching |
+| Memory Gateway | 5,000 queries/s | PostgreSQL + Redis, read replicas |
+
+### 35.3 Resource Limits
+
+Every container must declare resource limits:
+
+```yaml
+# Docker Compose / K8s pattern
+deploy:
+  resources:
+    limits:
+      cpus: '2'
+      memory: 4G
+    reservations:
+      cpus: '0.5'
+      memory: 512M
+```
+
+**Non-Violable Rule:** No container may run without explicit memory limits. OOM kills are preferred over memory exhaustion affecting the host.
+
+### 35.4 Database Query Performance
+
+- All queries must complete in <100ms p99.
+- Queries >100ms require ADR justification and optimization plan.
+- N+1 queries are prohibited; use `selectinload` or `joinedload`.
+- Query plans reviewed quarterly using `pg_stat_statements`.
+
+### 35.5 Caching Performance
+
+- L1 (in-process): <1ms hit time.
+- L2 (Redis): <5ms hit time.
+- L3 (pgvector): <200ms hit time.
+- Cache hit rate target: >60% for LLM responses, >80% for tool schemas.
+
+---
+
+## 36. Coding Standards
+
+### 36.1 Python Style
+
+**Formatter:** Ruff (replaces Black)
+**Line Length:** 100 characters
+**Quote Style:** Double quotes
+**Import Style:** `isort` rules via Ruff
+
+**Naming Conventions:**
+| Element | Convention | Example |
+|---------|-----------|---------|
+| Modules | `snake_case` | `cost_manager.py` |
+| Classes | `PascalCase` | `CostManager` |
+| Functions | `snake_case` | `track_expenditure()` |
+| Constants | `SCREAMING_SNAKE_CASE` | `MAX_RETRY_ATTEMPTS` |
+| Private members | `_leading_underscore` | `_internal_cache` |
+| Type variables | `PascalCase`, short | `T`, `ModelT` |
+
+### 36.2 Docstrings
+
+**Standard:** Google style (PEP 257 + Google conventions)
+
+**Required for:**
+- All public modules
+- All public classes
+- All public methods and functions
+- All Pydantic models
+
+**Template:**
+```python
+def calculate_roi(investment: float, return_value: float) -> float:
+    """Calculate return on investment.
+
+    Args:
+        investment: The initial capital invested in USD. Must be positive.
+        return_value: The total return in USD.
+
+    Returns:
+        ROI as a decimal (e.g., 0.25 for 25%).
+
+    Raises:
+        ValueError: If investment is less than or equal to zero.
+
+    Example:
+        >>> calculate_roi(1000.0, 1250.0)
+        0.25
+    """
+```
+
+**Non-Violable Rule:** No public API without complete docstrings. CI enforces via `ruff` pydocstyle rules.
+
+### 36.3 Type Annotations
+
+**Strict Mode:** Every function parameter and return value must be typed.
+
+**Special Types:**
+- Use `from __future__ import annotations` for forward references.
+- Use `typing.Optional[T]` or `T | None` (Python 3.10+ style preferred).
+- Use `typing.Sequence[T]` for read-only collections.
+- Use `typing.Mapping[K, V]` for read-only dicts.
+- Use `pydantic.BaseModel` for complex data structures, not raw `dict`.
+
+**Prohibited:**
+- `Any` (requires `# type: ignore` with ticket reference)
+- Bare `list`, `dict` without type parameters
+- `**kwargs: Any` without `TypedDict` specification
+
+### 36.4 Async Patterns
+
+**Mandatory:**
+```python
+# Correct
+async def fetch_data() -> Data:
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url)
+        return Data.model_validate(response.json())
+```
+
+**Prohibited:**
+```python
+# Incorrect - blocking I/O in async context
+async def fetch_data() -> Data:
+    response = requests.get(url)  # BLOCKING
+    return Data.model_validate(response.json())
+```
+
+**CPU-Bound Work:**
+```python
+# Correct - offload to thread pool
+def heavy_computation(data: list[int]) -> int:
+    return sum(x ** 2 for x in data)
+
+result = await asyncio.to_thread(heavy_computation, data)
+```
+
+### 36.5 Error Handling
+
+**Exception Hierarchy:**
+```
+AgentOSError (base)
+├── ConfigurationError
+├── ValidationError (wraps Pydantic)
+├── AuthenticationError
+├── AuthorizationError
+├── ResourceNotFoundError
+├── ConflictError
+├── RateLimitError
+├── ExternalServiceError
+│   ├── LLMProviderError
+│   ├── ToolExecutionError
+│   └── DatabaseError
+├── BusinessRuleError
+└── WorkflowError
+```
+
+**Best Practices:**
+- Never raise bare `Exception` or `RuntimeError`.
+- Always include context: `raise BusinessRuleError(f"Budget {budget_id} exceeded")`.
+- Log exceptions at the service boundary, not in every function.
+- Use `try/except` only where recovery is possible; let unexpected errors propagate to global handlers.
+
+### 36.6 Immutability
+
+**Prefer:**
+- `frozen=True` dataclasses and Pydantic models.
+- `datetime` objects with timezone info (`datetime.now(timezone.utc)`).
+- Tuples over lists for fixed collections.
+
+**Avoid:**
+- Mutable default arguments.
+- In-place mutation of shared state.
+
+---
+
+## 37. Configuration Standards
+
+### 37.1 Configuration Hierarchy
+
+Configuration is loaded in this priority (highest wins):
+
+1. Environment variables
+2. `.env` file (development only)
+3. Docker secrets (production)
+4. Default values in Pydantic Settings
+
+### 37.2 Pydantic Settings
+
+**Library:** `pydantic-settings` 2.2+
+
+**Pattern:**
+```python
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+class AgentRuntimeSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="AOS_AGENT_",
+        env_file=".env",
+        env_file_encoding="utf-8",
+        secrets_dir="/run/secrets",
+    )
+    
+    database_url: PostgresDsn
+    redis_url: RedisDsn
+    temporal_host: str = "temporal:7233"
+    max_concurrent_agents: int = 10
+    log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
+```
+
+**Best Practices:**
+- One settings class per service.
+- All settings validated at startup; service fails fast on invalid config.
+- Secrets loaded from files (Docker Secrets) or Vault, never from env vars in production.
+- `.env.example` committed with dummy values; `.env` gitignored.
+
+### 37.3 Environment-Specific Configs
+
+| Environment | Source | Notes |
+|-------------|--------|-------|
+| Development | `.env` + `docker-compose.yml` | Hot reload, debug logging |
+| Testing | `pytest` fixtures + TestContainers | Ephemeral, isolated |
+| Staging | Docker Secrets + environment | Production-like, smaller scale |
+| Production | Docker Secrets / Vault | Immutable infrastructure |
+
+**Non-Violable Rule:** No configuration values hardcoded in source code. No production secrets in environment variables.
+
+---
+
+## 38. Migration Standards
+
+### 38.1 Database Migrations
+
+**Tool:** Alembic (Section 6.4)
+
+**Standards:**
+- One Alembic environment per database.
+- Migrations named descriptively: `20240731_add_agent_cost_tracking.py`.
+- Always include `upgrade()` and `downgrade()`.
+- Test `upgrade` and `downgrade` in CI using TestContainers.
+- Never drop columns or tables in the same migration that creates them.
+
+**Migration Categories:**
+| Category | Requires Downtime? | Strategy |
+|----------|-------------------|----------|
+| Add table/column/index | No | Standard migration, deploy anytime |
+| Add constraint (check, unique) | Maybe | Add as `NOT VALID`, then validate in background |
+| Rename column | No | Add new column, dual-write, migrate data, drop old |
+| Drop column/table | No | Deprecate in code, remove references, drop in next release |
+| Change column type | Maybe | Add new column, migrate, drop old |
+
+### 38.2 Event Schema Migrations
+
+**Tool:** Custom schema registry in PostgreSQL.
+
+**Standards:**
+- Schemas versioned with semver.
+- Forward compatibility: consumers ignore unknown fields.
+- Backward compatibility: producers do not remove fields without deprecation.
+- Migration plan required for breaking changes (major version bump).
+
+### 38.3 API Migrations
+
+**Standards:**
+- New versions in URI path (`/v2/`).
+- Old versions supported for 2 major releases minimum.
+- Deprecation headers: `Deprecation: true`, `Sunset: <date>`.
+- Migration guide published in documentation.
+
+### 38.4 Zero-Downtime Deployment
+
+**Strategy:** Blue-green or rolling deployment with health checks.
+
+**Requirements:**
+- New version passes health checks before receiving traffic.
+- Database migrations run before application deployment (expand-contract pattern).
+- Rollback plan tested in staging.
+
+**Non-Violable Rule:** No deployment without a tested rollback procedure.
+
+---
+
+## 39. Release Process
+
+### 39.1 Release Cadence
+
+| Type | Frequency | Trigger |
+|------|-----------|---------|
+| **Patch** | As needed | Critical bug fix, security patch |
+| **Minor** | Bi-weekly | New features, non-breaking changes |
+| **Major** | Quarterly | Breaking changes, architectural shifts |
+
+### 39.2 Release Checklist
+
+1. All tests pass (unit, integration, contract, e2e).
+2. Security scans pass (Bandit, Semgrep, Trivy, pip-audit).
+3. Documentation updated (API specs, runbooks, ADRs).
+4. Changelog updated (`CHANGELOG.md` following Keep a Changelog format).
+5. Version bumped in `pyproject.toml` and manifests.
+6. Git tag created (`v1.2.3`).
+7. Docker images built, signed, and pushed.
+8. Migration scripts reviewed and tested.
+9. Rollback procedure verified in staging.
+10. Human approval for production deployment (Level 3).
+
+### 39.3 Changelog Format
+
+**Standard:** Keep a Changelog 1.1.0
+
+**Sections:**
+- `Added`
+- `Changed`
+- `Deprecated`
+- `Removed`
+- `Fixed`
+- `Security`
+
+### 39.4 Deployment Automation
+
+**Staging:** Auto-deploy on merge to `main`.
+**Production:** Manual approval gate after staging validation.
+
+**Tools:**
+- GitHub Actions for CI/CD pipeline.
+- ArgoCD (if K8s) or Docker Stack deploy (if Swarm) for GitOps-style deployment.
+- Terraform for infrastructure changes.
+
+### 39.5 Rollback Procedure
+
+1. Identify failing version via monitoring alerts.
+2. Execute rollback command (redeploy previous image tag).
+3. Verify health checks pass.
+4. Notify stakeholders via incident channel.
+5. Post-mortem within 24 hours for major releases.
+
+**Non-Violable Rule:** No production deployment without a one-command rollback procedure documented in the runbook.
+
+---
+
+## 40. Technology Decision Matrix
+
+### 40.1 Decision Framework
+
+Every technology adoption must score against these criteria (1-5 scale):
+
+| Criterion | Weight | Description |
+|-----------|--------|-------------|
+| **Local First** | 25% | Can it run entirely on-premise without cloud dependencies? |
+| **Open Source** | 20% | Is the core open source with a permissive license? |
+| **Production Maturity** | 15% | Is it battle-tested with a large user base? |
+| **Operational Simplicity** | 15% | Can a single engineer operate it? |
+| **Performance** | 10% | Does it meet latency/throughput requirements? |
+| **Ecosystem Fit** | 10% | Does it integrate with our existing stack? |
+| **Cost Efficiency** | 5% | Is total cost of ownership justified? |
+
+**Minimum Score:** 3.5/5 weighted average to be considered. Any score <2 on Local First or Open Source requires constitutional amendment.
+
+### 40.2 Example Evaluations
+
+| Technology | Local First | Open Source | Maturity | Simplicity | Performance | Ecosystem | Cost | Weighted Score | Verdict |
+|------------|:-----------:|:-----------:|:--------:|:----------:|:-----------:|:---------:|:----:|:--------------:|:-------:|
+| **PostgreSQL** | 5 | 5 | 5 | 4 | 4 | 5 | 5 | **4.75** | ✅ Approved |
+| **Redis** | 5 | 5 | 5 | 5 | 5 | 5 | 5 | **5.00** | ✅ Approved |
+| **Temporal** | 5 | 5 | 4 | 3 | 4 | 4 | 4 | **4.15** | ✅ Approved |
+| **LiteLLM** | 5 | 5 | 3 | 4 | 4 | 4 | 5 | **4.15** | ✅ Approved |
+| **Ollama** | 5 | 5 | 4 | 5 | 3 | 4 | 5 | **4.35** | ✅ Approved |
+| **vLLM** | 5 | 5 | 4 | 3 | 5 | 4 | 4 | **4.15** | ✅ Approved |
+| **Pinecone** | 1 | 2 | 4 | 4 | 5 | 3 | 2 | **2.65** | ❌ Rejected |
+| **Neo4j** | 4 | 2 | 5 | 3 | 4 | 3 | 3 | **3.35** | ❌ Rejected |
+| **AWS Bedrock** | 1 | 1 | 4 | 3 | 5 | 2 | 2 | **2.20** | ❌ Rejected |
+
+---
+
+## 41. Approved Libraries
+
+### 41.1 Core Dependencies
+
+| Library | Version | Purpose | License |
+|---------|---------|---------|---------|
+| `fastapi` | ^0.111.0 | Web framework | MIT |
+| `pydantic` | ^2.7.0 | Validation | MIT |
+| `pydantic-settings` | ^2.2.0 | Configuration | MIT |
+| `sqlalchemy` | ^2.0.30 | ORM | MIT |
+| `alembic` | ^1.13.0 | Migrations | MIT |
+| `asyncpg` | ^0.29.0 | Async PostgreSQL driver | Apache-2.0 |
+| `redis` | ^5.0.0 | Redis client | MIT |
+| `httpx` | ^0.27.0 | HTTP client | BSD-3 |
+| `uvicorn` | ^0.30.0 | ASGI server | BSD-3 |
+| `gunicorn` | ^22.0.0 | WSGI/ASGI worker | MIT |
+| `structlog` | ^24.1.0 | Structured logging | Apache-2.0 |
+| `prometheus-client` | ^0.20.0 | Metrics | Apache-2.0 |
+| `opentelemetry-api` | ^1.25.0 | Tracing | Apache-2.0 |
+| `opentelemetry-sdk` | ^1.25.0 | Tracing | Apache-2.0 |
+| `opentelemetry-instrumentation-fastapi` | ^0.46.0 | Auto-instrumentation | Apache-2.0 |
+| `temporalio` | ^1.6.0 | Temporal Python SDK | MIT |
+| `instructor` | ^1.3.0 | Structured LLM outputs | MIT |
+| `sentence-transformers` | ^3.0.0 | Embeddings | Apache-2.0 |
+| `poetry` | ^1.8.0 | Package management | MIT |
+| `ruff` | ^0.4.0 | Linting/formatting | MIT |
+| `mypy` | ^1.10.0 | Type checking | MIT |
+| `pytest` | ^8.2.0 | Testing | MIT |
+| `pytest-asyncio` | ^0.23.0 | Async testing | MIT |
+| `pytest-cov` | ^5.0.0 | Coverage | MIT |
+| `hypothesis` | ^6.100.0 | Property testing | MPL-2.0 |
+| `testcontainers` | ^4.5.0 | Integration testing | MIT |
+| `bandit` | ^1.7.8 | Security linting | Apache-2.0 |
+| `semgrep` | ^1.74.0 | Static analysis | LGPL-2.1 |
+| `pip-audit` | ^2.7.0 | Dependency audit | Apache-2.0 |
+
+### 41.2 Frontend Dependencies
+
+| Library | Version | Purpose | License |
+|---------|---------|---------|---------|
+| `react` | ^18.3.1 | UI framework | MIT |
+| `react-dom` | ^18.3.1 | DOM renderer | MIT |
+| `typescript` | ^5.4.0 | Type system | Apache-2.0 |
+| `vite` | ^5.2.0 | Build tool | MIT |
+| `tailwindcss` | ^3.4.0 | Styling | MIT |
+| `@tanstack/react-query` | ^5.0.0 | Server state | MIT |
+| `zustand` | ^4.5.0 | Client state | MIT |
+| `react-router-dom` | ^6.23.0 | Routing | MIT |
+| `axios` | ^1.7.0 | HTTP client | MIT |
+| `zod` | ^3.23.0 | Runtime validation | MIT |
+
+### 41.3 Infrastructure Dependencies
+
+| Library | Version | Purpose | License |
+|---------|---------|---------|---------|
+| `terraform` | ^1.7.0 | IaC | MPL-2.0 |
+| `opentofu` | ^1.6.0 | IaC (alternative) | MPL-2.0 |
+| `traefik` | ^3.0.0 | Ingress | MIT |
+| `prometheus` | ^2.52.0 | Metrics | Apache-2.0 |
+| `grafana` | ^11.0.0 | Visualization | AGPL-3.0 |
+| `loki` | ^3.0.0 | Log aggregation | AGPL-3.0 |
+| `tempo` | ^2.4.0 | Tracing | AGPL-3.0 |
+| `alertmanager` | ^0.27.0 | Alerting | Apache-2.0 |
+| `trivy` | ^0.52.0 | Container scanning | Apache-2.0 |
+| `cosign` | ^2.2.0 | Image signing | Apache-2.0 |
+
+---
+
+## 42. Prohibited Technologies
+
+### 42.1 Prohibited Frameworks
+
+| Technology | Reason for Prohibition | Exception Path |
+|------------|----------------------|----------------|
+| **LangChain (orchestration)** | Conflicts with Agent OS agent model, encourages prompt-in-framework anti-patterns, abstraction leakage | Utility functions only (text splitters) |
+| **LlamaIndex (core)** | Opinionated RAG architecture conflicts with Memory Gateway design | Reference for connector patterns only |
+| **Django** | ORM lock-in, sync heritage, excessive weight | None |
+| **Flask** | No native async, inferior type safety | None |
+| **Celery (workflows)** | Lacks durable workflow state and saga compensation | Simple background tasks only (non-workflow) |
+| **MongoDB** | Document model conflicts with structured relational + graph requirements | None |
+| **Pinecone / Weaviate / Qdrant (core)** | Separate vector DB violates single-database strategy | Plugin use only |
+| **Neo4j (core)** | SSPL licensing concerns, separate operational burden | Plugin use only |
+| **AWS Lambda / GCP Cloud Functions** | Vendor lock-in, cold start latency, violates local-first | None |
+| **Firebase / Supabase (core)** | SaaS dependency, violates local-first | None |
+
+### 42.2 Prohibited Patterns
+
+| Pattern | Violation | Correct Alternative |
+|---------|-----------|---------------------|
+| Hardcoded secrets in code | Security (10.4) | Docker Secrets / Vault |
+| Raw SQL strings in business logic | Security (10.3), Architecture (7.1) | SQLAlchemy ORM |
+| Synchronous HTTP clients in async services | Engineering (4.4) | HTTPX AsyncClient |
+| Direct service-to-service HTTP calls | Architecture (7.1) | Event Bus or API Gateway |
+| Mutable default arguments | Coding (8.5) | `None` default with initialization |
+| Bare `except:` or `except Exception:` | Coding (8.3) | Specific exception types |
+| `print()` statements in production | Observability (16.1) | `structlog` |
+| Auto-approval on timeout | Human Approval (15.3) | Explicit human approval or cancellation |
+| Offset-based pagination | API Standards (32.6) | Cursor-based pagination |
+| `latest` Docker tags | Containerization (15.1) | Exact version tags |
+
+### 42.3 Prohibited Licenses
+
+No dependencies with the following licenses in core services without legal review and ADR:
+
+- GPL-3.0
+- AGPL-3.0
+- SSPL (Server Side Public License)
+- Proprietary / Commercial (without exception)
+- Custom restrictive licenses
+
+---
+
+## 43. Future Migration Strategy
+
+### 43.1 Technology Amendment Process
+
+When a technology decision in this document needs to change:
+
+1. **Proposal:** Engineer writes a Technology Amendment Proposal (TAP) using the template in `docs/architecture/TAP-template.md`.
+2. **Evaluation:** Proposal scored using the Technology Decision Matrix (Section 40).
+3. **Impact Analysis:** Document impact on all services, agents, tools, and workflows.
+4. **Prototype:** Implement in experimental namespace with feature flags.
+5. **Review:** 7-day review period by Architecture Team.
+6. **Chaos Test:** Verify no regression in staging.
+7. **Approval:** Lead Architect + Human Operator sign-off.
+8. **Migration Plan:** Documented rollback path, data migration, and training requirements.
+9. **Execution:** Gradual rollout via feature flags or blue-green deployment.
+10. **Documentation:** Update `03_TECH_STACK.md`, ADRs, and runbooks.
+
+### 43.2 Planned Evaluation Targets
+
+Technologies to evaluate quarterly for potential adoption:
+
+| Technology | Current Status | Evaluation Trigger |
+|------------|---------------|-------------------|
+| **Apache Kafka** | Rejected (Redis Streams sufficient) | Event volume >50k/sec sustained |
+| **Kubernetes (default)** | Optional | Swarm operational limits reached |
+| **Citus (PostgreSQL sharding)** | Not needed | Single PostgreSQL instance limits reached |
+| ** dedicated vector DB** | Rejected (pgvector sufficient) | Embedding volume >100M vectors |
+| **Rust service rewrite** | Not needed | Python performance bottleneck in hot path |
+| **GPT-5 / Claude 4** | Evaluate on release | Significant capability gap over current models |
+| **WebRTC** | Not needed | Real-time collaborative features required |
+
+### 43.3 Deprecation Policy
+
+When a technology is superseded:
+
+1. Mark as deprecated in `03_TECH_STACK.md` with sunset date.
+2. Emit warnings in code and documentation.
+3. Maintain for minimum 2 minor releases or 6 months, whichever is longer.
+4. Provide migration tooling where possible.
+5. Remove only after all consumers migrated and tests pass.
+
+### 43.4 Stack Evolution Principles
+
+1. **Backward Compatibility First:** New technologies must not break existing APIs or event schemas.
+2. **Incremental Adoption:** Evaluate in plugins or experimental modules before core adoption.
+3. **Exit Strategy:** Every technology must have a documented exit strategy before adoption.
+4. **Cost Validation:** Migration costs must be justified by 10× improvement in at least one dimension (performance, cost, security, maintainability).
+
+---
+
+## Appendix A: Technology Stack Summary
+
+| Layer | Technology | Version | Purpose |
+|-------|-----------|---------|---------|
+| **Language** | Python | 3.11.9+ | Primary backend |
+| **Language** | TypeScript | 5.4+ | Workflow definitions |
+| **Web Framework** | FastAPI | 0.111.0+ | HTTP services |
+| **Validation** | Pydantic v2 | 2.7.0+ | Data validation |
+| **ORM** | SQLAlchemy | 2.0.30+ | Database access |
+| **Migrations** | Alembic | 1.13.0+ | Schema evolution |
+| **HTTP Client** | HTTPX | 0.27.0+ | Async HTTP |
+| **Server** | Uvicorn | 0.30.0+ | ASGI server |
+| **Frontend** | React | 18.3.1+ | Dashboard |
+| **Frontend Build** | Vite | 5.2.0+ | Bundling |
+| **Styling** | Tailwind CSS | 3.4.0+ | CSS framework |
+| **State** | TanStack Query | 5.0.0+ | Server state |
+| **Database** | PostgreSQL | 16.3+ | Primary database |
+| **Vector Search** | pgvector | 0.7.0+ | Embeddings |
+| **Graph** | Apache AGE | 1.5.0+ | Knowledge graph |
+| **Cache/Events** | Redis | 7.2.0+ | Cache, pub/sub, streams |
+| **Workflows** | Temporal | 1.22.x | Durable execution |
+| **LLM Proxy** | LiteLLM | 1.40.0+ | Model abstraction |
+| **Local LLM** | Ollama | 0.1.38+ | Dev inference |
+| **Prod LLM** | vLLM | 0.5.0+ | Production inference |
+| **Embeddings** | sentence-transformers | 3.0.0+ | Local embeddings |
+| **Structured LLM** | Instructor | 1.3.0+ | JSON mode enforcement |
+| **Container** | Docker | 25.0+ | Containerization |
+| **Sandbox** | gVisor | 20240701+ | Container isolation |
+| **Sandbox** | Firecracker | 1.7.0+ | MicroVM isolation |
+| **Ingress** | Traefik | 3.0.0+ | Edge routing |
+| **Observability** | Prometheus | 2.52.0+ | Metrics |
+| **Observability** | Grafana | 11.0.0+ | Dashboards |
+| **Observability** | Loki | 3.0.0+ | Log aggregation |
+| **Observability** | Tempo | 2.4.0+ | Tracing |
+| **Observability** | Alertmanager | 0.27.0+ | Alert routing |
+| **Logging** | structlog | 24.1.0+ | Structured logs |
+| **Tracing** | OpenTelemetry | 1.25.0+ | Distributed tracing |
+| **Package Mgmt** | Poetry | 1.8.0+ | Python dependencies |
+| **Testing** | pytest | 8.2.0+ | Unit testing |
+| **Testing** | TestContainers | 4.5.0+ | Integration testing |
+| **Testing** | Hypothesis | 6.100.0+ | Property testing |
+| **Testing** | Pact | 2.2.0+ | Contract testing |
+| **Linting** | Ruff | 0.4.0+ | Lint + format |
+| **Types** | mypy | 1.10.0+ | Type checking |
+| **Security** | Bandit | 1.7.8+ | Security lint |
+| **Security** | Semgrep | 1.74.0+ | SAST |
+| **Security** | Trivy | 0.52.0+ | Container scanning |
+| **Security** | pip-audit | 2.7.0+ | Dependency audit |
+| **Secrets** | Docker Secrets | N/A | Swarm secrets |
+| **Secrets** | HashiCorp Vault | 1.16+ | K8s secrets |
+| **CI/CD** | GitHub Actions | N/A | Build pipeline |
+| **Docs** | MkDocs | 1.6.0+ | Documentation site |
+| **Docs Theme** | Material | 9.5.0+ | MkDocs theme |
+| **IaC** | Terraform | 1.7.0+ | Infrastructure |
+| **Signing** | Cosign | 2.2.0+ | Image signing |
+
+---
+
+## Appendix B: Non-Violable Implementation Rules
+
+1. **Python Version:** All services run on Python 3.11.9+ or 3.12.x.
+2. **Type Safety:** `mypy --strict` passes with zero errors.
+3. **No Secrets in Code:** Hardcoded secrets result in immediate rotation and incident response.
+4. **Poetry Only:** No `requirements.txt` in production services.
+5. **FastAPI Only:** No Flask, Django, or raw ASGI for HTTP services.
+6. **Async I/O:** No blocking HTTP calls (`requests`) in async contexts.
+7. **SQLAlchemy 2.0:** No 1.x query API. No raw SQL in business logic.
+8. **Alembic Migrations:** No schema changes without migration.
+9. **Event Bus:** All inter-service events via Redis Streams. No direct HTTP for events.
+10. **Temporal Workflows:** All multi-step business processes are Temporal workflows.
+11. **LLM Router:** All LLM traffic through LiteLLM Proxy. No direct provider calls.
+12. **pgvector:** All vector storage in PostgreSQL. No separate vector DB in core.
+13. **Docker Tags:** No `latest` tags in production.
+14. **Resource Limits:** Every container has explicit CPU and memory limits.
+15. **Pre-Commit:** All commits pass pre-commit hooks.
+16. **Tests Required:** No production deployment without tests.
+17. **Auto-Approval Prohibited:** Level 3+ actions never auto-approve on timeout.
+18. **Structured Logs:** No unstructured plain-text logs in production.
+19. **OpenTelemetry:** All services export traces.
+20. **Prometheus Metrics:** All services expose `/metrics`.
+21. **No Prohibited Tech:** LangChain orchestration, LlamaIndex core, Celery workflows, MongoDB, and listed prohibited technologies are banned from core.
+22. **License Compliance:** No GPL/AGPL/SSPL in core without ADR.
+23. **Cursor Pagination:** No offset-based pagination in production APIs.
+24. **Idempotency:** All mutating endpoints accept `Idempotency-Key`.
+25. **Rollback Tested:** No deployment without tested rollback procedure.
+
+---
+
+*End of Document*
+

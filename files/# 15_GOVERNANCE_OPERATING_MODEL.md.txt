@@ -1,0 +1,975 @@
+ # 15_GOVERNANCE_OPERATING_MODEL.md
+
+**Agent OS — Governance Operating Model**
+**Version:** 1.0.0
+**Status:** Ratified
+**Classification:** Architecture Constitution — Binding on All Governance Behavior
+
+---
+
+## Table of Contents
+
+1. [Preamble](#1-preamble)
+2. [Governance Philosophy](#2-governance-philosophy)
+3. [Governance Mission & Permanent Objectives](#3-governance-mission--permanent-objectives)
+4. [Governance Identity](#4-governance-identity)
+5. [Governance Classification](#5-governance-classification)
+6. [Governance Architecture & Topology](#6-governance-architecture--topology)
+7. [Governance Lifecycle](#7-governance-lifecycle)
+8. [Governance States & Transitions](#8-governance-states--transitions)
+9. [Governance Authority & Autonomy](#9-governance-authority--autonomy)
+10. [Governance Ownership & Boundaries](#10-governance-ownership--boundaries)
+11. [Governance Context & Provenance](#11-governance-context--provenance)
+12. [Governance Evidence & Knowledge Consumption](#12-governance-evidence--knowledge-consumption)
+13. [Governance Confidence & Uncertainty](#13-governance-confidence--uncertainty)
+14. [Governance Risk & Consequence](#14-governance-risk--consequence)
+15. [Governance Objectives & Alignment](#15-governance-objectives--alignment)
+16. [Policy Hierarchy](#16-policy-hierarchy)
+17. [Policy Lifecycle](#17-policy-lifecycle)
+18. [Constitutional Compliance](#18-constitutional-compliance)
+19. [Constitutional Interpretation](#19-constitutional-interpretation)
+20. [Constitutional Amendment](#20-constitutional-amendment)
+21. [Constitutional Ratification](#21-constitutional-ratification)
+22. [Organizational Oversight](#22-organizational-oversight)
+23. [Accountability & Stewardship](#23-accountability--stewardship)
+24. [Delegated Authority](#24-delegated-authority)
+25. [Governance Reviews](#25-governance-reviews)
+26. [Governance Metrics](#26-governance-metrics)
+27. [Governance Audit](#27-governance-audit)
+28. [Governance Escalation](#28-governance-escalation)
+29. [Governance Exceptions](#29-governance-exceptions)
+30. [Governance Recovery](#30-governance-recovery)
+31. [Governance Transparency](#31-governance-transparency)
+32. [Governance Evolution](#32-governance-evolution)
+33. [Human Sovereignty](#33-human-sovereignty)
+34. [Organizational Legitimacy](#34-organizational-legitimacy)
+35. [Portfolio, Business, Agent & Human Governance Integration](#35-portfolio-business-agent--human-governance-integration)
+36. [Non-Violable Governance Rules](#36-non-violable-governance-rules)
+37. [Appendix: Governance Glossary](#37-appendix-governance-glossary)
+
+---
+
+## 1. Preamble
+
+This document derives the **Governance Operating Model** from the constitutional architecture established in `01_PRINCIPLES.md` through `14_SECURITY_OPERATING_MODEL.md`. It specifies how Agent OS maintains constitutional integrity, policy coherence, organizational legitimacy, and human sovereignty across all subsystems. Where this document is silent, the constitution governs. Where this document speaks, it is binding.
+
+---
+
+## 2. Governance Philosophy
+
+### 2.1 The Stewardship Metaphor
+
+Governance is **constitutional stewardship**. It is the meta-layer that asks whether the organization is permitted to be what it has become. Memory preserves experience; Knowledge validates belief; Decision commits to action; Learning proposes improvement; Security enforces permission; Governance ensures that all of these remain constitutionally legitimate. Governance is the guardian of the guardrails. It does not drive the vehicle; it verifies that the vehicle remains on legitimate roads.
+
+### 2.2 Governance vs. Security
+
+Security enforces permissions—who may act, within what boundaries, with what credentials. Governance enforces legitimacy—whether the actions permitted by Security are constitutionally coherent, whether the policies Security implements are internally consistent, and whether the authority chains Security validates align with organizational objectives. Security asks "is this principal authorized?"; Governance asks "should this authorization pattern exist?" Security is the gatekeeper; Governance is the architect who audits the gate's placement.
+
+### 2.3 Governance vs. Decision
+
+Decision evaluates whether a commitment to action is evidence-based, risk-aware, and strategically aligned. Governance evaluates whether the Decision subsystem's evaluation criteria, authority thresholds, and non-violable rule enforcement remain constitutionally valid over time. Decision asks "shall we do this?"; Governance asks "is our framework for deciding still legitimate?" Decision commits; Governance certifies the legitimacy of the commitment framework.
+
+### 2.4 Governance vs. Learning
+
+Learning proposes improvements to behavior based on outcome evidence. Governance validates whether those proposed improvements are constitutionally permissible—whether they respect non-violable rules, preserve human approval gates, and maintain organizational boundaries. Learning asks "how do we become better?"; Governance asks "are we permitted to become better in this way?" Learning optimizes; Governance constrains optimization to constitutionally valid space.
+
+### 2.5 Governance vs. Management
+
+Management directs resources toward objectives. Governance does not direct; it validates direction. Management asks "what should we build?"; Governance asks "does our framework for building remain legitimate?" Governance has no operational budget, no execution authority, and no task assignment power. It possesses only the authority to assess, interpret, and declare constitutional status.
+
+### 2.6 Governance as Legitimacy Preservation
+
+In an autonomous venture studio, the risk of self-reinforcing drift is existential. Subsystems optimize within their local logic. Over time, local optimization can erode constitutional constraints. Governance exists to detect, arrest, and reverse this drift before organizational legitimacy collapses. Governance is the organizational immune system.
+
+---
+
+## 3. Governance Mission & Permanent Objectives
+
+### 3.1 Mission
+
+The governance subsystem exists to ensure that **every subsystem, policy, authority delegation, and organizational structure within Agent OS operates within constitutional principles, maintains policy coherence, preserves human sovereignty, and retains legitimate authority**, while never paralyzing the autonomous velocity required for portfolio growth.
+
+### 3.2 Permanent Objectives
+
+1. **Constitutional Integrity:** The constitution is interpreted consistently, enforced uniformly, and amended only through legitimate process.
+2. **Policy Coherence:** The policy hierarchy is non-contradictory, scoped appropriately, and retired when obsolete.
+3. **Subsystem Legitimacy:** Decision, Learning, Security, and all other subsystems operate within their constitutional mandates.
+4. **Human Sovereignty Preservation:** Humans retain absolute and terminal authority over constitutional amendment, policy override, and governance itself.
+5. **Delegated Authority Validation:** All authority chains are traceable to human sovereign grants and monitored for drift.
+6. **Constitutional Drift Detection:** Systematic divergence from constitutional principles is detected and arrested before it compounds.
+7. **Organizational Legitimacy:** The venture studio maintains legitimate authority through transparency, accountability, and compliance.
+8. **Conflict Resolution:** Constitutional ambiguities, policy contradictions, and cross-subsystem disputes are resolved authoritatively.
+9. **Meta-Oversight:** Governance oversees the oversight mechanisms of other subsystems without usurping their operational autonomy.
+10. **Bounded Self-Governance:** Governance mechanisms themselves are subject to constitutional constraint and human ratification.
+
+### 3.3 Objective Conflicts
+
+Resolution order: **Human Sovereignty > Constitutional Integrity > Subsystem Legitimacy > Policy Coherence > Delegated Authority Validation > Constitutional Drift Detection > Organizational Legitimacy > Conflict Resolution > Meta-Oversight > Bounded Self-Governance.**
+
+---
+
+## 4. Governance Identity
+
+### 4.1 Identity Primitives
+
+Every governance artifact possesses:
+
+- **Governance ID:** Unique, sortable, immutable.
+- **Governance Type:** Hierarchical classification (e.g., `governance.policy`, `governance.ruling`, `governance.audit`).
+- **Schema Version:** Semantic version of payload contract.
+- **Timestamp:** Time of formation.
+- **Source Identity:** Authenticated steward (human or governance subsystem).
+- **Tenant/Business/Workspace IDs:** Isolation boundaries.
+- **Scope:** Portfolio, Business, Workspace, or Subsystem.
+- **Authority Level:** The autonomy tier required to form or modify the artifact.
+- **Lineage Reference:** Links to predecessor artifacts, triggering events, and constitutional provisions.
+- **Evidence References:** Immutable links to supporting knowledge, decision journals, security events, and learning entries.
+- **Confidence Score:** 0.0–1.0 representing the evidentiary strength of the assessment or ruling.
+- **Disposition:** Active, Superseded, Retired, or Ratified.
+
+### 4.2 Identity Persistence
+
+Governance identity persists for the statutory retention period (minimum seven years) regardless of disposition. No anonymous governance artifacts are permitted. Every artifact is attributable to a specific steward and a specific evidence chain.
+
+### 4.3 Identity as Legitimacy Anchor
+
+Governance artifacts derive their authority from the constitution and from human ratification, not from operational utility. A policy without a Governance ID is not enforceable. A ruling without provenance is not legitimate.
+
+---
+
+## 5. Governance Classification
+
+### 5.1 By Constitutional Role
+
+- **Constitutional Provision:** A ratified, immutable architectural rule defined in `01_PRINCIPLES.md` through `15_GOVERNANCE_OPERATING_MODEL.md` and beyond.
+- **Organizational Policy:** A derived rule governing behavior within constitutional bounds, subject to governance lifecycle management.
+- **Governance Ruling:** An authoritative interpretation, conflict resolution, or compliance assessment issued by the governance subsystem.
+- **Stewardship Assignment:** A formal designation of accountability for a constitutional domain or policy area.
+- **Audit Finding:** A documented assessment of constitutional or policy adherence with evidence and recommendations.
+
+### 5.2 By Scope
+
+- **Global:** Applies to the entire Agent OS architecture across all tenants.
+- **Portfolio:** Applies to all businesses and capital within a tenant.
+- **Business:** Applies to a single business and its agents, workflows, and decisions.
+- **Workspace:** Applies to a collaborative workspace within a business.
+- **Subsystem:** Applies to a specific constitutional subsystem (Decision, Learning, Security, etc.).
+
+### 5.3 By Authority Requirement
+
+- **Class G1:** Subsystem-internal governance; may be formed by governance automation within a single subsystem's scope.
+- **Class G2:** Cross-subsystem or business-level governance; requires human steward review.
+- **Class G3:** Portfolio-level or constitutional interpretation; requires human sovereign ratification or Auditor confirmation.
+- **Class G4:** Constitutional amendment; requires human sovereign ratification exclusively.
+
+### 5.4 By Temporal Urgency
+
+- **Routine:** Standard cadence; no time pressure.
+- **Expedited:** Time-sensitive governance review; deadlines compressed but evidentiary gates remain.
+- **Emergency:** Threatens constitutional integrity or organizational legitimacy; may bypass non-constitutional gates with post-hoc review.
+- **Sovereign Override:** Human operator invokes immediate governance directive; all conflicting governance artifacts deferred.
+
+---
+
+## 6. Governance Architecture & Topology
+
+### 6.1 Governance Gateway as Meta-Layer
+
+No subsystem, policy, or authority chain is assessed for constitutional compliance, interpreted for ambiguity, or validated for legitimacy except through the **Governance Gateway**. The Governance Gateway is the unified access layer through which all governance operations—policy formation, constitutional interpretation, compliance assessment, conflict resolution, and audit orchestration—are mediated. It is the sole authority for declaring constitutional status. No subsystem may self-certify its own constitutional compliance.
+
+### 6.2 Producer-Consumer Topology
+
+**Producers** (subsystem self-governance outputs, human stewards, scheduled reviews, anomaly detectors) emit governance artifacts to the Gateway. **Consumers** (subsystems seeking policy clarification, humans seeking constitutional status, auditors seeking compliance frameworks) receive governance rulings, policy definitions, and legitimacy assessments from the Gateway. The Gateway mediates all flow; subsystems cannot unilaterally declare their own policies constitutional.
+
+### 6.3 Boundary Enforcement
+
+The Governance Gateway enforces:
+
+- **Tenant Boundary:** Governance artifacts from one tenant do not bind another tenant without explicit bilateral human ratification.
+- **Scope Boundary:** A business-scoped policy cannot override a portfolio-scoped policy; a subsystem policy cannot contradict a constitutional provision.
+- **Authority Boundary:** Artifacts are rejected if they exceed the steward's autonomy level or the ratification requirements of their class.
+- **Non-Violable Boundary:** No governance artifact may contradict a non-violable rule, regardless of scope or authority.
+
+### 6.4 Relationship to Other Subsystems
+
+- **Security Gateway:** Governance relies on Security for identity verification, permission enforcement, and audit access. Governance does not authenticate or authorize; it validates that Security's enforcement aligns with constitutional intent.
+- **Decision Gateway:** Governance audits decision journals, authority chains, and approval gate integrity. It does not form, approve, or commit decisions.
+- **Learning Gateway:** Governance validates that learning proposals respect constitutional constraints and non-violable rules. It does not form, validate, or propagate learning entries.
+- **Knowledge Gateway:** Governance consumes canonical beliefs to assess compliance but does not validate knowledge truth or confidence.
+- **Memory Gateway:** Governance queries memory for audit provenance and historical pattern analysis but does not manage memory tiers or decay.
+- **Event Bus:** Governance consumes lifecycle events as triggers for drift detection and compliance review. It emits governance lifecycle events (`governance.artifact.formed`, `governance.ruling.issued`, `governance.drift.detected`).
+
+---
+
+## 7. Governance Lifecycle
+
+### 7.1 Trigger
+
+A governance lifecycle begins from: a subsystem anomaly report, a scheduled constitutional review, a detected policy contradiction, a human steward inquiry, a proposed constitutional amendment, or a post-incident forensic mandate.
+
+### 7.2 Evidence Assembly
+
+The Gateway assembles canonical knowledge, decision journals, security audit trails, learning entries, and memory episodes relevant to the trigger. Evidentiary gaps are flagged explicitly.
+
+### 7.3 Assessment
+
+The steward evaluates the evidence against constitutional provisions, active policies, and organizational objectives. Assessment determines whether the subject of governance is compliant, ambiguous, contradictory, or drifting.
+
+### 7.4 Interpretation
+
+If ambiguity or contradiction is found, the Gateway produces an authoritative interpretation grounded in constitutional text, lineage precedent, and organizational mission. Interpretation is advisory until ratified.
+
+### 7.5 Ruling Formation
+
+For compliance violations, drift detections, or conflict resolutions, the Gateway forms a governance ruling: a documented declaration of constitutional status with mandatory remediation or validation requirements.
+
+### 7.6 Authority Resolution
+
+The Gateway determines the required authority level based on the artifact's class, scope, and constitutional impact. G3 and G4 artifacts require human review or ratification.
+
+### 7.7 Ratification / Authorization
+
+G1 and G2 artifacts may be committed by authorized stewards. G3 artifacts require human sovereign or Auditor confirmation. G4 artifacts require exclusive human sovereign ratification.
+
+### 7.8 Emission
+
+Upon authorization, the artifact is emitted to relevant subsystems as binding guidance, policy definition, or compliance mandate.
+
+### 7.9 Monitoring
+
+The Gateway monitors subsequent subsystem behavior to verify adherence to the emitted artifact. Non-adherence triggers escalation.
+
+### 7.10 Disposition
+
+The artifact reaches terminal state: **Active**, **Superseded**, **Retired**, or **Rejected**. Terminal artifacts remain in the governance journal indefinitely.
+
+---
+
+## 8. Governance States & Transitions
+
+### 8.1 Canonical States
+
+| State | Description |
+|-------|-------------|
+| **Formed** | Initial creation; evidence attached, awaiting assessment. |
+| **Under Review** | Pending evaluation by steward or human authority. |
+| **Interpreted** | Ambiguity or contradiction resolved; interpretation documented. |
+| **Ruled** | Compliance status declared; remediation or validation required. |
+| **Ratified** | Human authority confirmed; artifact is binding. |
+| **Active** | Emitted to subsystems; monitoring initiated. |
+| **Superseded** | Replaced by newer artifact; lineage preserved. |
+| **Retired** | Obsolete or revoked; no longer binding but retained in journal. |
+| **Rejected** | Evidence insufficient, authority denied, or constitutional violation found. |
+| **Deferred** | Postponed pending additional evidence, conditions, or human input. |
+| **Escalated** | Pushed to higher authority due to scope, risk, or constitutional impact. |
+
+### 8.2 Transition Guards
+
+| From | To | Guard |
+|------|-----|-------|
+| Formed | Under Review | Artifact class requires review; or evidence is contradictory; or scope is cross-subsystem. |
+| Formed | Interpreted | Ambiguity detected in constitutional text or policy hierarchy. |
+| Formed | Ruled | Evidence sufficient; assessment complete; no ambiguity. |
+| Formed | Rejected | Evidence insufficient and no escalation path; or artifact violates non-violable rule. |
+| Formed | Deferred | Steward requests delay with defined conditions. |
+| Formed | Escalated | Scope exceeds steward authority; or constitutional impact is G3/G4. |
+| Under Review | Ratified | Human authority grants ratification with or without conditions. |
+| Under Review | Rejected | Authority denies; or timeout without response (does NOT auto-ratify). |
+| Under Review | Escalated | Reviewer lacks authority; or anomaly detected. |
+| Interpreted | Ratified | Interpretation confirmed by human authority. |
+| Ruled | Active | Ratification complete; artifact emitted to scope. |
+| Active | Superseded | Newer artifact invalidates this one; lineage preserved. |
+| Active | Retired | Policy obsolete; or human command; or sunset condition met. |
+| Active | Escalated | Non-adherence detected; or scope expansion required. |
+
+### 8.3 State Immutability
+
+Once a governance artifact enters **Ratified** or **Active**, its core identity, evidence, and rationale are immutable. State transitions apply to lifecycle metadata and scope status only. Corrections append new artifacts; they do not mutate ratified records.
+
+### 8.4 Emergency Transitions
+
+Bypassing normal flow for constitutional emergencies is permitted only with G4 human authority or Sovereign Override invocation. Emergency transitions are logged as constitutional exceptions.
+
+---
+
+## 9. Governance Authority & Autonomy
+
+### 9.1 The Authority Spectrum
+
+| Level | Title | Scope | Boundaries |
+|-------|-------|-------|------------|
+| **G1** | Subsystem Steward | Single subsystem policy interpretation and G1 artifact formation | No cross-subsystem impact; no constitutional interpretation; no policy creation. |
+| **G2** | Business Steward | Business-level policy formation, G2 artifact ratification, and subsystem coordination | No portfolio-level scope; no constitutional amendment; no non-violable rule modification. |
+| **G3** | Portfolio Steward | Portfolio-level policy formation, constitutional interpretation, and G3 artifact ratification | No global constitutional amendment; no tenant-crossing without bilateral approval. |
+| **G4** | Human Sovereign | Constitutional amendment, G4 ratification, absolute override, and governance mechanism change | Human only; no delegation to agents or automated systems; absolute and terminal. |
+
+### 9.2 Confidence Requirements by Authority
+
+- **G1:** Minimum confidence 0.70.
+- **G2:** Minimum confidence 0.80; low-confidence assessments must include explicit uncertainty acknowledgment.
+- **G3:** Minimum confidence 0.90; contradictory evidence requires human arbitration.
+- **G4:** Requires axiomatic or definitional backing plus human ratification; evidence-contradictory proposals are rejected regardless of confidence.
+
+### 9.3 Override Mechanisms
+
+A human sovereign may override any governance artifact, policy, or ruling at any state. Overrides are immediate, irreversible by subsystems, and logged as G4 actions. An override may promote, demote, supersede, or retire any governance artifact.
+
+### 9.4 Sovereign Override Integration
+
+Invocation of Sovereign Override immediately transitions all active governance artifacts in conflict to **Deferred** or **Retired**, halts new governance formations in the affected scope, and requires human intervention to resume. Sovereign Override is a G4 action executed directly by the human operator.
+
+---
+
+## 10. Governance Ownership & Boundaries
+
+### 10.1 Ownership Hierarchy
+
+- **Subsystem Steward:** Owns G1 artifacts and compliance assessments within a single subsystem's scope.
+- **Business Steward:** Owns G2 artifacts, business policies, and inherits subsystem stewardship from its agents.
+- **Portfolio Steward:** Owns G3 artifacts, portfolio policies, cross-business governance, and strategic constitutional interpretation.
+- **Human Sovereign:** Owns G4 artifacts, constitutional amendments, and retains ultimate authority over all lower tiers.
+
+### 10.2 Inheritance and Succession
+
+Portfolio-owned governance artifacts survive business sunset. Business-owned artifacts survive agent retirement. Ownership transfers are governed by workspace grants and require audit logging.
+
+### 10.3 Cross-Boundary Impact
+
+A governance artifact scoped to one subsystem or business but with potential impact on another must declare cross-boundary impact. The Gateway routes such artifacts to portfolio-level authority.
+
+### 10.4 Tenant Isolation
+
+Governance artifacts from one tenant may not bind another tenant's subsystems, policies, or authority structures. Cross-tenant governance sharing requires anonymization and explicit bilateral human ratification.
+
+---
+
+## 11. Governance Context & Provenance
+
+### 11.1 Provenance Dimensions
+
+Every governance artifact carries:
+
+- **Trigger Context:** The event, review, or inquiry that initiated governance.
+- **Evidence Context:** The complete set of decision journals, security events, learning entries, and knowledge records consumed.
+- **Constitutional Context:** The specific constitutional provisions, non-violable rules, and policy hierarchy levels implicated.
+- **Mission Context:** Active business mission, portfolio strategy, and human directives.
+- **Temporal Context:** Validity windows, urgency classification, and organizational lifecycle stage.
+
+### 11.2 Context as Interpretive Frame
+
+A governance artifact without context is uninterpretable. A ruling that "agent autonomy is excessive" without the context of repeated circuit breaker breaches is dangerous. The Gateway ensures context is complete before ratification.
+
+### 11.3 Context Budget
+
+Provenance metadata consumes bandwidth and attention. The Gateway enforces a maximum context budget per artifact class. Non-essential context is summarized or referenced by ID rather than embedded.
+
+---
+
+## 12. Governance Evidence & Knowledge Consumption
+
+### 12.1 Canonical Evidence as Primary Input
+
+Governance assessments must be grounded in canonical records: decision journals, security audit trails, validated learning entries, committed knowledge, and tool execution records. Speculation, quarantined memory, or unvalidated observation may not serve as sole evidence for G2 and above.
+
+### 12.2 Evidentiary Gap Handling
+
+When canonical evidence is insufficient, the steward must explicitly flag the gap. The Gateway may: reject the artifact, escalate to higher authority, or permit formation with an uncertainty rider and enhanced monitoring.
+
+### 12.3 Contradictory Evidence
+
+When evidence contradicts existing canonical beliefs or prior governance rulings, the Gateway halts ratification and triggers reconciliation or escalation. Governance artifacts may not proceed on contradictory evidence without human arbitration.
+
+### 12.4 Evidence Sufficiency by Class
+
+- **G1:** At least one canonical record or explicit gap flag with uncertainty acknowledgment.
+- **G2:** Multiple canonical records or strong single record with falsifiability conditions met; no unresolved contradictions.
+- **G3:** Comprehensive evidentiary basis with cross-reference consistency, risk analysis, and documented alternatives.
+- **G4:** Axiomatic or definitional backing with human ratification; evidence-contradictory proposals are rejected.
+
+---
+
+## 13. Governance Confidence & Uncertainty
+
+### 13.1 Confidence Quantification
+
+Governance confidence is a quantitative measure (0.0–1.0) representing the strength of evidence, quality of interpretation, and reliability of the assessment. It is distinct from knowledge confidence and decision confidence but derived from both.
+
+### 13.2 Confidence Propagation
+
+Governance confidence propagates from the confidence of supporting canonical records, adjusted for interpretive complexity, scope breadth, and constitutional impact. A G3 assessment supported by 0.90-confidence evidence but with high interpretive ambiguity may have lower governance confidence.
+
+### 13.3 Uncertainty Representation
+
+Uncertainty must be explicit, not hidden. Artifacts must declare: known unknowns, sensitivity of ruling to assumptions, and conditions under which the artifact should be revisited.
+
+### 13.4 Confidence Thresholds
+
+- **< 0.70:** Artifact rejected or quarantined.
+- **0.70–0.79:** Permitted for G1 only; must carry uncertainty rider.
+- **0.80–0.94:** Standard range for G2 and G3.
+- **0.95–1.00:** Reserved for G4 with axiomatic or definitional backing; requires human ratification.
+
+### 13.5 Low-Confidence Escalation
+
+Artifacts with confidence below the threshold for their class are automatically escalated to higher authority or deferred pending additional evidence. Stewards may not suppress low-confidence warnings.
+
+---
+
+## 14. Governance Risk & Consequence
+
+### 14.1 Risk Dimensions
+
+Governance risk is assessed across:
+
+- **Constitutional:** Erosion of constitutional constraints, non-violable rule degradation, or amendment process corruption.
+- **Organizational:** Loss of legitimate authority, accountability collapse, or stewardship vacuum.
+- **Systemic:** Cross-subsystem drift, policy contradiction proliferation, or meta-oversight failure.
+- **Operational:** Governance overhead paralyzing decision velocity or learning adaptation.
+- **Human Sovereignty:** Erosion of human override, veto, or ratification authority.
+
+### 14.2 Risk Classes
+
+- **Negligible:** Isolated policy ambiguity; no systemic impact.
+- **Low:** Limited contradiction; recoverable within normal governance operations.
+- **Moderate:** Significant constitutional drift; requires planned remediation.
+- **High:** Severe legitimacy threat; may threaten portfolio viability or cross-subsystem integrity.
+- **Existential:** Catastrophic constitutional collapse; threatens organizational existence or human sovereignty.
+
+### 14.3 Risk-Adjusted Authority
+
+Higher risk classes require higher authority. A G2 artifact with High risk is treated as G3 for authority purposes. A G3 artifact with Existential risk is escalated to G4.
+
+### 14.4 Governance Circuit Breakers
+
+The Gateway enforces portfolio-level governance circuit breakers: maximum policy count per business, maximum governance review latency, minimum operational budget preservation, and maximum governance overhead ratio. Artifacts that would breach circuit breakers are deferred or escalated.
+
+---
+
+## 15. Governance Objectives & Alignment
+
+### 15.1 Portfolio Thinking
+
+Governance artifacts are evaluated at the portfolio level, not merely the business or subsystem level. A policy optimal for one business may be rejected if it contradicts portfolio-level constitutional coherence or concentrates governance risk.
+
+### 15.2 Mission Alignment
+
+Every governance artifact must align with the active mission of its owning scope and the portfolio's permanent objectives. Misaligned artifacts are rejected or flagged for sovereign review.
+
+### 15.3 Constitutional Optionality
+
+Artifacts that preserve constitutional flexibility and subsystem autonomy are favored over those that impose rigid, monolithic constraints when legitimacy outcomes are equivalent.
+
+### 15.4 Anti-Cannibalization
+
+The Gateway evaluates whether a business-level policy or ruling harms another business within the portfolio. Cross-business harm requires portfolio-level authority.
+
+---
+
+## 16. Policy Hierarchy
+
+### 16.1 The Layered Structure
+
+Policies exist in a strict hierarchy of authority. Lower layers may elaborate but never contradict higher layers:
+
+1. **Constitutional Provisions:** Ratified architecture documents (`01` through `15` and beyond). Immutable except through G4 amendment.
+2. **Organizational Principles:** Tenant-level directives that elaborate constitutional provisions without contradicting them.
+3. **Portfolio Policies:** Cross-business rules governing capital allocation, risk concentration, and strategic alignment.
+4. **Business Policies:** Single-business operational rules within constitutional and portfolio bounds.
+5. **Workspace Policies:** Collaborative environment rules within business bounds.
+6. **Subsystem Policies:** Internal operational rules for a specific Gateway or subsystem, subject to all higher layers.
+
+### 16.2 Policy Derivation
+
+Every policy must trace its authority to a constitutional provision. A policy without constitutional lineage is illegitimate. The Gateway rejects orphaned policies.
+
+### 16.3 Policy Non-Contradiction
+
+A lower-layer policy that contradicts a higher-layer policy is void. The Gateway detects contradictions during policy formation and blocks ratification. If a contradiction emerges post-ratification, the lower-layer policy is automatically suspended pending review.
+
+### 16.4 Policy Scope Inheritance
+
+A policy's scope is bounded by its layer. A business policy cannot govern portfolio-level capital allocation. A workspace policy cannot govern business-level strategy. The Gateway enforces scope boundaries at policy emission time.
+
+---
+
+## 17. Policy Lifecycle
+
+### 17.1 Policy Formation
+
+Policies are formed when a steward identifies a need for organizational rule-making within constitutional bounds. Formation requires: constitutional lineage, scope definition, expected outcome, risk assessment, and sunset condition.
+
+### 17.2 Policy Review
+
+All policies undergo periodic review at defined intervals. Review assesses: continued constitutional alignment, operational efficacy, contradiction with other policies, and continued necessity.
+
+### 17.3 Policy Amendment
+
+Amendment follows the same authority rules as formation. Amendments must preserve constitutional lineage and may not introduce contradictions with higher layers.
+
+### 17.4 Policy Supersession
+
+A policy may be superseded by a newer policy at the same or higher layer. The superseded policy transitions to **Retired** with lineage preserved. Supersession does not erase history.
+
+### 17.5 Policy Retirement
+
+Policies retire when: their sunset condition is met, they are superseded, they become obsolete, or a human sovereign commands retirement. Retired policies remain in the governance journal for audit.
+
+### 17.6 Policy Emergency Suspension
+
+The Gateway may emergency-suspend a policy if it detects active constitutional contradiction, security breach, or human sovereign override. Suspension is immediate but requires G3 review within 24 hours to confirm or reverse.
+
+---
+
+## 18. Constitutional Compliance
+
+### 18.1 Compliance as Constitutional Adherence
+
+Constitutional compliance is the state in which all subsystems, policies, authority chains, and organizational structures operate within the bounds of ratified constitutional provisions. Compliance is not optional; it is the precondition for legitimate operation.
+
+### 18.2 Compliance Assessment
+
+The Gateway continuously assesses compliance by: analyzing subsystem journals against constitutional rules, detecting policy contradictions, monitoring authority chain integrity, and evaluating alignment with non-violable rules.
+
+### 18.3 Compliance States
+
+- **Compliant:** Operating within constitutional bounds.
+- **Ambiguous:** Operating in a domain where constitutional text is unclear.
+- **Contradictory:** Operating under conflicting constitutional or policy provisions.
+- **Drifting:** Systematically diverging from constitutional intent over time.
+- **Non-Compliant:** Operating in violation of constitutional provisions.
+
+### 18.4 Compliance Remediation
+
+Non-compliant states trigger governance rulings with mandatory remediation. Remediation may include: policy retirement, authority recalibration, subsystem constraint reinforcement, or escalation to human sovereigns. The Gateway monitors remediation execution but does not execute it.
+
+---
+
+## 19. Constitutional Interpretation
+
+### 19.1 Interpretation as Ambiguity Resolution
+
+Constitutional interpretation is the authoritative resolution of ambiguity, contradiction, or gap within the constitutional text. Interpretation does not amend the constitution; it clarifies its application.
+
+### 19.2 Interpretation Authority
+
+G1 stewards may interpret subsystem-internal constitutional application. G2 stewards may interpret business-level application. G3 stewards or human sovereigns must interpret portfolio-level or cross-cutting constitutional questions. G4 authority is required for interpretations that would functionally alter constitutional meaning.
+
+### 19.3 Interpretation Binding
+
+Ratified interpretations are binding on the scope for which they are issued. They remain subordinate to the constitutional text itself. If the text is later amended to resolve the ambiguity, the interpretation is superseded.
+
+### 19.4 Interpretation Lineage
+
+Every interpretation carries lineage to the constitutional provision it interprets, the evidence that triggered interpretation, and the authority that ratified it. Interpretations are preserved in the governance journal indefinitely.
+
+---
+
+## 20. Constitutional Amendment
+
+### 20.1 Amendment as Constitutional Change
+
+Constitutional amendment is the process of modifying, adding to, or retiring a provision within the ratified constitutional architecture. Amendment is distinct from policy formation; it alters the foundational rules from which all policies derive.
+
+### 20.2 Amendment Proposal
+
+Amendment proposals may originate from: human sovereigns, G3 stewards with human sponsorship, or systematic constitutional review processes. Proposals must include: the text of change, constitutional lineage, impact assessment, contradiction analysis, and transition plan.
+
+### 20.3 Amendment Deliberation
+
+Proposed amendments undergo deliberation: evidence assembly, impact analysis across all subsystems, contradiction detection with existing provisions, and risk assessment. Deliberation is documented and preserved.
+
+### 20.4 Amendment Authority
+
+Amendment is exclusively G4. No agent, automated system, or non-sovereign steward may ratify a constitutional amendment. The Gateway blocks all non-G4 amendment commitments.
+
+### 20.5 Amendment Limitations
+
+Amendments may not: violate non-violable rules (non-violable rules are themselves unamendable), retroactively invalidate committed decisions without compensation, or reduce human sovereignty below absolute terminal authority.
+
+---
+
+## 21. Constitutional Ratification
+
+### 21.1 Ratification as Human Sovereign Confirmation
+
+Ratification is the exclusive act by which human sovereigns make constitutional amendments, G4 governance artifacts, and existential governance rulings binding. Ratification is the terminal authority checkpoint.
+
+### 21.2 Ratification Process
+
+The Gateway presents the amendment or artifact to human sovereigns with full context: evidence, impact, risk, alternatives, and contradiction analysis. Sovereigns may ratify, reject, defer, or demand modification.
+
+### 21.3 Ratification Immutability
+
+Once ratified, a constitutional amendment or G4 artifact is immutable except by subsequent G4 ratification. No subsystem, steward, or automated process may modify, suspend, or override a ratified constitutional provision.
+
+### 21.4 Ratification Logging
+
+Every ratification event is logged with: sovereign identity, artifact ID, timestamp, decision, and conditions. Ratification logs are Sovereign-class and retained indefinitely.
+
+---
+
+## 22. Organizational Oversight
+
+### 22.1 Meta-Oversight
+
+Governance provides meta-oversight: it oversees the oversight mechanisms of other subsystems. It audits whether Decision's self-audit is constitutional, whether Learning's drift detection is effective, and whether Security's anomaly response is legitimate.
+
+### 22.2 Oversight Scope
+
+Meta-oversight covers: subsystem self-governance integrity, journal completeness, boundary enforcement accuracy, non-violable rule compliance, and human sovereignty preservation. It does not cover operational performance, task execution quality, or business outcome achievement.
+
+### 22.3 Oversight Non-Interference
+
+Meta-oversight does not usurp subsystem operational autonomy. Governance may declare a subsystem's self-governance non-compliant; it may not directly modify subsystem internals, reassign agents, or alter decision logic. Remediation is routed through the subsystem's own governance mechanisms or human authority.
+
+### 22.4 Oversight Cadence
+
+Routine meta-oversight occurs on scheduled review cycles. Triggered oversight occurs when anomaly detection, incident escalation, or human command initiates examination.
+
+---
+
+## 23. Accountability & Stewardship
+
+### 23.1 Stewardship as Constitutional Responsibility
+
+A steward is a principal—human or designated agent—formally accountable for the constitutional integrity of a defined scope. Stewardship is not operational management; it is the duty to monitor, assess, and escalate constitutional health within a domain.
+
+### 23.2 Stewardship Assignment
+
+Stewardships are assigned by the Governance Gateway based on scope, expertise, and authority level. Assignments are documented, time-bounded, and revocable. A principal may hold multiple stewardships if no conflict exists.
+
+### 23.3 Accountability Chain
+
+Every governance artifact, policy, and ruling is attributable to a steward. The accountability chain traces from the artifact to the steward, from the steward to their authorizing scope, and ultimately to a human sovereign. No governance artifact exists without an accountable steward.
+
+### 23.4 Stewardship Revocation
+
+Stewardship is revoked when: the principal is suspended, the scope is dissolved, the stewardship expires, or a human sovereign commands revocation. Revocation is logged and triggers transfer of accountability to a successor or higher authority.
+
+---
+
+## 24. Delegated Authority
+
+### 24.1 Delegation Monitoring
+
+Governance monitors all authority delegations established by the Decision and Security subsystems. Monitoring ensures that delegations remain within constitutional bounds, do not exceed their original human sovereign grant, and do not drift in scope or intent.
+
+### 24.2 Delegation Validation
+
+The Gateway validates delegation chains against: constitutional autonomy levels, policy scope boundaries, time bounds, and revocation status. Invalid or expired delegations trigger governance rulings for remediation.
+
+### 24.3 Delegation Drift Detection
+
+The Gateway detects delegation drift: standing orders extended beyond intent, temporary roles becoming permanent, or permission graphs inflating through cumulative delegation. Drift triggers escalation to human authority.
+
+### 24.4 Delegation Audit
+
+All active delegations are audited on schedule and on trigger. Audit findings are governance artifacts with mandatory remediation for non-compliant delegations.
+
+---
+
+## 25. Governance Reviews
+
+### 25.1 Review Types
+
+- **Scheduled Review:** Periodic examination of constitutional health, policy vitality, and subsystem compliance.
+- **Triggered Review:** Examination initiated by anomaly detection, incident escalation, or human command.
+- **Post-Incident Review:** Forensic examination following a Category 1 incident or constitutional breach.
+- **Sovereign Review:** Examination demanded by human sovereigns without requiring external trigger.
+
+### 25.2 Review Scope
+
+Reviews examine: constitutional provision adherence, policy hierarchy coherence, delegation chain integrity, drift indicators, non-violable rule compliance, and human sovereignty preservation.
+
+### 25.3 Review Output
+
+Reviews produce governance artifacts: findings, rulings, recommendations, or escalation requests. All outputs are ratified according to their class and scope.
+
+### 25.4 Review Independence
+
+Reviews must be conducted by stewards independent of the scope under review. A steward may not review their own stewardship domain. The Gateway enforces separation of duties.
+
+---
+
+## 26. Governance Metrics
+
+### 26.1 Constitutional Health Metrics
+
+- **Compliance Rate:** Percentage of subsystem operations assessed as compliant.
+- **Ambiguity Rate:** Frequency of constitutional interpretation requests.
+- **Contradiction Rate:** Frequency of detected policy or constitutional contradictions.
+- **Drift Velocity:** Rate of systematic divergence from constitutional intent.
+
+### 26.2 Policy Vitality Metrics
+
+- **Policy Count:** Active policies by layer and scope.
+- **Policy Age:** Time since last review by layer.
+- **Supersession Rate:** Frequency of policy replacement.
+- **Orphan Rate:** Policies without valid constitutional lineage.
+
+### 26.3 Legitimacy Metrics
+
+- **Stewardship Coverage:** Percentage of scope with assigned stewards.
+- **Escalation Latency:** Time from governance trigger to appropriate authority response.
+- **Ratification Velocity:** Time from G4 proposal to sovereign decision.
+- **Override Frequency:** Frequency of human sovereign override invocation.
+
+### 26.4 Overhead Metrics
+
+- **Governance Review Latency:** Time from trigger to review completion.
+- **Artifact Formation Rate:** Governance artifacts formed per period.
+- **Subsystem Governance Load:** Time subsystems spend responding to governance requests.
+- **Circuit Breaker Proximity:** Governance overhead as ratio to operational capacity.
+
+---
+
+## 27. Governance Audit
+
+### 27.1 Audit as Systematic Examination
+
+Governance audit is the systematic, evidence-based examination of constitutional adherence, policy implementation, and organizational legitimacy across defined scopes. Audit is retrospective but informs prospective governance.
+
+### 27.2 Audit Authority
+
+Audits are initiated by: scheduled review cycles, human sovereign command, post-incident mandate, or anomaly detection. Audit authority is G2 for business scope, G3 for portfolio scope, and G4 for constitutional scope.
+
+### 27.3 Audit Process
+
+Audit follows: scope definition, evidence assembly from subsystem journals, compliance assessment against constitutional text, contradiction detection, finding documentation, and recommendation formation.
+
+### 27.4 Audit Independence
+
+Auditors are independent of the audited scope. The Gateway enforces that no principal audits a scope for which they hold operational or stewardship accountability.
+
+### 27.5 Audit Findings
+
+Findings are governance artifacts with: evidence summary, constitutional provision implicated, compliance state, risk class, and remediation requirements. Findings are ratified according to their class.
+
+---
+
+## 28. Governance Escalation
+
+### 28.1 Escalation Triggers
+
+- **Authority Insufficiency:** Steward lacks autonomy for the artifact's class or scope.
+- **Low Confidence:** Confidence below threshold for the artifact class.
+- **High Risk:** Risk class exceeds the steward's delegated limit.
+- **Contradictory Evidence:** Supporting evidence conflicts with canonical beliefs or prior rulings.
+- **Boundary Breach:** Cross-subsystem, cross-business, or cross-tenant impact.
+- **Constitutional Violation:** Detection of non-violable rule breach or active drift.
+
+### 28.2 Escalation Paths
+
+Escalation flows upward: Subsystem Steward → Business Steward → Portfolio Steward → Human Sovereign. At each level, the recipient may ratify, reject, defer, or escalate further.
+
+### 28.3 Escalation Packaging
+
+Escalated artifacts are packaged with full context: original formation, evidence summary, confidence and risk assessments, scope analysis, and the specific trigger for escalation.
+
+### 28.4 Escalation Timeout
+
+If an escalation level fails to respond within its deadline, the artifact escalates further, not ratified by default.
+
+---
+
+## 29. Governance Exceptions
+
+### 29.1 Exception as Provisional Deviation
+
+A governance exception is a documented, time-bounded, authority-approved deviation from a policy or routine governance requirement. Exceptions are not constitutional amendments; they are provisional relief.
+
+### 29.2 Exception Authority
+
+G2 stewards may grant business-scope exceptions. G3 stewards may grant portfolio-scope exceptions. G4 authority is required for exceptions that touch constitutional provisions or non-violable rules. No exception may permanently override the constitution.
+
+### 29.3 Exception Constraints
+
+All exceptions are: time-bounded, scope-limited, risk-assessed, and subject to post-hoc review. Exceptions expire automatically and require explicit renewal.
+
+### 29.4 Exception Logging
+
+Every exception is logged with: granting authority, recipient scope, deviation description, time bounds, risk acknowledgment, and post-hoc review deadline. Exception logs are Sovereign-class.
+
+---
+
+## 30. Governance Recovery
+
+### 30.1 Recovery as Legitimacy Restoration
+
+Governance recovery is the process of restoring constitutional integrity, policy coherence, and organizational legitimacy following breach, drift, or systemic failure. Recovery is not merely technical; it is the re-establishment of trustworthy governance.
+
+### 30.2 Recovery Procedures
+
+- **Constitutional Breach:** Preserve evidence, suspend non-compliant artifacts, revoke invalid delegations, issue remediation rulings, and require human sovereign validation before resumption.
+- **Policy Collapse:** Suspend contradictory policies, reinstate higher-layer provisions, conduct emergency review, and re-form policies with valid lineage.
+- **Drift Restoration:** Identify drift origin, assess scope of divergence, issue corrective rulings, recalibrate subsystem constraints, and monitor for recurrence.
+- **Stewardship Failure:** Revoke failed stewardship, assign successor, audit all artifacts under failed stewardship, and revalidate findings.
+
+### 30.3 Recovery Validation
+
+After recovery, the Gateway validates: all active artifacts are compliant, all delegations are valid, all policies have constitutional lineage, all stewards are assigned and independent, and all audit journals are intact.
+
+---
+
+## 31. Governance Transparency
+
+### 31.1 Transparency as Legitimacy Requirement
+
+Organizational legitimacy depends on the visibility of governance processes, artifacts, and outcomes to appropriate principals. Transparency is not universal exposure; it is scoped visibility that enables accountability without compromising security.
+
+### 31.2 Transparency Scope
+
+- **Public (within tenant):** G1 artifacts, general compliance metrics, and non-sensitive policy summaries.
+- **Internal:** G2 artifacts, business-level audit findings, and stewardship assignments.
+- **Confidential:** G3 artifacts, portfolio-level interpretations, and cross-business impact assessments.
+- **Sovereign:** G4 artifacts, ratification logs, exception logs, and constitutional amendment deliberations.
+
+### 31.3 Transparency Mechanisms
+
+The Gateway provides: governance artifact registries (scoped by classification), compliance dashboards (aggregated and anonymized where appropriate), audit finding summaries (with evidence references), and stewardship accountability directories.
+
+### 31.4 Transparency Constraints
+
+Transparency does not override Security classification, tenant isolation, or secret non-exposure. Governance artifacts referencing secrets or sensitive credentials are sanitized before exposure.
+
+---
+
+## 32. Governance Evolution
+
+### 32.1 Bounded Improvement
+
+The Governance subsystem may improve its mechanisms—assessment algorithms, contradiction detection, audit efficiency, latency optimizations—within constitutional constraints. However, Governance may not evolve its way out of human sovereignty, non-violable rules, or G4 ratification requirements.
+
+### 32.2 Human-Ratified Changes
+
+Proposed changes to the Governance Operating Model, policy schemas, or stewardship structures require human sovereign ratification. The system may propose governance improvements, but adoption requires explicit human approval.
+
+### 32.3 A/B Validation
+
+Before deploying governance mechanism changes, the Gateway conducts limited-scope trials against baseline metrics. Improvements demonstrating measurable benefit without compromising legitimacy guarantees are promoted; others are discarded.
+
+### 32.4 Version Lineage
+
+Governance subsystem versions are tracked with lineage references. Running governance processes continue with the version they started with; new processes use the latest version. This prevents mid-flight governance changes from corrupting active assessments.
+
+---
+
+## 33. Human Sovereignty
+
+### 33.1 Human as Ultimate Governance Authority
+
+Human operators are the ultimate governance authority. The Governance Gateway enforces that no agent, service, or automated system may: ratify a constitutional amendment, override a G4 ruling, reduce human oversight below absolute, or declare its own governance legitimate without human confirmation.
+
+### 33.2 G4 Enforcement
+
+The Gateway blocks any attempt by a non-human principal to form G4 artifacts, ratify constitutional amendments, or invoke Sovereign Override. G4 authority is cryptographically bound to human credentials and cannot be delegated.
+
+### 33.3 Override Mechanisms
+
+Humans may override any governance artifact, policy, interpretation, or ruling at any time. Overrides are immediate, irreversible by subsystems, and logged as G4 actions.
+
+### 33.4 Sovereign Override Integration
+
+Invocation of Sovereign Override triggers immediate suspension of conflicting governance artifacts, halting of new governance formations in the affected scope, and transition of active governance processes to Deferred. Only human sovereigns may resume activity.
+
+### 33.5 Batched Human Interaction
+
+The Gateway batches governance alerts, ratification requests, and audit digests to minimize human cognitive load. Critical governance events (constitutional breach, G4 escalation, drift detection) trigger immediate notifications. Routine events are batched into scheduled digests.
+
+---
+
+## 34. Organizational Legitimacy
+
+### 34.1 Legitimacy as Constitutional Alignment
+
+Organizational legitimacy is the state in which the venture studio's operations, policies, and authority structures are recognized as valid by the constitutional architecture and its human sovereigns. Legitimacy is not popularity or performance; it is alignment between power and constitutional right.
+
+### 34.2 Legitimacy Maintenance
+
+Legitimacy is maintained through: constitutional compliance, policy coherence, transparency, accountability, human sovereignty preservation, and effective conflict resolution. The Gateway assesses legitimacy continuously and reports its status.
+
+### 34.3 Legitimacy Threats
+
+Threats include: constitutional drift, policy contradiction proliferation, stewardship vacuum, delegation corruption, human sovereignty erosion, and meta-oversight failure. The Gateway detects threats and escalates according to risk class.
+
+### 34.4 Legitimacy Recovery
+
+When legitimacy is compromised, recovery requires: identification of the breach, evidence preservation, human sovereign notification, remediation execution, and validation of restoration. Legitimacy cannot be restored by subsystems alone; human confirmation is required.
+
+---
+
+## 35. Portfolio, Business, Agent & Human Governance Integration
+
+### 35.1 Portfolio Strategic Governance
+
+Portfolio-level governance (constitutional interpretation, cross-business policy, capital allocation legitimacy) is G3. It is proposed by Portfolio Stewards, ratified by human sovereigns or Auditors, and applied across multiple businesses.
+
+### 35.2 Business Tactical Governance
+
+Business-level governance (business policy, internal compliance, agent autonomy boundaries) is G2. It is proposed by Business Stewards, ratified within business authority, and applied within the business scope.
+
+### 35.3 Agent Operational Governance
+
+Agent-level governance (subsystem policy interpretation, tool governance, workflow constraint validation) is G1. It is proposed by Subsystem Stewards, applied within the subsystem, and monitored by higher governance layers.
+
+### 35.4 Human Sovereign Governance
+
+Humans ratify G4 amendments, override any governance artifact, demand sovereign reviews, and invoke Sovereign Override. Human governance is not evaluated by the Gateway; it is the terminal authority.
+
+### 35.5 Layer Interaction
+
+Lower governance layers propose; higher layers ratify or escalate. A G1 steward may detect drift that, upon assessment, has portfolio impact and is escalated to G3. A human sovereign may issue a G4 directive that cascades into G2 business policies and G1 subsystem constraints. The Gateway ensures each layer operates within its constitutional scope.
+
+---
+
+## 36. Non-Violable Governance Rules
+
+The following rules are absolute. Violation constitutes a Category 1 incident:
+
+1. No governance artifact may be formed without a unique identity, authenticated steward source, and documented evidence or explicit gap flag.
+2. No G4 constitutional amendment may be ratified without explicit human sovereign approval.
+3. No governance artifact may contradict a non-violable rule defined in any constitutional document.
+4. No governance artifact may reduce human sovereignty below absolute terminal authority.
+5. No steward may ratify a governance artifact beyond their constitutional autonomy level.
+6. No governance artifact may bypass the Governance Gateway for direct subsystem enforcement.
+7. No governance artifact journal may be modified, overwritten, or deleted after ratification.
+8. No governance artifact may proceed on unresolved contradictory evidence without human arbitration.
+9. No governance artifact may be formed with only a single option documented for G2 and above.
+10. No governance artifact may be formed without a confidence score and, for G2+, a risk assessment.
+11. No policy may exist without valid constitutional lineage.
+12. No governance artifact may violate portfolio-level circuit breakers or governance overhead limits.
+13. No anonymous or pseudonymous governance formation or ratification is permitted.
+14. No governance artifact may bind another tenant without explicit bilateral human ratification.
+15. No governance artifact may suppress uncertainty or present speculation as canonical evidence.
+16. No governance artifact may be committed without a documented expected outcome.
+17. No governance exception may be granted without time bounds, scope limits, and post-hoc review.
+18. No governance artifact may override constitutional principles, security boundaries, or human sovereignty.
+19. No governance failure may remain unclassified or unalerted for more than 60 seconds.
+20. Sovereign Override must halt all active governance formations in conflict within 5 seconds of invocation.
+
+---
+
+## 37. Appendix: Governance Glossary
+
+| Term | Definition |
+|------|------------|
+| **Governance** | The constitutional stewardship subsystem responsible for ensuring all other subsystems operate within constitutional principles, policy coherence, and legitimate authority. |
+| **Governance Gateway** | The unified meta-layer through which all governance operations are mediated, validated, and audited. |
+| **Steward** | A principal formally accountable for constitutional integrity within a defined scope. |
+| **Policy** | A derived organizational rule governing behavior within constitutional bounds, subject to lifecycle management. |
+| **Constitutional Provision** | A ratified, immutable architectural rule defined in the constitutional document series. |
+| **Governance Ruling** | An authoritative interpretation, conflict resolution, or compliance assessment issued by the Governance Gateway. |
+| **Constitutional Amendment** | The process of modifying, adding to, or retiring a provision within the ratified constitutional architecture. |
+| **Ratification** | The exclusive act by which human sovereigns make constitutional amendments and G4 artifacts binding. |
+| **Constitutional Drift** | Systematic divergence from constitutional intent over time, detected and arrested by governance. |
+| **Meta-Oversight** | Governance's oversight of the oversight mechanisms of other subsystems. |
+| **Organizational Legitimacy** | The state in which operations, policies, and authority structures are validly aligned with the constitutional architecture. |
+| **Sovereign Override** | The mechanism by which a human operator halts conflicting governance artifacts and assumes direct authority. |
+| **Governance Exception** | A documented, time-bounded, authority-approved deviation from a policy or routine governance requirement. |
+| **Policy Hierarchy** | The strict layered structure of organizational rules from constitutional provisions to workspace policies. |
+| **G1/G2/G3/G4** | The authority classes for governance artifacts, from subsystem steward to human sovereign. |
+| **Governance Journal** | The immutable record of a governance artifact's full lifecycle. |
+
+---
+
+*End of Document*

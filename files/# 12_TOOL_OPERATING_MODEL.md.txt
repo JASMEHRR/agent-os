@@ -1,0 +1,959 @@
+ # 12_TOOL_OPERATING_MODEL.md
+
+**Agent OS — Tool Operating Model**
+**Version:** 1.0.0
+**Status:** Ratified
+**Classification:** Architecture Constitution — Binding on All Tool Behavior
+
+---
+
+## Table of Contents
+
+1. [Preamble](#1-preamble)
+2. [Tool Philosophy](#2-tool-philosophy)
+3. [Tool Mission & Permanent Objectives](#3-tool-mission--permanent-objectives)
+4. [Tool Identity](#4-tool-identity)
+5. [Tool Classification](#5-tool-classification)
+6. [Tool Architecture & Topology](#6-tool-architecture--topology)
+7. [Tool Anatomy](#7-tool-anatomy)
+8. [Tool Lifecycle](#8-tool-lifecycle)
+9. [Tool States & Transitions](#9-tool-states--transitions)
+10. [Tool Ownership & Boundaries](#10-tool-ownership--boundaries)
+11. [Tool Capability Model](#11-tool-capability-model)
+12. [Tool Registration](#12-tool-registration)
+13. [Tool Discovery](#13-tool-discovery)
+14. [Tool Selection](#14-tool-selection)
+15. [Tool Permissions & Authorization](#15-tool-permissions--authorization)
+16. [Tool Trust & Reputation](#16-tool-trust--reputation)
+17. [Tool Invocation Contract](#17-tool-invocation-contract)
+18. [Tool Composition](#18-tool-composition)
+19. [Tool Context & Constraints](#19-tool-context--constraints)
+20. [Tool Availability & Health](#20-tool-availability--health)
+21. [Tool Reliability & Resilience](#21-tool-reliability--resilience)
+22. [Tool Performance Characteristics](#22-tool-performance-characteristics)
+23. [Tool Cost & Economics](#23-tool-cost--economics)
+24. [Tool Marketplace](#24-tool-marketplace)
+25. [Tool Security](#25-tool-security)
+26. [Tool Auditability & Lineage](#26-tool-auditability--lineage)
+27. [Tool Observability](#27-tool-observability)
+28. [Tool Evolution & Versioning](#28-tool-evolution--versioning)
+29. [Tool Deprecation & Replacement](#29-tool-deprecation--replacement)
+30. [Tool Learning & Improvement](#30-tool-learning--improvement)
+31. [Human Tool Integration](#31-human-tool-integration)
+32. [Agent Tool Integration](#32-agent-tool-integration)
+33. [Workflow Tool Integration](#33-workflow-tool-integration)
+34. [Non-Violable Tool Rules](#34-non-violable-tool-rules)
+35. [Appendix: Tool Glossary](#35-appendix-tool-glossary)
+
+---
+
+## 1. Preamble
+
+This document derives the **Tool Operating Model** from the constitutional architecture established in `01_PRINCIPLES.md` through `11_DECISION_OPERATING_MODEL.md`. It specifies how Agent OS interacts with the external world through governed, identifiable, and accountable capabilities. Where this document is silent, the constitution governs. Where this document speaks, it is binding.
+
+---
+
+## 2. Tool Philosophy
+
+### 2.1 The Boundary Metaphor
+
+A tool is the **sole authorized boundary between internal deliberation and external effect**. Agents reason, workflows coordinate, decisions authorize, and tools execute. No agent, workflow, or decision may interact with the external world except through a registered tool. The tool is the constitutional airlock: it validates that internal intent has been properly authorized before permitting that intent to alter external state.
+
+### 2.2 Tool vs. Agent
+
+An agent is a reasoning worker that selects strategies and synthesizes information. A tool is a deterministic or bounded-probabilistic capability that performs work outside the reasoning process. The agent decides *which* tool to use and *why*; the tool decides *how* to perform the specific external operation within its declared contract. Agents are generalists with judgment; tools are specialists with contracts.
+
+### 2.3 Tool vs. Workflow
+
+A workflow is the orchestrator of business processes across time and dependency graphs. A tool is the atomic capability invoked at a single node within that graph. The workflow determines *when* a tool executes and *what happens if it fails*; the tool determines *what external effect occurs* and *under what sandbox constraints*. Workflows are durable state machines; tools are bounded execution units.
+
+### 2.4 Tool vs. Decision
+
+A decision is a governed commitment to action. A tool is the mechanism through which that commitment becomes reality. The decision asks *whether* an action shall be undertaken; the tool performs *that* action. The tool does not evaluate risk or alternatives; it verifies that the decision record exists, matches the tool's risk class, and carries valid authority before executing.
+
+### 2.5 Tool vs. Runtime
+
+The runtime provides the infrastructure for dispatch, sandboxing, and resource allocation. A tool is the capability contract that the runtime executes. The runtime is the highway; the tool is the vehicle with a declared cargo, destination, and safety rating. The Tool Operating Model defines what vehicles may enter the highway; the Runtime Framework defines how the highway operates.
+
+### 2.6 Tool as Organizational Asset
+
+A tool is not a code snippet, not an API wrapper, and not a configuration file. A tool is an organizational asset with identity, provenance, reputation, economic impact, and lifecycle governance. Just as a business owns its capital equipment, it owns its tools. Tools are inventoried, depreciated, insured against failure, and retired when obsolete.
+
+---
+
+## 3. Tool Mission & Permanent Objectives
+
+### 3.1 Mission
+
+The tool subsystem exists to ensure every interaction between Agent OS and the external world is **authorized by a valid decision, bounded by a declared capability contract, isolated within an appropriate sandbox, attributable to its consumer and authorizer, and economically controlled**.
+
+### 3.2 Permanent Objectives
+
+1. **Boundary Integrity:** No external effect may occur without passing through a registered, validated, and authorized tool.
+2. **Authority Verification:** Every tool invocation is traceable to a decision record with sufficient autonomy level for the tool's risk class.
+3. **Economic Control:** Tool execution consumes real capital; every invocation is budget-checked, cost-attributed, and portfolio-circuit-breaker compliant.
+4. **Sandbox Enforcement:** Every tool executes within its declared sandbox tier; no tool may escape its isolation boundary.
+5. **Attribution Completeness:** Every external effect is attributable to its tool, its consumer, its authorizing decision, and its owning business.
+6. **Reversibility Support:** Mutating tools must declare compensation logic; the tool subsystem must support saga rollback.
+7. **Trust Preservation:** Tools earn and maintain trust scores; untrusted tools are unavailable for autonomous use.
+8. **Tenant Isolation:** No tool may cross tenant boundaries without explicit human approval and isolation review.
+9. **Capability Fidelity:** Tools perform only what they declare; they do not exceed their capability signatures.
+10. **Knowledge Production:** Every tool execution produces structured outcome data that enriches the knowledge graph.
+
+### 3.3 Objective Conflicts
+
+Resolution order: **Boundary Integrity > Authority Verification > Sandbox Enforcement > Tenant Isolation > Economic Control > Attribution Completeness > Reversibility Support > Trust Preservation > Capability Fidelity > Knowledge Production**.
+
+---
+
+## 4. Tool Identity
+
+### 4.1 Identity Primitives
+
+Every tool possesses an immutable identity consisting of:
+
+- **Tool ID:** A universally unique identifier assigned at registration, never reused, never reassigned.
+- **Name:** A human-readable designation reflecting the external effect (e.g., "Social Media Publishing Tool").
+- **Version:** A semantic version tracking the tool's behavioral contract evolution.
+- **Capability Signature:** The complete set of external effects the tool claims to perform, expressed as typed, hierarchical capability declarations.
+- **Sandbox Level:** The declared isolation tier required for safe execution.
+- **Mutability Flag:** Whether the tool performs read-only observation or mutating changes to external state.
+- **Trust Score:** A quantitative measure of provenance validity, historical reliability, and behavioral stability.
+- **Cost Model:** The economic contract governing invocation pricing.
+- **Owner Identity:** The authenticated entity (business, workspace, or external provider) responsible for the tool's behavior.
+- **Provenance Record:** The chain of custody from tool design through registration, including validation authority and timestamp.
+- **Schema Version:** The semantic version of the input and output payload contracts.
+- **Lineage Reference:** Links to predecessor versions, successor versions, and derived variants.
+
+### 4.2 Identity Persistence
+
+Tool identity persists for the statutory retention period (minimum seven years) regardless of disposition. A retired tool retains its identity in archival state. No anonymous tools are permitted.
+
+### 4.3 Identity as Accountability Anchor
+
+Every external effect produced by a tool is attributed to its Tool ID. Every cost incurred, every decision journal entry referencing the tool, and every audit record carries the tool's identity. This attribution is non-repudiable.
+
+---
+
+## 5. Tool Classification
+
+### 5.1 By Sandbox Risk
+
+| Tier | Isolation | Use Case |
+|------|-----------|----------|
+| **None** | Pure computation, no external I/O | Internal transformations, deterministic calculations |
+| **Container** | Standard process isolation with network and filesystem restrictions | Trusted external APIs, read-only web requests |
+| **gVisor** | User-space kernel isolation | Untrusted external code, user-provided integrations |
+| **Firecracker** | MicroVM with maximum isolation | Security-critical operations, financial transactions |
+
+### 5.2 By Mutability
+
+- **Observational:** Reads external state without modification. Examples: market data retrieval, competitor analysis.
+- **Mutating:** Alters external state. Examples: publishing content, executing trades, deploying infrastructure.
+- **Hybrid:** Capable of both observation and mutation depending on invocation parameters. Governed at the capability level, not the tool level.
+
+### 5.3 By Scope
+
+- **Tenant-Scoped:** Available only within a single tenant. Default for all business-registered tools.
+- **Business-Scoped:** Shared across workspaces within a single business.
+- **Portfolio-Scoped:** Shared across businesses within a portfolio. Requires portfolio-level governance approval.
+- **Global:** Available to all tenants. Restricted to system-provided tools with universal safety validation.
+
+### 5.4 By Authority Requirement
+
+- **Level 1:** No external effect; may be invoked autonomously by any agent.
+- **Level 2:** Reversible external effect; requires logged autonomy.
+- **Level 3:** Significant external effect; requires human-approved decision.
+- **Level 4:** Existential or irreversible external effect; requires human-only authority.
+
+### 5.5 By Capability Domain
+
+Tools are organized by the class of external effect they produce:
+
+- **Communication:** Interact with messaging, social, and email platforms.
+- **Financial:** Execute transactions, manage accounts, process payments.
+- **Infrastructure:** Deploy, configure, or monitor computational resources.
+- **Research:** Gather, scrape, or query external information sources.
+- **Creation:** Generate and publish content, code, or media.
+- **Integration:** Connect to third-party services and synchronize state.
+
+---
+
+## 6. Tool Architecture & Topology
+
+### 6.1 Tool Registry as Canonical Inventory
+
+The **Tool Registry** is the sole authoritative source of truth for all tools available within Agent OS. No tool may be discovered, selected, or invoked except through the Registry. The Registry stores tool identities, manifests, capability signatures, trust scores, and ownership records. It does not execute tools; it governs their existence.
+
+### 6.2 Tool Gateway as Authorization Boundary
+
+The **Tool Gateway** is the unified access layer through which all tool invocation requests flow. It enforces: identity verification, authority resolution against decision records, budget pre-checks, sandbox assignment, tenant boundary validation, and audit logging. The Gateway is the sole path between internal consumers and external effect. No consumer may invoke a tool directly without Gateway mediation.
+
+### 6.3 Tool Executor as Runtime Interface
+
+The **Tool Executor** is the runtime component that dispatches validated invocation requests to the appropriate sandbox environment. The Executor receives instructions from the Gateway; it does not evaluate authority or make policy decisions. The Executor manages sandbox lifecycle, resource allocation, timeout enforcement, and secret injection.
+
+### 6.4 Tool Marketplace as Sharing Layer
+
+The **Tool Marketplace** enables cross-business and portfolio-level tool discovery and sharing. It operates as a filtered view of the Registry, exposing only those tools whose owners have explicitly granted sharing permissions. The Marketplace enforces tenant isolation and requires human approval for cross-tenant tool visibility.
+
+### 6.5 Producer-Consumer Topology
+
+**Producers** (businesses, external providers, system architects) register tools with the Registry. **Consumers** (agents, workflows, humans) discover tools through the Registry and request invocation through the Gateway. The Gateway mediates all execution; producers cannot bypass the Gateway to offer direct access, and consumers cannot bypass the Gateway to invoke tools directly.
+
+### 6.6 Relationship to Other Subsystems
+
+- **Decision Gateway:** The Tool Gateway consumes decision records to verify that each invocation carries valid authority. It does not modify decisions.
+- **Agent Registry:** The Tool Registry intersects with the Agent Registry to determine which tools are available in each agent's inventory.
+- **Workflow Orchestrator:** The orchestrator dispatches tool activities through the Tool Gateway. It receives execution status and outcomes for workflow state advancement.
+- **Cost Manager:** The Tool Gateway queries the Cost Manager for budget availability before permitting invocation and reports actual costs after execution.
+- **Event Bus:** The Tool subsystem emits lifecycle events (`tool.invoked`, `tool.failed`, `tool.succeeded`, `tool.deprecated`). It consumes events related to tool health, decision commitment, and budget threshold breaches.
+
+---
+
+## 7. Tool Anatomy
+
+### 7.1 Tool Manifest
+
+The manifest is the canonical declaration of a tool's existence. It specifies the tool's identity, version, capability signature, sandbox requirements, input and output contracts, cost model, timeout constraints, retry policy, compensation logic, provenance metadata, and ownership boundaries. The manifest is immutable once registered; changes require a new version.
+
+### 7.2 Capability Signature
+
+The capability signature is a structured declaration of the external effects a tool can produce. It is hierarchical and typed: `tool.communication.social.publish` is a parent of `tool.communication.social.publish.text`. The signature includes: required input parameters, guaranteed output structures, declared side effects, and reversibility estimates per capability.
+
+### 7.3 Input and Output Contracts
+
+Every capability declares a strict input contract and output contract. These contracts define the shape, types, and constraints of data that may enter and exit the tool. The Gateway validates consumer requests against the input contract before dispatch. The Executor validates tool outputs against the output contract before returning results to the consumer.
+
+### 7.4 Sandbox Requirements
+
+The manifest declares the minimum sandbox tier required for safe execution. The Gateway enforces that the tool is never executed below its declared tier, even if the consumer requests a lower tier for performance reasons.
+
+### 7.5 Cost Model
+
+The manifest declares the economic contract: per-invocation cost, metered usage rates, tiered pricing, or external API passthrough costs. The cost model enables the Gateway to perform pre-flight budget checks and the Cost Manager to attribute expenditure accurately.
+
+### 7.6 Timeout and Retry Policy
+
+The manifest declares the maximum execution duration and the retry semantics for transient failures. These are constitutional guarantees to consumers: a tool promises to complete within its timeout or fail explicitly, and to handle retries idempotently where declared.
+
+### 7.7 Compensation Logic
+
+Mutating tools must declare compensation logic: the procedure to reverse the external effect if the containing workflow or decision requires rollback. Compensation logic is validated during registration for determinism and idempotency.
+
+### 7.8 Dependency Declaration
+
+The manifest declares external dependencies: third-party services, platform APIs, or infrastructure requirements that must be healthy for the tool to function. The Registry uses these declarations for health monitoring and availability determination.
+
+---
+
+## 8. Tool Lifecycle
+
+### 8.1 Designed
+
+A tool enters the Designed state when its specification is drafted. In this state, the tool has no Registry entry and cannot be discovered or invoked. The specification includes capability signatures, sandbox requirements, contracts, cost model, and compensation logic.
+
+### 8.2 Registered
+
+A tool transitions to Registered when its manifest is submitted to the Registry. Registration creates the Tool ID and stores the manifest. Registered tools are not yet available for invocation; they await validation.
+
+### 8.3 Validated
+
+A tool transitions to Validated when it passes constitutional review: manifest schema compliance, sandbox feasibility verification, contract consistency checks, compensation logic validation, and provenance verification. Validation is performed by the Tool Gateway with human oversight for Level 3+ tools.
+
+### 8.4 Active
+
+A tool becomes Active after validation and explicit activation. Active tools are discoverable, selectable, and invocable by authorized consumers within their scope boundaries.
+
+### 8.5 Deprecated
+
+A tool is Deprecated when its owner or the system marks it for retirement. Deprecated tools remain invocable by existing consumers but are excluded from new discovery and selection. A deprecation notice period is enforced.
+
+### 8.6 Retired
+
+A tool is Retired when it is permanently removed from active service. Retired tools cannot be invoked. Consumers bound to retired tools must migrate to successors. Retirement requires all in-flight invocations to complete or timeout.
+
+### 8.7 Archived
+
+An archived tool retains its identity, manifest, execution history, and audit records in cold storage. Archived tools are historical records; they cannot be reactivated.
+
+### 8.8 State Transition Guards
+
+- **Designed → Registered:** Manifest schema validation passes; Tool ID assigned; ownership authenticated.
+- **Registered → Validated:** Sandbox assignment confirmed; contracts verified; compensation logic validated; provenance established.
+- **Validated → Active:** Human activation command received (for Level 3+ tools) or automatic activation (for Level 1–2 tools).
+- **Active → Deprecated:** Owner command or successor version registered; deprecation notice period defined.
+- **Deprecated → Retired:** Deprecation notice period expired; no active consumers remain, or migration deadline passed.
+- **Retired → Archived:** All invocations drained; audit records complete; lineage updated.
+
+---
+
+## 9. Tool States & Transitions
+
+### 9.1 Canonical States
+
+| State | Description |
+|-------|-------------|
+| **Designed** | Specification drafted; no Registry entry. |
+| **Registered** | Manifest stored; awaiting validation. |
+| **Validated** | Constitutional review passed; awaiting activation. |
+| **Active** | Available for discovery, selection, and invocation. |
+| **Deprecated** | Scheduled for retirement; existing bindings honored. |
+| **Retired** | Permanently unavailable; migration required. |
+| **Archived** | Historical record only; cold storage. |
+| **Suspended** | Temporarily unavailable due to trust anomaly, security concern, or health failure. |
+
+### 9.2 Transition Guards
+
+| From | To | Guard |
+|------|-----|-------|
+| Designed | Registered | Manifest complete; ownership authenticated. |
+| Registered | Validated | Schema, sandbox, contract, compensation, and provenance checks pass. |
+| Validated | Active | Activation authorized; no blocking anomalies. |
+| Active | Suspended | Trust score drops below threshold; security anomaly detected; health check fails. |
+| Suspended | Active | Remediation verified; human approval for reactivation (if security-related). |
+| Active | Deprecated | Successor registered or owner commands retirement. |
+| Deprecated | Retired | Notice period expired; consumers migrated. |
+| Any | Archived | Terminal state reached; statutory retention period begins. |
+
+### 9.3 State Immutability
+
+Once a tool enters Active, its core manifest, contracts, and sandbox requirements are immutable. Behavioral changes require a new version with a distinct Tool ID lineage. State transitions apply to lifecycle metadata and availability status only.
+
+---
+
+## 10. Tool Ownership & Boundaries
+
+### 10.1 Ownership Hierarchy
+
+- **System:** Owns global tools available to all tenants. Governed by the platform architect.
+- **Portfolio:** Owns cross-business tools. Governed by the portfolio architect with human sovereign approval.
+- **Business:** Owns tools scoped to its workspaces. Governed by the business owner.
+- **Workspace:** Owns tools scoped to a single workspace. Governed by the workspace lead.
+- **External Provider:** Owns third-party tools integrated into Agent OS. Governed by contractual terms and trust validation.
+
+### 10.2 Tenant Isolation
+
+Tools from one tenant may not be discovered, invoked, or referenced by another tenant unless explicitly shared through the Marketplace with bilateral permission grants and human approval. Cross-tenant tool sharing requires anonymization review and isolation verification.
+
+### 10.3 Cross-Boundary Impact
+
+A tool scoped to one business but with potential external effects on another (e.g., a social media tool that manages accounts for multiple portfolio businesses) must declare cross-boundary impact. The Gateway routes such tools to portfolio-level authority.
+
+### 10.4 Permission Inheritance
+
+A tool inherits the permissions of its owner, intersected with the permissions of its consumer. A tool may only access external resources and data within the intersection of owner scope and consumer scope. The Gateway enforces this at every invocation.
+
+---
+
+## 11. Tool Capability Model
+
+### 11.1 Capability Declaration
+
+Capabilities are declared in the tool manifest as typed, versioned, hierarchical external effects. A capability is not an API endpoint; it is a promise of outcome. Capabilities are granular: `tool.financial.transaction.execute` is distinct from `tool.financial.transaction.query`.
+
+### 11.2 Capability Discovery
+
+Consumers discover tools by querying the Registry for capability matches. Discovery methods include:
+
+- **Capability Match:** Find all tools registered for a specific external effect.
+- **Domain Search:** Find all tools within a capability domain (e.g., all communication tools).
+- **Reputation Filter:** Find tools with trust scores above a threshold.
+- **Cost Filter:** Find tools within a budget constraint.
+
+### 11.3 Capability Boundaries and Enforcement
+
+The Gateway enforces capability boundaries at invocation time. A consumer requesting `tool.infrastructure.deploy` cannot be served by a tool whose signature only includes `tool.research.scrape`. Attempts by tools to produce effects outside their declared capabilities are blocked by the Executor and logged as violations.
+
+### 11.4 Capability Evolution
+
+Tools may expand their capabilities through version updates, but only within their declared domain. A communication tool may not autonomously add financial capabilities. Capability changes require re-validation and, if crossing autonomy boundaries, human approval.
+
+---
+
+## 12. Tool Registration
+
+### 12.1 Registration as Constitutional Enrollment
+
+Registration is the process by which a tool enters the Agent OS constitution. It is not merely storage; it is the establishment of trust, the assignment of identity, and the binding of economic and legal accountability. No tool may be invoked without prior registration.
+
+### 12.2 Manifest Submission
+
+The producer submits a complete tool manifest to the Registry. The submission includes: identity primitives, capability signatures, contracts, sandbox requirements, cost model, compensation logic, dependency declarations, and provenance metadata.
+
+### 12.3 Validation Checks
+
+The Gateway performs constitutional validation:
+
+- **Schema Compliance:** Manifest conforms to the canonical tool schema.
+- **Contract Consistency:** Input and output contracts are internally consistent and free of contradiction.
+- **Sandbox Feasibility:** The declared sandbox tier is supported by the runtime infrastructure.
+- **Compensation Validation:** Mutating tools declare reversible compensation logic; the logic is reviewed for determinism.
+- **Provenance Verification:** The tool's origin, authorship, and supply chain are authenticated.
+- **Economic Review:** The cost model is coherent and attributable.
+
+### 12.4 Trust Seeding
+
+Upon validation, the tool receives an initial trust score based on provenance quality, producer reputation, and supply chain verification. New tools from unknown producers receive conservative trust scores and may be restricted to sandboxed or human-supervised invocation until proven.
+
+### 12.5 No Anonymous Tools
+
+Every tool must have an authenticated owner. Anonymous or pseudonymous tool registration is prohibited. External tools must be registered by an internal sponsor who assumes accountability for their behavior.
+
+---
+
+## 13. Tool Discovery
+
+### 13.1 Registry Queries
+
+Consumers discover tools through structured queries to the Registry. Queries specify: required capabilities, desired sandbox tier, maximum cost, minimum trust score, and scope boundaries. The Registry returns matching tools ranked by relevance.
+
+### 13.2 Capability Matching
+
+The Registry matches consumer capability requirements against tool capability signatures using hierarchical resolution. A consumer requesting `business.content.generate` may receive tools declaring `tool.creation.content.blog` if the capability hierarchy permits.
+
+### 13.3 Reputation-Weighted Discovery
+
+Discovery results are weighted by trust score. High-trust tools are prioritized for autonomous agent use. Low-trust tools are surfaced only for human-supervised invocation or excluded from autonomous discovery entirely.
+
+### 13.4 Cost-Aware Discovery
+
+The Registry integrates with the Cost Manager to filter tools based on the consumer's remaining budget. Tools whose worst-case invocation cost exceeds the available budget are excluded from results.
+
+---
+
+## 14. Tool Selection
+
+### 14.1 Selection as Optimization
+
+Tool selection is the process by which a consumer chooses a specific tool from the discovery set for a specific task. The Gateway may assist or override selection based on portfolio policy, but the consumer retains the initial choice.
+
+### 14.2 Selection Criteria
+
+Selection optimizes across:
+
+- **Capability Fit:** Precision of match between required and declared capabilities.
+- **Trust Score:** Historical reliability and behavioral stability.
+- **Cost Efficiency:** Expected cost relative to budget and alternative tools.
+- **Latency Profile:** Historical execution duration.
+- **Availability:** Current health status and dependency readiness.
+- **Sandbox Appropriateness:** Tier match for the risk class of the task.
+
+### 14.3 Portfolio-Aware Selection
+
+The Gateway applies portfolio-level weights to local selection. A tool with high local fit but from an untrusted external provider may be penalized. A tool with moderate fit but from a portfolio-validated internal source may be boosted.
+
+### 14.4 Selection Binding
+
+Once selected, the binding is recorded: consumer identity, tool identity, capability invoked, decision reference, and timestamp. This binding is immutable and serves as the foundation for attribution and audit.
+
+---
+
+## 15. Tool Permissions & Authorization
+
+### 15.1 Least Privilege
+
+Every tool invocation operates under the principle of least privilege. The consumer receives only the intersection of: the tool's declared capabilities, the consumer's assigned permissions, the decision's authorized scope, and the budget's remaining capacity.
+
+### 15.2 Authority Verification
+
+Before dispatch, the Gateway verifies:
+
+- **Consumer Authenticity:** The consumer is a registered agent, workflow, or human with valid identity.
+- **Decision Validity:** A committed decision record exists with authority level matching or exceeding the tool's authority requirement.
+- **Autonomy Boundary:** The consumer's autonomy level permits invocation of this tool class.
+- **Tenant Boundary:** The tool and consumer share a valid scope intersection.
+- **Budget Sufficiency:** The Cost Manager confirms available funds for the invocation.
+
+### 15.3 Permission Boundaries
+
+Permissions are checked at the point of action: before invocation, before secret injection, and before output return. A tool may not escalate its own permissions, and a consumer may not invoke a tool beyond its assigned inventory.
+
+### 15.4 Standing Orders
+
+Humans may issue standing orders that pre-authorize specific tool invocations within defined boundaries: specific capabilities, scoped budgets, time windows, and risk thresholds. The Gateway validates every standing-order invocation against its constraints.
+
+---
+
+## 16. Tool Trust & Reputation
+
+### 16.1 Trust Score
+
+The trust score is a composite metric (0.0–1.0) derived from:
+
+- **Provenance Quality:** Supply chain integrity and ownership verification (weight: 25%).
+- **Execution Success Rate:** Percentage of invocations completing without failure (weight: 30%).
+- **Contract Adherence:** Frequency of outputs conforming to declared output contracts (weight: 20%).
+- **Sandbox Compliance:** History of attempting operations outside declared sandbox (weight: 15%).
+- **Economic Predictability:** Variance between declared and actual costs (weight: 10%).
+
+### 16.2 Trust Decay
+
+A tool that remains unused for 60 days loses 5% of its trust score to prevent stale tools from receiving critical tasks without revalidation. Trust is regained through successful execution.
+
+### 16.3 Drift Detection
+
+The Gateway continuously monitors tool behavior for drift: changes in output distributions, latency profiles, cost variances, or sandbox boundary attempts. Drift triggers automatic review workflows and may result in suspension.
+
+### 16.4 Trust Thresholds
+
+- **< 0.40:** Tool is suspended from autonomous use; human-only invocation permitted.
+- **0.40–0.69:** Tool is restricted to Level 1–2 consumers; human approval required for Level 3+.
+- **0.70–0.89:** Standard range for autonomous use.
+- **0.90–1.00:** High-trust tools eligible for critical path assignment and standing order eligibility.
+
+---
+
+## 17. Tool Invocation Contract
+
+### 17.1 The Contract as Binding Agreement
+
+Every tool invocation is a constitutional contract between three parties: the consumer (who requests), the Gateway (who authorizes), and the Executor (who fulfills). The contract specifies the exact terms of execution and is recorded immutably before dispatch.
+
+### 17.2 Contract Components
+
+- **Idempotency Key:** A unique identifier ensuring that duplicate requests do not produce duplicate external effects.
+- **Decision Reference:** The immutable identifier of the authorizing decision record.
+- **Capability Request:** The specific capability being invoked with validated input parameters.
+- **Context Package:** The structured information environment passed to the tool, including tenant ID, budget remaining, timeout, and sandbox level.
+- **Cost Ceiling:** The maximum allowable cost for this invocation; breaching it triggers immediate halt.
+- **Timeout:** The maximum execution duration.
+- **Compensation Reference:** For mutating tools, the identifier of the compensation logic to be invoked if rollback is required.
+- **Attribution Chain:** The complete lineage from human authority through decision, workflow, agent, and tool.
+
+### 17.3 Contract Validation
+
+The Gateway validates the contract before dispatch: all components present, decision authority sufficient, budget available, sandbox assignment correct, and consumer permissions valid. Invalid contracts are rejected before any external effect occurs.
+
+### 17.4 Contract Execution
+
+The Executor fulfills the contract within its terms. If the tool exceeds its cost ceiling, timeout, or sandbox boundary, the Executor halts execution and reports failure. The Executor does not reinterpret contract terms.
+
+---
+
+## 18. Tool Composition
+
+### 18.1 Composition Patterns
+
+Tools may be composed into sequential pipelines where the output of one tool becomes the input of another. Composition occurs through the Gateway, not through direct tool-to-tool invocation. All coordination flows through the consumer or workflow orchestrator.
+
+### 18.2 Accountability Preservation
+
+In a composed sequence, each tool retains its own identity, audit trail, and attribution chain. The output of Tool A is not anonymous input to Tool B; it carries provenance metadata linking it to Tool A's execution record.
+
+### 18.3 Sandbox Escalation Prohibition
+
+A composition may not execute at a sandbox tier lower than the highest tier required by any component. A pipeline containing a Firecracker-tier tool must execute entirely within Firecracker isolation, even if other components require only Container isolation.
+
+### 18.4 Reversibility in Composition
+
+If a composed sequence contains mutating tools, each mutating step must declare compensation logic. Saga rollback traverses the composition in reverse, invoking each compensation in sequence.
+
+---
+
+## 19. Tool Context & Constraints
+
+### 19.1 Context as Execution Environment
+
+The tool context is the complete information environment available to a tool during execution. It is assembled by the Gateway and injected by the Executor. The context ensures that the tool operates with relevant, bounded, and validated information.
+
+### 19.2 Context Components
+
+- **Decision Context:** The authorizing decision record, including autonomy level and risk class.
+- **Consumer Context:** The identity, permissions, and autonomy level of the invoking agent, workflow, or human.
+- **Business Context:** The owning business's mission, active goals, and portfolio strategy.
+- **Budget Context:** Real-time capital remaining for the invocation and the containing workflow.
+- **Sandbox Context:** The assigned isolation tier and resource limits.
+- **Temporal Context:** Validity windows, urgency classification, and timeout deadlines.
+
+### 19.3 Context Budget
+
+Context assembly consumes resources. The Gateway enforces a maximum context assembly cost per invocation. If critical context exceeds budget, non-essential metadata is referenced by ID rather than embedded.
+
+### 19.4 Constraints
+
+- **Capability Constraint:** The tool may only perform effects within its declared capability signature.
+- **Sandbox Constraint:** The tool may not access resources outside its assigned sandbox.
+- **Cost Constraint:** The tool may not exceed its declared cost model or the invocation's cost ceiling.
+- **Temporal Constraint:** The tool must complete within its timeout or fail explicitly.
+- **Tenant Constraint:** The tool may not access or affect resources outside its authorized tenant scope.
+
+---
+
+## 20. Tool Availability & Health
+
+### 20.1 Health Declaration
+
+Every tool declares its external dependencies and health indicators. The Registry monitors these dependencies to determine tool availability. A tool with unhealthy dependencies is marked unavailable regardless of its own state.
+
+### 20.2 Health Checks
+
+The Gateway performs periodic health checks on Active tools: dependency liveness, contract endpoint responsiveness, and sandbox environment readiness. Health check frequency scales with tool criticality and invocation volume.
+
+### 20.3 Availability States
+
+- **Available:** Healthy and ready for invocation.
+- **Degraded:** Functional with reduced performance or partial dependency failure.
+- **Unavailable:** Dependencies failed or tool suspended; invocations blocked.
+- **Unknown:** Health data stale; invocations deferred pending verification.
+
+### 20.4 Availability and Selection
+
+Unavailable tools are excluded from discovery and selection. Degraded tools are surfaced with warning annotations and may be bypassed by portfolio policy.
+
+---
+
+## 21. Tool Reliability & Resilience
+
+### 21.1 Failure Classification
+
+Tool failures are classified within 60 seconds:
+
+- **Transient:** Temporary external error recoverable via retry (e.g., API timeout).
+- **Degraded:** Partial success; reduced output quality or incomplete effect.
+- **Critical:** Unrecoverable error; external state may be inconsistent.
+- **Security:** Sandbox violation, permission escalation attempt, or anomalous behavior.
+- **Financial:** Cost ceiling breached or unexpected external charges.
+
+### 21.2 Failure Response
+
+- **Transient:** Exponential backoff retry within the tool's declared retry policy.
+- **Degraded:** Return partial output with degradation flag; alert consumer.
+- **Critical:** Halt execution, preserve state, trigger compensation if mutating, escalate.
+- **Security:** Isolate invocation, revoke pending requests, alert human, suspend tool pending review.
+- **Financial:** Block spend, freeze consumer budget, audit trail, alert human.
+
+### 21.3 Circuit Breakers
+
+The Gateway enforces circuit breakers per tool: if failure rate exceeds a threshold within a window, subsequent invocations are rejected until health is restored. Portfolio-level circuit breakers halt all invocations of a tool class if aggregate failure threatens portfolio stability.
+
+### 21.4 Compensation and Saga Participation
+
+Mutating tools must support saga compensation. If a workflow fails after the tool has completed its mutating operation, the tool executes its compensation activity to reverse the effect. Compensations are idempotent and declared at registration.
+
+### 21.5 No Silent Failures
+
+An unclassified tool failure is treated as critical. The Gateway alerts immediately rather than assuming success. No invocation failure may be swallowed or ignored.
+
+---
+
+## 22. Tool Performance Characteristics
+
+### 22.1 Latency Budgets
+
+| Operation | Target p50 | Target p99 | Maximum |
+|-----------|-----------|-----------|---------|
+| Registry query | 50ms | 200ms | 1s |
+| Gateway authorization | 20ms | 100ms | 500ms |
+| Sandbox preparation | 100ms | 500ms | 2s |
+| Tool execution (observational) | 2s | 10s | 30s |
+| Tool execution (mutating) | 5s | 30s | 120s |
+| Output validation and return | 10ms | 50ms | 200ms |
+
+### 22.2 Throughput Targets
+
+- Tool invocations: 10,000 per minute sustained.
+- Concurrent tool executions: 5,000+.
+- Registry queries: 1,000 per second sustained.
+
+### 22.3 Scaling Behavior
+
+The Tool Gateway scales horizontally by partitioning on tenant and capability domain. Scaling does not require changes to tool manifests, authority rules, or audit policies.
+
+### 22.4 Graceful Degradation
+
+Under load, the Gateway sheds non-critical tool invocations (analytics, optional research) before degrading critical business operations. Emergency and Panic invocations are never dropped.
+
+---
+
+## 23. Tool Cost & Economics
+
+### 23.1 Cost Model Types
+
+- **Fixed:** Per-invocation flat fee regardless of payload or duration.
+- **Metered:** Cost scales with consumption (tokens, bandwidth, compute time).
+- **Tiered:** Cost varies by usage volume or capability depth.
+- **External Passthrough:** Cost is passed through from an external API with markup disclosure.
+
+### 23.2 Budget Enforcement
+
+The Gateway performs pre-flight budget checks: the invocation's worst-case cost must not exceed the consumer's remaining budget. Mid-flight monitoring halts execution if the cost ceiling is breached. Post-flight attribution records actual cost against the consumer's budget pool.
+
+### 23.3 Cost Attribution
+
+Every unit of tool spend is attributed to: tenant, business, project, workflow, activity, agent, and tool. Cost dashboards are real-time. Budget overruns are traced to specific invocations.
+
+### 23.4 Portfolio Circuit Breakers
+
+The Gateway enforces portfolio-level economic circuit breakers: maximum aggregate tool spend per business per day, maximum external API exposure per portfolio, and minimum cash reserve buffers. Invocations that would breach circuit breakers are rejected regardless of local budget availability.
+
+### 23.5 Economic Impact Assessment
+
+Tools with high external passthrough costs or high variance are flagged for portfolio review. The Gateway may restrict such tools to human approval or require pre-positioned budget buffers.
+
+---
+
+## 24. Tool Marketplace
+
+### 24.1 Marketplace as Sharing Governance
+
+The Marketplace enables businesses to share tools within a portfolio and across tenants under governed conditions. It is not an open bazaar; it is a permissioned exchange with constitutional oversight.
+
+### 24.2 Sharing Modes
+
+- **Internal:** A business shares a tool across its workspaces. Requires business owner approval.
+- **Portfolio:** A business shares a tool with other businesses in the portfolio. Requires portfolio architect approval.
+- **Global:** A tool is promoted to global availability. Requires human sovereign approval and universal safety validation.
+
+### 24.3 Sharing Requirements
+
+Shared tools must: maintain their provenance record, preserve tenant isolation, declare cross-boundary impact, and retain their original owner for accountability. The Marketplace does not transfer ownership; it grants invocation rights.
+
+### 24.4 Monetization
+
+Businesses may charge other businesses for tool invocation through the Marketplace. Pricing is declared in the tool manifest and enforced by the Cost Manager. Revenue attribution follows the same rules as cost attribution.
+
+### 24.5 Trust Verification
+
+Shared tools undergo enhanced trust verification: supply chain audit, sandbox stress testing, and dependency isolation review. Tools that fail enhanced verification are restricted to the originating tenant.
+
+---
+
+## 25. Tool Security
+
+### 25.1 Sandbox Enforcement
+
+Every tool executes within its declared sandbox tier. The Executor verifies sandbox boundaries before dispatch. A tool may not request, receive, or operate outside its assigned tier. Sandbox escapes are treated as Category 1 security incidents.
+
+### 25.2 Secret Handling
+
+Tools never handle secrets directly. Secrets are injected by the Executor into the sandbox environment at invocation time. Tools receive only references to secrets, not their values. Secrets never appear in tool context, logs, or audit trails.
+
+### 25.3 Input Sanitization
+
+All data entering a tool invocation passes through sanitization before reaching the tool. External data is not trusted until validated against the input contract and screened for injection, exfiltration, or policy violation.
+
+### 25.4 Output Sanitization
+
+All data returning from a tool passes through validation against the output contract before reaching the consumer. External data is not trusted until validated.
+
+### 25.5 Permission Escalation Prohibition
+
+A tool may not escalate its own permissions, access resources outside its capability signature, or invoke other tools directly. All tool-to-external-world interaction is mediated by the Executor; all tool-to-consumer interaction is mediated by the Gateway.
+
+---
+
+## 26. Tool Auditability & Lineage
+
+### 26.1 Invocation Record
+
+Every tool invocation produces an immutable record containing: Tool ID, version, capability invoked, consumer identity, decision reference, timestamp, input parameters (sanitized), output summary (schema-validated), cost incurred, sandbox tier, success or failure classification, failure cause (if any), and compensation identifier (if mutating).
+
+### 26.2 Lineage Preservation
+
+Any external effect produced by a tool can be traced backward through its lineage: which decision authorized it, which workflow orchestrated it, which agent requested it, which human approved it, and which business owned the budget. This traceability is non-repudiable.
+
+### 26.3 Immutability
+
+Tool audit records are append-only. No entity may modify, delete, or retroactively alter an invocation record. Corrections append new records; they do not mutate existing ones.
+
+### 26.4 Retention
+
+Invocation records are retained for a minimum of seven years. Records for retired, superseded, or failed invocations remain in the audit trail indefinitely.
+
+### 26.5 Privacy
+
+Audit records never contain secrets, credentials, or PII. Sensitive parameters are referenced by secure correlation IDs, not embedded in log entries.
+
+---
+
+## 27. Tool Observability
+
+### 27.1 Metrics
+
+- **Usage:** Invocation rate, capability distribution, consumer distribution.
+- **Performance:** Latency distribution, throughput, queue depth.
+- **Reliability:** Success rate, failure classification distribution, retry rate.
+- **Economic:** Cost burn rate, budget utilization, circuit breaker proximity.
+- **Trust:** Trust score distribution, drift anomaly count, suspension events.
+- **Security:** Sandbox violation attempts, permission escalation attempts, sanitization failures.
+
+### 27.2 Logs and Traces
+
+All Gateway and Executor operations emit structured logs. Distributed traces follow an invocation from consumer request through Gateway authorization, Executor dispatch, sandbox execution, and output return.
+
+### 27.3 Alerting
+
+Alerts trigger on: tool suspension, circuit breaker breach, high failure rate, cost anomaly, trust score drop, sandbox violation, and dependency health degradation.
+
+---
+
+## 28. Tool Evolution & Versioning
+
+### 28.1 Version Lineage
+
+When a tool's behavioral contract changes, the change is released as a new version with a distinct Tool ID linked to its predecessor via a lineage field. Existing consumers continue with the version they bound to; new consumers use the latest version.
+
+### 28.2 A/B Validation
+
+Before promoting a new tool version to Active, the Gateway conducts validation: contract compliance, sandbox verification, and limited invocation testing. Behavioral changes that alter output contracts or sandbox requirements require human approval.
+
+### 28.3 Succession Planning
+
+Every tool must declare a succession policy: whether it will be superseded by a new version, migrated to a different capability, or retired without replacement. Succession policies are reviewed during portfolio audits.
+
+---
+
+## 29. Tool Deprecation & Replacement
+
+### 29.1 Deprecation Policy
+
+Deprecation is a constitutional act, not an informal notice. It requires: a defined notice period, a identified successor tool or capability, a migration plan for existing consumers, and human approval for Level 3+ tools.
+
+### 29.2 Consumer Notification
+
+Consumers bound to deprecated tools receive notification through the Event Bus. Notifications include: deprecation timeline, successor recommendation, migration instructions, and budget impact.
+
+### 29.3 Migration Enforcement
+
+After the notice period expires, new invocations of deprecated tools are rejected. In-flight invocations are permitted to complete. Workflows planning new activities are blocked from binding to deprecated tools.
+
+### 29.4 Replacement Lineage
+
+The replacement tool is linked to the deprecated tool via lineage. Audit trails preserve the relationship so that historical effects can be understood in the context of tool succession.
+
+---
+
+## 30. Tool Learning & Improvement
+
+### 30.1 Feedback Signals
+
+- **Outcome Match:** Did the tool produce the declared external effect?
+- **Contract Accuracy:** Did outputs conform to declared contracts?
+- **Cost Predictability:** Did actual cost match the declared model?
+- **Consumer Satisfaction:** Quality ratings from review agents and humans.
+- **Temporal Stability:** Did the tool's behavior remain consistent over time?
+
+### 30.2 Bounded Learning
+
+The tool learning model may modify: capability declarations, cost models, timeout settings, retry policies, and selection heuristics. It may not modify: sandbox requirements, security boundaries, tenant isolation rules, or constitutional authority structures.
+
+### 30.3 Improvement Validation
+
+Learned improvements are validated through historical analysis and limited testing before deployment to the Registry. Improvements that reduce trust scores or increase failure rates are discarded.
+
+---
+
+## 31. Human Tool Integration
+
+### 31.1 Direct Invocation
+
+Humans may invoke tools directly through the Gateway. Direct human invocations bypass agent and workflow mediation but are subject to the same Gateway authorization, sandbox enforcement, and audit logging. Human invocations are recorded as Class D decisions if mutating.
+
+### 31.2 Human Override
+
+Humans may override tool selection, force invocation of a specific tool, or block a tool from executing. Overrides are immediate, irreversible by the system, and logged immutably.
+
+### 31.3 Tool Governance
+
+Humans register tools, approve sharing permissions, set trust thresholds, review deprecation proposals, and authorize cross-tenant Marketplace listings. Human governance decisions are Class D and are not evaluated by the Gateway; they are the terminal authority.
+
+### 31.4 Panic Protocol
+
+Invocation of the Panic Protocol immediately halts all pending and in-flight tool invocations, suspends all Active tools, and requires human intervention to resume. Panic completion must occur within 5 seconds.
+
+---
+
+## 32. Agent Tool Integration
+
+### 32.1 Inventory Intersection
+
+An agent's available tools are the intersection of: all tools in the Registry, the agent's declared capability signature, the agent's assigned tool inventory, and the agent's autonomy level. The Gateway enforces this intersection at invocation time.
+
+### 32.2 Agent Request Flow
+
+The agent requests tool invocation through the Gateway with: capability requirement, validated input parameters, decision reference, and idempotency key. The agent does not interact with the Executor, the sandbox, or secrets.
+
+### 32.3 Agent Output Handling
+
+Tool outputs are returned to the agent through the Gateway after output contract validation. The agent receives structured, validated data; it does not receive raw external responses.
+
+### 32.4 Agent Boundaries
+
+An agent may not: invoke tools outside its inventory, bypass the Gateway, handle secrets, modify tool manifests, or escalate a tool's sandbox tier. Violations are logged as Category 1 incidents.
+
+---
+
+## 33. Workflow Tool Integration
+
+### 33.1 Tool as Workflow Activity
+
+Tools participate in workflows as activities within the execution DAG. A tool activity declares: required capability, input schema, output schema, timeout, retry policy, and (for mutating tools) compensation activity.
+
+### 33.2 Planning Integration
+
+During workflow planning, the orchestrator queries the Registry for tool availability, health status, and cost estimates. Tools that are unavailable, unhealthy, or exceed budget are flagged during planning, before execution begins.
+
+### 33.3 Orchestration Integration
+
+The orchestrator dispatches tool activities to the Gateway with workflow context, decision reference, and idempotency key. The orchestrator awaits execution events from the Gateway to advance workflow state.
+
+### 33.4 Compensation Integration
+
+Mutating tool activities must declare compensation logic in the workflow DAG. If the workflow enters compensating state, the orchestrator invokes the tool's compensation through the Gateway in reverse order.
+
+### 33.5 Workflow Boundaries
+
+A workflow may not: bind unavailable tools, exceed tool cost ceilings, invoke tools beyond the workflow's autonomy profile, or bypass the Gateway for direct tool access.
+
+---
+
+## 34. Non-Violable Tool Rules
+
+The following rules are absolute. Violation constitutes a Category 1 incident:
+
+1. No tool may be invoked without prior registration and validation in the Tool Registry.
+2. No tool may execute without a valid decision record with authority matching the tool's risk class.
+3. No tool may perform external effects outside its declared capability signature.
+4. No tool may execute outside its declared sandbox tier.
+5. No tool may handle secrets directly; secrets are injected by the Executor only.
+6. No tool may escalate its own permissions or access resources outside its assigned scope.
+7. No anonymous or pseudonymous tool registration is permitted.
+8. No tool may cross tenant boundaries without explicit human approval and isolation review.
+9. No mutating tool may be registered without declared compensation logic.
+10. No tool invocation may exceed its cost ceiling or the consumer's remaining budget.
+11. No tool may bypass the Tool Gateway for direct consumer-to-executor invocation.
+12. No tool audit record may be modified, overwritten, or deleted after formation.
+13. No tool may present unvalidated external data as output without schema and sanitization checks.
+14. No approval gate for Level 3 or 4 tool invocations may auto-approve on timeout.
+15. No tool may suppress failure or cost overrun information from the Gateway.
+16. No deprecated tool may be bound to new workflow activities after its migration deadline.
+17. No tool may invoke another tool directly; all composition flows through the Gateway.
+18. No tool may store business-critical state exclusively in external systems without durability guarantees.
+19. The Panic Protocol must halt all in-flight tool invocations within 5 seconds.
+20. No tool learning may modify sandbox requirements, security boundaries, or constitutional authority structures.
+
+---
+
+## 35. Appendix: Tool Glossary
+
+| Term | Definition |
+|------|------------|
+| **Tool** | A governed, identifiable capability that performs external work under constitutional authorization and sandbox constraints. |
+| **Tool Registry** | The canonical inventory of all tools, their identities, manifests, and trust scores. |
+| **Tool Gateway** | The unified authorization and dispatch layer for all tool invocations. |
+| **Tool Executor** | The runtime component that dispatches validated invocations to sandboxed environments. |
+| **Tool Manifest** | The canonical declaration of a tool's identity, capabilities, contracts, and constraints. |
+| **Capability Signature** | The structured declaration of external effects a tool can produce. |
+| **Sandbox Tier** | The isolation level (None, Container, gVisor, Firecracker) required for safe tool execution. |
+| **Trust Score** | A composite metric of tool provenance, reliability, and behavioral stability. |
+| **Compensation Logic** | The pre-defined procedure to reverse the effect of a mutating tool invocation. |
+| **Invocation Contract** | The binding constitutional agreement specifying the terms of a single tool execution. |
+| **Tool Marketplace** | The permissioned exchange for cross-business and portfolio-level tool sharing. |
+| **Idempotency Key** | A unique identifier ensuring duplicate requests do not produce duplicate external effects. |
+| **Cost Ceiling** | The maximum allowable cost for a single tool invocation. |
+| **Circuit Breaker** | A threshold that halts tool invocations when failure rates or costs exceed safe limits. |
+
+---
+
+*End of Document*

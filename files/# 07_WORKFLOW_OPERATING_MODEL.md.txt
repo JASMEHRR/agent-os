@@ -1,0 +1,844 @@
+ # 07_WORKFLOW_OPERATING_MODEL.md
+
+**Agent OS — Workflow Operating Model**
+**Version:** 1.0.0
+**Status:** Ratified
+**Classification:** Architecture Constitution — Binding on All Workflow Behavior
+
+---
+
+## Table of Contents
+
+1. [Preamble](#1-preamble)
+2. [Workflow Philosophy](#2-workflow-philosophy)
+3. [Workflow Mission & Permanent Objectives](#3-workflow-mission--permanent-objectives)
+4. [Workflow Identity](#4-workflow-identity)
+5. [Workflow Classification](#5-workflow-classification)
+6. [Workflow Architecture & Topology](#6-workflow-architecture--topology)
+7. [Workflow Anatomy](#7-workflow-anatomy)
+8. [Workflow Lifecycle](#8-workflow-lifecycle)
+9. [Workflow States & Transitions](#9-workflow-states--transitions)
+10. [Workflow Context](#10-workflow-context)
+11. [Workflow Ownership & Boundaries](#11-workflow-ownership--boundaries)
+12. [Workflow Planning](#12-workflow-planning)
+13. [Workflow Orchestration & Coordination](#13-workflow-orchestration--coordination)
+14. [Execution Patterns](#14-execution-patterns)
+15. [Agent Participation](#15-agent-participation)
+16. [Human Interaction](#16-human-interaction)
+17. [Decision Points & Authority](#17-decision-points--authority)
+18. [Event Integration](#18-event-integration)
+19. [Checkpoints & Validation](#19-checkpoints--validation)
+20. [Compensation, Recovery & Failure Handling](#20-compensation-recovery--failure-handling)
+21. [Scheduling & Resource Allocation](#21-scheduling--resource-allocation)
+22. [Performance Characteristics](#22-performance-characteristics)
+23. [Auditability & Lineage](#23-auditability--lineage)
+24. [Workflow Learning & Evolution](#24-workflow-learning--evolution)
+25. [Workflow Governance & Oversight](#25-workflow-governance--oversight)
+26. [Workflow Security](#26-workflow-security)
+27. [Non-Violable Workflow Rules](#27-non-violable-workflow-rules)
+28. [Appendix: Workflow Glossary](#28-appendix-workflow-glossary)
+
+---
+
+## 1. Preamble
+
+This document derives the **Workflow Operating Model** from the constitutional architecture established in `01_PRINCIPLES.md`, `02_ARCHITECTURE.md`, `03_TECH_STACK.md`, `04_BUSINESS_OPERATING_MODEL.md`, `05_AGENT_RUNTIME_FRAMEWORK.md`, and `06_AGENT_OPERATING_MODEL.md`. It specifies how work itself behaves inside Agent OS: how business processes are constituted, how they coordinate autonomous agents and human operators, how they preserve state across failure, and how they guarantee that every business outcome is traceable, reversible, and measurable. This is not an implementation specification. It is the behavioral contract that all workflow definitions, all runtime orchestration, and all agent participation in business processes must fulfill. Where this document is silent, the constitution governs. Where this document speaks, it is binding.
+
+---
+
+## 2. Workflow Philosophy
+
+### 2.1 The Process Metaphor
+
+A workflow is a **durable business process** that transforms one validated business state into another. It is not a script, not a sequence of prompts, not a chain of API calls, and not an agent. It is the constitutional execution model of the venture studio: the structured, observable, and governable container within which agents, tools, humans, and business rules collaborate to produce value. The workflow is the "production line" of the operating system; agents are the workers assigned to stations along that line.
+
+### 2.2 Workflow vs. Agent
+
+An agent is a specialized worker that executes individual tasks. A workflow is the orchestrator that determines which tasks must happen, in what order, under what conditions, and with what fallback. The agent decides *how* to perform work; the workflow decides *what* must be achieved, *when* it must happen, and *what happens if it fails*. An agent may be reused across hundreds of workflows; a workflow may employ dozens of agents. Agents are stateless between tasks; workflows are stateful across their entire lifespan.
+
+### 2.3 Workflow vs. Project
+
+A project is an organizational charter: a scoped initiative with a budget, timeline, and success criteria. A workflow is the execution engine that realizes the project's intent. The same project may spawn multiple workflows over its lifetime (e.g., a "Landing Page Optimization" project may run a Research Workflow, a Design Workflow, and a Deployment Workflow). Projects are containers of intent; workflows are containers of execution. Projects survive until their charter is fulfilled; workflows survive until their business state transformation is complete.
+
+### 2.4 Workflow vs. Task
+
+A task is the smallest schedulable unit of work: an atomic assignment given to a single agent with a defined input, output schema, and cost budget. A workflow is a composed structure of tasks (and sub-workflows) with dependencies, decision points, and compensation logic. Tasks are the atoms; workflows are the molecules. A workflow without tasks is an empty plan; a task without a workflow is an ungoverned action.
+
+### 2.5 Durable Execution
+
+Business processes in an autonomous venture studio span minutes, hours, or days. They survive agent crashes, network partitions, model unavailability, and human delays. A workflow must be **durable**: its state is externalized, its progress is recoverable, and its logic is deterministic. The workflow does not trust any single component to remain alive; it trusts only the durable record of what has been done and what remains to do.
+
+### 2.6 Event-Driven Reactivity
+
+Workflows are reactive. They are triggered by business events, system events, or human commands. They emit events at every state transition, enabling other workflows, agents, and human dashboards to respond. Yet workflows are also proactive: they may schedule future work, set timers, and initiate discovery. The duality of reactivity and proactivity is essential: the system does not wait for commands, but it never acts without a trigger recorded in the event log.
+
+### 2.7 Value Creation First
+
+A workflow is not measured by task completion. It is measured by business outcome. A workflow that executes flawlessly but fails to move a business metric is a failed workflow. A workflow that encounters errors but achieves its chartered outcome through compensation and fallback is a successful workflow. The workflow exists to advance the portfolio, not to consume resources.
+
+---
+
+## 3. Workflow Mission & Permanent Objectives
+
+### 3.1 Mission
+
+The workflow subsystem exists to **reliably transform business intent into business outcomes** by orchestrating autonomous agents, human judgment, and deterministic tools within a governed, reversible, and observable process.
+
+### 3.2 Permanent Objectives
+
+The workflow subsystem pursues these objectives in perpetuity, ordered by priority:
+
+1. **Outcome Fidelity:** Every workflow must demonstrably advance the business state it was chartered to advance. Output must match intent.
+2. **Human Sovereignty Preservation:** Workflows must reduce human toil while increasing human control. No workflow may obscure its actions from human operators or override human denial.
+3. **Operational Resilience:** No single failure—agent error, model hallucination, service outage, or human unavailability—may corrupt a workflow's state or produce an unrecoverable business outcome.
+4. **Capital Efficiency:** Workflows must execute within their chartered budgets. Waste is treated as a defect. Compensation must not cost more than the original failure.
+5. **Knowledge Compounding:** Every workflow execution must produce durable, structured knowledge that improves future workflows. Successes are templated; failures are catalogued.
+6. **Consistency Guarantees:** Workflow execution must be deterministic in effect: the same trigger, context, and inputs must produce the same business state transformation, or a safe, auditable deviation.
+
+### 3.3 Objective Conflicts
+
+When objectives conflict, the resolution order is: **Human Sovereignty > Operational Resilience > Capital Efficiency > Knowledge Compounding > Outcome Fidelity > Consistency Guarantees**. The workflow may not sacrifice safety or sovereignty for speed or cost.
+
+---
+
+## 4. Workflow Identity
+
+### 4.1 Identity Primitives
+
+Every workflow possesses an immutable identity consisting of:
+
+- **Workflow ID:** A universally unique identifier assigned at trigger time, never reused.
+- **Name:** A human-readable designation reflecting the business process (e.g., "Business Discovery Workflow").
+- **Version:** A semantic version tracking the workflow's behavioral definition.
+- **Purpose Statement:** A one-sentence declaration of the business state transformation this workflow achieves.
+- **Charter Reference:** The immutable identifier of the Project or Business charter that authorized this workflow.
+- **Autonomy Profile:** The maximum autonomy level this workflow may exercise across its activities.
+- **Success Criteria:** The measurable conditions that define workflow completion.
+- **Compensation Strategy:** The declared approach to rollback for mutating activities.
+- **Audit Trail ID:** The root identifier for all audit records generated by this workflow.
+
+### 4.2 Identity Persistence
+
+Workflow identity persists for the statutory retention period (minimum seven years) regardless of outcome. A workflow is never anonymous. Its identity is the anchor for cost attribution, outcome measurement, and compliance auditing.
+
+### 4.3 Identity Lineage and Versioning
+
+When a workflow's behavioral definition is materially improved, the improvement is released as a new version with a distinct identity record linked to its predecessor. Running workflows continue with the version they started; new triggers use the latest version. This prevents mid-flight behavioral changes from corrupting active processes.
+
+### 4.4 Identity as Accountability Anchor
+
+Every activity, decision, event emission, cost incurrence, and state transition within a workflow is attributed to its Workflow ID. This attribution is non-repudiable.
+
+---
+
+## 5. Workflow Classification
+
+### 5.1 Classification by Business Purpose
+
+Workflows are organized by the business function they serve:
+
+- **Discovery Workflows:** Identify, validate, and rank opportunities.
+- **Build Workflows:** Plan, develop, test, and deploy digital products or assets.
+- **Operate Workflows:** Execute ongoing business operations: marketing, customer acquisition, maintenance, support.
+- **Improve Workflows:** Analyze performance, diagnose failures, and refine agents, tools, or processes.
+- **Governance Workflows:** Enforce boundaries, conduct audits, manage approvals, and handle escalations.
+
+### 5.2 Classification by Structural Pattern
+
+- **Sequential:** Activities execute in strict order; downstream activities depend on upstream outputs.
+- **Parallel:** Independent activities execute simultaneously; synchronization barriers collect results.
+- **Conditional:** Branching paths selected by deterministic business rules or agent recommendations.
+- **Iterative:** Repeated execution until a termination guard is satisfied.
+- **Human-in-the-Loop:** Execution pauses for human input, approval, or arbitration before resuming.
+- **Saga:** A sequence of mutating activities where each has a defined compensating activity for rollback.
+
+### 5.3 Classification by Autonomy Level
+
+- **Level 1 (Full Autonomy):** Internal research, drafting, analysis. No human gates.
+- **Level 2 (Logged Autonomy):** Reversible external effects. Logged and alerted.
+- **Level 3 (Human Approval):** Mutating customer-facing or financial activities. Explicit human gates.
+- **Level 4 (Human Escalation):** Irreversible, existential, or legally sensitive activities. Human-only authority.
+
+### 5.4 Classification by Persistence Model
+
+- **One-Shot:** Triggered once for a specific outcome; archived upon completion.
+- **Standing:** Continuously running or periodically scheduled for recurring operational processes.
+- **Recurring:** Triggered on a defined cadence (daily, weekly) with a finite execution window each time.
+
+### 5.5 Classification by Scope
+
+- **Business-Level:** Span multiple projects or workspaces within a business.
+- **Project-Level:** Scoped to a single project's charter and goals.
+- **System-Level:** Operate on the runtime itself (e.g., continuous improvement, agent retirement).
+
+---
+
+## 6. Workflow Architecture & Topology
+
+### 6.1 Hierarchical Composition
+
+Workflows may compose other workflows. A parent workflow may spawn child workflows (sub-workflows) that encapsulate distinct business capabilities. The parent retains oversight: it may cancel children, collect their outcomes, and enforce synchronization barriers. Children do not communicate directly with each other; all coordination flows through the parent or the event bus.
+
+### 6.2 Directed Acyclic Graph (DAG)
+
+The internal structure of a workflow is a DAG. Nodes represent activities (agent executions, tool invocations, human gates, or sub-workflow triggers). Edges represent dependencies: data flow, sequencing constraints, or conditional guards. Cycles are prohibited. If a business process requires iteration, it is modeled as a loop construct with an explicit termination guard, not as a cyclic dependency.
+
+### 6.3 Event Topology
+
+Workflows are nodes in the event-driven architecture. They consume events from the event bus to trigger execution or resume paused states. They emit events at every state transition, enabling loose coupling with other workflows, agents, and human interfaces. A workflow does not assume synchronous responses from the external world; it awaits events.
+
+### 6.4 Boundary Enforcement
+
+A workflow may not cross business boundaries without explicit bilateral permission grants and human approval. A workflow scoped to Business A may not read Business B's memory, invoke Business B's agents, or emit events into Business B's namespaces. Tenant isolation is absolute.
+
+---
+
+## 7. Workflow Anatomy
+
+### 7.1 Purpose Statement
+
+Every workflow must declare its purpose: the specific business state transformation it achieves. The purpose statement is the litmus test for scope creep. Any activity that does not demonstrably serve the purpose is out of scope.
+
+### 7.2 Entry Criteria
+
+The preconditions that must be satisfied before a workflow may enter the Planning state. Entry criteria include: a valid charter, available budget, registered agents with required capabilities, healthy tools, and (for Level 3+) pre-cleared human approval for known gates.
+
+### 7.3 Exit Criteria
+
+The conditions that define completion. Exit criteria include: success criteria met, all activities validated, all compensatable activities either committed or compensated, audit trail complete, and knowledge extracted to memory.
+
+### 7.4 Activity Inventory
+
+The complete set of activities (nodes) in the workflow DAG. Each activity declares: its type (agent task, tool invocation, human gate, sub-workflow trigger), its input schema, its output schema, its assigned capability signature, its timeout, its retry policy, and (for mutating activities) its compensation activity.
+
+### 7.5 Decision Points
+
+Explicit points in the DAG where a choice is made. Decision points are classified by decision class (A–D). They declare the decision authority (agent or human), the confidence threshold required, and the fallback path if confidence is insufficient.
+
+### 7.6 Checkpoints
+
+Synchronization and validation points where the workflow verifies preconditions before proceeding. Checkpoints ensure that upstream outputs are valid, budgets remain sufficient, and business rules are satisfied before irreversible work begins.
+
+### 7.7 Context Schema
+
+The structured definition of the information environment passed to every activity. The context includes: business state, project charter, goal metrics, memory bindings, tool inventory, budget remaining, human standing orders, and workflow-specific variables.
+
+### 7.8 Output Contract
+
+The schema of the business state transformation produced by the workflow. Outputs are validated against this contract before the workflow may transition to Completed.
+
+### 7.9 Cost Budget and Constraints
+
+Every workflow declares a maximum capital expenditure (compute, API, external spend). The runtime enforces this budget through pre-flight checks and mid-flight monitoring. A workflow that exceeds 80% of budget triggers a warning; exceeding 95% triggers a halt.
+
+### 7.10 Timeout Policy
+
+Workflows declare a maximum end-to-end duration. Activities declare individual timeouts. A workflow that exceeds its global timeout is automatically transitioned to Failed, and compensation is initiated.
+
+---
+
+## 8. Workflow Lifecycle
+
+### 8.1 Trigger
+
+A workflow begins with a trigger: a business event, a system event, a scheduled timer, or a human command. The trigger carries the workflow's initial context and charter reference. Triggers are immutable and logged.
+
+### 8.2 Planning
+
+The workflow enters Planning upon trigger acceptance. During Planning, the runtime constructs the execution DAG, validates entry criteria, assigns agents, verifies tool health, checks budgets, and resolves approval pre-clears. Planning is the cheap failure point: a workflow that fails planning has consumed minimal resources.
+
+### 8.3 Validation
+
+Before execution, the planned DAG is validated for: acyclicity, agent capability matches, permission coherence, budget feasibility, and approval chain completeness. Validation failures emit diagnostic events and terminate the workflow before any mutating activity begins.
+
+### 8.4 Execution
+
+Activities are dispatched according to the DAG. The workflow tracks activity state, collects outputs, enforces checkpoints, and manages decision points. Execution is event-driven: activities report completion or failure via events; the workflow advances accordingly.
+
+### 8.5 Completion
+
+When all terminal activities succeed and outputs are validated against the output contract, the workflow transitions to Completed. Completion triggers: outcome measurement, knowledge extraction, asset registration, and event emission.
+
+### 8.6 Reflection
+
+Certain workflows include a Reflection phase after completion. The runtime compares predicted outcomes (from planning) with actual outcomes. Significant deviations trigger improvement workflows or updates to the failure library.
+
+### 8.7 Archival
+
+Completed or Failed workflows are archived. Their state, audit trail, and decision journals are retained in cold storage for the statutory period. Active resources are released.
+
+### 8.8 Exception Paths
+
+- **Pause:** A workflow may be paused by human command or by system anomaly detection. Paused workflows release ephemeral resources but retain durable state. They may be resumed or cancelled.
+- **Cancel:** A workflow may be cancelled by human command. Cancellation triggers compensation for all completed mutating activities, then transitions to Failed.
+- **Compensate:** When a mutating activity fails, the workflow enters Compensating. Compensation activities execute in reverse order. If compensation succeeds, the workflow transitions to Failed. If compensation fails, the workflow enters a stalled state requiring human intervention.
+- **Fail:** Unrecoverable errors, approval denials, or budget overruns transition the workflow to Failed. Failure triggers alerts, audit logging, and (if configured) diagnostic workflows.
+
+### 8.9 Lifecycle Side Effects
+
+- **On Trigger:** A workflow record is created; a workflow ID is assigned; a workflow event is emitted.
+- **On Planning Failure:** A diagnostic event is emitted; the workflow transitions directly to Failed; no compensation is needed.
+- **On Pause:** Ephemeral resources are released; a pause event is emitted; a resume timer may be set.
+- **On Completion:** Outcome events are emitted; knowledge is written to memory; assets are transferred to project ownership.
+- **On Failure:** A failure event is emitted; the failure is catalogued; human operators are notified if autonomy level ≥ 2.
+
+---
+
+## 9. Workflow States & Transitions
+
+### 9.1 State Machine Governance
+
+Every workflow is governed by a finite state machine. States are not labels; they enforce behavioral boundaries. Transitions are event-driven, guarded by preconditions, and immutable once recorded.
+
+### 9.2 Canonical States
+
+| State | Description |
+|-------|-------------|
+| **Pending** | Trigger received; awaiting scheduler availability. |
+| **Planning** | DAG construction and resource validation in progress. |
+| **Ready** | Plan validated; awaiting execution commencement. |
+| **Running** | Activities are actively executing. |
+| **Awaiting_Human_Input** | Paused at a human approval gate or escalation point. |
+| **Paused** | Suspended by human or system command; may resume. |
+| **Compensating** | Saga rollback in progress due to upstream failure. |
+| **Completed** | Success criteria met; outcomes validated. |
+| **Failed** | Unrecoverable error, cancellation, or approval denial. |
+| **Archived** | Terminal state; record retained for audit. |
+
+### 9.3 Transition Guards
+
+Transitions between states require validation:
+
+- **Pending → Planning:** Trigger is valid and not duplicate.
+- **Planning → Ready:** DAG is acyclic; all agents registered; budget available; no missing approvals.
+- **Ready → Running:** Execution resources allocated; no higher-priority preemption.
+- **Running → Awaiting_Human_Input:** Activity requires Class C or D decision; human notification dispatched.
+- **Running → Paused:** Pause command received from authorized human or system monitor.
+- **Running → Compensating:** Mutating activity failed; compensation activities defined and available.
+- **Compensating → Failed:** All compensations completed successfully, or compensation failed and human intervention required.
+- **Running → Completed:** All terminal activities succeeded; output contract validated.
+- **Any → Failed:** Budget exceeded, security anomaly, or unrecoverable error.
+- **Completed/Failed → Archived:** Retention policies applied; resources released.
+
+### 9.4 Emergency Transitions
+
+Bypassing normal flow (e.g., Running → Failed via panic command) is permitted only for Class D authority (human operator) and is logged as a constitutional exception.
+
+### 9.5 State Immutability
+
+State transition events are append-only. A workflow may never retroactively alter its state history. If a transition was recorded in error, a correcting transition is appended, not a replacement.
+
+---
+
+## 10. Workflow Context
+
+### 10.1 Context as the Information Environment
+
+The workflow context is the complete information environment available to every activity within a workflow. It is not a prompt; it is a structured, typed, and scoped data package assembled by the runtime. The context ensures that every agent, tool, and human gate operates with relevant, bounded, and validated information.
+
+### 10.2 Context Components
+
+- **Business State:** Current stage, health score, revenue model, and active mission of the owning business.
+- **Project Charter:** Scope, success criteria, budget, timeline, and risk level of the parent project.
+- **Goal Metrics:** The quantifiable targets the workflow is expected to influence.
+- **Memory Bindings:** Read and write scopes for structured memory, semantic memory, and knowledge graph access.
+- **Agent Assignments:** The specific agents bound to each activity, including their capability signatures and autonomy levels.
+- **Tool Inventory:** The registered tools available for invocation, filtered by workspace and permission.
+- **Budget Remaining:** Real-time capital remaining for the workflow.
+- **Human Standing Orders:** Pre-approved rules that expand agent authority for specific activity types within this workflow.
+- **Workflow Variables:** Activity outputs that are passed downstream as inputs to dependent activities.
+
+### 10.3 Context Immutability
+
+Context is versioned. When an activity produces an output, the workflow context is extended with a new version; previous versions remain intact. This enables deterministic replay and forensic analysis.
+
+### 10.4 Context Budget
+
+Every context assembly operation consumes tokens, memory, and time. The workflow declares a `max_context_tokens` and `max_context_assembly_time`. If critical context exceeds budget, a summarization activity (restricted to low-cost inference) compresses long documents.
+
+---
+
+## 11. Workflow Ownership & Boundaries
+
+### 11.1 Ownership Hierarchy
+
+Every workflow is owned by exactly one Business and exactly one Project. It executes within exactly one Workspace. Ownership determines: data access scope, budget pool, agent pool, memory namespaces, and human approval chains.
+
+### 11.2 Scope Boundaries
+
+A workflow may not operate outside its chartered scope. An activity that would affect a different business, project, or workspace is blocked by the runtime. Cross-boundary effects require explicit delegation workflows with bilateral approval.
+
+### 11.3 Permission Inheritance
+
+A workflow inherits the permissions of its parent project, intersected with the permissions of its assigned agents. An activity may only invoke tools and access memory that lie within the intersection of workflow permissions and the assigned agent's permissions. The runtime enforces this at every activity dispatch.
+
+### 11.4 Resource Boundaries
+
+A workflow is constrained by: CPU and memory allocations, LLM inference quota, tool execution slots, event bus throughput, and human attention budget. No workflow may consume resources beyond its fair share during contention.
+
+### 11.5 Temporal Boundaries
+
+A workflow has a defined maximum duration. Long-running workflows must declare checkpoint intervals where state is externalized. Workflows that exceed their temporal boundary are forcibly transitioned to Failed.
+
+---
+
+## 12. Workflow Planning
+
+### 12.1 Planning as Pre-Flight Validation
+
+Planning is the phase where the runtime transforms a workflow trigger into a validated execution DAG. Planning is the system's opportunity to fail cheaply. A workflow that fails during Planning has not yet consumed agent labor, LLM tokens, or external API calls.
+
+### 12.2 DAG Construction
+
+The runtime constructs the DAG by: decomposing the workflow purpose into activities, mapping dependencies between activities, identifying parallelization opportunities, inserting checkpoints, and annotating each node with retry policies, timeouts, and autonomy requirements.
+
+### 12.3 Agent Discovery and Binding
+
+For each activity, the runtime queries the agent registry for capability matches, reputation scores, and availability. Agents are bound to activities, not to workflows. The binding records the agent ID, version, and expected execution constraints.
+
+### 12.4 Resource Verification
+
+The runtime verifies: tool health, memory availability, budget sufficiency, and (for Level 3+ activities) human approver availability. If any required resource is unavailable, the workflow remains in Planning until resources are available or a timeout expires.
+
+### 12.5 Budget Pre-Allocation
+
+The runtime calculates the worst-case cost of the workflow (sum of activity cost estimates, retry budgets, and compensation costs). If the worst-case cost exceeds the workflow budget, planning fails immediately.
+
+### 12.6 Approval Pre-Clearance
+
+For workflows with known Level 3 gates, the runtime may request pre-approval during Planning. Pre-cleared workflows may execute gates without mid-flight pauses. Non-pre-cleared workflows must pause at each gate.
+
+---
+
+## 13. Workflow Orchestration & Coordination
+
+### 13.1 Centralized Orchestration, Distributed Execution
+
+The workflow orchestration model is centralized: a single workflow authority maintains the DAG state, determines which activities are eligible to run, and processes their completion events. Execution is distributed: activities run on separate workers, in separate sandboxes, and potentially on separate infrastructure. The orchestrator does not perform work; it governs work.
+
+### 13.2 Activity Dispatch
+
+When an activity's dependencies are satisfied, the orchestrator dispatches it to the agent runtime with: the activity input, the workflow context, the agent binding, and a unique idempotency key. The orchestrator then awaits an event signaling completion, failure, or heartbeat timeout.
+
+### 13.3 Synchronization Barriers
+
+Parallel activities are joined at synchronization barriers. The barrier waits for all upstream activities to complete (or fail) before releasing downstream activities. Barriers validate that outputs from all branches are present and schema-compliant before proceeding.
+
+### 13.4 Causal Consistency
+
+The workflow guarantees causal consistency: if Activity B depends on Activity A, the context seen by B includes all effects of A. The runtime does not guarantee global wall-clock ordering across unrelated workflows, but it guarantees that dependency order is respected within a workflow.
+
+### 13.5 Deterministic Replay
+
+For durability and debugging, the workflow must be replayable: given the same trigger, context, and event sequence, the orchestrator must reconstruct the same DAG traversal. Non-deterministic inputs (e.g., current time, random values) must be injected as explicit workflow variables, not derived inside the orchestration logic.
+
+---
+
+## 14. Execution Patterns
+
+### 14.1 Sequential Pattern
+
+Activities execute in strict dependency order. The output of each activity becomes input to the next. Sequential patterns are used when causal ordering is mandatory: research must precede analysis, which must precede decision.
+
+### 14.2 Parallel Pattern
+
+Independent activities execute concurrently. A synchronization barrier collects results before downstream activities begin. Parallel patterns maximize throughput for independent tasks (e.g., scraping five competitor websites simultaneously).
+
+### 14.3 Conditional Pattern
+
+Branching paths selected by deterministic business rules or agent recommendations. The workflow evaluates a condition at runtime and traverses exactly one branch. All branches must be validated during Planning. Conditions must be deterministic functions of workflow context, not hidden inside agent prompts.
+
+### 14.4 Iterative Pattern
+
+A subgraph repeats until a termination guard is satisfied. The guard is a deterministic condition evaluated by the orchestrator. Iteration counters are bounded; unbounded loops are prohibited. If the guard is not satisfied within the maximum iteration count, the workflow fails.
+
+### 14.5 Human-in-the-Loop Pattern
+
+Execution pauses, emitting a durable approval request to the human interface. The workflow releases ephemeral resources while paused. Upon human response (approve, reject, or escalate), the workflow resumes at the exact point of pause. Paused workflows do not consume compute quota.
+
+### 14.6 Saga Pattern
+
+A sequence of mutating activities where each has a defined compensating activity. If any activity fails, the orchestrator executes compensations in reverse order of the original activities. Saga patterns are mandatory for workflows that modify external state (deployments, financial transactions, content publication).
+
+### 14.7 Ensemble Pattern
+
+Multiple agents produce independent outputs for the same task; an aggregator activity selects the best output based on weighted confidence scores or quality metrics. The ensemble pattern reduces single-agent hallucination risk for critical outputs.
+
+---
+
+## 15. Agent Participation
+
+### 15.1 Agent Binding
+
+Agents are bound to activities, not to workflows. An activity declares its required capability signature; the runtime selects an agent from the registry based on capability match, reputation score, and current load. The binding is recorded in the workflow state.
+
+### 15.2 Agent Execution Model
+
+When an activity is dispatched, the agent hydrates its context from the workflow context, executes its task using tools and inference as needed, produces structured output, and reports completion via event. The agent holds no memory of the workflow between activities; all state is externalized to the workflow orchestrator.
+
+### 15.3 Agent Authority Within a Workflow
+
+An agent's authority within a workflow is the intersection of: the workflow's autonomy profile, the activity's decision class, the agent's current autonomy level, and any standing orders. An agent may not exceed its own autonomy level even if the workflow profile permits higher autonomy.
+
+### 15.4 Agent Failure and Reassignment
+
+If an agent fails to complete an activity (crash, stall, schema violation, or budget overrun), the orchestrator may retry the activity with the same agent or reassign it to an alternative agent with the same capability signature. Reassignment is logged as a workflow deviation.
+
+### 15.5 Agent Output Validation
+
+All agent outputs are validated against the activity's output schema before the workflow proceeds. Invalid outputs trigger a retry with a corrected prompt or escalation to human review. The workflow may not proceed on unvalidated output.
+
+---
+
+## 16. Human Interaction
+
+### 16.1 Batched, Context-Rich Interaction
+
+Human operators are not interrupted for every workflow event. The runtime batches approval requests, alerts, and digests to minimize cognitive load. Approval requests include: what the workflow wants to do, why (with evidence), estimated cost and risk, rollback plan, alternatives considered, and a deadline.
+
+### 16.2 Approval Gates
+
+Approval gates are first-class activities in the workflow DAG. They are not afterthoughts. A gate declares: the decision class, the required human role, the timeout, and the fallback behavior on timeout (cancel or escalate, never auto-approve for Level 3+).
+
+### 16.3 Standing Orders
+
+Humans may issue standing orders that allow workflows to pass certain gates autonomously within defined boundaries (e.g., "Approve blog post publication if SEO score > 80"). Standing orders expire after 30 days unless renewed. The runtime validates every standing order invocation against its constraints.
+
+### 16.4 Override Mechanisms
+
+Humans may override any workflow action at any time: pause, cancel, skip an activity, or force a state transition. Overrides are immediate, irreversible by the system, and logged immutably. An overridden workflow must halt and await new instruction.
+
+### 16.5 Panic Protocol Integration
+
+The human panic protocol halts all running workflows, pauses in-flight activities, and requires human intervention to resume. The panic protocol is always available and completes within 5 seconds of invocation.
+
+---
+
+## 17. Decision Points & Authority
+
+### 17.1 Decision Classification
+
+Every decision point in a workflow is classified by impact, reversibility, and cost:
+
+| Class | Criteria | Authority |
+|-------|----------|-----------|
+| **A (Trivial)** | Reversible, <$0.01, no external impact | Agent decides |
+| **B (Operational)** | Reversible within 24h, <$10, internal impact | Agent decides, logged |
+| **C (Strategic)** | Difficult to reverse, $10–$500, customer-facing | Human approval |
+| **D (Existential)** | Irreversible, >$500, legal/reputational risk | Human only |
+
+### 17.2 Confidence Requirements
+
+Agents must express confidence levels (0.0–1.0) for all recommendations at decision points. Low-confidence recommendations on high-class decisions trigger automatic escalation. The runtime rejects decisions where confidence is below the threshold defined for the decision class.
+
+### 17.3 Decision Journals
+
+Every decision is recorded in an immutable decision journal containing: the decision made, alternatives considered, rationale, confidence level, expected outcome, and actual outcome (updated retrospectively). Journals are stored in durable memory and retained for seven years.
+
+### 17.4 Escalation Paths
+
+When a decision point exceeds the available authority, or when confidence is insufficient, the workflow escalates through the runtime's approval interface. Escalation includes context, cost estimate, risk assessment, rollback plan, and deadline. The runtime batches escalation requests to minimize human cognitive load.
+
+### 17.5 Fail-Safe Defaults
+
+When a decision point encounters ambiguity—insufficient data, conflicting agent outputs, or precondition failure—the default behavior is inaction, not action. The workflow pauses and requests clarification rather than proceeding with an assumption.
+
+---
+
+## 18. Event Integration
+
+### 18.1 Event-Driven Execution
+
+Workflows are triggered by events, advance by events, and emit events. The event bus is the sole medium for workflow-related communication. No workflow may assume synchronous responses from agents, tools, or humans; it awaits durable events.
+
+### 18.2 Event Consumption
+
+Workflows consume events by subscription. A workflow may subscribe to: business events (opportunity discovered, competitor price changed), system events (agent suspended, budget threshold breached), or command events (human approval granted, panic invoked). Event subscriptions are declared in the workflow definition.
+
+### 18.3 Event Emission
+
+The workflow emits events at every state transition, activity completion, decision journal entry, and checkpoint validation. Events carry the workflow ID, trace context, schema version, and tenant ID. Event emission is atomic with state transition: an event is not emitted unless the transition is durably recorded.
+
+### 18.4 Event Idempotency
+
+Workflows handle events idempotently. Duplicate events (due to at-least-once delivery) are detected by event ID deduplication and do not cause duplicate activity execution or duplicate state transitions.
+
+### 18.5 Event Replay
+
+Archived events may be replayed into a workflow for forensic analysis or recovery. Replay does not mutate business state; it reconstructs the workflow's decision history in a sandboxed context.
+
+---
+
+## 19. Checkpoints & Validation
+
+### 19.1 Checkpoint Philosophy
+
+Checkpoints are explicit commit points in the workflow DAG where the runtime verifies that the process remains safe, correct, and aligned before proceeding. Checkpoints are not optional optimizations; they are mandatory governance primitives.
+
+### 19.2 Pre-Activity Validation
+
+Before dispatching an activity, the runtime verifies: agent health, tool availability, budget remaining, memory access permissions, and schema compatibility of upstream outputs. Validation failures block dispatch and trigger retry or escalation.
+
+### 19.3 Post-Activity Validation
+
+After an activity completes, the runtime validates: output schema conformance, business rule satisfaction, security policy compliance, and cost budget adherence. Invalid outputs do not propagate downstream; they trigger retry, compensation, or human review.
+
+### 19.4 Mid-Workflow Health Checks
+
+Long-running workflows declare checkpoint intervals. At each interval, the runtime verifies: workflow state integrity, budget burn rate, agent drift detection, and external dependency health. Anomalies trigger pause or escalation.
+
+### 19.5 Checkpoint Durability
+
+When a checkpoint is passed, workflow state is externalized to durable storage. If the orchestrator fails immediately after a checkpoint, the workflow resumes from the checkpoint on recovery without data loss.
+
+---
+
+## 20. Compensation, Recovery & Failure Handling
+
+### 20.1 Compensation Philosophy
+
+Every workflow that performs mutating activities must define compensating activities. Compensation is not "undo" in the general sense; it is a business-safe reversal of effect. Compensation activities are idempotent, deterministic, and ordered.
+
+### 20.2 Saga Execution
+
+In a saga pattern, if Activity N fails, the workflow executes the compensation for Activity N-1, then N-2, and so on, in reverse order. Compensations must succeed before the workflow can transition to Failed. If a compensation fails, the workflow enters a stalled state requiring human intervention.
+
+### 20.3 Retry Strategy
+
+Transient failures are retried with exponential backoff. The retry policy is defined per activity: maximum attempts, base delay, and maximum delay. After exhausting retries, the failure is classified as persistent and triggers compensation or escalation.
+
+### 20.4 Timeout Strategy
+
+Activities have hard timeouts enforced by the runtime. If an agent fails to report completion within the timeout, the activity is marked failed and retried or reassigned. Workflows have global timeouts. A workflow that exceeds its global timeout is forcibly failed, and compensation is initiated.
+
+### 20.5 Cancellation
+
+Cancellation is a cooperative process. When a human or system cancels a workflow, the orchestrator halts new activity dispatch, awaits in-flight activities to complete or timeout, and then executes compensation for all completed mutating activities. Cancellation is logged as a Class C decision.
+
+### 20.6 Failure Classification
+
+Failures are classified within 60 seconds:
+
+- **Transient:** Retry may succeed (e.g., LLM API timeout).
+- **Degradable:** Partial functionality available; workflow may continue with reduced scope.
+- **Critical:** Unrecoverable error; workflow must halt and compensate.
+- **Security:** Potential breach or policy violation; isolate and alert.
+- **Financial:** Budget overrun or unauthorized spend; freeze and alert.
+
+### 20.7 Recovery Mechanisms
+
+- **Rehydration:** Workflow state is restored from durable storage after orchestrator failure.
+- **Replay:** Event sequence is replayed to reconstruct workflow state.
+- **Reassignment:** Failed activities are dispatched to alternative agents.
+- **Fallback:** Degraded modes using alternative tools or model tiers.
+
+### 20.8 No Silent Failures
+
+An unclassified failure is treated as critical. The workflow alerts immediately rather than hoping the problem resolves. No activity failure may be swallowed or ignored.
+
+---
+
+## 21. Scheduling & Resource Allocation
+
+### 21.1 Scheduling Philosophy
+
+Workflows are scheduled as an operating system schedules processes: with priorities, preemption, fair sharing, and deadlock avoidance. The runtime does not execute workflows on a first-come-first-served basis; it executes them according to business value, risk, and resource availability.
+
+### 21.2 Priority Classes
+
+1. **Critical:** Production incidents, security responses, human panic commands. Preempts all other work.
+2. **High:** Customer-facing deadlines, revenue-critical workflows, active project milestones.
+3. **Normal:** Standard business operations, routine maintenance, scheduled reviews.
+4. **Low:** Discovery scanning, optional analytics, non-urgent improvements.
+5. **Background:** Archival, cleanup, knowledge compaction.
+
+### 21.3 Fair Share
+
+No single business may consume more than 60% of shared resources during contention. The runtime enforces this through queue throttling and preemption of lower-priority workflows.
+
+### 21.4 Preemption
+
+Lower-priority workflows may be paused to free resources for higher-priority work. Preempted workflows save state and resume when capacity returns. Preemption is logged and does not trigger compensation unless the workflow is cancelled.
+
+### 21.5 Resource Quotas
+
+Workflows are constrained by: concurrent activity limits, LLM inference quota, tool execution slots, and event bus throughput. The runtime rejects new workflow triggers if the tenant or business is over quota.
+
+### 21.6 Queue-Based Load Leveling
+
+Bursty workflow triggers are buffered in a durable queue. The runtime drains the queue at a sustainable rate, scaling worker capacity based on queue depth. Backpressure is applied to producers when queue depth exceeds thresholds.
+
+---
+
+## 22. Performance Characteristics
+
+### 22.1 Latency Budgets
+
+| Operation | Target p50 | Target p99 | Maximum |
+|-----------|-----------|-----------|---------|
+| Planning phase | 5s | 30s | 120s |
+| Simple activity execution | 2s | 10s | 30s |
+| Complex activity execution | 10s | 60s | 300s |
+| Human approval request generation | 1s | 30s | 60s |
+| Checkpoint validation | 10ms | 50ms | 100ms |
+| Workflow state transition | 50ms | 200ms | 500ms |
+
+### 22.2 Throughput Targets
+
+- Workflow initiations: 100 per minute sustained.
+- Concurrent workflow executions: 1,000+.
+- Event processing per workflow: 50,000 events per second system-wide.
+
+### 22.3 Scaling Behavior
+
+The workflow subsystem scales horizontally by adding orchestrator instances and activity workers. Workflows are stateless in the orchestrator; all state is externalized. Scaling does not require workflow code changes.
+
+### 22.4 Graceful Degradation
+
+Under load, the runtime sheds non-critical work (discovery workflows, analytics, optional improvements) before degrading critical business operations. Degraded workflows continue with reduced parallelism, cheaper model tiers, or deferred non-essential activities.
+
+---
+
+## 23. Auditability & Lineage
+
+### 23.1 Complete Audit Trail
+
+Every workflow execution produces an immutable audit trail containing: every state transition, every activity dispatch and completion, every tool invocation, every decision journal entry, every human approval or override, every cost incurrence, and every event emission. Audit trails are append-only and retained for a minimum of seven years.
+
+### 23.2 Traceability
+
+Any business output—an asset, a deployed product, a financial transaction, or a knowledge assertion—can be traced backward through its workflow lineage: which workflow created it, which activities were involved, which agents executed them, which tools were used, which knowledge was retrieved, and which human approved it.
+
+### 23.3 Decision Journals
+
+Decision journals are first-class audit objects. They record not only what was decided, but what alternatives were considered, what evidence was presented, what confidence level was expressed, and what the predicted and actual outcomes were.
+
+### 23.4 Cost Attribution
+
+Every dollar of workflow spend is attributed to: tenant, business, project, workflow, activity, agent, and tool. Cost dashboards are real-time. Budget overruns are traced to specific activities.
+
+### 23.5 Privacy in Audit Logs
+
+Audit logs never contain secrets, credentials, or PII. Sensitive context is referenced by secure correlation IDs, not embedded in log entries.
+
+---
+
+## 24. Workflow Learning & Evolution
+
+### 24.1 Outcome Attribution
+
+After workflow completion, the runtime attributes business outcomes to the workflow's activities, agents, and decisions. It compares predicted outcomes (from planning) with actual outcomes. Deviations trigger learning workflows.
+
+### 24.2 Pattern Recognition
+
+Successful workflow structures—those that reliably achieve goals within budget and time—are promoted to templates. Failed structures are catalogued in the failure library with root cause analysis. Templates are versioned and quality-gated.
+
+### 24.3 Workflow Versioning
+
+Workflow definitions are versioned. A running workflow continues on its original definition; new triggers use the latest version. Version changes require validation against the Technology Decision Matrix and human approval if they alter Level 3+ gates.
+
+### 24.4 A/B Validation
+
+Before deploying a new workflow version or template, the runtime conducts an A/B test: a statistically significant sample of workflows runs the new version while a control group runs the old. Improvements demonstrating measurable benefit are promoted; others are discarded.
+
+### 24.5 Bounded Learning
+
+The workflow learning model may not modify: constitutional principles, security boundaries, human approval gates, or tenant isolation rules. Learning optimizes within boundaries; it does not erase them.
+
+---
+
+## 25. Workflow Governance & Oversight
+
+### 25.1 Boundary Enforcement
+
+The runtime continuously verifies that workflows operate within their defined boundaries: chartered scope, budget, autonomy level, and permission scope. Violations block execution and trigger incident workflows.
+
+### 25.2 Drift Detection
+
+The runtime monitors workflow execution patterns for drift: unusual activity sequences, unexpected cost profiles, degraded success rates, or schema violations. Drift triggers review workflows and may result in workflow suspension or version retirement.
+
+### 25.3 Constitutional Compliance Auditing
+
+The runtime includes a self-audit mechanism that verifies workflow behavior against constitutional principles. Non-compliance is escalated as a Category 1 incident. Audit results are stored immutably.
+
+### 25.4 Human Oversight Integration
+
+Humans receive batched, context-rich summaries of workflow activities, anomalies, and approval requests. The runtime optimizes for minimizing human cognitive load while preserving human veto power. Humans may review workflow decision journals, override actions, and command suspension at any time.
+
+---
+
+## 26. Workflow Security
+
+### 26.1 Permission Inheritance
+
+A workflow inherits permissions from its parent project, intersected with the permissions of its assigned agents. The runtime enforces least privilege: an activity may only access resources within the intersection of workflow and agent permissions.
+
+### 26.2 Input Sanitization
+
+All external data entering a workflow context passes through a sanitization layer before reaching agent prompts or tool inputs. External data is not trusted until validated and sanitized.
+
+### 26.3 Isolation
+
+Workflows are isolated by tenant, business, and workspace. A workflow may not read or write memory outside its allocated namespaces. Sub-workflows inherit the parent's isolation boundaries and may not exceed them.
+
+### 26.4 Secret Handling
+
+Workflows never handle secrets directly. Secrets are injected by the runtime into tool execution environments at invocation time. Secrets do not appear in workflow context, logs, or events.
+
+### 26.5 Sandboxing
+
+All activities that invoke tools execute within the tool's defined sandbox level. The workflow orchestrator does not execute arbitrary code; it dispatches activities to sandboxed environments.
+
+---
+
+## 27. Non-Violable Workflow Rules
+
+The following rules are absolute. Violation constitutes a Category 1 incident:
+
+1. No workflow may execute without an associated Business, Project, and Workspace.
+2. No workflow may operate without a declared purpose statement and success criteria.
+3. No mutating workflow may execute without defined compensation activities for every mutating step.
+4. No workflow may enter the Running state without passing Planning validation.
+5. No workflow may be destroyed while in Running or Paused state; it must transition to Completed, Failed, or Compensating first.
+6. No workflow may exceed its chartered budget without triggering immediate halt and human escalation.
+7. No approval gate for Level 3 or 4 actions may auto-approve on timeout.
+8. No human denial may be overridden by a workflow or agent.
+9. No workflow may cross tenant boundaries or access another tenant's memory, assets, or events.
+10. No workflow may exist in an undefined or null state.
+11. No state transition may bypass defined guards and validation.
+12. No workflow may proceed with an activity if a critical precondition check fails or returns ambiguous results.
+13. No workflow may make a Class D decision autonomously.
+14. No workflow may bypass the event bus for inter-activity or inter-workflow communication.
+15. No workflow may store business-critical state exclusively in local memory; all state must be recoverable after orchestrator failure.
+16. No workflow may present unvalidated agent output as final output without schema and business rule validation.
+17. No workflow may execute arbitrary code or commands outside sandboxed tool environments.
+18. All workflow failures must be classified within 60 seconds; silent failures are prohibited.
+19. Compensation activities must be idempotent; executing a compensation twice must be safe.
+20. The workflow learning model may not modify constitutional principles, security boundaries, or human approval gates.
+21. All workflow state transitions, decisions, and approvals must be recorded in an immutable audit trail.
+22. No secrets, credentials, or PII may appear in workflow context, logs, events, or audit trails.
+23. No workflow may schedule activities that violate an agent's declared capability signature or autonomy level.
+24. Workflow archival must retain the complete audit trail and decision journals for the statutory retention period.
+
+---
+
+## 28. Appendix: Workflow Glossary
+
+| Term | Definition |
+|------|------------|
+| **Activity** | A unit of work within a workflow, executed by an agent, tool, or human gate. |
+| **Checkpoint** | A validation and commit point where workflow state is verified and externalized. |
+| **Compensation** | A rollback activity that reverses the effect of a completed mutating activity. |
+| **Decision Journal** | An immutable record of a decision, its rationale, alternatives, and outcome. |
+| **Execution DAG** | The directed acyclic graph of activities and dependencies that defines a workflow's structure. |
+| **Human Gate** | A workflow activity that pauses execution for human input or approval. |
+| **Orchestrator** | The runtime authority that manages workflow state, dispatches activities, and enforces the DAG. |
+| **Saga** | A sequence of transactions where each has a compensating transaction for rollback. |
+| **Standing Order** | A pre-approved rule allowing limited autonomous passage of human gates. |
+| **Sub-Workflow** | A child workflow spawned by a parent workflow, encapsulating a distinct business capability. |
+| **Workflow** | A durable, orchestrated business process that transforms business state through coordinated activities. |
+| **Workflow Context** | The structured information environment passed to every activity within a workflow. |
+
+---
+
+*End of Document*

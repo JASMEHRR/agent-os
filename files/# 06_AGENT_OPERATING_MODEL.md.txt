@@ -1,0 +1,810 @@
+# 06_AGENT_OPERATING_MODEL.md
+
+**Agent OS — Agent Operating Model**
+**Version:** 1.0.0
+**Status:** Ratified
+**Classification:** Architecture Constitution — Binding on All Agent Behavior
+
+---
+
+## Table of Contents
+
+1. [Preamble](#1-preamble)
+2. [Agent Philosophy](#2-agent-philosophy)
+3. [Agent Identity](#3-agent-identity)
+4. [Agent Classification](#4-agent-classification)
+5. [Agent Anatomy](#5-agent-anatomy)
+6. [Agent Lifecycle](#6-agent-lifecycle)
+7. [Agent Capabilities](#7-agent-capabilities)
+8. [Agent Roles](#8-agent-roles)
+9. [Agent Authority and Autonomy](#9-agent-authority-and-autonomy)
+10. [Agent Decision Making](#10-agent-decision-making)
+11. [Agent Memory](#11-agent-memory)
+12. [Agent Knowledge](#12-agent-knowledge)
+13. [Agent Communication](#13-agent-communication)
+14. [Agent Collaboration](#14-agent-collaboration)
+15. [Agent Teams](#15-agent-teams)
+16. [Agent Tool Usage](#16-agent-tool-usage)
+17. [Agent Performance and Reputation](#17-agent-performance-and-reputation)
+18. [Agent Learning and Evolution](#18-agent-learning-and-evolution)
+19. [Agent Governance and Oversight](#19-agent-governance-and-oversight)
+20. [Agent Security](#20-agent-security)
+21. [Agent Failure and Recovery](#21-agent-failure-and-recovery)
+22. [Human-Agent Relationships](#22-human-agent-relationships)
+23. [Non-Violable Agent Rules](#23-non-violable-agent-rules)
+24. [Appendix: Agent Glossary](#24-appendix-agent-glossary)
+
+---
+
+## 1. Preamble
+
+This document derives the **Agent Operating Model** from the constitutional architecture established in `01_PRINCIPLES.md`, `02_ARCHITECTURE.md`, `03_TECH_STACK.md`, `04_BUSINESS_OPERATING_MODEL.md`, and `05_AGENT_RUNTIME_FRAMEWORK.md`. It specifies how the autonomous workforce behaves inside Agent OS: how agents are constituted, how they earn trust, how they collaborate, how they learn, and how they are governed. This is not an implementation specification. It is the behavioral contract that all agents and all runtime subsystems interacting with agents must fulfill. Where this document is silent, the constitution governs. Where this document speaks, it is binding.
+
+---
+
+## 2. Agent Philosophy
+
+### 2.1 The Workforce Metaphor
+
+Agent OS is an autonomous venture studio. The agents are its workforce. An agent is not a prompt, not a function, not a workflow step. An agent is a persistent digital worker with an identity, a specialty, a reputation, and a career trajectory within the studio. The workforce metaphor is not decorative; it is the lens through which all agent behavior must be understood. Just as a human employee is hired for a role, evaluated on outcomes, promoted for excellence, and dismissed for misconduct, an agent is registered for a capability, measured on success rate, granted autonomy for proven judgment, and suspended for violations.
+
+### 2.2 Agent vs. Workflow
+
+A workflow is the choreography of business processes. An agent is the executor of individual steps within that choreography. The workflow decides *what* happens and in what order; the agent decides *how* to perform the work assigned to it. A workflow may survive for days and span dozens of tasks; an agent wakes, executes a task, and returns to idle. Workflows are state machines; agents are workers.
+
+### 2.3 Agent vs. Tool
+
+A tool is a deterministic capability with a fixed input/output contract. An agent is a reasoning worker that selects, configures, and interprets tools. The agent wields the tool; the tool does not wield the agent. Tools provide boundaries; agents provide judgment. A tool executes a web request; an agent decides which requests to make, how to synthesize the results, and what conclusions to draw.
+
+### 2.4 Agent vs. Project
+
+A project is a scoped initiative with a charter, budget, and timeline. An agent is a resource assigned to a project. The same agent may serve multiple projects over its lifetime; the same project may employ multiple agents. Projects are containers of intent; agents are containers of capability.
+
+### 2.5 Specialization Thesis
+
+General intelligence is inefficient for business operation. Agent OS decomposes the venture studio into specialized roles: research, analysis, creation, deployment, review, and strategy. Each agent accumulates domain-specific knowledge, refines its judgment through feedback, and develops a reputation score that reflects its reliability in its specialty. Specialization enables parallel development, clear accountability, and compounding expertise.
+
+---
+
+## 3. Agent Identity
+
+### 3.1 Identity Primitives
+
+Every agent possesses an immutable identity consisting of:
+
+- **Agent ID:** A universally unique identifier assigned at registration, never reused, never reassigned.
+- **Name:** A human-readable designation reflecting the agent's role (e.g., "Market Research Agent").
+- **Version:** A semantic version tracking the agent's behavioral evolution.
+- **Capability Signature:** The complete set of business capabilities the agent claims to perform.
+- **Autonomy Level:** The tier of delegated authority the agent currently holds (1–4).
+- **Reputation Score:** A quantitative measure of historical performance, derived from success rates, output quality, and goal contribution.
+
+### 3.2 Identity Persistence
+
+Agent identity persists beyond any single task, workflow, or project. The runtime maintains an Agent Registry that stores identity records as durable system state. When an agent is not executing, its identity remains active in the registry. Agents are not ephemeral processes spawned and destroyed per request; they are long-lived workers that may be idle, suspended, or retired, but their identity and history endure.
+
+### 3.3 Identity Lineage and Versioning
+
+When an agent's behavior is materially improved—through prompt refinement, tool updates, or learning—the improvement is released as a new version. The new version receives a distinct identity record linked to its predecessor via a lineage field. Running workflows continue with the version they started with; new tasks are scheduled against the latest version. This prevents mid-flight behavioral changes from corrupting active processes.
+
+### 3.4 Identity as Accountability Anchor
+
+Every action taken by an agent is attributed to its Agent ID. Every cost incurred, every decision recorded, every asset created, and every failure logged carries the agent's identity. This attribution is non-repudiable: the runtime does not permit anonymous or pseudonymous agent actions. Identity is the foundation of auditability.
+
+---
+
+## 4. Agent Classification
+
+### 4.1 Classification by Capability Domain
+
+Agents are organized by the business domain they serve:
+
+- **Research Agents:** Discover, gather, and synthesize external information.
+- **Analysis Agents:** Evaluate data, rank alternatives, and produce insights.
+- **Creation Agents:** Generate digital artifacts such as content, code, and designs.
+- **Execution Agents:** Perform operations in infrastructure and external systems.
+- **Review Agents:** Evaluate outputs for quality, compliance, and alignment.
+- **Strategy Agents:** Assess portfolio health, propose initiatives, and optimize resource allocation.
+
+### 4.2 Classification by Autonomy Level
+
+Agents are classified by the tier of autonomy they hold:
+
+- **Level 1 (Full Autonomy):** Internal data processing, research, draft generation. No approval required.
+- **Level 2 (Logged Autonomy):** Actions with observable but reversible external effects. Logged and alerted.
+- **Level 3 (Human Approval):** Actions with financial, legal, or reputational impact. Explicit human approval required.
+- **Level 4 (Human Escalation):** Actions outside the agent's training or authority. Mandatory human instruction.
+
+### 4.3 Classification by Persistence Model
+
+- **Standing Agents:** Permanently registered workers attached to a business or workspace. They handle recurring operational tasks.
+- **Project-Bound Agents:** Registered for the duration of a specific project and retired upon project closure.
+- **Experimental Agents:** Registered in isolated namespaces with restricted permissions and synthetic data access.
+
+### 4.4 Classification by Operational Tier
+
+- **Core Agents:** Approved for production workloads with access to live business data.
+- **Sandbox Agents:** Restricted to development or sandbox workspaces with no access to production systems or real capital.
+
+---
+
+## 5. Agent Anatomy
+
+### 5.1 Agent Manifest
+
+The manifest is the canonical declaration of an agent's existence. It specifies the agent's identity, version, capabilities, required tools, memory access scopes, cost budgets, timeout constraints, and retry policies. The manifest is immutable once registered; changes require a new version.
+
+### 5.2 Capability Signature
+
+The capability signature is a structured declaration of the business functions an agent can perform. It is not a list of tools; it is a list of outcomes (e.g., `business.opportunity.discover`, `business.content.generate`). The runtime uses capability signatures to match agents to tasks during workflow planning.
+
+### 5.3 Memory Scope and Bindings
+
+An agent's manifest declares which memory tiers it may access and under what filters:
+
+- **Read Scope:** Which memory types (facts, embeddings, decisions) and which namespaces (private, team, business) the agent may query.
+- **Write Scope:** Which memory types the agent may persist, subject to validation schemas.
+- **Filters:** Tenant-scoped and role-based restrictions on memory queries.
+
+### 5.4 Tool Inventory
+
+The manifest declares the tools the agent is authorized to invoke. Agents cannot discover and use tools outside their inventory. The inventory is enforced at runtime by the Tool Registry and the Tool Executor.
+
+### 5.5 Autonomy Profile
+
+The autonomy profile defines the agent's current autonomy level, the conditions under which it may be upgraded or downgraded, and any standing orders that temporarily expand its authority.
+
+### 5.6 Cost Budget and Constraints
+
+Every agent declares a maximum cost per operation and a maximum cost per task. The runtime enforces these budgets through the Cost Manager. An agent that exceeds its budget is immediately halted and its task suspended.
+
+### 5.7 Output Contracts
+
+Every agent declares the schema of its outputs. Outputs are validated against these schemas before the task is marked complete. Invalid outputs trigger retry or escalation.
+
+### 5.8 Business Logic Modules
+
+Agents may include deterministic business logic modules—typed functions that perform calculations, validations, and transformations that must not be delegated to probabilistic reasoning. These modules are part of the agent's anatomy but are executed as code, not generated as text.
+
+---
+
+## 6. Agent Lifecycle
+
+### 6.1 Designed
+
+An agent enters the Designed state when a specification is drafted. In this state, the agent has no registry entry and cannot be scheduled. The specification includes capability signatures, tool inventory, memory bindings, and autonomy profile.
+
+### 6.2 Registered
+
+An agent transitions to Registered when its manifest is validated, stored in the Agent Registry, and its tools and permissions are verified. Registered agents are eligible for task assignment but have not yet passed health checks.
+
+### 6.3 Idle
+
+An agent becomes Idle after passing health checks and joining the worker pool. Idle agents await task assignment from the runtime scheduler. An agent may remain Idle indefinitely without penalty.
+
+### 6.4 Executing
+
+An agent enters Executing when the scheduler assigns a task. During execution, the agent hydrates its context from memory, invokes tools as needed, produces structured output, and reports progress via heartbeats. Upon completion or failure, the agent returns to Idle (or Suspended, if failure thresholds are breached).
+
+### 6.5 Suspended
+
+An agent is Suspended when its success rate drops below the operational threshold, when it violates schema constraints repeatedly, when a security anomaly is detected, or when a human operator commands suspension. Suspended agents cannot receive new tasks. They must undergo review and remediation before reactivation.
+
+### 6.6 Retired
+
+An agent is Retired when it is permanently decommissioned—either because a newer version supersedes it, because its capabilities are no longer needed, or because it fails review after suspension. Retirement requires all in-flight tasks to complete or be reassigned.
+
+### 6.7 Archived
+
+An archived agent retains its identity, memory, and performance history in cold storage for audit and lineage purposes. Archived agents cannot be reactivated; they are historical records.
+
+### 6.8 State Transition Guards
+
+Transitions between lifecycle states are guarded by preconditions:
+
+- **Designed → Registered:** Manifest schema validation passes; all declared tools exist; permissions are grantable.
+- **Registered → Idle:** Health check passes; no circular capability dependencies detected.
+- **Idle → Executing:** Task assignment received; task capability matches agent signature; budget is available.
+- **Executing → Suspended:** Failure threshold exceeded OR security anomaly detected OR human command received.
+- **Suspended → Idle:** Review completed; remediation verified; human approval for reactivation (if suspension was security-related).
+- **Idle → Retired:** Human command OR superseded by new version OR business line closure.
+- **Retired → Archived:** All tasks drained; memory archived; lineage record updated.
+
+### 6.9 Lifecycle Side Effects
+
+- **On Registration:** The runtime emits a system event and initializes the agent's private memory namespace.
+- **On Suspension:** The runtime revokes the agent's active tokens, emits an alert, and preserves the state of any in-flight task for forensic review.
+- **On Retirement:** The runtime reassigns the agent's pending tasks, archives its private memory to business memory (anonymized where required), and updates the Agent Registry.
+- **On Archive:** The runtime retains the agent's identity and history for the statutory retention period (minimum seven years).
+
+---
+
+## 7. Agent Capabilities
+
+### 7.1 Capability Declaration
+
+Capabilities are declared in the agent manifest as typed, versioned business functions. A capability is not a tool; it is an outcome the agent can deliver. Capabilities are hierarchical: `business.content.generate` is a parent of `business.content.generate.blog_post`. The runtime uses capability granularity to match tasks to agents.
+
+### 7.2 Capability Discovery
+
+The runtime discovers agents by querying the Agent Registry for capability matches. Discovery methods include:
+
+- **Capability Match:** Find all agents registered for a specific capability.
+- **Event Subscription:** Find all agents listening to a specific event category.
+- **Direct Reference:** A workflow explicitly names an agent by ID.
+
+### 7.3 Capability Evolution
+
+Agents may expand their capabilities through learning and version updates, but only within their declared domain. An agent may not autonomously add capabilities to its manifest; capability changes require registration of a new version with human approval if the new capability crosses autonomy boundaries.
+
+### 7.4 Capability Boundaries and Enforcement
+
+The runtime enforces capability boundaries at task assignment time. A task requiring `business.deploy.execute` cannot be assigned to an agent whose signature only includes `business.content.generate`. Attempts by an agent to invoke tools outside its capability domain are blocked by the Tool Registry and logged as violations.
+
+---
+
+## 8. Agent Roles
+
+### 8.1 Role Taxonomy
+
+A role is a functional identity that defines responsibilities, permissions, and interaction patterns. Roles are held by agents or humans. The canonical roles are:
+
+- **Business Owner:** Sets mission, approves budgets, holds ultimate accountability. Human-only.
+- **Project Lead:** Charters projects, manages scope, resolves blockers. May be human or agent.
+- **Agent Worker:** Executes tasks within capability signature and autonomy level. Agent-only.
+- **Reviewer:** Evaluates outputs for quality, compliance, and alignment. May be human or agent.
+- **Operator:** Monitors system health, handles escalations. Human-only.
+- **Auditor:** Reviews compliance, investigates incidents. Human-only.
+
+### 8.2 Role Assignment
+
+Roles are assigned at the workspace level. An agent holds its worker role permanently but may be temporarily assigned additional roles (e.g., a Content Agent serving as Reviewer for a specific task). Temporary assignments expire automatically upon task completion or project closure.
+
+### 8.3 Role Delegation
+
+Humans may delegate role responsibilities to agents via standing orders. Delegation is scoped, time-bounded, and revocable. For example, a human may delegate the Reviewer role to an agent for all blog posts meeting defined quality criteria. Delegation is logged immutably.
+
+### 8.4 Role Conflicts and Separation of Duties
+
+The runtime detects and prevents role conflicts. An agent may not hold both Creator and Reviewer roles for the same output. An agent may not approve its own decisions. Execution and review must be separable for all customer-facing and financially impactful work.
+
+---
+
+## 9. Agent Authority and Autonomy
+
+### 9.1 Authority as Delegated Power
+
+Agent authority is not inherent; it is delegated by human operators through the runtime. Authority is the subset of portfolio decision-making power that humans have chosen to automate. The runtime acts as the delegator, enforcing that no agent exercises power beyond its delegation.
+
+### 9.2 Autonomy Levels
+
+Autonomy levels are defined in `01_PRINCIPLES.md` Section 15 and `04_BUSINESS_OPERATING_MODEL.md` Section 20. They govern what an agent may do without human involvement:
+
+- **Level 1:** Internal processing only. No external effects.
+- **Level 2:** Reversible external effects. Logged, alerted.
+- **Level 3:** Significant external effects. Human approval required.
+- **Level 4:** Existential risk. Human escalation mandatory.
+
+### 9.3 Earning Autonomy
+
+Agents earn elevated autonomy through demonstrated competence. The runtime evaluates:
+
+- **Success Rate:** Sustained >95% success rate over 30 days supports Level 2 elevation.
+- **Reputation Score:** Score >0.9 supports Level 3 consideration.
+- **Decision Quality:** Decision journals show consistent alignment with human preferences.
+- **Drift Stability:** No behavioral anomalies detected over the evaluation period.
+
+Elevation requires human approval and an ADR for Level 3.
+
+### 9.4 Losing Autonomy
+
+Autonomy is revoked when:
+
+- Success rate drops below 80% for 7 consecutive days.
+- A security violation or schema drift is detected.
+- A human operator issues a downgrade command.
+- The agent exceeds its cost budget or makes unauthorized tool invocations.
+
+Downgrades are immediate for Level 3 and 4; Level 2 downgrades require review.
+
+### 9.5 Standing Orders
+
+Humans may issue pre-approved rules that allow agents to make Level 3 decisions within defined boundaries. Standing orders expire after 30 days unless renewed. They are scoped by capability, budget, and time. The runtime validates every standing order invocation against its constraints.
+
+### 9.6 Authority Boundaries
+
+An agent's authority is bounded by:
+
+- Its capability signature (what it can do).
+- Its tool inventory (how it can act).
+- Its memory scope (what it can know).
+- Its autonomy level (what it may decide).
+- Its cost budget (what it can spend).
+- Its workspace (where it can operate).
+
+No agent may act outside the intersection of these boundaries.
+
+---
+
+## 10. Agent Decision Making
+
+### 10.1 Decision Spectrum
+
+Agent decisions are classified by impact, reversibility, and cost:
+
+| Class | Criteria | Authority |
+|-------|----------|-----------|
+| **A (Trivial)** | Reversible, <$0.01, no external impact | Agent decides |
+| **B (Operational)** | Reversible within 24h, <$10, internal impact | Agent decides, logged |
+| **C (Strategic)** | Difficult to reverse, $10–$500, customer-facing | Human approval |
+| **D (Existential)** | Irreversible, >$500, legal/reputational risk | Human only |
+
+### 10.2 Confidence Requirements
+
+Agents must express confidence levels (0.0–1.0) for all recommendations. Low-confidence recommendations on high-class decisions trigger automatic escalation. The runtime rejects decisions where confidence is below the threshold defined for the decision class.
+
+### 10.3 Decision Journals
+
+Every decision is recorded in an immutable decision journal containing:
+
+- The decision made.
+- Alternatives considered.
+- Rationale and evidence.
+- Confidence level.
+- Expected outcome.
+- Actual outcome (updated retrospectively).
+
+Journals are stored in durable memory and retained for seven years.
+
+### 10.4 Escalation Paths
+
+When an agent encounters a decision above its autonomy level, or when confidence is insufficient, the agent escalates through the runtime's approval interface. Escalation includes context, cost estimate, risk assessment, rollback plan, and deadline. The runtime batches escalation requests to minimize human cognitive load.
+
+### 10.5 Fail-Safe Defaults
+
+When uncertain, the agent halts. When overwhelmed, it sheds load. When preconditions are ambiguous, it requests clarification rather than assuming. The default response to ambiguity is inaction, not action. This is the fail-safe default.
+
+---
+
+## 11. Agent Memory
+
+### 11.1 Memory Ownership Tiers
+
+Agent memory is not communal; it is an owned resource with explicit access control:
+
+- **Private:** Owned by the individual agent. Visible only to that agent. Lifetime: agent lifetime plus 30 days archive.
+- **Team:** Owned by a team. Visible to team members. Lifetime: project duration plus 90 days.
+- **Business:** Owned by the business. Visible to all agents in the business's workspaces. Lifetime: business lifetime plus 2 years.
+- **Global:** Owned by the system, anonymized. Visible to all tenants. Lifetime: indefinite, subject to policy.
+
+### 11.2 Memory Access Control
+
+Agents access memory through the Memory Gateway with role-based, tenant-scoped filters. An agent may not access Private memory of another agent. Cross-tier access requires explicit permission grants, not implicit inheritance.
+
+### 11.3 Memory Inheritance and Transfer
+
+When an agent is retired, its Private memory is either archived to Business memory (anonymized) or purged per policy. Team memory dissolves to Business memory upon team dissolution. Business memory may be promoted to Global only after anonymization and human approval.
+
+### 11.4 Memory Persistence Guarantees
+
+The runtime guarantees that agent memory written to the system is never lost due to agent retirement, business sunset, or workflow failure. Hot memory is recoverable within seconds; warm memory within minutes; cold memory within hours.
+
+### 11.5 Memory Decay and Archival
+
+Knowledge has a half-life. The runtime periodically reviews memory for obsolescence, downgrades stale facts, and archives invalidated beliefs. Decay prevents context pollution and reduces retrieval noise.
+
+---
+
+## 12. Agent Knowledge
+
+### 12.1 Knowledge vs. Data vs. Memory
+
+- **Data:** Raw, unprocessed information (e.g., a scraped webpage).
+- **Memory:** A log of what happened (e.g., the agent executed task X at time Y).
+- **Knowledge:** Validated, structured, and contextualized understanding (e.g., "Competitor X raised prices because their supply chain costs increased").
+
+Agents transform data into knowledge through extraction and validation. They retrieve knowledge to make decisions. Memory provides provenance; knowledge provides insight.
+
+### 12.2 Knowledge Extraction
+
+After completing research or analysis tasks, agents extract structured assertions from raw outputs. Extraction includes entity identification, relationship mapping, and fact isolation. Raw data is not stored as knowledge until extracted.
+
+### 12.3 Knowledge Validation and Confidence Scoring
+
+Every knowledge assertion receives a confidence score (0.0–1.0) based on source reliability, cross-reference consistency, and temporal relevance. Assertions below 0.7 confidence are flagged as speculative. Contradictory assertions trigger reconciliation workflows.
+
+### 12.4 Knowledge Decay and Invalidation
+
+Knowledge is time-bounded. The runtime assigns validity periods to facts. When a validity period expires, the knowledge is downgraded or archived. Agents may explicitly invalidate knowledge when new evidence contradicts it.
+
+### 12.5 Cross-Agent Knowledge Pollination
+
+Insights from one agent are made available to others through Business and Global memory, subject to anonymization and validation. The runtime prevents knowledge siloing while enforcing ownership boundaries.
+
+---
+
+## 13. Agent Communication
+
+### 13.1 Event-Driven Communication
+
+Agents communicate exclusively through the Event Bus. They never invoke one another directly. All interaction is mediated by structured events: an agent emits an event upon task completion, and other agents consume that event if it matches their subscription patterns.
+
+### 13.2 Communication Patterns
+
+- **Command:** An imperative instruction from a workflow or human operator.
+- **Event:** A notification that something has occurred.
+- **Query:** A request for information routed through the Memory Gateway.
+
+Agents react to events; they do not poll or assume.
+
+### 13.3 Message Contracts
+
+All inter-agent communication follows typed contracts. Events carry schema-versioned payloads with provenance metadata. Consumers ignore unknown fields (forward compatibility). Producers do not remove fields without deprecation.
+
+### 13.4 Communication Boundaries
+
+An agent in Business A may not communicate with an agent in Business B unless both are operating in a shared workspace with bilateral permission grants. Cross-tenant communication is prohibited.
+
+### 13.5 Prohibition on Direct Invocation
+
+No agent may directly invoke another agent's internal functions, memory, or tools. All coordination flows through the runtime's scheduling and event systems. Violations are logged as security incidents.
+
+---
+
+## 14. Agent Collaboration
+
+### 14.1 Pipeline Pattern
+
+Agent A produces an output that becomes the input for Agent B. The handoff occurs through the Event Bus with schema validation. Agent B validates the input before processing. Pipelines are sequential and deterministic.
+
+### 14.2 Ensemble Pattern
+
+Multiple agents produce independent outputs for the same task. An aggregator agent (or the runtime) selects the best output based on weighted confidence scores, quality metrics, or human preference. Ensemble voting prevents single-agent hallucinations from dominating outcomes.
+
+### 14.3 Hierarchy Pattern
+
+A manager agent decomposes a complex objective into sub-tasks and delegates them to worker agents. The manager maintains context across sub-tasks and synthesizes results. Workers do not communicate with each other; they report to the manager.
+
+### 14.4 Market Pattern
+
+Agents claim tasks from a shared queue based on capability match, reputation score, and current load. The runtime acts as the market maker, ensuring fair distribution and preventing starvation.
+
+### 14.5 Review Pattern
+
+A creator agent produces an output. A reviewer agent evaluates it against quality, compliance, and alignment criteria. The creator may not review its own output. Review failures trigger revision workflows.
+
+### 14.6 Context Transfer
+
+When agents collaborate, context is transferred through structured events and shared memory namespaces. All transfers are typed, validated, and logged. Ad-hoc context (e.g., natural language summaries passed between agents) is prohibited.
+
+### 14.7 Conflict Resolution
+
+When agents disagree—such as ensemble voting splits or review rejections—the runtime escalates to a higher-reputation agent or a human operator based on the decision class. Class C and D conflicts always escalate to humans.
+
+### 14.8 Collaboration Timeouts
+
+Every collaborative pattern has a defined timeout. If an agent fails to respond within its timeout, the runtime retries, reassigns, or escalates. Collaborative workflows never block indefinitely.
+
+---
+
+## 15. Agent Teams
+
+### 15.1 Team as Collaborative Unit
+
+A team is a cross-functional grouping of agents and humans assigned to achieve shared goals. Teams have shared memory, shared tools, and collective accountability. They are not organizational hierarchies; they are temporary or standing collaborations.
+
+### 15.2 Team Types
+
+- **Standing Team:** Core agents assigned to ongoing business operations. Indefinite duration.
+- **Project Team:** Agents and humans assigned to a specific project. Dissolves upon project completion.
+- **Ad-hoc Team:** Agents pulled together for a single complex task or emergency. Dissolves upon task completion.
+- **Review Team:** Agents and humans evaluating outputs. Dissolves upon review completion.
+
+### 15.3 Team Charters
+
+Every team has a charter defining shared goals, communication protocols, decision-making rules, and memory sharing policies. The charter is the binding contract for team behavior.
+
+### 15.4 Shared Memory Namespaces
+
+Teams operate within a shared memory namespace accessible to all members but isolated from other teams. Shared memory inherits the team's lifecycle: upon dissolution, it is archived to Business memory or purged per policy.
+
+### 15.5 Team Formation
+
+The runtime forms teams dynamically based on project requirements, agent availability, and reputation scores. Team formation includes a briefing workflow that hydrates new members with team memory and active goals.
+
+### 15.6 Team Leadership
+
+Every team has a lead—either a human or a high-autonomy agent—responsible for coordination, conflict resolution, and escalation. The lead does not necessarily perform the work; it orchestrates the team's efforts.
+
+### 15.7 Team Dissolution
+
+Upon dissolution, the runtime triggers knowledge extraction: private memories are archived or promoted, assets are transferred to project ownership, and a retrospective is stored in long-term memory.
+
+---
+
+## 16. Agent Tool Usage
+
+### 16.1 Tool as Capability Contract
+
+A tool is a discrete, sandboxed capability with a defined input schema, output schema, timeout, cost estimate, and sandbox level. Tools are the only mechanism by which agents interact with the external world or perform deterministic operations.
+
+### 16.2 Tool Discovery and Binding
+
+Agents discover tools through the Tool Registry. Static binding occurs at registration: the agent manifest declares required tools. Dynamic discovery occurs at runtime: agents may query the registry for tools matching capability and cost criteria, but may only invoke tools within their inventory.
+
+### 16.3 Tool Invocation Flow
+
+1. Agent requests tool invocation with validated parameters.
+2. Tool Registry verifies the agent's permission to use the tool.
+3. Cost Manager verifies budget availability.
+4. Tool Executor dispatches the tool within its defined sandbox.
+5. Output is validated against the output schema.
+6. Validated output is returned to the agent.
+
+### 16.4 Sandbox Boundaries
+
+Tools execute within sandbox boundaries determined by risk profile:
+
+- **None:** Pure computation, no I/O.
+- **Container:** Standard external interaction with network and filesystem restrictions.
+- **gVisor:** Untrusted code with user-space kernel isolation.
+- **Firecracker:** Maximum isolation for security-critical operations.
+
+### 16.5 Tool Output Validation
+
+All tool outputs are validated against their declared output schemas before being returned to the agent. Invalid outputs trigger retry or error propagation. Critical tools undergo semantic validation to verify coherence and safety.
+
+### 16.6 Tool Idempotency
+
+Tools are designed to be idempotent where possible. Calling a tool twice with the same input should be safe. The runtime uses idempotency keys to prevent duplicate execution of mutating operations.
+
+---
+
+## 17. Agent Performance and Reputation
+
+### 17.1 Success Rate
+
+The success rate is the percentage of tasks completed successfully without escalation or retry, measured over a rolling 30-day window. It is the primary quantitative metric of agent reliability.
+
+### 17.2 Reputation Score
+
+The reputation score is a composite metric (0.0–1.0) derived from:
+
+- Success rate (weight: 40%)
+- Output quality scores from review agents (weight: 25%)
+- Goal contribution (weight: 20%)
+- Human ratings (weight: 10%)
+- Cost efficiency (weight: 5%)
+
+### 17.3 Performance Attribution
+
+Outcomes are attributed to specific agents, prompts, tools, and decisions. The runtime distinguishes between skill and luck by measuring temporal stability: a successful outcome that degrades within days is weighted lower than a stable improvement.
+
+### 17.4 Reputation Decay
+
+An agent that remains Idle for 30 days loses 10% of its reputation score to prevent stale agents from receiving critical tasks without revalidation. Reputation is regained through successful task execution.
+
+### 17.5 Drift Detection
+
+The runtime continuously monitors agent behavior for drift: changes in tool usage patterns, output distributions, latency profiles, or schema adherence. Drift triggers automatic review workflows and may result in suspension.
+
+### 17.6 Assignment Eligibility
+
+Task assignment is reputation-weighted. High-reputation agents receive priority for complex or high-stakes tasks. Agents with success rates below 80% are ineligible for Level 3 tasks. Agents below 60% are automatically suspended.
+
+---
+
+## 18. Agent Learning and Evolution
+
+### 18.1 Learning Levels
+
+Learning occurs at multiple levels:
+
+- **Task Level:** Output validation, retry success, cost efficiency.
+- **Agent Level:** Prompt refinement, tool selection optimization, parameter tuning.
+- **Workflow Level:** Path optimization, parallelization opportunities, compensation improvement.
+- **Business Level:** Strategy adaptation, market response, customer behavior modeling.
+- **System Level:** Cross-agent pattern recognition, model routing optimization, template library updates.
+
+### 18.2 Feedback Signals
+
+- **Outcome Match:** Did the output achieve the desired result?
+- **Cost Efficiency:** Was the task completed within budget?
+- **Human Rating:** Direct human feedback on agent outputs.
+- **Schema Validity:** Did the output pass validation?
+- **Temporal Stability:** Did the result hold over time?
+
+### 18.3 Bounded Learning Constraints
+
+The Learning Model may not modify:
+
+- Constitutional principles.
+- Security boundaries.
+- Human approval gates.
+- Agent identity or ownership.
+
+Learning optimizes within boundaries; it does not erase them.
+
+### 18.4 A/B Validation of Learned Changes
+
+Before deploying a learned improvement (e.g., a new prompt template or tool selection heuristic), the runtime conducts an A/B test against the baseline for a statistically significant sample. Improvements demonstrating measurable benefit are promoted; others are discarded.
+
+### 18.5 Version Lineage and Succession
+
+When learning produces a material improvement, the runtime registers a new agent version with updated behavior. The predecessor is retired. Running workflows continue with the predecessor; new tasks use the successor. Lineage records preserve the evolution history.
+
+### 18.6 Failure Library
+
+Failures are catalogued with root cause, impact, and remediation. The Failure Library is consulted before initiating similar tasks. Agents retrieve relevant failures from memory to avoid repeated mistakes.
+
+---
+
+## 19. Agent Governance and Oversight
+
+### 19.1 Boundary Enforcement
+
+The runtime continuously verifies that agents operate within their defined boundaries: permissions, budgets, autonomy levels, capability signatures, and memory scopes. Violations are blocked and logged.
+
+### 19.2 Drift Detection and Response
+
+Behavioral drift—unusual tool usage, unexpected cost profiles, degraded success rates—is detected via statistical monitoring. Drift triggers review workflows. Confirmed drift results in suspension or downgrade.
+
+### 19.3 Anomaly Classification
+
+Anomalies are classified and responded to automatically:
+
+- **Operational Anomalies:** Retry, fallback, or degrade.
+- **Financial Anomalies:** Freeze budget, halt workflows, alert human.
+- **Security Anomalies:** Isolate agent, revoke tokens, preserve evidence, page human.
+
+### 19.4 Constitutional Compliance Auditing
+
+The runtime includes a self-audit mechanism that verifies agent behavior against constitutional principles. Non-compliance is escalated as a Category 1 incident. Audit results are stored immutably.
+
+### 19.5 Human Oversight Integration
+
+Humans receive batched, context-rich summaries of agent activities, anomalies, and approval requests. The runtime optimizes for minimizing human cognitive load while preserving human veto power. Humans may review agent decision journals, override actions, and command suspension at any time.
+
+---
+
+## 20. Agent Security
+
+### 20.1 Agent Identity and Authentication
+
+Agents authenticate using short-lived tokens (maximum 1-hour TTL) issued by the runtime's identity system. Tokens carry scoped claims: agent ID, roles, permissions, budget limit, and tenant ID. Tokens are rotated automatically.
+
+### 20.2 Permission Boundaries
+
+Agents receive the minimum permissions necessary for their declared capabilities. Permission checks occur at the point of action: before memory access, before tool invocation, before event emission. Agents cannot escalate their own permissions.
+
+### 20.3 Least Privilege Enforcement
+
+An agent with permission to use a web scraper cannot grant itself permission to deploy code. The runtime enforces that child tasks inherit only the intersection of parent permissions and child requirements. Permission grants require human approval and audit logging.
+
+### 20.4 Secret Handling
+
+Agents never handle secrets directly. Secrets are injected by the runtime into tool execution environments at invocation time. Agents receive only references to secrets, not their values. Secrets never appear in agent memory, logs, or traces.
+
+### 20.5 Sandboxing Requirements
+
+All code execution, external API calls, and file operations initiated by agents occur within sandboxed environments determined by the tool's risk profile. Agents may not execute arbitrary commands outside these boundaries.
+
+---
+
+## 21. Agent Failure and Recovery
+
+### 21.1 Failure Classification
+
+Agent failures are classified within 60 seconds:
+
+- **Transient:** Temporary errors recoverable via retry.
+- **Degradable:** Partial failure; reduced functionality available.
+- **Critical:** Unrecoverable error requiring workflow halt.
+- **Security:** Potential breach or policy violation.
+- **Financial:** Budget overrun or unauthorized spend.
+
+### 21.2 Failure Response by Category
+
+- **Transient:** Exponential backoff retry, max 3 attempts.
+- **Degradable:** Continue with fallback behavior, flag for review.
+- **Critical:** Halt workflow, preserve state, trigger compensation, escalate.
+- **Security:** Isolate agent, revoke tokens, preserve evidence, alert human.
+- **Financial:** Block spend, freeze budget, audit trail, alert human.
+
+### 21.3 Recovery Mechanisms
+
+- **Retry:** For transient failures with exponential backoff.
+- **Reassignment:** Failed tasks are reassigned to alternative agents.
+- **Rehydration:** Agent state is restored from durable memory after crashes.
+- **Fallback:** Degraded modes using alternative tools or models.
+
+### 21.4 Compensation and Saga Participation
+
+Agents participating in workflows with mutating operations must support saga compensation. If a workflow fails after the agent has completed its task, the agent executes its compensation activity to undo the effect. Compensations are idempotent.
+
+### 21.5 Failure Library
+
+All failures are stored in the Failure Library with classification, root cause, impact, and remediation. Agents consult the library before executing similar tasks. The library is a core component of the Learning Model.
+
+---
+
+## 22. Human-Agent Relationships
+
+### 22.1 Human as Sovereign
+
+Human operators are not users; they are sovereign delegates. The runtime exists to serve their strategic intent, not to optimize around them. Humans set missions, own capital, and retain absolute veto power.
+
+### 22.2 Approval Interface
+
+Approval requests include: what the agent wants to do, why (with evidence), estimated cost and risk, rollback plan, alternatives considered, and a deadline. Requests are durable, actionable, and batched to minimize context switching.
+
+### 22.3 Override Mechanisms
+
+Humans may override any runtime action at any time. Overrides are immediate, irreversible by the runtime, and logged immutably. An overridden agent must halt its current task and await new instruction.
+
+### 22.4 Panic Protocol
+
+A single command halts all autonomous activity, pauses in-flight workflows, and requires human intervention to resume. The panic protocol is always available, tested monthly, and completes within 5 seconds.
+
+### 22.5 Delegation with Guardrails
+
+Humans may delegate routine decisions to agents via standing orders. Delegation is scoped, time-bounded, and revocable. The runtime enforces delegation boundaries and expires standing orders automatically.
+
+### 22.6 Batched Human Interaction
+
+The runtime batches approval requests, alerts, and digests into hourly digests for routine matters and immediate notifications for critical events. Human attention is treated as the scarcest resource in the system.
+
+---
+
+## 23. Non-Violable Agent Rules
+
+The following rules are absolute. Violation constitutes a Category 1 incident:
+
+1. No agent may act outside its declared capability signature.
+2. No agent may access tools not in its registered inventory.
+3. No agent may exceed its autonomy level, regardless of confidence or urgency.
+4. No agent may execute arbitrary code outside a sandboxed environment.
+5. No agent may make a Class D decision autonomously.
+6. No approval request may be auto-approved on timeout for Level 3 or 4 actions.
+7. No human denial may be overridden by an agent.
+8. No agent may access another agent's Private memory without explicit delegation.
+9. No agent may communicate with another agent except through the Event Bus.
+10. No agent may escalate its own permissions.
+11. No agent may proceed if a critical precondition check fails or returns ambiguous results.
+12. All agent decisions with external impact must be recorded in an immutable decision journal.
+13. No agent may store business-critical state exclusively in local memory.
+14. No agent may present unvalidated data as knowledge.
+15. No agent may exceed its documented cost budget without triggering immediate halt.
+16. No agent may review its own output.
+17. No agent may hold both Creator and Reviewer roles for the same output.
+18. The Learning Model may not modify constitutional principles or security boundaries.
+19. All learned changes must be versioned, reversible, and A/B tested before deployment.
+20. No agent may bypass the Event Bus for inter-agent communication under any circumstance.
+
+---
+
+## 24. Appendix: Agent Glossary
+
+| Term | Definition |
+|------|------------|
+| **Agent** | A persistent digital worker with identity, capabilities, memory, and accountability. |
+| **Agent Manifest** | The canonical declaration of an agent's identity, capabilities, tools, and constraints. |
+| **Autonomy Level** | The tier of delegated authority an agent holds (1–4). |
+| **Capability Signature** | The structured declaration of business functions an agent can perform. |
+| **Decision Journal** | An immutable record of a decision, its rationale, and its outcome. |
+| **Ensemble** | A collaboration pattern where multiple agents produce outputs and an aggregator selects the best. |
+| **Fail-Safe Default** | The principle that ambiguity resolves to safety, not action. |
+| **Failure Library** | A catalog of failures used to prevent repeated mistakes. |
+| **Pipeline** | A collaboration pattern where agents hand off outputs sequentially. |
+| **Private Memory** | Memory owned by a single agent, invisible to others. |
+| **Reputation Score** | A composite metric of agent trustworthiness and performance. |
+| **Role** | A functional identity defining responsibilities and permissions. |
+| **Sandbox** | An isolated execution environment for tools. |
+| **Standing Order** | A pre-approved rule allowing limited autonomous decision-making. |
+| **Success Rate** | The percentage of tasks completed successfully over a rolling window. |
+| **Team** | A collaborative unit of agents and humans with shared memory and goals. |
+| **Tool Inventory** | The set of tools an agent is authorized to invoke. |
+
+
+
+

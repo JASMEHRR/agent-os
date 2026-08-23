@@ -1,0 +1,708 @@
+# 08_EVENT_OPERATING_MODEL.md
+
+**Agent OS — Event Operating Model**
+**Version:** 1.0.0
+**Status:** Ratified
+**Classification:** Architecture Constitution — Binding on All Event Behavior
+
+---
+
+## Table of Contents
+
+1. [Preamble](#1-preamble)
+2. [Event Philosophy](#2-event-philosophy)
+3. [Event Mission & Permanent Objectives](#3-event-mission--permanent-objectives)
+4. [Event Identity](#4-event-identity)
+5. [Event Classification](#5-event-classification)
+6. [Event Architecture & Topology](#6-event-architecture--topology)
+7. [Event Lifecycle](#7-event-lifecycle)
+8. [Event States & Transitions](#8-event-states--transitions)
+9. [Event Producers](#9-event-producers)
+10. [Event Consumers](#10-event-consumers)
+11. [Event Ownership & Boundaries](#11-event-ownership--boundaries)
+12. [Event Context & Provenance](#12-event-context--provenance)
+13. [Event Causality & Ordering](#13-event-causality--ordering)
+14. [Event Durability & Immutability](#14-event-durability--immutability)
+15. [Event Replay & Retention](#15-event-replay--retention)
+16. [Event Validation & Schema Evolution](#16-event-validation--schema-evolution)
+17. [Event Routing & Delivery](#17-event-routing--delivery)
+18. [Event Security](#18-event-security)
+19. [Event Governance & Oversight](#19-event-governance--oversight)
+20. [Event Observability](#20-event-observability)
+21. [Event Reliability & Fault Tolerance](#21-event-reliability--fault-tolerance)
+22. [Event Performance Characteristics](#22-event-performance-characteristics)
+23. [Event Recovery](#23-event-recovery)
+24. [Event Learning & Knowledge Compounding](#24-event-learning--knowledge-compounding)
+25. [Non-Violable Event Rules](#25-non-violable-event-rules)
+26. [Appendix: Event Glossary](#26-appendix-event-glossary)
+
+---
+
+## 1. Preamble
+
+This document derives the **Event Operating Model** from the constitutional architecture established in `01_PRINCIPLES.md`, `02_ARCHITECTURE.md`, `03_TECH_STACK.md`, `04_BUSINESS_OPERATING_MODEL.md`, `05_AGENT_RUNTIME_FRAMEWORK.md`, `06_AGENT_OPERATING_MODEL.md`, and `07_WORKFLOW_OPERATING_MODEL.md`. It specifies how events behave inside Agent OS: how they are constituted, how they coordinate autonomous agents and human operators, how they preserve history, and how they guarantee that every business fact is traceable, immutable, and governable. This is not an implementation specification. It is the behavioral contract that all event producers, all event consumers, and all runtime subsystems interacting with events must fulfill. Where this document is silent, the constitution governs. Where this document speaks, it is binding.
+
+---
+
+## 2. Event Philosophy
+
+### 2.1 The Fact Metaphor
+
+An event is an **immutable record that something meaningful has occurred**. It is not a message sent *to* someone. It is not a command instructing someone to act. It is not a request expecting a response. It is a fact published *about* reality that any authorized observer may consume. The fact metaphor is not decorative; it is the lens through which all event behavior must be understood. Just as a historical record cannot be altered after it is written, an event cannot be modified after it is emitted. Just as a fact does not know who will read it, an event does not know who will consume it. The event describes what happened; the consumer decides what to do about it.
+
+### 2.2 Event vs. Command
+
+A command is an imperative instruction from one entity to another: "Do this." Commands are coupled to a specific recipient and imply an obligation to obey. Events are decoupled declarations: "This happened." The runtime does not command agents to act; it emits events that agents may choose to react to. Agents do not command workflows to advance; they emit events that workflows may consume. This distinction prevents tight coupling, enables replay, and preserves autonomy. A command that fails leaves the sender uncertain; an event that is emitted is already true, regardless of who hears it.
+
+### 2.3 Event vs. Message
+
+A message is a packet of data in transit. An event is a business fact with identity, provenance, and contractual obligations. All events are messages, but not all messages are events. A health probe is a message; a competitor price change is an event. A metric scrape is a message; a business deployment completion is an event. Events carry context, causality, and schema guarantees that ordinary messages do not. The Event Operating Model governs only events.
+
+### 2.4 Event vs. Workflow
+
+A workflow is a durable business process that transforms state. An event is the notification that a state transformation has occurred or that a condition has been detected. Workflows consume events to trigger execution and emit events to report progress. The workflow is the process; the event is the fact. A workflow may span hours and dozens of activities; an event is a single, atomic, timestamped fact. Workflows are orchestrated; events are observed.
+
+### 2.5 Event vs. State
+
+State is the current condition of an entity. Events are the history that produced that state. State can be derived from events, but events cannot be derived from state. The runtime treats the event log as the source of truth and state as a derived projection. This means that state corruption can be repaired by replaying events, but event corruption is irreparable. Therefore, events are guarded more strictly than state.
+
+### 2.6 Event-Driven Coordination
+
+Agent OS is an autonomous venture studio. Its components do not poll, do not assume, and do not synchronously invoke one another. They react to events. The runtime schedules work when events indicate capacity or demand. Agents collaborate by emitting and consuming events through the Event Bus. Workflows advance when events signal completion or failure. Governance intervenes when events signal anomaly or breach. Observability functions by consuming events. Learning is triggered by event patterns. Events are the nervous system; everything else is muscle.
+
+---
+
+## 3. Event Mission & Permanent Objectives
+
+### 3.1 Mission
+
+The event subsystem exists to **make the autonomous venture studio observable, accountable, and recoverable** by ensuring that every meaningful occurrence is captured as an immutable, attributable, and retrievable fact, available to authorized consumers without coupling producers to consumers.
+
+### 3.2 Permanent Objectives
+
+The event subsystem pursues these objectives in perpetuity, ordered by priority:
+
+1. **Truth Preservation:** Every event must be an accurate, immutable record of what occurred. The event log must be tamper-evident and complete.
+2. **Decoupled Coordination:** Producers must not know consumers, and consumers must not know producers. Events mediate all cross-component interaction.
+3. **Complete Auditability:** Every decision, action, state transition, and anomaly must be reconstructible from the event log.
+4. **Causal Fidelity:** The event stream must preserve happens-before relationships so that distributed behavior is understandable and replayable.
+5. **Governability:** The event stream must be inspectable, filterable, and enforceable by governance subsystems in real time.
+6. **Knowledge Compounding:** Event patterns must be mineable for insights that improve future system behavior.
+
+### 3.3 Objective Conflicts
+
+When objectives conflict, the resolution order is: **Truth Preservation > Causal Fidelity > Complete Auditability > Decoupled Coordination > Governability > Knowledge Compounding**. The event subsystem may not sacrifice accuracy or ordering for convenience.
+
+---
+
+## 4. Event Identity
+
+### 4.1 Identity Primitives
+
+Every event possesses an immutable identity consisting of:
+
+- **Event ID:** A universally unique, lexicographically sortable identifier assigned at emission, never reused, never reassigned. Serves as the idempotency key for all time.
+- **Event Type:** A hierarchical, dot-notation classification (e.g., `business.idea.ranked`) that declares the semantic category of the fact.
+- **Schema Version:** A semantic version indicating the structural contract of the payload.
+- **Timestamp:** The authoritative time at which the fact occurred, distinct from processing or observation time.
+- **Trace ID:** The distributed tracing correlation identifier that links this event to the business operation that caused it.
+- **Tenant ID:** The isolation boundary that owns this event.
+- **Source:** The identity of the producer (agent, workflow, service, or human) that emitted the event.
+
+### 4.2 Identity Persistence
+
+Event identity persists for the statutory retention period (minimum seven years) regardless of consumer processing status. An event is never anonymous. Its identity is the anchor for cost attribution, outcome measurement, compliance auditing, and forensic reconstruction.
+
+### 4.3 Identity as Accountability Anchor
+
+Every event is attributable to a specific producer. Every emission is authorized, every payload is schema-bound, and every timestamp is non-repudiable. The runtime does not permit anonymous or pseudonymous event emission. Identity is the foundation of auditability.
+
+---
+
+## 5. Event Classification
+
+### 5.1 Classification by Business Domain
+
+Events are organized by the domain of reality they describe:
+
+- **Business Events:** Facts about the portfolio, businesses, opportunities, and market conditions. (e.g., `business.product.launched`, `business.competitor.price_changed`)
+- **Agent Events:** Facts about agent lifecycle and execution. (e.g., `agent.execution.completed`, `agent.suspended`)
+- **Workflow Events:** Facts about workflow state transitions and progress. (e.g., `workflow.state_changed`, `workflow.awaiting_approval`)
+- **System Events:** Facts about infrastructure health, scaling, and resource status. (e.g., `system.service.healthy`, `system.budget_threshold_breached`)
+- **Command Events:** Imperative facts that a command has been issued. (e.g., `command.approval.granted`, `command.panic.invoked`) Note: Command events are facts *about* commands, not commands themselves.
+- **Audit Events:** Facts about security-relevant actions and access decisions. (e.g., `audit.approval.granted`, `audit.tool.executed`)
+
+### 5.2 Classification by Structural Pattern
+
+- **Domain Event:** A fact that something happened in the business. (e.g., a product was launched)
+- **Integration Event:** A fact published to enable cross-boundary coordination. (e.g., a workflow completed in one business, triggering analytics in another)
+- **Notification Event:** A fact that human attention may be required. (e.g., an approval is pending)
+- **Telemetry Event:** A fact about system behavior used for observability. (e.g., a latency measurement)
+
+### 5.3 Classification by Sensitivity
+
+- **Public:** Events that contain no tenant-specific data and may be consumed by any authorized observer. (e.g., system health)
+- **Tenant-Scoped:** Events that belong to a specific tenant and may not cross tenant boundaries. (e.g., business revenue data)
+- **Restricted:** Events that contain financial, legal, or security-sensitive facts and require elevated permissions. (e.g., audit logs, approval decisions)
+
+### 5.4 Classification by Persistence Model
+
+- **Operational:** Events required for real-time coordination. Retained until all consumers have acknowledged and processed them.
+- **Analytical:** Events required for reporting, learning, and pattern recognition. Retained for the full statutory period.
+- **Audit:** Events required for compliance and forensic investigation. Retained immutably for seven years minimum.
+- **Ephemeral:** Events whose facts are transient and need not outlive immediate consumption. (e.g., heartbeat events)
+
+---
+
+## 6. Event Architecture & Topology
+
+### 6.1 Hub-and-Spoke Topology
+
+The event architecture is hub-and-spoke. The Event Bus is the hub. Producers emit into the hub without knowledge of consumers. Consumers subscribe to the hub without knowledge of producers. No producer emits directly to a consumer. No consumer polls a producer. The hub mediates all event flow, enforces routing rules, and guarantees delivery semantics.
+
+### 6.2 Stream Topology
+
+Events flow through logical streams categorized by domain. Each stream is an ordered, append-only sequence of events within a category. Streams are not queues; they are durable logs. Consumers read from streams at their own pace, maintaining their own read positions. Multiple consumers may read the same stream independently.
+
+### 6.3 Consumer Group Topology
+
+Consumers are organized into consumer groups for load balancing. A consumer group represents a logical processing application. Events within a stream are distributed among the members of a consumer group such that each event is processed by exactly one member of the group. Different consumer groups reading the same stream receive independent copies of every event.
+
+### 6.4 Event-Driven System Topology
+
+The runtime, agents, workflows, memory, governance, and observability subsystems are all nodes in the event topology. They emit events into the hub and consume events from the hub. The topology is not a network topology of physical connections; it is a logical topology of event subscriptions and emissions. Physical connectivity is irrelevant to event behavior.
+
+### 6.5 Boundary Enforcement
+
+Events may not cross tenant boundaries. A business event from Tenant A is invisible to Tenant B unless explicitly promoted to Global scope through an anonymization workflow with human approval. Cross-business events within a tenant are permitted only through shared workspaces with bilateral permission grants.
+
+---
+
+## 7. Event Lifecycle
+
+### 7.1 Occurrence
+
+An event begins with an occurrence: something meaningful happens in the business, in an agent, in a workflow, or in the system. The occurrence is the fact in reality. The event is the record of that fact.
+
+### 7.2 Emission
+
+The producer constructs the event with full identity, context, and payload. The producer validates the payload against the declared schema version. The producer assigns the authoritative timestamp. The producer emits the event to the Event Bus.
+
+### 7.3 Publication
+
+The Event Bus receives the event, validates its identity and schema, assigns a sequence identifier within its stream, and appends it to the durable log. At the moment of publication, the event becomes immutable and observable.
+
+### 7.4 Routing
+
+The Event Bus routes the event to all consumer groups subscribed to its stream and category. Routing is deterministic: the same event always routes to the same consumer groups.
+
+### 7.5 Delivery
+
+The event is delivered to individual consumers within subscribed consumer groups. Delivery is at-least-once. The consumer receives the event with its full identity and context.
+
+### 7.6 Processing
+
+The consumer processes the event, executing whatever business logic is appropriate to the fact. Processing may trigger state changes, agent tasks, workflow advances, or further event emissions.
+
+### 7.7 Acknowledgment
+
+The consumer acknowledges successful processing to the Event Bus. Acknowledgment is the consumer's promise that the fact has been durably handled. Until acknowledgment, the event remains eligible for redelivery.
+
+### 7.8 Archival
+
+After operational consumption, the event is archived to long-term storage for analytical, audit, and learning purposes. Archival is append-only and immutable.
+
+### 7.9 Expiration
+
+After the statutory retention period, the event may be purged according to data governance policy. Audit events are never purged before the seven-year minimum.
+
+---
+
+## 8. Event States & Transitions
+
+### 8.1 Canonical States
+
+| State | Description |
+|-------|-------------|
+| **Published** | Event appended to the stream, available for delivery. |
+| **Delivered** | Event dispatched to a consumer, awaiting processing. |
+| **Acknowledged** | Consumer confirmed successful processing. |
+| **Pending Retry** | Delivery or processing failed, scheduled for redelivery. |
+| **Dead-Lettered** | Maximum retries exhausted, quarantined for human review. |
+| **Archived** | Moved to long-term storage for retention. |
+| **Expired** | Retention period elapsed, purged per policy. |
+
+### 8.2 Transition Guards
+
+- **Published → Delivered:** Consumer group is active and has available capacity.
+- **Delivered → Acknowledged:** Consumer explicitly acknowledges after durable processing.
+- **Delivered → Pending Retry:** Consumer fails to acknowledge within timeout, or processing failure signaled.
+- **Pending Retry → Delivered:** Retry interval elapsed, consumer capacity available.
+- **Pending Retry → Dead-Lettered:** Maximum retry attempts exhausted.
+- **Acknowledged → Archived:** Operational retention period elapsed.
+- **Archived → Expired:** Statutory retention period elapsed (non-audit events).
+
+### 8.3 State Immutability
+
+Once an event enters Published, its content and identity are immutable. State transitions apply only to the delivery and lifecycle metadata of the event, never to the fact itself. A correcting event is a new event, not a mutation of an existing one.
+
+---
+
+## 9. Event Producers
+
+### 9.1 Producer Identity
+
+Every event producer is an authenticated, authorized entity with a declared identity: service account, agent, workflow, or human operator. Anonymous event emission is prohibited.
+
+### 9.2 Producer Responsibilities
+
+- **Schema Compliance:** Producers must emit events that conform to a registered, versioned schema.
+- **Context Completeness:** Producers must populate all mandatory identity and provenance fields.
+- **Timestamp Accuracy:** Producers must assign the authoritative occurrence timestamp, not the emission timestamp if they differ.
+- **Tenant Scoping:** Producers must tag events with the correct tenant and business boundaries.
+- **Idempotency Awareness:** Producers must ensure that the same occurrence does not generate duplicate events with different Event IDs.
+
+### 9.3 Producer Boundaries
+
+A producer may only emit events within its declared scope. An agent may emit agent events and business events within its assigned business. A workflow may emit workflow events within its chartered project. A service may emit system events within its operational domain. Cross-scope emission requires explicit permission.
+
+### 9.4 Producer Failure
+
+If a producer fails to emit an event (crash, network partition, authorization failure), the occurrence is not recorded. The runtime must detect this gap through health checks and reconcile missing events through recovery workflows. Producers must not silently swallow emission failures.
+
+---
+
+## 10. Event Consumers
+
+### 10.1 Consumer Identity
+
+Every consumer group is a registered, authorized entity with a declared purpose and subscription pattern. Anonymous consumption is prohibited.
+
+### 10.2 Consumer Responsibilities
+
+- **Idempotent Processing:** Consumers must handle duplicate deliveries safely. The same event delivered twice must produce the same outcome as delivery once.
+- **Ordered Processing:** Consumers that require ordering must process events within their partition in sequence.
+- **Acknowledgment Integrity:** Consumers must acknowledge only after durable processing. Acknowledgment before processing is prohibited.
+- **Schema Tolerance:** Consumers must ignore unknown fields in event payloads (forward compatibility).
+- **Failure Signaling:** Consumers must signal processing failures explicitly so that retry or dead-lettering can occur.
+
+### 10.3 Consumer Subscription Patterns
+
+Consumers declare subscriptions by stream, event type prefix, or filtered criteria. Subscriptions are validated at registration time. A consumer may not subscribe to events outside its permission scope.
+
+### 10.4 Consumer Isolation
+
+Consumers operate in isolation. One consumer's failure does not affect another consumer's ability to process the same event. One consumer's slowness does not block another consumer.
+
+### 10.5 Consumer Drift
+
+If a consumer falls unacceptably far behind the stream (lag exceeds defined thresholds), the runtime triggers an alert. If the consumer is critical, the runtime may escalate to human operators. If the consumer is non-critical, the runtime may drop ephemeral events to prevent resource exhaustion.
+
+---
+
+## 11. Event Ownership & Boundaries
+
+### 11.1 Ownership Hierarchy
+
+Every event is owned by exactly one tenant. Within a tenant, business events are owned by the business that produced them. System events are owned by the runtime. Audit events are owned by the governance subsystem. Ownership determines retention, access control, and archival policy.
+
+### 11.2 Tenant Isolation
+
+Events from one tenant may not be delivered to consumers of another tenant. The Event Bus enforces tenant isolation at the routing layer. Cross-tenant event sharing requires explicit anonymization workflows and human approval.
+
+### 11.3 Cross-Business Boundaries
+
+Within a tenant, events from one business may be consumed by another business only if both businesses operate in a shared workspace with bilateral permission grants. The Event Bus filters cross-business delivery based on workspace membership.
+
+### 11.4 Global Events
+
+Certain events are promoted to Global scope after anonymization and validation. Global events contain no tenant-specific identifiers and represent universal facts (e.g., "A new AI model was released"). Global events are owned by the system and are readable by all tenants.
+
+### 11.5 Event Delegation
+
+An event owner may delegate read access to another entity through an explicit access grant. Delegation is time-bounded, scope-limited, and logged. Delegation does not transfer ownership.
+
+---
+
+## 12. Event Context & Provenance
+
+### 12.1 Context as Causal Environment
+
+Every event carries a complete causal context that explains why the event occurred. Context is not the payload; it is the metadata that surrounds the fact.
+
+### 12.2 Provenance Metadata
+
+- **Causation ID:** The Event ID of the event that directly caused this event. Establishes the causal chain.
+- **Correlation ID:** The Trace ID that links this event to the broader business operation.
+- **Source Identity:** The authenticated identity of the producer.
+- **Origin Timestamp:** The time the fact occurred in the source system.
+- **Emission Timestamp:** The time the event was published to the Event Bus.
+- **Processing Timestamp:** The time the event was processed by a consumer (added by consumer).
+- **Business Context:** The business, project, workspace, and workflow identifiers that scope the occurrence.
+
+### 12.3 Context Propagation
+
+When a consumer processes an event and emits new events, it must propagate the Correlation ID and set the Causation ID to the Event ID it consumed. This creates an unbroken causal graph from the original trigger to all downstream effects.
+
+### 12.4 Context Budget
+
+Context metadata consumes storage and bandwidth. The event subsystem enforces a maximum context size. If critical context exceeds budget, non-essential metadata is summarized or referenced by ID rather than embedded.
+
+---
+
+## 13. Event Causality & Ordering
+
+### 13.1 Causal Consistency
+
+The event subsystem guarantees causal consistency: if Event A causes Event B, all consumers will observe Event A before Event B. Causality is established by Causation IDs, not by wall-clock timestamps.
+
+### 13.2 Stream Ordering
+
+Within a single stream, events are totally ordered by sequence. Consumers reading a stream observe events in sequence order. This guarantees that state derived from a stream is deterministic.
+
+### 13.3 Cross-Stream Ordering
+
+Across different streams, no global wall-clock ordering is guaranteed. Events in different streams are causally independent unless explicitly linked by Causation IDs. Consumers must not assume that an event in Stream X occurred before an event in Stream Y based on timestamp alone.
+
+### 13.4 Happens-Before Relationships
+
+The happens-before relationship is defined as:
+- If Event A and Event B are in the same stream and A has a lower sequence than B, A happens-before B.
+- If Event B's Causation ID is Event A's Event ID, A happens-before B.
+- Happens-before is transitive.
+
+### 13.5 Out-of-Order Handling
+
+Consumers that require causal ordering must buffer events and delay processing until all causally preceding events have been observed. Consumers that do not require ordering may process events immediately.
+
+---
+
+## 14. Event Durability & Immutability
+
+### 14.1 Durability Guarantee
+
+Once an event is Published, it is durably stored. The event survives producer crashes, consumer crashes, Event Bus restarts, and network partitions. Durability is achieved before delivery begins.
+
+### 14.2 Immutability Guarantee
+
+A Published event may never be modified, overwritten, or deleted. Its payload, identity, and metadata are frozen for all time. If a fact was recorded in error, a compensating event is emitted to correct the record, but the original event remains.
+
+### 14.3 Append-Only Log
+
+The event stream is an append-only log. New events are appended to the end. Existing events are never updated or removed. This property enables replay, audit, and forensic analysis.
+
+### 14.4 Durability Tiers
+
+- **Hot:** Recently published events, available for immediate delivery and replay.
+- **Warm:** Acknowledged events, available for analytical querying and learning.
+- **Cold:** Archived events, retained for compliance and long-term pattern analysis.
+
+---
+
+## 15. Event Replay & Retention
+
+### 15.1 Replay Philosophy
+
+Because events are immutable and durably stored, the entire history of the venture studio can be replayed. Replay is not recovery; it is the deliberate reconstruction of past behavior for debugging, learning, or auditing.
+
+### 15.2 Replay Modes
+
+- **Forensic Replay:** Reconstructing the exact sequence of events that led to a specific outcome for incident investigation.
+- **Learning Replay:** Replaying historical events into new consumer logic to train or validate the Learning Model.
+- **Recovery Replay:** Replaying events after a consumer failure to rebuild derived state.
+
+### 15.3 Replay Constraints
+
+Replay does not mutate business state. Replayed events are processed in a sandboxed context. Replay events are tagged with `replay: true` metadata so that consumers can distinguish replay from live events.
+
+### 15.4 Retention Policy
+
+| Event Category | Operational Retention | Analytical Retention | Audit Retention |
+|----------------|----------------------|---------------------|-----------------|
+| Business | 30 days | 2 years | 7 years |
+| Agent | 30 days | 2 years | 7 years |
+| Workflow | 90 days | 2 years | 7 years |
+| System | 7 days | 90 days | 7 years |
+| Command | 90 days | 2 years | 7 years |
+| Audit | 7 years | 7 years | 7 years |
+
+### 15.5 Expiration and Purging
+
+Non-audit events may be purged after their maximum retention period. Purging is irreversible and logged. Audit events are never purged before the statutory minimum.
+
+---
+
+## 16. Event Validation & Schema Evolution
+
+### 16.1 Schema Registry
+
+Every event type must have a registered, versioned schema before it can be emitted. The schema declares the structure, types, and mandatory fields of the payload. Unregistered event types are rejected at emission.
+
+### 16.2 Schema Versioning
+
+Schemas follow semantic versioning:
+- **Minor version:** Additive changes only. New optional fields may be added. Existing consumers continue to function.
+- **Major version:** Breaking changes. New major versions require a migration plan and a deprecation period of at least one release cycle.
+
+### 16.3 Validation Rules
+
+- **Emission Validation:** The Event Bus validates that the payload conforms to the declared schema version before publication.
+- **Consumption Validation:** Consumers validate that the payload is structurally sound before processing.
+- **Forward Compatibility:** Consumers must ignore unknown fields.
+- **Backward Compatibility:** Producers must not remove fields without a major version bump and deprecation period.
+
+### 16.4 Schema Evolution Constraints
+
+No breaking schema change may be deployed without:
+- A backward-compatible transition period.
+- Updated consumer contracts.
+- A registered migration plan in the Architecture Decision Records.
+- Human approval if the event type is critical-path.
+
+---
+
+## 17. Event Routing & Delivery
+
+### 17.1 Routing Philosophy
+
+Events are routed based on stream membership and consumer subscriptions. The Event Bus does not route based on payload content; routing is a metadata operation. Content-based routing would couple producers to consumer logic and is prohibited.
+
+### 17.2 Delivery Semantics
+
+The event subsystem guarantees **at-least-once delivery**. An event is delivered to a consumer one or more times until acknowledged. Exactly-once delivery is not guaranteed; idempotency is the consumer's responsibility.
+
+### 17.3 Retry Policy
+
+Failed deliveries are retried with exponential backoff. The retry policy is defined per consumer group: maximum attempts, base delay, and maximum delay. After exhausting retries, the event is dead-lettered.
+
+### 17.4 Backpressure
+
+If consumers cannot keep pace with producers, the Event Bus applies backpressure. Backpressure mechanisms include: producer throttling, consumer lag alerts, and ephemeral event shedding for non-critical streams. Critical streams (commands, audits) never shed events.
+
+### 17.5 Dead-Lettering
+
+Events that fail delivery or processing after maximum retries are moved to a dead-letter stream. Dead-lettered events are retained for human review, diagnostic analysis, and potential replay. Dead-letter depth is monitored and alerted.
+
+---
+
+## 18. Event Security
+
+### 18.1 Authentication
+
+Every event producer must authenticate to the Event Bus. Authentication uses short-lived tokens with scoped claims. Anonymous emission is prohibited.
+
+### 18.2 Authorization
+
+Authorization is enforced at two points:
+- **Emission:** The producer must have permission to emit events of the declared type within its tenant and scope.
+- **Consumption:** The consumer must have permission to subscribe to the streams and event types it requests.
+
+### 18.3 Encryption
+
+Events are encrypted in transit and at rest. Transit encryption uses mutual TLS between producers, consumers, and the Event Bus. Rest encryption uses tenant-scoped keys for stored event logs.
+
+### 18.4 Input Sanitization
+
+External data included in event payloads must pass through sanitization before emission. Untrusted data may not be embedded in events without validation and encoding.
+
+### 18.5 Audit of Event Access
+
+All access to event streams—emission, consumption, replay, and administrative query—is logged in the audit stream. Audit events are themselves immutable and retained for seven years.
+
+---
+
+## 19. Event Governance & Oversight
+
+### 19.1 Boundary Enforcement
+
+The runtime continuously verifies that event producers and consumers operate within their defined boundaries: tenant scope, event type permissions, emission rates, and payload size limits. Violations are blocked and logged.
+
+### 19.2 Drift Detection
+
+The runtime monitors event streams for behavioral drift: unusual event volumes, unexpected event types, schema violations, or anomalous routing patterns. Drift triggers review workflows and may result in producer suspension or consumer quarantine.
+
+### 19.3 Anomaly Response
+
+Event anomalies are classified and responded to automatically:
+- **Volume Anomaly:** Unexpected spike or drop in event rate. Triggers throttling or diagnostic workflows.
+- **Schema Anomaly:** Events that fail validation. Triggers producer suspension and alert.
+- **Routing Anomaly:** Events delivered to unauthorized consumers. Triggers security incident workflow.
+- **Lag Anomaly:** Consumer falling behind. Triggers escalation or consumer replacement.
+
+### 19.4 Constitutional Compliance
+
+The event subsystem includes a self-audit mechanism that verifies event behavior against constitutional principles. Non-compliance is escalated as a Category 1 incident.
+
+---
+
+## 20. Event Observability
+
+### 20.1 Events as Observability Substrate
+
+Events are the primary source of observability data. Metrics, logs, and traces are all derived from or correlated with events. The event stream is the single source of truth for what the system is doing.
+
+### 20.2 Event-Driven Metrics
+
+Business metrics (revenue, conversion, churn) are computed by consuming business events. System metrics (latency, throughput, error rates) are computed by consuming system events. Agent metrics (success rates, costs) are computed by consuming agent events.
+
+### 20.3 Event-Driven Tracing
+
+Distributed traces are constructed by following Causation IDs and Correlation IDs through the event stream. Every event is a span in the trace of the business operation that produced it.
+
+### 20.4 Event-Driven Alerting
+
+Alerts are triggered by consuming events. An alert is not a separate mechanism; it is a consumer that watches for specific event patterns and emits notification events when those patterns occur.
+
+### 20.5 Event Dashboards
+
+Operational dashboards consume events in real time to display system state. Dashboards do not query databases directly; they derive state from the event stream.
+
+---
+
+## 21. Event Reliability & Fault Tolerance
+
+### 21.1 Producer Failure
+
+If a producer crashes before emitting an event, the occurrence is lost. The runtime detects this through heartbeat timeouts and state reconciliation, triggering recovery workflows to reconstruct missing events from durable state.
+
+### 21.2 Event Bus Failure
+
+If the Event Bus becomes unavailable, producers buffer events locally with a defined TTL. If the bus recovers within the TTL, buffered events are flushed. If not, critical producers queue events to fallback durable storage for later replay.
+
+### 21.3 Consumer Failure
+
+If a consumer fails during processing, the event remains unacknowledged and is redelivered to another member of the consumer group. If all members fail, the event remains in the stream until a consumer recovers or the event is dead-lettered.
+
+### 21.4 Network Partition
+
+During network partitions, producers and consumers on the same side of the partition continue to operate. Events emitted during a partition are buffered and reconciled upon healing. Causal ordering is preserved through sequence reconciliation.
+
+### 21.5 No Silent Failures
+
+An unclassified event failure is treated as critical. The runtime alerts immediately rather than hoping the problem resolves. Every event must either be acknowledged or dead-lettered within a defined window.
+
+---
+
+## 22. Event Performance Characteristics
+
+### 22.1 Latency Budgets
+
+| Operation | Target p50 | Target p99 | Maximum |
+|-----------|-----------|-----------|---------|
+| Event emission to publication | 10ms | 50ms | 100ms |
+| Publication to delivery | 5ms | 20ms | 50ms |
+| Consumer processing (simple) | 100ms | 500ms | 1s |
+| Consumer processing (complex) | 1s | 5s | 30s |
+| Acknowledgment to archive | 1min | 5min | 15min |
+
+### 22.2 Throughput Targets
+
+- Event ingestion: 50,000 events per second sustained.
+- Concurrent consumer groups: 100+ per stream.
+- Event replay: 10,000 events per second for forensic reconstruction.
+
+### 22.3 Scaling Behavior
+
+The event subsystem scales horizontally by partitioning streams and distributing consumer groups across workers. Scaling does not require event schema changes or producer modifications.
+
+### 22.4 Graceful Degradation
+
+Under load, the runtime sheds non-critical events (telemetry, analytics) before degrading critical events (commands, business state transitions, audits). Critical events are never dropped.
+
+---
+
+## 23. Event Recovery
+
+### 23.1 Gap Detection
+
+The runtime continuously monitors event sequences for gaps. A missing sequence number, a skipped causation ID, or an unexpected timestamp discontinuity triggers a gap detection workflow.
+
+### 23.2 Reconciliation
+
+When gaps are detected, the runtime attempts reconciliation by:
+- Querying producer state for unemitted events.
+- Replaying durable workflow state to reconstruct missing events.
+- Comparing derived state projections to identify inconsistencies.
+
+### 23.3 Recovery Replay
+
+After a consumer failure or partition healing, consumers may replay events from their last known position to rebuild state. Replay is bounded to prevent infinite reprocessing.
+
+### 23.4 Corruption Handling
+
+If an event is found to be corrupted (tampered payload, invalid signature), the event is quarantined and a security incident is triggered. The corrupted event is not deleted; it is marked with a `corrupted` flag and a compensating event is emitted to correct the record.
+
+---
+
+## 24. Event Learning & Knowledge Compounding
+
+### 24.1 Event Pattern Mining
+
+The Learning Model consumes historical event streams to identify patterns: successful workflow sequences, agent collaboration patterns, market response correlations, and failure precursors.
+
+### 24.2 Feedback Loops
+
+Business outcomes are attributed to the event sequences that produced them. Successful event patterns are promoted to templates. Failed event patterns are catalogued in the Failure Library with root cause analysis.
+
+### 24.3 Knowledge Extraction
+
+Events are mined for extractable knowledge: facts, heuristics, and relationships. Extracted knowledge is validated, scored for confidence, and integrated into the Knowledge Graph and structured memory.
+
+### 24.4 Cross-Business Learning
+
+Anonymized event patterns from one business are made available to others through Global knowledge extraction. The runtime prevents knowledge siloing while enforcing tenant isolation.
+
+### 24.5 Bounded Learning
+
+The event Learning Model may not modify constitutional principles, security boundaries, or human approval gates. Learning optimizes within boundaries; it does not erase them.
+
+---
+
+## 25. Non-Violable Event Rules
+
+The following rules are absolute. Violation constitutes a Category 1 incident:
+
+1. No event may be emitted without a registered schema and authenticated producer identity.
+2. No event may be modified, overwritten, or deleted after publication.
+3. No event may cross tenant boundaries without explicit anonymization and human approval.
+4. No producer may emit events outside its declared scope and permission boundaries.
+5. No consumer may access events outside its subscribed scope and permission boundaries.
+6. No event may be silently dropped, swallowed, or ignored without classification and logging.
+7. No critical event (command, audit, business state transition) may be shed under load.
+8. No event may be delivered without at-least-once semantics.
+9. No consumer may acknowledge an event before durable processing is complete.
+10. No event may contain unvalidated external data or unsanitized payloads.
+11. No event may be replayed in a way that mutates live business state.
+12. No event stream may operate without defined retention and archival policies.
+13. No breaking schema change may be deployed without backward compatibility and migration planning.
+14. No anonymous or pseudonymous event emission or consumption is permitted.
+15. The event audit trail must be append-only and retained for a minimum of seven years.
+16. No event may bypass the Event Bus for direct producer-to-consumer communication.
+17. Event causality chains must be preserved across all emissions and consumptions.
+18. No event may be dead-lettered without alerting and human review capability.
+19. Event governance anomalies must be escalated as Category 1 incidents.
+20. The Learning Model may not use event data to modify constitutional principles or security boundaries.
+
+---
+
+## 26. Appendix: Event Glossary
+
+| Term | Definition |
+|------|------------|
+| **Event** | An immutable record that something meaningful has occurred in the venture studio. |
+| **Event Bus** | The central hub through which all events flow, mediating producers and consumers. |
+| **Stream** | An ordered, append-only sequence of events within a domain category. |
+| **Consumer Group** | A logical processing application that subscribes to a stream and distributes events among its members. |
+| **Event ID** | The universally unique identifier of an event, serving as its idempotency key. |
+| **Causation ID** | The Event ID of the event that directly caused this event. |
+| **Correlation ID** | The Trace ID linking an event to the broader business operation. |
+| **Schema Version** | The semantic version of the payload structure contract. |
+| **Dead Letter** | An event that failed delivery or processing after maximum retries, quarantined for review. |
+| **Replay** | The deliberate reconstruction of past behavior by reprocessing historical events. |
+| **Backpressure** | The mechanism by which the event subsystem throttles producers when consumers cannot keep pace. |
+| **At-Least-Once Delivery** | The guarantee that an event will be delivered to a consumer one or more times until acknowledged. |
+| **Global Event** | An anonymized event promoted to system-wide visibility across all tenants. |
+
+---
+
+*End of Document*

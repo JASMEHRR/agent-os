@@ -1,0 +1,51 @@
+name: ci
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install ruff
+      - run: ruff check libs services tests
+
+  type-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install mypy pydantic
+      - run: mypy .
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install pytest pytest-cov pydantic
+      # Coverage threshold is a Definition-of-Done gate (Part V, Approval
+      # Requirements). 90% is the [Engineering Decision] bar; the build spec
+      # requires a threshold without publishing a figure.
+      - run: python -m pytest libs/ services/ tests/ -q --cov=libs --cov=services --cov-fail-under=90
+
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install bandit pip-audit
+      - run: bandit -r libs services --exclude "*/tests/*"
+      - run: pip-audit || true  # ponytail: non-blocking until a real lockfile exists to audit

@@ -1,0 +1,1066 @@
+ # 19_EVOLUTION_OPERATING_MODEL.md
+
+**Agent OS — Evolution Operating Model**
+**Version:** 1.0.0
+**Status:** Ratified
+**Classification:** Architecture Constitution — Binding on All Evolutionary Behavior
+
+---
+
+## Table of Contents
+
+1. [Preamble](#1-preamble)
+2. [Evolution Philosophy](#2-evolution-philosophy)
+3. [Evolution Mission & Permanent Objectives](#3-evolution-mission--permanent-objectives)
+4. [Evolution Identity](#4-evolution-identity)
+5. [Evolution Classification](#5-evolution-classification)
+6. [Evolution Architecture & Topology](#6-evolution-architecture--topology)
+7. [Evolution Lifecycle](#7-evolution-lifecycle)
+8. [Evolution States & Transitions](#8-evolution-states--transitions)
+9. [Evolution Ownership & Boundaries](#9-evolution-ownership--boundaries)
+10. [Evolution Context & Provenance](#10-evolution-context--provenance)
+11. [Constitutional Stability](#11-constitutional-stability)
+12. [Constitutional Identity Preservation](#12-constitutional-identity-preservation)
+13. [Amendment Process](#13-amendment-process)
+14. [Amendment Classification](#14-amendment-classification)
+15. [Amendment Validation](#15-amendment-validation)
+16. [Amendment Ratification](#16-amendment-ratification)
+17. [Amendment Rejection](#17-amendment-rejection)
+18. [Version Lineage](#18-version-lineage)
+19. [Compatibility Model](#19-compatibility-model)
+20. [Deprecation Philosophy](#20-deprecation-philosophy)
+21. [Retirement Strategy](#21-retirement-strategy)
+22. [Experimental Capabilities](#22-experimental-capabilities)
+23. [Innovation Framework](#23-innovation-framework)
+24. [Capability Evolution](#24-capability-evolution)
+25. [Agent Evolution](#25-agent-evolution)
+26. [Workflow Evolution](#26-workflow-evolution)
+27. [Runtime Evolution](#27-runtime-evolution)
+28. [Deployment Evolution](#28-deployment-evolution)
+29. [Integration Evolution](#29-integration-evolution)
+30. [Organizational Evolution](#30-organizational-evolution)
+31. [Portfolio Evolution](#31-portfolio-evolution)
+32. [Evolution Governance](#32-evolution-governance)
+33. [Evolution Security](#33-evolution-security)
+34. [Evolution Observability](#34-evolution-observability)
+35. [Evolution Economics](#35-evolution-economics)
+36. [Human Sovereignty](#36-human-sovereignty)
+37. [Long-Term Continuity](#37-long-term-continuity)
+38. [Non-Violable Evolution Rules](#38-non-violable-evolution-rules)
+39. [Appendix: Evolution Glossary](#39-appendix-evolution-glossary)
+
+---
+
+## 1. Preamble
+
+This document derives the **Evolution Operating Model** from the constitutional architecture established in `01_PRINCIPLES.md` through `18_DEPLOYMENT_OPERATING_MODEL.md`. It specifies how Agent OS changes its own structure, capabilities, and constitutional provisions over time while preserving organizational identity, non-violable constraints, and human sovereignty. Where this document is silent, the constitution governs. Where this document speaks, it is binding.
+
+---
+
+## 2. Evolution Philosophy
+
+### 2.1 The Metamorphosis Metaphor
+
+Evolution is **constitutional metamorphosis**. It is the process by which the organization becomes different while remaining itself. Learning (Document 13) improves behavior within existing boundaries; Governance (Document 15) audits the legitimacy of those boundaries; Deployment (Document 18) provides the territory upon which the organization stands. Evolution governs the transformation of the boundaries themselves—the shape of the organization, the definition of its capabilities, and the architecture of its constitution. A caterpillar and a butterfly share lineage but possess different forms; Evolution ensures the transition preserves identity.
+
+### 2.2 Evolution vs. Learning
+
+Learning consumes experience to produce operational improvement within existing constitutional constraints. Learning asks "how do we become better at what we currently do?" Evolution asks "how do we become capable of things we currently cannot do, and how do we cease doing things that no longer serve us?" Learning refines the script; Evolution rewrites the stage directions. Learning feeds the Knowledge pipeline; Evolution feeds the constitutional architecture. Learning is continuous and autonomous within bounds; Evolution is deliberate, governed, and structurally consequential.
+
+### 2.3 Evolution vs. Governance
+
+Governance audits constitutional legitimacy, interprets ambiguity, and ratifies amendments (Document 15.20–21). Governance asks "is this change legitimate?" Evolution asks "how is this change safely formed, validated, and transitioned into legitimacy?" Governance is the court that rules on constitutional status; Evolution is the legislature that drafts, the laboratory that tests, and the archive that preserves the record of change. Governance ratifies; Evolution prepares, experiments, and packages proposals for ratification.
+
+### 2.4 Evolution vs. Deployment
+
+Deployment governs operational territory—where the organization exists, how it recovers, and how it scales (Document 18). Deployment asks "is this ground constitutionally valid?" Evolution asks "how does the architecture that stands upon this ground change its shape without collapsing?" Deployment provides the substrate; Evolution changes the structure that occupies it. Deployment manages environment promotion (Document 18.9); Evolution manages capability and constitutional promotion.
+
+### 2.5 Evolution vs. Integration
+
+Integration governs relationships with external capability providers and defines provider-neutral capability abstractions (Document 17). Integration asks "is this external relationship sovereign and portable?" Evolution asks "how do our internal capability definitions mature, expand, or contract over time while preserving the portability guarantees that Integration enforces?" Integration negotiates with the external world; Evolution matures the internal taxonomy that Integration references.
+
+### 2.6 Evolution vs. Implementation
+
+Implementation is the activity of building, deploying, and operating software, infrastructure, and services. Evolution is entirely distinct from implementation. Evolution never names a technology, a tool, a repository, a pipeline, or a platform. It governs the *constitutional consequences* of implementation change, not the mechanics of change itself. Implementation asks "how do we build it?" Evolution asks "what does it mean for the organization that we have built it, and how do we safely incorporate that meaning into our constitution?"
+
+### 2.7 Evolution as Identity Preservation
+
+The existential risk of an autonomous venture studio is not stagnation but ungovernable drift. Subsystems optimize locally. Capabilities accumulate without coherence. The constitution becomes a historical document rather than a living architecture. Evolution exists to ensure that change compounds toward strategic intent rather than fragmenting into contradiction. Evolution is the organizational memory of *who we are becoming*—not merely who we have been.
+
+---
+
+## 3. Evolution Mission & Permanent Objectives
+
+### 3.1 Mission
+
+The Evolution subsystem exists to ensure that **every structural, capability, or constitutional change within Agent OS is proposed with foresight, validated with evidence, transitioned with compatibility guarantees, ratified with human authority, and measured against its predicted consequences**, while preserving organizational identity, non-violable constraints, and the continuity of institutional knowledge across generational time horizons.
+
+### 3.2 Permanent Objectives
+
+1. **Identity Preservation:** Organizational identity persists through systemic transformation; the venture studio remains recognizable to itself and its sovereigns across decades.
+2. **Non-Violable Constraint Immutability:** No evolutionary process may modify, circumvent, or erode non-violable rules defined in any constitutional document.
+3. **Compatibility Contract Enforcement:** Changes that affect existing capabilities, workflows, or subsystem contracts must preserve backward compatibility or provide governed migration paths.
+4. **Experimental Boundedness:** Novel capabilities and structural hypotheses may be trialed only within time-bounded, scope-limited, human-approved experimental frameworks.
+5. **Amendment Deliberation Quality:** Constitutional amendments undergo comprehensive impact analysis, contradiction detection, and cross-subsystem assessment before ratification.
+6. **Lineage Immutability:** Every evolutionary artifact carries an immutable record of its origin, its predecessors, its evidence, and its authority chain.
+7. **Drift Prevention:** Evolution detects and counteracts structural drift toward incoherence, concentration, or ungovernable complexity.
+8. **Innovation Encouragement:** The framework must not paralyze legitimate innovation; safe-to-fail experimentation is a first-class capability.
+9. **Long-Term Continuity:** The organization preserves the capacity to understand, operate, and improve itself across personnel transitions, business sunsets, and portfolio reconstitutions.
+10. **Human Sovereignty Preservation:** Humans retain absolute and terminal authority over all evolutionary output, including the power to halt, reverse, or redirect any transformation.
+
+### 3.3 Objective Conflicts
+
+Resolution order: **Human Sovereignty > Non-Violable Constraint Immutability > Identity Preservation > Compatibility Contract Enforcement > Experimental Boundedness > Amendment Deliberation Quality > Lineage Immutability > Drift Prevention > Long-Term Continuity > Innovation Encouragement.**
+
+---
+
+## 4. Evolution Identity
+
+### 4.1 Identity Primitives
+
+Every evolutionary artifact possesses:
+
+- **Evolution ID:** Unique, sortable, immutable.
+- **Evolution Type:** Hierarchical classification (e.g., `evolution.amendment`, `evolution.capability`, `evolution.experiment`).
+- **Schema Version:** Semantic version of payload contract.
+- **Timestamp:** Time of formation.
+- **Source Identity:** Authenticated proposer (agent, workflow, human, or subsystem steward).
+- **Target Subsystem:** The subsystem or constitutional domain the artifact proposes to change.
+- **Tenant/Business/Workspace IDs:** Isolation boundaries.
+- **Scope:** Private, Team, Business, Portfolio, or Global.
+- **Authority Requirement:** The autonomy tier required to form or ratify the artifact (A1 through A4).
+- **Lineage Reference:** Links to predecessor artifacts, successor artifacts, and triggering observations.
+- **Evidence References:** Immutable links to supporting learning entries, decision journals, knowledge records, and experimental outcomes.
+- **Confidence Score:** 0.0–1.0 representing the evidentiary strength of the proposed change.
+- **Compatibility Declaration:** Explicit statement of impact on existing capabilities, contracts, and operational artifacts.
+- **Expected Outcome:** Predicted effect of adoption.
+- **Actual Outcome:** Observed effect after adoption (nullable until measured).
+- **Disposition:** Proposed, Experimental, Validated, Ratified, Adopted, Confirmed, Refuted, Superseded, Retired, or Abandoned.
+
+### 4.2 Identity Persistence
+
+Evolution identity persists for the statutory retention period (minimum seven years) regardless of disposition. No anonymous evolutionary artifacts are permitted. Every artifact is attributable to a specific proposer and a specific evidence chain.
+
+### 4.3 Identity as Continuity Anchor
+
+Evolutionary artifacts derive their authority from the constitution and from human ratification, not from operational utility. A capability change without an Evolution ID is not governable. An amendment without provenance is not legitimate. Identity ensures that the organization can always answer: "How did we become what we are?"
+
+---
+
+## 5. Evolution Classification
+
+### 5.1 By Semantic Role
+
+- **Amendment:** A proposal to modify, add to, or retire a constitutional provision.
+- **Capability Extension:** A proposal to expand the provider-neutral capability abstraction taxonomy.
+- **Capability Contraction:** A proposal to deprecate or retire a capability abstraction.
+- **Structural Refinement:** A proposal to change the internal organization of a subsystem without modifying its constitutional mandate.
+- **Experimental Hypothesis:** A provisional structural change trialed in a bounded environment.
+- **Compatibility Adjustment:** A proposal to modify compatibility contracts or migration paths.
+- **Lineage Correction:** A proposal to amend provenance metadata or resolve lineage gaps without altering substance.
+
+### 5.2 By Structural Form
+
+- **Atomic:** A single, indivisible change affecting one subsystem element.
+- **Composite:** A coordinated set of changes across multiple subsystem elements.
+- **Cross-Cutting:** A change that affects multiple subsystems or the portfolio as a whole.
+- **Generational:** A change that redefines foundational assumptions affecting all descendant artifacts.
+
+### 5.3 By Scope
+
+- **Private:** Scoped to a single agent's capability signature.
+- **Team:** Scoped to a shared workspace.
+- **Business:** Scoped to a single business.
+- **Portfolio:** Scoped across businesses within a tenant.
+- **Global:** Scoped to the entire Agent OS architecture across all tenants.
+
+### 5.4 By Target Subsystem
+
+- **Constitutional Evolution:** Changes to ratified architecture documents (`01` through `19` and beyond).
+- **Capability Evolution:** Changes to the provider-neutral capability abstraction taxonomy.
+- **Agent Evolution:** Changes to agent capability signatures, reasoning heuristics, or autonomy profiles.
+- **Workflow Evolution:** Changes to workflow structural patterns, DAG conventions, or error-handling models.
+- **Runtime Evolution:** Changes to execution behavior models, sandbox invariants, or resource governance.
+- **Deployment Evolution:** Changes to environmental invariants, sovereignty tiers, or isolation models.
+- **Integration Evolution:** Changes to integration contract structures, trust models, or provider abstraction rules.
+- **Organizational Evolution:** Changes to venture studio meta-capabilities, institutional structures, or strategic ontologies.
+
+### 5.5 By Authority Requirement
+
+- **A1:** Subsystem-internal structural change; may be proposed by subsystem stewards.
+- **A2:** Business-level capability or structural change; requires human-approved decision.
+- **A3:** Portfolio-level or cross-subsystem change; requires human sovereign ratification or Auditor confirmation.
+- **A4:** Constitutional amendment; requires exclusive human sovereign ratification.
+
+---
+
+## 6. Evolution Architecture & Topology
+
+### 6.1 Evolution Gateway as Meta-Layer
+
+No structural change, capability redefinition, or constitutional amendment is proposed, validated, experimented upon, or packaged for ratification except through the **Evolution Gateway**. The Evolution Gateway is the unified access layer through which all evolutionary operations—amendment formation, capability extension, experimental authorization, compatibility assessment, and lineage management—are mediated. It is the sole constitutional path for organizational transformation. No subsystem may unilaterally redefine its own capabilities, contracts, or constitutional boundaries.
+
+### 6.2 Producer-Consumer Topology
+
+**Producers** (subsystem stewards, portfolio architects, learning consolidations, human strategists, experimental workflows) emit evolutionary artifacts to the Gateway. **Consumers** (Governance Gateway for ratification, target subsystem Gateways for adoption, human sovereigns for review, portfolio stewards for strategic assessment) receive validated, packaged evolutionary proposals from the Gateway. The Gateway mediates all flow; producers cannot push changes directly into constitutional documents, capability registries, or subsystem contracts.
+
+### 6.3 Boundary Enforcement
+
+The Evolution Gateway enforces:
+
+- **Tenant Boundary:** No cross-tenant evolutionary propagation without explicit anonymization and human approval.
+- **Scope Boundary:** A business-scoped evolutionary artifact cannot override a portfolio-scoped constitutional provision.
+- **Authority Boundary:** Artifacts are rejected if they exceed the proposer's autonomy level or the target subsystem's approval requirements.
+- **Non-Violable Boundary:** No evolutionary artifact may contradict a non-violable rule, regardless of scope or authority.
+- **Compatibility Boundary:** Artifacts that would break existing compatibility contracts without a governed migration path are blocked or escalated.
+
+### 6.4 Relationship to Other Subsystems
+
+- **Governance Gateway:** Evolution packages amendments and structural changes for Governance ratification. Governance consumes evolutionary artifacts, audits them for constitutional compliance, and returns ratification decisions. Evolution does not ratify; Governance does.
+- **Learning Gateway:** Evolution consumes confirmed learning entries as evidence for proposed structural changes. Learning measures the outcomes of adopted evolutionary changes and feeds results back into the observation pipeline.
+- **Deployment Gateway:** Evolution relies on Deployment for experimental environments and environment promotion gates. Deployment consumes evolution manifests to validate that environmental invariants support proposed structural changes.
+- **Integration Gateway:** Evolution governs changes to capability abstractions that Integration references. Integration consumes evolved capability definitions to validate provider neutrality and portability guarantees.
+- **Decision Gateway:** Evolution proposals are evaluated as decisions with appropriate authority classes. The Evolution Gateway consumes decision records to verify that each proposal carries valid approval authority.
+- **Event Bus:** Evolution consumes lifecycle events as triggers for drift detection and capability maturity review. It emits evolution lifecycle events (`evolution.artifact.proposed`, `evolution.amendment.ratified`, `evolution.capability.deprecated`).
+
+---
+
+## 7. Evolution Lifecycle
+
+### 7.1 Observation
+
+An evolution cycle begins when a pattern of operational limitation, strategic opportunity, or structural incoherence is detected. Observation identifies that the current constitutional or capability architecture is insufficient for desired future states without yet prescribing the transformation.
+
+### 7.2 Extraction
+
+The proposer extracts relevant learning entries, decision journals, knowledge records, and capability utilization patterns related to the observed limitation. Extraction is scoped and attribution-preserving.
+
+### 7.3 Hypothesis Formation
+
+The proposer forms a candidate structural change: a structured proposal that specifies what should change, in which subsystem, based on what evidence, with what expected outcome, and under what compatibility constraints. Hypotheses are provisional and carry initial confidence scores.
+
+### 7.4 Impact Analysis
+
+The Gateway assesses the hypothesis against all affected subsystems: contradiction detection with existing constitutional provisions, cross-subsystem dependency analysis, compatibility contract evaluation, and risk propagation assessment. Impact analysis produces a comprehensive change footprint.
+
+### 7.5 Experimental Design
+
+For hypotheses with sufficient confidence but unproven structural consequences, the Gateway designs an experimental framework: bounded scope, time limits, success criteria, failure thresholds, isolation requirements, and rollback procedures. Experimental design requires human approval for A2 and above.
+
+### 7.6 Experimentation
+
+The hypothesis is trialed in an isolated experimental environment (Document 18.8) with synthetic or non-critical operational load. Experimentation produces measured outcomes against the success criteria.
+
+### 7.7 Validation
+
+The Gateway validates the hypothesis (or experimental results) against evidence sufficiency, attribution accuracy, scope conformance, compatibility preservation, and contradiction with existing evolutionary artifacts. Validation assigns the authoritative confidence score.
+
+### 7.8 Consolidation
+
+Validated hypotheses are integrated with existing evolutionary proposals to form coherent, non-contradictory amendment or capability packages. Consolidation prevents fragmented or conflicting changes from propagating simultaneously.
+
+### 7.9 Packaging for Ratification
+
+The consolidated proposal is packaged as a formal evolutionary artifact with complete provenance, impact analysis, compatibility declaration, and experimental evidence. It is delivered to the Governance Gateway as a ratification request. Packaging is not ratification; it is the handoff to Governance's constitutional authority.
+
+### 7.10 Ratification
+
+The Governance Gateway evaluates the package through its constitutional mechanisms (Document 15.20–21). If ratified, the change is committed and becomes binding. Evolution records the ratification event and begins transition planning.
+
+### 7.11 Transition
+
+The ratified change is transitioned into active operation through governed migration paths: capability registry updates, subsystem contract revisions, workflow rebindings, and agent capability signature adjustments. Transition preserves operational continuity.
+
+### 7.12 Measurement
+
+After adoption, Evolution tracks subsequent outcomes to compare against the expected structural improvement. Measurement produces feedback that confirms, refutes, or refines the original evolutionary artifact.
+
+### 7.13 Disposition
+
+The evolutionary artifact reaches terminal state: **Confirmed**, **Refuted**, **Superseded**, or **Abandoned**. Terminal artifacts remain in the journal indefinitely.
+
+---
+
+## 8. Evolution States & Transitions
+
+### 8.1 Canonical States
+
+| State | Description |
+|-------|-------------|
+| **Observed** | Initial formation; evidence extracted, awaiting hypothesis. |
+| **Hypothesized** | Candidate structural change formed; awaiting impact analysis. |
+| **Analyzed** | Impact footprint assessed; awaiting experimental design or validation. |
+| **Experimental** | Under bounded trial in isolated environment; awaiting outcome measurement. |
+| **Validated** | Passed evidence, compatibility, and attribution checks; awaiting consolidation. |
+| **Consolidated** | Integrated with existing proposals; coherent package ready. |
+| **Packaged** | Formal artifact prepared; delivered to Governance Gateway for ratification. |
+| **Ratified** | Governance Gateway confirmed constitutional legitimacy; awaiting transition. |
+| **Transitioning** | Active migration into operational architecture; continuity procedures engaged. |
+| **Adopted** | Change committed and active; under outcome measurement. |
+| **Confirmed** | Measurement confirms expected improvement; artifact is canonical. |
+| **Refuted** | Measurement contradicts expected improvement; reversal triggered. |
+| **Superseded** | Replaced by newer evolutionary artifact; lineage preserved. |
+| **Abandoned** | Evidence insufficient, authority denied, or ratification rejected; no propagation. |
+| **Quarantined** | Flagged for anomalous impact, contradiction, or scope breach; under review. |
+
+### 8.2 Transition Guards
+
+| From | To | Guard |
+|------|-----|-------|
+| Observed | Hypothesized | Structural limitation or opportunity recognized with minimum evidentiary support. |
+| Hypothesized | Analyzed | Impact analysis initiated; cross-subsystem footprint documented. |
+| Analyzed | Experimental | Impact is uncertain; experimental design approved; isolation verified. |
+| Analyzed | Validated | Impact is certain and contained; no experimental risk justified. |
+| Experimental | Validated | Success criteria met; experimental evidence sufficient; confidence ≥ 0.6. |
+| Experimental | Abandoned | Failure thresholds breached; or evidence insufficient and no escalation path. |
+| Validated | Consolidated | No unresolved contradiction with existing evolutionary artifacts. |
+| Validated | Quarantined | Contradiction detected; anomaly flagged. |
+| Consolidated | Packaged | Governance ratification required; artifact packaged with full provenance. |
+| Packaged | Ratified | Governance Gateway grants ratification at required A-class. |
+| Packaged | Abandoned | Governance Gateway rejects; or timeout without ratification (does NOT auto-ratify). |
+| Ratified | Transitioning | Transition plan approved; migration path validated; continuity procedures active. |
+| Transitioning | Adopted | Migration complete; operational architecture updated; measurement initiated. |
+| Adopted | Confirmed | Measurement window complete; outcome matches expectation. |
+| Adopted | Refuted | Measurement window complete; outcome contradicts expectation. |
+| Adopted | Superseded | Newer evolutionary artifact invalidates pending measurement. |
+| Refuted | Superseded | Correcting evolutionary artifact replaces refuted one. |
+
+### 8.3 State Immutability
+
+Once an evolutionary artifact enters **Validated**, its core identity, evidence, and attribution are immutable. State transitions apply to lifecycle metadata and measurement status only. Corrections append new artifacts.
+
+---
+
+## 9. Evolution Ownership & Boundaries
+
+### 9.1 Ownership Hierarchy
+
+- **Agent:** Owns Private evolutionary artifacts affecting its own capability signature.
+- **Team:** Owns collaborative evolutionary proposals within a shared workspace.
+- **Business:** Owns Business-scoped evolutionary artifacts and inherits operational evolution from its agents.
+- **Portfolio:** Owns cross-business evolutionary artifacts, capability taxonomy extensions, and strategic structural changes.
+- **Human Sovereign:** Owns Global evolutionary artifacts, constitutional amendments, and retains ultimate authority over all evolutionary propagation.
+
+### 9.2 Inheritance and Succession
+
+Business-owned evolutionary artifacts survive agent retirement. Portfolio-owned artifacts survive business sunset. Ownership transfers are governed by workspace grants and require audit logging.
+
+### 9.3 Cross-Boundary Impact
+
+An evolutionary artifact scoped to one business but with potential portfolio impact must declare cross-boundary impact. The Gateway routes such artifacts to portfolio-level authority.
+
+### 9.4 Tenant Isolation
+
+Evolutionary artifacts from one tenant may not influence another tenant's subsystems, capabilities, or constitutional architecture without explicit anonymization and human approval. Cross-tenant evolution sharing requires anonymization review and isolation verification.
+
+---
+
+## 10. Evolution Context & Provenance
+
+### 10.1 Provenance Dimensions
+
+Every evolutionary artifact carries:
+
+- **Trigger Context:** The operational limitation, strategic opportunity, or structural incoherence that initiated observation.
+- **Evidence Context:** The complete set of learning entries, decision journals, knowledge records, and capability utilization patterns consumed.
+- **Mission Context:** Active business mission, portfolio strategy, and human directives.
+- **Impact Context:** The complete cross-subsystem footprint of the proposed change, including affected capabilities, workflows, and contracts.
+- **Temporal Context:** Validity windows, experimental deadlines, measurement windows, and organizational lifecycle stage.
+
+### 10.2 Context as Interpretive Frame
+
+An evolutionary artifact without context is uninterpretable. A proposal to "extend the capability taxonomy" without the context that it follows repeated integration portability failures is dangerous. The Gateway ensures context is complete before packaging for ratification.
+
+### 10.3 Context Budget
+
+Provenance metadata consumes bandwidth and attention. The Gateway enforces a maximum context budget per evolutionary artifact class. Non-essential context is summarized or referenced by ID.
+
+---
+
+## 11. Constitutional Stability
+
+### 11.1 Stability as Invariant Preservation
+
+Constitutional stability is the guarantee that non-violable rules, foundational principles, and organizational identity invariants remain unchanged regardless of evolutionary activity. Stability does not mean stagnation; it means that change occurs within a fixed framework of absolute constraints.
+
+### 11.2 Non-Violable Rule Shielding
+
+The Evolution Gateway maintains an immutable registry of non-violable rules drawn from all constitutional documents. Every evolutionary artifact is screened against this registry before advancement. Any artifact that would modify, circumvent, or erode a non-violable rule is rejected immediately and logged as a Category 1 incident attempt.
+
+### 11.3 Foundational Principle Preservation
+
+Foundational principles—human sovereignty, tenant isolation, attribution completeness, audit immutability—are not themselves non-violable rules but are protected by them. Evolutionary artifacts that would create structural pathways around these principles are flagged for human review even if they do not directly violate a specific non-violable rule.
+
+### 11.4 Stability Measurement
+
+The Gateway continuously measures constitutional stability: the ratio of evolutionary artifacts that preserve versus challenge foundational invariants, the frequency of non-violable rule rejection, and the structural coherence of the policy hierarchy over time. Declining stability triggers governance escalation.
+
+---
+
+## 12. Constitutional Identity Preservation
+
+### 12.1 Identity as Organizational Continuity
+
+Organizational identity is the set of attributes that make Agent OS recognizably the same venture studio across structural transformation: its mission, its constitutional constraints, its human sovereignty model, its attribution and audit culture, and its portfolio-level strategic intent. Identity is not a specific capability, tool, or business model; it is the *manner* in which the organization creates, governs, and improves.
+
+### 12.2 Identity Invariants
+
+The following invariants are preserved through all evolutionary activity:
+
+- **Human Terminal Authority:** Humans remain the ultimate ratifiers of all constitutional change.
+- **Attribution Culture:** Every effect remains attributable to a specific principal and decision.
+- **Audit Immutability:** The record of what happened cannot be altered, even by evolutionary processes.
+- **Gateway Mediation:** No subsystem interaction bypasses its constitutional Gateway.
+- **Non-Violable Respect:** Absolute rules remain absolute.
+
+### 12.3 Identity Drift Detection
+
+The Gateway monitors for identity drift: evolutionary artifacts that gradually erode identity invariants through incremental change rather than explicit amendment. Drift is escalated to human sovereigns for review.
+
+### 12.4 Generational Continuity
+
+Evolution ensures that organizational identity is transmissible across generational transitions: new businesses, new agents, new human operators, and new portfolio strategies inherit a coherent constitutional identity rather than an accretion of undocumented changes.
+
+---
+
+## 13. Amendment Process
+
+### 13.1 Amendment as Constitutional Change
+
+Constitutional amendment is the process of modifying, adding to, or retiring a provision within the ratified constitutional architecture (`01` through `19` and beyond). Amendment is distinct from policy formation, capability extension, or operational improvement; it alters the foundational rules from which all other organizational behavior derives.
+
+### 13.2 Amendment Proposal
+
+Amendment proposals may originate from: human sovereigns, A3 stewards with human sponsorship, systematic constitutional review processes, or confirmed evolutionary artifacts that have demonstrated structural necessity. Proposals must include: the text of change, constitutional lineage, impact assessment, contradiction analysis, compatibility declaration, and transition plan.
+
+### 13.3 Amendment Deliberation
+
+Proposed amendments undergo deliberation: evidence assembly from all affected subsystems, impact analysis across the complete architecture, contradiction detection with existing provisions, risk assessment, and experimental validation where structural consequences are uncertain. Deliberation is documented and preserved.
+
+### 13.4 Amendment Packaging
+
+After deliberation, the Gateway packages the amendment as a formal evolutionary artifact with: complete provenance, impact footprint, experimental evidence, compatibility assessment, and authority recommendation. The package is delivered to the Governance Gateway for ratification.
+
+### 13.5 Amendment Authority
+
+Amendment ratification is exclusively A4. No agent, automated system, or non-sovereign steward may ratify a constitutional amendment. The Evolution Gateway blocks all non-A4 amendment commitments. The Governance Gateway enforces A4 ratification (Document 15.21).
+
+### 13.6 Amendment Limitations
+
+Amendments may not: violate non-violable rules (non-violable rules are themselves unamendable), retroactively invalidate committed decisions without compensation, reduce human sovereignty below absolute terminal authority, or remove the requirement for human ratification of subsequent amendments.
+
+---
+
+## 14. Amendment Classification
+
+### 14.1 By Scope
+
+- **Subsystem Amendment:** Modifies the operating model of a single constitutional subsystem (e.g., Learning, Governance, Deployment).
+- **Cross-Subsystem Amendment:** Modifies interfaces, contracts, or shared mechanisms across multiple subsystems.
+- **Meta-Constitutional Amendment:** Modifies the framework by which amendments themselves are proposed, validated, or ratified.
+
+### 14.2 By Structural Impact
+
+- **Extension:** Adds new provisions without altering existing ones.
+- **Refinement:** Clarifies, restructures, or improves existing provisions without changing their semantic intent.
+- **Correction:** Fixes contradiction, ambiguity, or inconsistency within existing provisions.
+- **Retirement:** Removes obsolete provisions with governed archival.
+
+### 14.3 By Temporal Urgency
+
+- **Routine:** Standard cadence; no time pressure.
+- **Expedited:** Time-sensitive amendment; deliberation compressed but evidentiary gates remain.
+- **Emergency:** Threatens constitutional integrity or organizational identity; may bypass non-constitutional gates with post-hoc review and human approval.
+
+### 14.4 By Compatibility Impact
+
+- **Additive:** New capability or constraint that does not affect existing operations.
+- **Transformative:** Changes existing contracts but provides governed migration paths.
+- **Disruptive:** Requires immediate operational adaptation; restricted to emergency amendments with human sovereign override.
+
+---
+
+## 15. Amendment Validation
+
+### 15.1 Validation as Evidence Sufficiency
+
+Amendment validation is the process of verifying that a proposed constitutional change is supported by sufficient evidence, preserves compatibility where required, and does not introduce contradiction or drift.
+
+### 15.2 Validation Dimensions
+
+- **Evidence Quality:** Source reliability, completeness, and freshness of supporting learning entries and experimental outcomes.
+- **Impact Completeness:** Whether the cross-subsystem footprint is fully documented.
+- **Compatibility Preservation:** Whether existing capabilities, workflows, and contracts remain viable under the proposed change.
+- **Contradiction Absence:** Whether the proposal conflicts with existing constitutional provisions or confirmed evolutionary artifacts.
+- **Identity Preservation:** Whether the proposal erodes organizational identity invariants.
+- **Non-Violable Compliance:** Whether the proposal respects all absolute constraints.
+
+### 15.3 Confidence Thresholds
+
+- **< 0.60:** Amendment rejected or returned for additional evidence.
+- **0.60–0.79:** Permitted for A1 subsystem-internal amendments; flagged as provisional.
+- **0.80–0.94:** Standard range for A2 and A3 amendments.
+- **0.95–1.00:** Reserved for A4 constitutional amendments with comprehensive evidentiary basis and human ratification.
+
+### 15.4 Experimental Validation
+
+Amendments with structural uncertainty must be validated through bounded experimentation before packaging for ratification. Experimental validation produces measured outcomes that confirm or refute the amendment's predicted impact.
+
+---
+
+## 16. Amendment Ratification
+
+### 16.1 Ratification as Human Sovereign Confirmation
+
+Ratification is the exclusive act by which human sovereigns make constitutional amendments and A4 evolutionary artifacts binding. Ratification is the terminal authority checkpoint for all structural change.
+
+### 16.2 Ratification Process
+
+The Governance Gateway presents the amendment to human sovereigns with full context: evidence, impact, risk, alternatives, contradiction analysis, compatibility declaration, and experimental outcomes. Sovereigns may ratify, reject, defer, or demand modification. The Evolution Gateway packages but does not present; Governance presents but Evolution ensures the package is complete.
+
+### 16.3 Ratification Immutability
+
+Once ratified, a constitutional amendment or A4 artifact is immutable except by subsequent A4 ratification. No subsystem, steward, or automated process may modify, suspend, or override a ratified constitutional provision.
+
+### 16.4 Ratification Logging
+
+Every ratification event is logged with: sovereign identity, artifact ID, timestamp, decision, and conditions. Ratification logs are Sovereign-class and retained indefinitely.
+
+---
+
+## 17. Amendment Rejection
+
+### 17.1 Rejection as Terminal Disposition
+
+Amendment rejection is the formal conclusion that a proposed constitutional change is not ratified. Rejection does not erase the evidence or the observation that triggered the proposal; it records that the change was not adopted under current conditions.
+
+### 17.2 Rejection Causes
+
+- **Evidence Insufficiency:** Supporting evidence fails to meet validation thresholds.
+- **Contradiction Detected:** Proposal conflicts with existing constitutional provisions and no resolution path exists.
+- **Identity Erosion:** Proposal would erode organizational identity invariants.
+- **Non-Violable Breach:** Proposal violates absolute constraints.
+- **Authority Denied:** Human sovereign rejects ratification.
+- **Timeout Without Ratification:** Proposal expires without achieving required authority.
+
+### 17.3 Rejection Consequences
+
+Rejected amendments transition to **Abandoned** with justification logged. The proposer may form a successor artifact with additional evidence or modified scope. Repeated rejection of similar proposals triggers governance review for systematic misalignment.
+
+### 17.4 Rejection Archival
+
+Rejected amendments remain in the evolutionary journal indefinitely. Their lineage is preserved to prevent cyclical proposal of discredited changes and to inform future deliberation.
+
+---
+
+## 18. Version Lineage
+
+### 18.1 Lineage as Succession Record
+
+Version lineage is the immutable chain of succession linking evolutionary artifacts across time. Every artifact declares its predecessors, its successors, and its derived variants. Lineage ensures that the organization can trace any current state backward to its origins and forward to its descendants.
+
+### 18.2 Lineage Primitives
+
+- **Predecessor Reference:** The Evolution ID of the artifact that this artifact supersedes, extends, or refines.
+- **Successor Reference:** The Evolution ID of the artifact that supersedes this one.
+- **Derived Variant Reference:** The Evolution ID of artifacts that branch from this one without superseding it (e.g., experimental forks).
+- **Trigger Reference:** The Evolution ID of the observation or learning entry that initiated this artifact's formation.
+
+### 18.3 Lineage Immutability
+
+Lineage references are established at artifact formation and cannot be altered. Corrections append new lineage records; they do not mutate existing ones.
+
+### 18.4 Lineage as Organizational Memory
+
+The complete lineage graph constitutes the organization's structural memory. It answers: "What did we used to believe? What changed? Why? Who authorized it? What were the consequences?" This memory is essential for long-term continuity and generational knowledge transfer.
+
+---
+
+## 19. Compatibility Model
+
+### 19.1 Compatibility as Contract Preservation
+
+Compatibility is the guarantee that evolutionary change does not ungovernably break existing capabilities, workflows, or subsystem contracts. It is not technical backward compatibility of APIs or data formats; it is the architectural assurance that existing operational artifacts retain valid meaning and function under evolved structural assumptions.
+
+### 19.2 Compatibility Dimensions
+
+- **Capability Compatibility:** Existing capability abstractions remain fulfillable by current integrations; tools bound to existing abstractions continue to function.
+- **Contract Compatibility:** Existing subsystem contracts (decision authority rules, learning validation thresholds, governance policy hierarchy) remain enforceable.
+- **Workflow Compatibility:** Existing workflow DAGs, checkpoints, and error-handling patterns remain structurally valid.
+- **Agent Compatibility:** Existing agent capability signatures and autonomy profiles remain interpretable by the Runtime.
+- **Identity Compatibility:** Existing attribution chains, audit records, and provenance metadata remain valid and traceable.
+
+### 19.3 Compatibility Classes
+
+- **Fully Compatible:** Change adds capability without affecting existing contracts; no migration required.
+- **Migration Compatible:** Change affects existing contracts but provides a governed transition path; existing artifacts migrate over defined window.
+- **Breaking:** Change invalidates existing contracts; restricted to emergency amendments with human sovereign override and comprehensive compensation logic.
+
+### 19.4 Compatibility Enforcement
+
+The Gateway blocks evolutionary artifacts that would introduce Breaking changes without A4 authority, explicit compensation plans, and human sovereign acknowledgment of operational disruption.
+
+---
+
+## 20. Deprecation Philosophy
+
+### 20.1 Deprecation as Graceful Obsolescence
+
+Deprecation is the governed process of marking a capability, contract, or constitutional provision as obsolete without immediate operational harm. Deprecation is a constitutional act, not an informal notice. It preserves organizational optionality while signaling future transformation.
+
+### 20.2 Deprecation Principles
+
+- **Advance Notice:** Deprecation declarations include defined notice periods during which the deprecated artifact remains fully supported.
+- **Successor Identification:** Every deprecation identifies a replacement artifact, migration path, or alternative capability.
+- **Graduated Restriction:** During the notice period, new bindings to the deprecated artifact are progressively restricted while existing bindings are maintained.
+- **No Identity Erosion:** Deprecation does not erase lineage, audit records, or attribution chains. Historical artifacts remain interpretable.
+
+### 20.3 Deprecation Authority
+
+- **A1:** Subsystem-internal capability deprecation.
+- **A2:** Business-level capability or contract deprecation.
+- **A3:** Portfolio-level or cross-subsystem deprecation.
+- **A4:** Constitutional provision deprecation; requires human sovereign ratification.
+
+### 20.4 Deprecation and Learning
+
+Deprecation decisions consume learning entries that demonstrate the artifact's operational harm, strategic misalignment, or structural obsolescence. Deprecation without evidentiary basis is rejected.
+
+---
+
+## 21. Retirement Strategy
+
+### 21.1 Retirement as Terminal State
+
+Retirement is the permanent cessation of an evolutionary artifact's active operational role. Retired artifacts cannot be bound, invoked, or relied upon for new operations. Retirement is the terminal state of the deprecation lifecycle.
+
+### 21.2 Retirement Requirements
+
+Before retirement, the Gateway verifies:
+- All active bindings to the artifact have migrated to successors or alternatives.
+- All in-flight operations dependent on the artifact have completed or been compensated.
+- All organizational state referencing the artifact has been archived or transformed.
+- The artifact's lineage, audit records, and provenance are preserved in cold storage.
+
+### 21.3 Retirement Authority
+
+Retirement requires the same authority class as the artifact's original formation or the authority class of its deprecation declaration, whichever is higher.
+
+### 21.4 Retirement Archival
+
+Retired artifacts are archived with complete identity, manifest, contract history, consumption records, and audit trails. Archived artifacts remain attributable for the statutory retention period.
+
+---
+
+## 22. Experimental Capabilities
+
+### 22.1 Experimentation as Bounded Becoming
+
+Experimental capabilities are structural changes or novel capabilities trialed in isolated, time-bounded, human-approved environments before formal evolutionary commitment. Experimentation is the safe-to-fail mechanism by which innovation occurs without risking constitutional drift.
+
+### 22.2 Experimental Framework
+
+Every experiment requires:
+- **Hypothesis:** Explicit prediction of outcome.
+- **Scope Boundary:** Strict limits on which subsystems, businesses, or capabilities are affected.
+- **Time Boundary:** Defined start and end dates; experiments cannot persist indefinitely without ratification.
+- **Isolation Guarantee:** Experimental environments are segregated from operational environments (Document 18.8).
+- **Success Criteria:** Measurable conditions under which the experiment justifies evolutionary packaging.
+- **Failure Thresholds:** Measurable conditions under which the experiment is automatically terminated.
+- **Rollback Procedure:** Defined mechanism for reverting experimental changes without operational harm.
+
+### 22.3 Experimental Authority
+
+- **A1:** Subsystem-internal experiments; approved by subsystem steward.
+- **A2:** Business-level experiments; requires human-approved decision.
+- **A3:** Portfolio-level or cross-subsystem experiments; requires human sovereign approval.
+- **A4:** Constitutional experiments; prohibited. The constitution cannot be experimentally suspended or modified.
+
+### 22.4 Experimental Measurement
+
+Experiments produce structured outcomes: success criteria achievement, failure threshold breach, unexpected side effects, and compatibility impact. Outcomes are recorded as learning entries and fed into the evolutionary validation pipeline.
+
+### 22.5 Experiment Termination
+
+Experiments automatically terminate upon: time boundary expiration, failure threshold breach, human sovereign command, or scope boundary violation. Terminated experiments are archived with full outcome records.
+
+---
+
+## 23. Innovation Framework
+
+### 23.1 Innovation as Legitimate Novelty
+
+Innovation is the introduction of novel capabilities, structures, or strategic models that were not previously part of the organizational architecture. The Innovation Framework ensures that novelty is encouraged, bounded, and governed.
+
+### 23.2 Innovation Channels
+
+- **Capability Innovation:** Proposing new provider-neutral capability abstractions that expand the organization's operational repertoire.
+- **Structural Innovation:** Proposing new subsystem organizational patterns, workflow models, or agent architectures.
+- **Strategic Innovation:** Proposing new portfolio-level business models, market positions, or capital allocation heuristics.
+
+### 23.3 Innovation Budget
+
+The Gateway enforces an innovation budget: a defined allocation of organizational attention, experimental environment capacity, and evolutionary processing bandwidth dedicated to novel proposals. Innovation that would exceed the budget is deferred to the next planning cycle.
+
+### 23.4 Innovation Drift Prevention
+
+The Gateway monitors innovation proposals for drift indicators: repeated proposals that erode identity invariants, innovations that concentrate authority in automated systems, or novel capabilities that bypass existing Gateway mediation. Drift triggers escalation to human sovereigns.
+
+### 23.5 Innovation and Failure
+
+Innovation requires tolerance for failure. Experiments that fail to meet success criteria are not penalized; they are archived as evidence of bounded exploration. Only unbounded, ungoverned, or repeated identical failures trigger review.
+
+---
+
+## 24. Capability Evolution
+
+### 24.1 Capability Abstraction as Living Taxonomy
+
+Provider-neutral capability abstractions (Document 17.11) are not static. They evolve as the organization's operational needs mature, as external provider landscapes shift, and as strategic priorities change. Capability Evolution governs this maturation.
+
+### 24.2 Capability Extension
+
+New capability abstractions may be proposed when: existing abstractions are insufficient for emerging operational needs, external provider innovations enable new organizational possibilities, or portfolio strategy demands new operational categories. Extensions must preserve the granularity, provider neutrality, and schema completeness of existing abstractions.
+
+### 24.3 Capability Contraction
+
+Existing capability abstractions may be deprecated when: no active integration fulfills them, no tool binds to them, or portfolio strategy has shifted away from the operational domain. Contraction requires migration of any remaining bindings and preservation of historical lineage.
+
+### 24.4 Capability Refinement
+
+Existing capability abstractions may be refined when: their input/output schemas require clarification, their behavioral invariants require tightening, or their data handling requirements require update. Refinement must preserve compatibility for existing bindings or provide governed migration paths.
+
+### 24.5 Provider Neutrality Preservation
+
+No capability evolution may embed provider-specific logic, naming, or behavioral assumptions. All abstractions remain substitutable across providers fulfilling the same semantic promise (Document 17.23).
+
+---
+
+## 25. Agent Evolution
+
+### 25.1 Agent as Evolving Principal
+
+Agents are not static executors. Their capability signatures, reasoning heuristics, and context utilization patterns evolve as the organization's operational experience compounds. Agent Evolution governs how these properties change structurally.
+
+### 25.2 Capability Signature Evolution
+
+An agent's declared capabilities may be extended, refined, or contracted through evolutionary artifacts. Changes require validation against the capability abstraction taxonomy and verification that existing workflow bindings remain valid.
+
+### 25.3 Reasoning Heuristic Evolution
+
+An agent's internal reasoning patterns may be updated when learning entries demonstrate systematic success or failure modes. Structural changes to reasoning heuristics are evolutionary artifacts, not operational learning entries, because they change how the agent interprets its mandate.
+
+### 25.4 Autonomy Profile Evolution
+
+An agent's autonomy level may be adjusted when evidence demonstrates consistent success or failure at current boundaries. Autonomy elevation requires A3 authority and human approval; autonomy reduction may be proposed by A2 stewards with evidence.
+
+### 25.5 Agent Evolution Boundaries
+
+Agent Evolution does not duplicate the Agent Operating Model or the Learning Operating Model. It governs structural changes to agent definitions; Learning governs operational improvements within existing definitions.
+
+---
+
+## 26. Workflow Evolution
+
+### 26.1 Workflow as Evolving Process
+
+Workflow structural patterns—DAG conventions, checkpoint placement models, error-handling heuristics, and composition patterns—evolve as the organization's operational experience matures. Workflow Evolution governs this structural maturation.
+
+### 26.2 DAG Pattern Evolution
+
+New workflow structural patterns may be introduced when existing patterns prove insufficient for emerging operational complexity. Pattern changes require validation against Runtime execution guarantees and compatibility with existing workflow instances.
+
+### 26.3 Checkpoint Model Evolution
+
+Checkpoint and compensation placement models may be refined when failure pattern analysis (Document 13.30) demonstrates systematic recovery gaps. Structural changes to checkpoint models are evolutionary artifacts because they change the resilience contract of all affected workflows.
+
+### 26.4 Workflow Evolution Boundaries
+
+Workflow Evolution does not duplicate the Workflow Operating Model or the Tool Operating Model. It governs structural changes to workflow conventions; Learning governs operational adjustments to specific workflow instances.
+
+---
+
+## 27. Runtime Evolution
+
+### 27.1 Runtime as Evolving Execution Model
+
+The execution behavior model—how tasks are scheduled, how sandboxes are governed, how resources are allocated, and how state is recovered—may require structural evolution as portfolio scale and operational complexity increase.
+
+### 27.2 Execution Model Evolution
+
+Changes to scheduling heuristics, sandbox invariants, or resource governance models are evolutionary artifacts when they alter the constitutional contract between Runtime and its consumers. Operational tuning within existing models is owned by Runtime, not Evolution.
+
+### 27.3 Sandbox Invariant Evolution
+
+Sandbox boundaries, isolation guarantees, and compensation mechanisms may be refined when security analysis or failure pattern learning demonstrates systematic gaps. Sandbox invariant changes require Security Gateway review and compatibility validation.
+
+### 27.4 Runtime Evolution Boundaries
+
+Runtime Evolution does not duplicate the Runtime Operating Model. It governs structural changes to execution contracts; Runtime governs operational execution within existing contracts.
+
+---
+
+## 28. Deployment Evolution
+
+### 28.1 Deployment as Evolving Territory
+
+Environmental invariants, sovereignty tier definitions, isolation models, and geographic distribution patterns may evolve as the organization's operational territory expands or as substrate landscapes shift.
+
+### 28.2 Environmental Invariant Evolution
+
+Changes to the constitutional requirements that environments must satisfy—isolation guarantees, sovereignty tiers, resilience profiles—are evolutionary artifacts. They alter the Deployment Operating Model's foundational constraints.
+
+### 28.3 Sovereignty Tier Evolution
+
+The definitions and requirements of sovereignty tiers (Document 18.16) may be refined when substrate markets or organizational strategy changes. Sovereignty tier changes affect all deployments and require A3 authority minimum.
+
+### 28.4 Deployment Evolution Boundaries
+
+Deployment Evolution does not duplicate the Deployment Operating Model. It governs structural changes to environmental constitutional requirements; Deployment governs environment provisioning, promotion, and management within existing requirements.
+
+---
+
+## 29. Integration Evolution
+
+### 29.1 Integration as Evolving Relationship
+
+Integration contract structures, trust models, capability abstraction binding rules, and provider neutrality guarantees may evolve as external capability markets mature and organizational sovereignty requirements sharpen.
+
+### 29.2 Contract Structure Evolution
+
+Changes to the canonical components of integration contracts (Document 17.16) are evolutionary artifacts. They alter the constitutional framework within which all external relationships are negotiated.
+
+### 29.3 Trust Model Evolution
+
+The composition, weighting, or thresholds of trust scores (Document 17.15) may be refined when behavioral analysis demonstrates systematic misalignment between trust metrics and actual provider reliability. Trust model changes affect all integrations and require A2 authority minimum.
+
+### 29.4 Integration Evolution Boundaries
+
+Integration Evolution does not duplicate the Integration Operating Model. It governs structural changes to integration constitutional frameworks; Integration governs specific provider relationships, trust calibration, and contract execution within existing frameworks.
+
+---
+
+## 30. Organizational Evolution
+
+### 30.1 Organization as Evolving Institution
+
+The venture studio's meta-capabilities—how it launches businesses, allocates capital, manages risk, compounds knowledge, and preserves culture—evolve across time. Organizational Evolution governs this institutional maturation.
+
+### 30.2 Meta-Capability Evolution
+
+Changes to the organizational patterns of business incubation, portfolio management, capital deployment, or risk governance are evolutionary artifacts. They alter the strategic architecture of the venture studio itself.
+
+### 30.3 Cultural Persistence
+
+Organizational culture—the accumulated habits of attribution, deliberation, audit, and human sovereignty preservation—is not explicitly defined but is protected by Evolution. Proposals that would erode cultural continuity are flagged for human review.
+
+### 30.4 Institutional Memory
+
+Evolution ensures that institutional memory persists through structural change: the lineage of why decisions were made, how capabilities matured, and what failures taught the organization. Memory is not merely archived; it remains interpretable and actionable across generational transitions.
+
+---
+
+## 31. Portfolio Evolution
+
+### 31.1 Portfolio as Evolving Strategy
+
+The collection of businesses, capital allocations, and strategic positions within a tenant evolves as market conditions shift, businesses mature or sunset, and new opportunities emerge. Portfolio Evolution governs this strategic transformation.
+
+### 31.2 Capital Allocation Model Evolution
+
+Changes to the heuristics, constraints, or governance of capital allocation across businesses are evolutionary artifacts. They alter the economic constitution of the portfolio.
+
+### 31.3 Business Model Evolution
+
+Changes to the canonical patterns of business incubation, go-to-market strategy, or sunset criteria are evolutionary artifacts. They affect how future businesses are conceived and managed.
+
+### 31.4 Cross-Business Pollination Evolution
+
+The mechanisms by which patterns, capabilities, and learning propagate across businesses (Document 13.27) may be refined to improve portfolio coherence. Structural changes to pollination mechanisms are evolutionary artifacts.
+
+---
+
+## 32. Evolution Governance
+
+### 32.1 Governance as Legitimacy Audit
+
+The Governance Gateway audits evolutionary artifacts for constitutional compliance: non-violable rule adherence, identity preservation, scope boundary respect, and authority validity (Document 15.18). Evolution does not self-certify; Governance validates.
+
+### 32.2 Drift Detection
+
+The Gateway monitors evolutionary portfolios for drift: increasing frequency of compatibility-breaking proposals, declining experimental success rates, creeping scope expansion, or recursive self-modification attempts. Drift triggers escalation to portfolio stewards and human sovereigns.
+
+### 32.3 Policy Coherence
+
+Evolutionary artifacts must align with the policy hierarchy. A business-level capability extension cannot contradict a portfolio-level provider neutrality mandate. The Gateway detects contradictions and blocks ratification packaging.
+
+### 32.4 Meta-Oversight Support
+
+Governance meta-oversight (Document 15.22) consumes evolutionary compliance scores, drift metrics, and amendment velocity to evaluate whether the organization's capacity for self-transformation remains constitutionally legitimate.
+
+---
+
+## 33. Evolution Security
+
+### 33.1 Authentication and Authorization
+
+Every evolutionary producer and consumer authenticates to the Evolution Gateway. Authorization enforces: proposal scope, propagation boundaries, and sensitivity levels.
+
+### 33.2 Integrity Protection
+
+Evolutionary journals are tamper-evident. Proposals are cryptographically bound to their evidence and proposer identity.
+
+### 33.3 Input Sanitization
+
+External data included in evolutionary proposals must pass validation before Gateway acceptance.
+
+### 33.4 Audit Security
+
+Access to evolutionary journals is logged immutably. Bulk export requires A4 authority.
+
+---
+
+## 34. Evolution Observability
+
+### 34.1 Metrics
+
+- **Velocity:** Proposals, experiments, validations, ratifications, and adoptions per period.
+- **Quality:** Confirmation rate, refutation rate, experimental success rate, compatibility breach frequency.
+- **Governance:** Escalation rate, ratification latency, adoption rate, amendment rejection rate.
+- **Health:** Backlog depth, drift anomaly count, identity erosion indicator frequency.
+- **Economic:** Cost per evolution cycle, innovation budget utilization, experimental environment cost.
+- **Continuity:** Lineage completeness, archival coverage, generational knowledge transfer score.
+
+### 34.2 Logs and Traces
+
+All Gateway operations emit structured logs. Distributed traces follow an evolutionary artifact from observation through experimentation, validation, ratification, and measurement.
+
+### 34.3 Alerting
+
+Alerts trigger on: drift detection, identity erosion indicator, non-violable rule breach attempt, experimental scope violation, compatibility contract breach, and ratification timeout.
+
+---
+
+## 35. Evolution Economics
+
+### 35.1 Cost Model
+
+Evolution consumes capital through: observation cycles, impact analysis, experimentation, validation processing, consolidation computation, ratification packaging, and transition execution. Every evolutionary artifact carries an estimated cost of completion.
+
+### 35.2 Budget Enforcement
+
+The Gateway performs pre-flight budget checks: the estimated cost of an evolution cycle must not exceed the allocated evolution budget. Mid-flight monitoring halts cycles that exceed cost ceilings.
+
+### 35.3 Cost Attribution
+
+Every unit of evolutionary spend is attributed to: tenant, business, project, target subsystem, and artifact class. Cost dashboards are real-time.
+
+### 35.4 Portfolio Circuit Breakers
+
+The Gateway enforces portfolio-level limits: maximum evolution spend per business per period, maximum experimental environment allocation, and minimum operational budget preservation. Evolution that would breach circuit breakers is deferred.
+
+---
+
+## 36. Human Sovereignty
+
+### 36.1 Human as Ultimate Evolutionary Authority
+
+Human operators are the ultimate authority over all organizational change. The Evolution Gateway enforces that no agent, service, or automated system may: ratify a constitutional amendment, override an A4 artifact, reduce human oversight below absolute, or declare its own evolution legitimate without human confirmation.
+
+### 36.2 A4 Enforcement
+
+The Gateway blocks any attempt by a non-human principal to form A4 artifacts, ratify constitutional amendments, or invoke emergency evolutionary override. A4 authority is cryptographically bound to human credentials and cannot be delegated.
+
+### 36.3 Override Mechanisms
+
+Humans may override any evolutionary artifact, experiment, transition, or ratification request at any time. Overrides are immediate, irreversible by subsystems, and logged as A4 actions.
+
+### 36.4 Sovereign Override Integration
+
+Invocation of Sovereign Override (Document 15.33) immediately transitions all active evolutionary artifacts in conflict to **Deferred** or **Abandoned**, halts all active experiments, suspends all transitions, and requires human intervention to resume.
+
+### 36.5 Batched Human Interaction
+
+The Gateway batches evolutionary alerts, ratification requests, experimental outcome digests, and audit summaries to minimize human cognitive load. Critical events (non-violable breach attempt, identity erosion detection, experimental scope violation) trigger immediate notifications. Routine events are batched into scheduled digests.
+
+---
+
+## 37. Long-Term Continuity
+
+### 37.1 Continuity as Generational Persistence
+
+Long-term continuity is the guarantee that Agent OS preserves its constitutional identity, operational capability, and institutional memory across time horizons measured in decades, across transitions of personnel, businesses, and portfolio composition.
+
+### 37.2 Continuity Mechanisms
+
+- **Immutable Lineage:** The complete graph of evolutionary artifacts, their relationships, and their outcomes is preserved indefinitely.
+- **Archival Depth:** All evolutionary artifacts, including abandoned and refuted ones, are archived with full context to prevent cyclical error.
+- **Interpretive Preservation:** Every evolutionary artifact includes sufficient context and provenance to be interpretable by future stewards who did not participate in its formation.
+- **Constitutional Optionality:** The architecture preserves flexibility for future evolution without requiring prediction of specific future needs.
+
+### 37.3 Generational Knowledge Transfer
+
+Evolution ensures that the organization's accumulated wisdom—what has been tried, what failed, why it failed, and what succeeded—is transmissible across generational boundaries. This transfer is not merely technical documentation; it is the preservation of strategic intent, cultural norms, and constitutional identity.
+
+### 37.4 Temporal Resilience
+
+The organization must remain capable of self-improvement even if: individual subsystems are replaced, the portfolio is completely reconstituted, the substrate operators change, or the original human founders are no longer involved. Evolution provides the structural memory that makes this resilience possible.
+
+---
+
+## 38. Non-Violable Evolution Rules
+
+The following rules are absolute. Violation constitutes a Category 1 incident:
+
+1. No evolutionary artifact may be formed without authenticated proposer identity and complete evidence citation.
+2. No evolutionary artifact may bypass the Governance Gateway for ratification or direct subsystem enforcement.
+3. No evolutionary artifact may modify, circumvent, or erode non-violable rules defined in any constitutional document.
+4. No evolutionary artifact may reduce human sovereignty below absolute terminal authority.
+5. No evolutionary artifact may target the Evolution subsystem itself without A4 human authority.
+6. No evolutionary artifact may be propagated with confidence below the threshold for its target class.
+7. No evolutionary artifact may suppress uncertainty or present correlation as causation.
+8. No anonymous or pseudonymous evolutionary formation or propagation is permitted.
+9. No evolutionary artifact may cross tenant boundaries without explicit anonymization and human approval.
+10. No evolutionary artifact may be adopted without measurement of its actual outcome.
+11. No evolutionary artifact may be modified, overwritten, or deleted after validation.
+12. No evolution cycle may consume resources that breach portfolio-level circuit breakers.
+13. No evolutionary artifact may override a human sovereign decision or standing order.
+14. No evolutionary artifact may proceed on unresolved contradictory evidence without human arbitration.
+15. No evolutionary artifact may be formed from quarantined memory, unvalidated knowledge, or speculative observation as sole evidence.
+16. No evolutionary artifact may escalate the autonomy level of any agent or subsystem without human approval.
+17. No evolutionary feedback loop may remain unclosed for more than its defined measurement window.
+18. No evolutionary artifact may recursively trigger evolution cycles without explicit human authorization.
+19. No evolutionary audit record may be modified, overwritten, or deleted after formation.
+20. Evolution governance anomalies must be escalated as Category 1 incidents.
+21. Sovereign Override must halt all active evolutionary cycles, experiments, and transitions within 5 seconds of invocation.
+22. No constitutional document, policy, or governance artifact may reference a specific implementation technology, provider, or substrate operator.
+23. No evolutionary artifact may embed provider-specific logic that prevents substitution by alternative providers fulfilling the same capability abstraction.
+24. No experiment may operate without defined time boundaries, scope limits, success criteria, and rollback procedures.
+25. The constitution may not be experimentally suspended, modified, or bypassed for any purpose.
+
+---
+
+## 39. Appendix: Evolution Glossary
+
+| Term | Definition |
+|------|------------|
+| **Evolution** | The constitutional process of safe organizational change over time, preserving identity while enabling structural transformation. |
+| **Evolution Gateway** | The unified meta-layer through which all structural change operations are mediated, validated, and audited. |
+| **Evolutionary Artifact** | A structured proposal for organizational change with immutable identity, evidence, and lineage. |
+| **Amendment** | A proposal to modify, add to, or retire a provision within the ratified constitutional architecture. |
+| **Capability Abstraction** | The provider-neutral internal capability signature that evolves within the taxonomy governed by Evolution. |
+| **Compatibility Contract** | The architectural guarantee that evolutionary change does not ungovernably break existing operational artifacts. |
+| **Experiment** | A bounded, time-limited, human-approved trial of a structural hypothesis in an isolated environment. |
+| **Lineage** | The immutable succession chain linking evolutionary artifacts across time. |
+| **Deprecation** | The governed process of marking an artifact as obsolete with defined notice period and successor identification. |
+| **Retirement** | The permanent cessation of an artifact's active operational role with archival preservation. |
+| **Identity Preservation** | The guarantee that organizational identity invariants persist through systemic transformation. |
+| **Constitutional Stability** | The preservation of non-violable rules and foundational principles during all evolutionary activity. |
+| **A1/A2/A3/A4** | The authority classes for evolutionary artifacts, from subsystem steward to human sovereign. |
+| **Evolutionary Journal** | The immutable record of an evolutionary artifact's full lifecycle. |
+| **Drift** | Systematic divergence from constitutional identity or intent over time, detected and arrested by Evolution. |
+| **Generational Continuity** | The preservation of organizational capability, memory, and identity across decadal time horizons. |
+
+---
+
+*End of Document*

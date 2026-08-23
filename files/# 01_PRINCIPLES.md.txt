@@ -1,0 +1,841 @@
+# 01_PRINCIPLES.md
+
+**Agent OS — Constitutional Document**
+**Version:** 1.0.0
+**Status:** Ratified
+**Classification:** Architecture Constitution — Binding on All Subsystems
+
+---
+
+## Table of Contents
+
+1. [Mission](#1-mission)
+2. [Vision](#2-vision)
+3. [Core Philosophy](#3-core-philosophy)
+4. [Engineering Principles](#4-engineering-principles)
+5. [AI Principles](#5-ai-principles)
+6. [Agent Principles](#6-agent-principles)
+7. [Software Architecture Principles](#7-software-architecture-principles)
+8. [Coding Standards](#8-coding-standards)
+9. [Documentation Standards](#9-documentation-standards)
+10. [Security Principles](#10-security-principles)
+11. [Cost Optimization Philosophy](#11-cost-optimization-philosophy)
+12. [Scalability Principles](#12-scalability-principles)
+13. [Reliability Principles](#13-reliability-principles)
+14. [Testing Philosophy](#14-testing-philosophy)
+15. [Human Approval Rules](#15-human-approval-rules)
+16. [Logging & Observability Principles](#16-logging--observability-principles)
+17. [Definition of Success](#17-definition-of-success)
+18. [Rules for Future Expansion](#18-rules-for-future-expansion)
+
+---
+
+## 1. Mission
+
+### Statement
+Agent OS exists to build, operate, and optimize digital businesses through a cooperative network of specialized autonomous agents, requiring only strategic human oversight while maximizing automation, safety, and economic value creation.
+
+### Why It Exists
+The mission exists to prevent the single most common failure mode of ambitious engineering projects: misalignment between daily implementation decisions and ultimate strategic intent. Every line of code, every agent design, and every architectural choice must trace back to this mission. Without a constitutionally enshrined mission, the system will inevitably drift toward becoming either a trivial chatbot wrapper or an unmaintainable monolith of disconnected automations.
+
+### What Problem It Solves
+- **Scope Creep:** Prevents the inclusion of features that do not serve autonomous business operation (e.g., building a general-purpose conversational interface).
+- **Resource Misallocation:** Ensures engineering time is spent on automation depth, not peripheral concerns.
+- **Stakeholder Misalignment:** Provides an unambiguous litmus test for proposed features or architectural changes.
+
+### Best Practices
+- Every Architecture Decision Record (ADR) must explicitly state how the decision serves the mission.
+- Quarterly mission reviews must be conducted to verify that the system’s trajectory remains aligned.
+- The mission statement must be referenced in every major subsystem’s README.
+
+### Tradeoffs
+- **Specificity vs. Flexibility:** A highly specific mission prevents drift but may initially feel constraining. The mission is intentionally focused on *digital businesses* rather than *all possible automation* to maintain focus without being overly prescriptive about business models.
+- **Automation vs. Safety:** The mission demands "maximizing automation," which inherently creates tension with safety. This tension is resolved by the Human Approval Rules (Section 15), not by weakening the mission.
+
+### Examples
+- **Aligned:** Building an agent that scrapes competitor pricing, analyzes the data, and proposes product positioning adjustments.
+- **Misaligned:** Building a general-purpose AI assistant for end-user conversation unrelated to business operations.
+
+### Rules That Must Never Be Violated
+1. No subsystem may be designed whose primary purpose contradicts the mission of autonomous digital business operation.
+2. The mission may only be amended through a formal constitutional amendment process requiring human approval and a written impact analysis.
+3. No agent may be granted autonomy that exceeds the bounds defined by the Human Approval Rules, regardless of technical feasibility.
+
+---
+
+## 2. Vision
+
+### Statement
+Within five years, Agent OS shall operate a portfolio of self-sustaining digital businesses with minimal human intervention. A single human operator should be capable of overseeing ten or more concurrent business lines, with the system handling research, product development, marketing, deployment, maintenance, and iterative improvement. The system shall be the dominant open-source platform for autonomous business operation, running primarily on local infrastructure with transparent, auditable decision-making.
+
+### Why It Exists
+The vision provides the North Star for architectural decisions that require long-term thinking. While the mission defines *what* we do today, the vision defines *what world we are building toward*. It justifies investments in modularity, scalability, and local-first infrastructure that may not yield immediate dividends but are essential for the five-year trajectory.
+
+### What Problem It Solves
+- **Short-Termism:** Prevents architectural shortcuts that would necessitate complete rewrites as the system scales from one business to ten.
+- **Talent Retention:** Engineers and architects need to believe they are building something transformative, not merely automating minor tasks.
+- **Ecosystem Design:** Clarifies that Agent OS is a platform, not a product, which informs decisions about APIs, plugin architectures, and community boundaries.
+
+### Best Practices
+- All architectural roadmaps must include a "Vision Alignment" section demonstrating how near-term milestones contribute to the five-year vision.
+- Technology choices must be evaluated against the vision's requirements for transparency, local operation, and multi-tenancy.
+- Annual vision reviews must assess whether technological and market conditions warrant vision adjustments.
+
+### Tradeoffs
+- **Ambition vs. Pragmatism:** The vision is deliberately ambitious, which means some early engineering decisions will appear over-engineered for current needs. This is accepted as the cost of avoiding future re-platforming.
+- **Local-First vs. Performance:** Running primarily on local infrastructure may sacrifice some performance compared to centralized cloud-native AI services. The vision accepts this tradeoff in exchange for sovereignty, cost control, and privacy.
+
+### Examples
+- **Vision-Aligned:** Designing the agent communication bus to support multi-tenant isolation from day one, even when initially deployed for a single business.
+- **Vision-Contradicting:** Hardcoding the system to a single SaaS product without abstraction layers that would enable portfolio management.
+
+### Rules That Must Never Be Violated
+1. No architectural decision may permanently close the door to multi-business portfolio management.
+2. The system must never become dependent on a single proprietary provider such that the vision of local-first operation becomes technically impossible.
+3. Vision statements may be refined but never stripped of their core commitments to autonomy, local-first operation, and open-source dominance.
+
+---
+
+## 3. Core Philosophy
+
+### 3.1 Local First
+**Why:** Sovereignty over data and compute. Dependency on external APIs creates fragility, cost volatility, and privacy risks.
+**Problem Solved:** Vendor lock-in, data exfiltration, recurring costs that scale linearly with usage.
+**Best Practice:** Every external dependency must have a local fallback or self-hosted equivalent documented in the ADR.
+**Tradeoff:** Local models may underperform cloud counterparts. Accept lower capability in exchange for sovereignty, with cloud APIs used only as fallbacks or for specific high-value tasks.
+**Example:** Using Ollama for local LLM inference with LiteLLM as the abstraction layer, allowing seamless fallback to commercial APIs.
+**Non-Violable Rule:** The system must be capable of operating all core functions without internet connectivity, even if degraded.
+
+### 3.2 Open Source First
+**Why:** Transparency, community leverage, and long-term maintainability. Proprietary black boxes cannot be debugged, audited, or extended.
+**Problem Solved:** Supply chain opacity, licensing risk, inability to patch critical components.
+**Best Practice:** Prefer MIT/Apache-2.0 licensed dependencies. Every proprietary dependency requires a written exception with migration plan.
+**Tradeoff:** Open-source tools may lack polished UIs or enterprise support. Build internal tooling rather than purchasing opaque SaaS.
+**Example:** Using PostgreSQL and pgvector rather than a proprietary vector database.
+**Non-Violable Rule:** Core business logic must never depend on closed-source components for which no API-compatible open alternative exists.
+
+### 3.3 Free API First
+**Why:** Cost sustainability. A system that requires paid API calls for every operation will eventually face prohibitive scaling costs.
+**Problem Solved:** Runaway operational expenses, per-transaction cost scaling that destroys margins.
+**Best Practice:** Design agents to minimize token consumption. Cache aggressively. Batch requests. Use tiered models (small local models for routing/filtering, large models only for complex generation).
+**Tradeoff:** Free tiers have rate limits. The system must handle throttling gracefully.
+**Example:** Using a local 7B parameter model to classify whether a web scraping result warrants deep analysis by a larger model.
+**Non-Violable Rule:** Every agent must have a documented cost-per-operation estimate, and operations costing more than $0.01 must require explicit opt-in.
+
+### 3.4 Memory First
+**Why:** Agents without memory are stateless functions, not intelligent systems. Business operation requires longitudinal context, learning from failures, and accumulation of domain knowledge.
+**Problem Solved:** Repeated mistakes, loss of institutional knowledge, inability to improve over time.
+**Best Practice:** All agent interactions are logged to persistent storage. Memories are structured (facts, decisions, outcomes) not just raw logs. Use vector stores for semantic retrieval and relational stores for structured facts.
+**Tradeoff:** Memory systems consume storage and introduce data retention complexity. Implement tiered retention (hot in Redis, warm in PostgreSQL, cold in object storage).
+**Example:** A market research agent remembers that a previous competitor analysis incorrectly classified a company; this correction is stored and retrieved in subsequent analyses.
+**Non-Violable Rule:** No agent may make a business-critical decision without access to relevant historical context from the memory system.
+
+### 3.5 Human Sovereignty
+**Why:** Humans must remain the ultimate decision-makers for matters involving capital, legal liability, and ethical boundaries. Automation is a tool, not a master.
+**Problem Solved:** Unauthorized financial transactions, legal exposure, ethical violations, loss of human agency.
+**Best Practice:** Implement clear autonomy levels (see Section 15). All autonomous actions must be reversible within a defined window.
+**Tradeoff:** Human approval introduces latency. The system must be designed to batch decisions and present them efficiently.
+**Example:** An agent may draft a marketing campaign, but a human must approve spend before ad budget is allocated.
+**Non-Violable Rule:** The system may never override an explicit human denial or block.
+
+### 3.6 Tool Driven
+**Why:** Agents should be defined by the tools they wield, not by monolithic prompts. Tools provide deterministic boundaries, testable interfaces, and composable capabilities.
+**Problem Solved:** Prompt brittleness, unreproducible agent behavior, untestable "reasoning" hidden inside black-box prompts.
+**Best Practice:** Every agent capability must be exposed as a discrete tool with a typed schema, input validation, and output contract. Agents orchestrate tools; they do not embed business logic in prompts.
+**Tradeoff:** Tool overhead requires more upfront design than writing a monolithic prompt.
+**Example:** A "Deploy Application" agent does not write shell commands in a prompt; it calls a `deployment_service.deploy()` tool with validated parameters.
+**Non-Violable Rule:** No agent may execute arbitrary code or commands generated by an LLM without sandboxing and human approval.
+
+### 3.7 Self-Improving
+**Why:** Static systems become obsolete. The system must measure its own performance and identify improvement opportunities.
+**Problem Solved:** Bit rot, declining performance relative to market conditions, accumulation of technical debt.
+**Best Practice:** Implement feedback loops: every business outcome is measured, every agent action is scored, and low-performing patterns trigger improvement workflows.
+**Tradeoff:** Self-improvement requires instrumentation overhead and may introduce instability if improvement loops are too aggressive.
+**Example:** If a landing page agent's conversion rate declines over three iterations, the system flags the agent for prompt refinement or tool replacement.
+**Non-Violable Rule:** Self-improvement may never modify the core principles, security boundaries, or human approval gates.
+
+---
+
+## 4. Engineering Principles
+
+### 4.1 Modularity
+**Why:** A monolithic system cannot be debugged, scaled, or extended by multiple contributors working in parallel.
+**Problem Solved:** Coupling-induced fragility, inability to replace components, merge conflicts, testing complexity.
+**Best Practice:** Boundaries are enforced by explicit APIs and data contracts, not by convention. No module may import private internals of another module. Use dependency injection.
+**Tradeoff:** Modularity adds interface design overhead and may introduce slight performance costs from serialization.
+**Example:** The "Market Research" module and the "Product Builder" module communicate only through a well-defined event schema, not by sharing database tables.
+**Non-Violable Rule:** No circular dependencies between modules. If detected, the architecture must be refactored immediately.
+
+### 4.2 Event-Driven Architecture
+**Why:** Loose coupling, temporal decoupling, and natural scalability. Agents react to business events rather than polling or direct invocation.
+**Problem Solved:** Tight coupling, cascading failures, inability to replay workflows, difficulty in adding new consumers to existing data streams.
+**Best Practice:** All inter-agent and inter-module communication occurs through an event bus. Events are immutable, schema-versioned, and carry full provenance context. Use at-least-once delivery semantics with idempotent consumers.
+**Tradeoff:** Eventual consistency complicates debugging and requires careful handling of out-of-order events.
+**Example:** When a competitor price change is detected, a `CompetitorPriceChanged` event is emitted. The pricing strategy agent, alert agent, and reporting agent all consume this event independently.
+**Non-Violable Rule:** No module may directly invoke another module's internal functions across process boundaries. All cross-module communication must be event-based or API-based.
+
+### 4.3 API-First Design
+**Why:** Every capability must be exposable to other agents, external systems, and human operators. If it cannot be called via an API, it does not exist.
+**Problem Solved:** Hidden capabilities, inability to automate, UI-first thinking that traps logic in frontend code.
+**Best Practice:** Design the API before implementing the logic. Use OpenAPI specifications. All internal tools must be callable via the same interface that external consumers would use.
+**Tradeoff:** API design requires upfront investment. However, this is always cheaper than retrofitting APIs onto UI-centric code.
+**Example:** The business idea ranking algorithm is exposed as a REST endpoint before any dashboard is built.
+**Non-Violable Rule:** No business logic may exist solely in a user interface or CLI script without a corresponding programmatic API.
+
+### 4.4 Async-First Execution
+**Why:** Agents perform I/O-bound operations (web scraping, LLM inference, file I/O) that must not block the system.
+**Problem Solved:** Thread starvation, poor resource utilization, timeout cascades.
+**Best Practice:** All I/O operations use async/await patterns. CPU-bound work is offloaded to process pools. Message queues (Celery/Temporal) handle background job orchestration.
+**Tradeoff:** Async code is harder to debug and requires careful handling of context propagation (especially for tracing).
+**Example:** A web scraping agent fetches 50 pages concurrently using `asyncio` and `aiohttp`, rather than sequential `requests`.
+**Non-Violable Rule:** No blocking I/O calls in the main event loop of any service.
+
+### 4.5 Schema Evolution
+**Why:** Data structures change. The system must handle this without downtime or data loss.
+**Problem Solved:** Breaking changes, migration failures, consumer crashes due to unexpected fields.
+**Best Practice:** Use schema registries (e.g., Avro, Protobuf, or JSON Schema with versioning). Consumers must ignore unknown fields. Producers must not remove fields without a deprecation period.
+**Tradeoff:** Schema maintenance adds overhead. Version negotiation logic increases complexity.
+**Example:** The `BusinessIdea` schema moves from v1 to v2 by adding an optional `environmental_impact_score` field. v1 consumers continue to function.
+**Non-Violable Rule:** Never deploy a breaking schema change without a backward-compatible transition period of at least one release cycle.
+
+### 4.6 Infrastructure as Code
+**Why:** Environments must be reproducible. Manual configuration is undocumented, error-prone, and non-repeatable.
+**Problem Solved:** "Works on my machine," configuration drift, inability to spin up new instances, disaster recovery failures.
+**Best Practice:** Docker Compose for local development, Terraform/Ansible for cloud resources. All configuration is version-controlled. Secrets are injected at runtime, never committed.
+**Tradeoff:** Initial setup time is higher. Tooling must be maintained.
+**Example:** A new developer clones the repository and runs `docker compose up` to have a fully functional local Agent OS instance.
+**Non-Violable Rule:** No production configuration may be modified manually through a cloud provider's web console. All changes must flow through version-controlled infrastructure code.
+
+---
+
+## 5. AI Principles
+
+### 5.1 Model Agnosticism
+**Why:** The AI landscape evolves rapidly. Hardcoding to a single model provider creates fragility and cost risk.
+**Problem Solved:** Vendor lock-in, model obsolescence, inability to optimize cost/performance by switching models.
+**Best Practice:** Use LiteLLM or an equivalent abstraction layer. All LLM calls go through a unified gateway that handles routing, fallback, and cost tracking. Agent prompts must be tested across multiple model families.
+**Tradeoff:** Lowest-common-denominator prompting may sacrifice model-specific optimizations. Maintain model-specific prompt variants where justified by performance gains.
+**Example:** The system routes simple classification tasks to a local Mistral 7B model, complex reasoning to Claude Sonnet, and creative generation to GPT-4o, all through the same interface.
+**Non-Violable Rule:** No business-critical agent may depend on a single specific model version without a documented migration path to an alternative.
+
+### 5.2 Deterministic Boundaries
+**Why:** LLMs are probabilistic. Business operations require deterministic guarantees for critical paths.
+**Problem Solved:** Non-reproducible decisions, financial calculation errors, inconsistent data transformations.
+**Best Practice:** LLMs generate *intent* or *configuration*; deterministic code executes *action*. Use LLMs for classification, summarization, and draft generation. Use typed functions for math, state transitions, and financial operations.
+**Tradeoff:** More code must be written manually. The boundary between "LLM task" and "code task" must be carefully designed.
+**Example:** An agent uses an LLM to draft a pricing strategy document, but the actual price calculation uses a deterministic Python function with audited formulas.
+**Non-Violable Rule:** No financial calculation, access control decision, or database schema migration may be performed by raw LLM output without deterministic validation.
+
+### 5.3 Context Engineering
+**Why:** LLM performance is bounded by context quality, not just model size. Poor context leads to hallucination and inefficiency.
+**Problem Solved:** Token waste, irrelevant information drowning out critical signals, context window overflow.
+**Best Practice:** Implement hierarchical context management. Retrieve only relevant memories. Summarize long histories. Use structured formats (JSON, XML) for tool outputs to maximize parsing reliability.
+**Tradeoff:** Sophisticated context engineering requires complex retrieval and ranking logic.
+**Example:** Before analyzing a business opportunity, the agent retrieves only the top-5 relevant past analyses from the vector store, plus structured market data, rather than dumping the entire conversation history.
+**Non-Violable Rule:** No agent may send unfiltered raw data to an LLM without a context budget and relevance filtering step.
+
+### 5.4 Hallucination Mitigation
+**Why:** LLMs generate plausible but false information. In business operations, false information leads to bad decisions and reputational damage.
+**Problem Solved:** Fabricated competitor data, incorrect legal interpretations, non-existent feature implementations.
+**Best Practice:** Ground all claims in retrieved data. Use retrieval-augmented generation (RAG) with citation requirements. Validate factual claims against primary sources where possible. Confidence scores must accompany all LLM-generated assertions.
+**Tradeoff:** Rigorous grounding slows response times and may increase token costs.
+**Example:** A market research agent cites the specific URL and timestamp for every competitor claim it makes. Unverifiable claims are flagged as "speculative."
+**Non-Violable Rule:** No agent may present LLM-generated information as verified fact without grounding data and confidence scoring.
+
+### 5.5 Tiered Model Strategy
+**Why:** Using the largest model for every task is economically unsustainable and slower than necessary.
+**Problem Solved:** Excessive API costs, slow response times, unnecessary compute waste.
+**Best Practice:** Implement a model routing layer. Small models (3B-7B local) handle routing, filtering, and classification. Medium models handle standard tasks. Large models handle complex reasoning and generation. The router learns from outcome quality.
+**Tradeoff:** Routing logic adds complexity and may occasionally misclassify task difficulty.
+**Example:** A user request to "analyze this market" is first parsed by a small model to extract parameters, then routed to a large model only if the market is novel and complex.
+**Non-Violable Rule:** The default model for any new agent must be the smallest model proven capable of the task at acceptable quality.
+
+---
+
+## 6. Agent Principles
+
+### 6.1 Single Responsibility
+**Why:** Agents that do everything become unmaintainable black boxes that cannot be tested, debugged, or replaced.
+**Problem Solved:** Monolithic agent complexity, unclear failure domains, inability to specialize and optimize.
+**Best Practice:** Each agent owns exactly one business capability (e.g., "Competitor Price Monitor," "Landing Page Generator"). An agent may consist of multiple internal tools, but its external purpose is singular.
+**Tradeoff:** Orchestration overhead increases. A coordinator agent (or workflow engine) is required to manage multi-step business processes.
+**Example:** The "SEO Agent" optimizes content for search engines. It does not also write the content (that is the "Content Agent") or publish it (that is the "Publisher Agent").
+**Non-Violable Rule:** No agent may span more than one distinct business domain without being decomposed into sub-agents.
+
+### 6.2 Stateless Operation, Stateful Memory
+**Why:** Agents must be horizontally scalable. Statefulness in process prevents scaling and complicates recovery.
+**Problem Solved:** Memory leaks, inability to restart agents without data loss, complex load balancing.
+**Best Practice:** Agents hold no in-memory state between tasks. All state is externalized to PostgreSQL, Redis, or the event bus. An agent receives a task, executes using externalized context, and emits a result.
+**Tradeoff:** Increased database load and latency from frequent state persistence.
+**Example:** A "Bug Fixer" agent is given a bug report and codebase context via a message. It does not maintain an internal map of "current projects."
+**Non-Violable Rule:** No agent may store business-critical state exclusively in local memory. All state must be recoverable after a process restart.
+
+### 6.3 Explicit Tool Contracts
+**Why:** Agents must interact with the world through well-defined, testable interfaces. Ad-hoc tool usage creates unpredictability.
+**Problem Solved:** Untestable agent behavior, security holes from overly permissive tools, inability to audit agent actions.
+**Best Practice:** Every tool has an OpenAPI-style schema, input validation (Pydantic), output typing, and explicit error contracts. Agents cannot "discover" tools dynamically without registry approval.
+**Tradeoff:** Tool registration and maintenance require governance.
+**Example:** The "Deploy Agent" has access to `deployment.deploy_app(config: DeployConfig)` but not to arbitrary `os.system()` calls.
+**Non-Violable Rule:** No agent may invoke a tool that has not been explicitly registered, versioned, and documented in the agent's manifest.
+
+### 6.4 Graceful Degradation
+**Why:** Agents will fail. The system must continue operating when individual agents are unavailable or malfunctioning.
+**Problem Solved:** Cascading failures, total system outages from single-agent defects, brittle automation.
+**Best Practice:** Implement circuit breakers for external tool calls. Define fallback behaviors (e.g., if the SEO agent fails, publish without optimization and flag for review). Timeouts must be aggressive.
+**Tradeoff:** Degraded outputs may be suboptimal. Monitoring must clearly distinguish between "optimal path" and "degraded path" operations.
+**Example:** If the image generation agent is unavailable, the landing page agent publishes with a placeholder and queues a retry.
+**Non-Violable Rule:** No single agent failure may cause a cascading failure in another agent or the overall business process.
+
+### 6.5 Observability by Design
+**Why:** Agents are opaque by default. Without explicit instrumentation, debugging agent behavior is nearly impossible.
+**Problem Solved:** "Why did the agent do that?" mysteries, inability to improve agent performance, undetected error loops.
+**Best Practice:** Every agent execution produces a structured trace: input context, tool calls with parameters, LLM raw outputs, parsed decisions, final action, and outcome. Traces are correlated across the distributed system.
+**Tradeoff:** Tracing adds storage overhead and minor latency.
+**Example:** The "Idea Ranker" agent's trace shows exactly which factors it weighted heavily and why it ranked "AI Resume Builder" above "AI Tax Helper."
+**Non-Violable Rule:** No agent may be deployed to production without distributed tracing integration and structured logging.
+
+---
+
+## 7. Software Architecture Principles
+
+### 7.1 Hexagonal Architecture (Ports and Adapters)
+**Why:** Business logic must be isolated from external concerns (databases, LLMs, web frameworks). This enables testing, swapping implementations, and long-term maintainability.
+**Problem Solved:** Framework lock-in, untestable business logic, inability to change databases or AI providers.
+**Best Practice:** Define clear ports (interfaces) for all external dependencies. Implement adapters for concrete technologies. The domain layer knows nothing about FastAPI, PostgreSQL, or OpenAI.
+**Tradeoff:** More boilerplate code. More abstractions to understand.
+**Example:** The `IdeaRankingService` depends on an `IdeaRepository` port. Today it uses a PostgreSQL adapter. Tomorrow it could use a SQLite adapter for testing or a different database entirely without touching the service.
+**Non-Violable Rule:** No import of FastAPI, SQLAlchemy, or LLM client libraries in domain logic files.
+
+### 7.2 Database Per Module
+**Why:** Modules must be independently deployable and scalable. Shared database tables create hidden coupling.
+**Problem Solved:** Schema conflicts, deployment coordination, inability to scale individual modules.
+**Best Practice:** Each module owns its data. Cross-module queries are prohibited; use APIs or events. Within a module, PostgreSQL is preferred for structured data, Redis for ephemeral state, and object storage for blobs.
+**Tradeoff:** Data consistency across modules is eventual, not immediate. Cross-module reporting requires aggregation services.
+**Example:** The "Billing" module and the "Product" module do not share a database. The Billing module subscribes to `ProductPublished` events to maintain its own denormalized product catalog.
+**Non-Violable Rule:** No module may directly query another module's database tables.
+
+### 7.3 Dependency Inversion
+**Why:** High-level modules must not depend on low-level details. Both must depend on abstractions.
+**Problem Solved:** Rigid architectures, difficulty in testing, cascading changes when implementations change.
+**Best Practice:** Use dependency injection containers. Construct object graphs at the application boundary (main.py), not inside business logic.
+**Tradeoff:** Requires discipline and understanding of inversion of control.
+**Example:** The `MarketAnalysisAgent` receives an `AnalysisRepository` interface in its constructor. It does not instantiate a `PostgresAnalysisRepository` internally.
+**Non-Violable Rule:** No `new` or direct instantiation of infrastructure classes inside domain logic.
+
+### 7.4 CQRS Where Justified
+**Why:** Read and write workloads have different optimization profiles. Separating them improves performance and scalability.
+**Problem Solved:** Slow read queries impacting write throughput, complex ORM mappings trying to serve both paths.
+**Best Practice:** Use CQRS (Command Query Responsibility Segregation) for high-traffic or complex reporting modules. Commands go to PostgreSQL. Queries may use read replicas, materialized views, or Elasticsearch.
+**Tradeoff:** Eventual consistency between reads and writes. Increased complexity.
+**Example:** The analytics dashboard reads from a materialized view updated by a Celery task, while business operations write to the transactional tables.
+**Non-Violable Rule:** CQRS may only be introduced with a documented consistency model and reconciliation strategy.
+
+### 7.5 API Gateway Pattern
+**Why:** Clients (including other agents) should interact with a unified interface, not directly with individual services.
+**Problem Solved:** Service discovery complexity, inconsistent authentication, cross-cutting concern duplication.
+**Best Practice:** A single API gateway handles routing, authentication, rate limiting, and request/response transformation. Internal services remain private.
+**Tradeoff:** The gateway becomes a critical path component and potential bottleneck.
+**Example:** All agent tools call `api.agent-os.local/v1/tools/...` rather than knowing the individual ports of the deployment service, content service, etc.
+**Non-Violable Rule:** No internal service may be exposed directly to external consumers without passing through the gateway.
+
+---
+
+## 8. Coding Standards
+
+### 8.1 Language and Framework
+**Why:** Python offers the richest ecosystem for AI/ML integration, async support, and developer productivity.
+**Problem Solved:** Fragmented language ecosystem, inability to leverage AI libraries, hiring friction.
+**Best Practice:** Python 3.11+ is the standard. FastAPI for HTTP services. Pydantic for validation. SQLAlchemy 2.0 for ORM. pytest for testing.
+**Tradeoff:** Python's dynamic typing requires discipline to maintain large-codebase safety.
+**Example:** All services are implemented in Python with type hints.
+**Non-Violable Rule:** No production code in untyped Python. Every function parameter and return value must have type annotations.
+
+### 8.2 Type Safety
+**Why:** Type hints catch errors at development time, enable IDE autocomplete, and serve as living documentation.
+**Problem Solved:** Runtime type errors, unclear function contracts, brittle refactoring.
+**Best Practice:** Use `mypy` in strict mode. Pydantic models for all external inputs and outputs. Avoid `Any` except in documented generic utilities.
+**Tradeoff:** Strict typing requires more upfront code and can be verbose with complex generic types.
+**Example:** `def rank_ideas(ideas: list[BusinessIdea], criteria: RankingCriteria) -> RankedIdeas:` not `def rank_ideas(ideas, criteria):`
+**Non-Violable Rule:** `mypy --strict` must pass with zero errors before code is merged.
+
+### 8.3 Error Handling
+**Why:** Uncaught exceptions in autonomous systems cause undefined behavior, data corruption, and silent failures.
+**Problem Solved:** Crashes, unhandled edge cases, poor user experience, debugging difficulty.
+**Best Practice:** Use structured exceptions (never bare `raise Exception`). Implement global exception handlers at service boundaries. Log full stack traces with correlation IDs. Never swallow exceptions.
+**Tradeoff:** Verbose error handling code.
+**Example:** `raise BusinessRuleViolationError(f"Idea {idea_id} lacks market size data")` not `raise Exception("bad idea")`.
+**Non-Violable Rule:** No bare `except:` or `except Exception:` without re-raising or explicit structured handling.
+
+### 8.4 Documentation in Code
+**Why:** Code is read more often than written. Docstrings explain the "why," not just the "what."
+**Problem Solved:** Knowledge silos, onboarding friction, fear of modifying unknown code.
+**Best Practice:** Google-style docstrings for all public modules, classes, and functions. Include examples for complex functions. Comment non-obvious business logic.
+**Tradeoff:** Documentation must be maintained. Outdated docs are worse than no docs.
+**Example:** Every agent class has a docstring explaining its business purpose, trigger conditions, and failure modes.
+**Non-Violable Rule:** No public API may be merged without complete docstrings.
+
+### 8.5 Immutability by Default
+**Why:** Mutable state is the primary source of bugs in concurrent and distributed systems.
+**Problem Solved:** Race conditions, unexpected side effects, difficulty in reasoning about code.
+**Best Practice:** Prefer dataclasses with `frozen=True`. Pass values, not references, across agent boundaries. Use functional transformations (`map`, `filter`) over in-place mutation.
+**Tradeoff:** Performance overhead of copying data structures. Acceptable for business logic; optimize hot paths intentionally.
+**Example:** `RankedIdeas` is a frozen dataclass. Ranking operations return new instances rather than mutating the original.
+**Non-Violable Rule:** No mutable default arguments. No in-place mutation of shared data structures across agent boundaries.
+
+### 8.6 Configuration Management
+**Why:** Code must behave identically across environments except for explicitly managed configuration.
+**Problem Solved:** Environment-specific bugs, secrets in code, deployment fragility.
+**Best Practice:** Use Pydantic Settings with environment variable validation. Separate config from code. No hardcoded URLs, API keys, or file paths.
+**Tradeoff:** Environment setup is required before running code locally.
+**Example:** `settings = AgentOSSettings()` loads from `.env` files and environment variables, with validation that all required secrets are present.
+**Non-Violable Rule:** No hardcoded secrets, API keys, or environment-specific values in source code. Violations are grounds for immediate reverting.
+
+---
+
+## 9. Documentation Standards
+
+### 9.1 Documentation as Code
+**Why:** Documentation that lives outside version control rots. It must be versioned, reviewed, and tested like code.
+**Problem Solved:** Stale documentation, docs that diverge from implementation, inaccessible knowledge.
+**Best Practice:** All documentation is Markdown in the repository. ADRs live in `docs/architecture/`. API docs are generated from OpenAPI specs. READMEs are mandatory for every module.
+**Tradeoff:** Documentation PRs add review overhead.
+**Example:** Changing the event schema requires updating the corresponding Markdown spec in the same PR.
+**Non-Violable Rule:** No architectural decision may be implemented without a corresponding ADR merged to `docs/architecture/`.
+
+### 9.2 Architecture Decision Records (ADRs)
+**Why:** Decisions have context. Future maintainers need to understand why something was done, not just what was done.
+**Problem Solved:** Re-litigating old decisions, repeating mistakes, "cargo cult" architecture.
+**Best Practice:** Use the Nygard ADR format: Context, Decision, Consequences. ADRs are immutable once accepted; superseded by new ADRs, never deleted.
+**Tradeoff:** Writing ADRs takes time. This is accepted as a non-negotiable cost of doing business.
+**Example:** `ADR-042: Use Temporal over Celery for Workflow Orchestration` documents the evaluation criteria, rejected alternatives, and expected consequences.
+**Non-Violable Rule:** All ADRs must be reviewed and approved before the corresponding code is merged.
+
+### 9.3 Runbooks
+**Why:** When systems fail at 3 AM, engineers need procedures, not architecture diagrams.
+**Problem Solved:** Panic-driven debugging, prolonged outages, knowledge silos.
+**Best Practice:** Every production service has a runbook covering: deployment, rollback, common failure modes, health check endpoints, and escalation paths.
+**Tradeoff:** Runbooks must be kept current. Assign ownership.
+**Example:** The `Runbook-DeploymentAgent.md` contains exact commands to check queue depth, restart workers, and roll back a bad deployment.
+**Non-Violable Rule:** No service may be deployed to production without a reviewed runbook.
+
+### 9.4 API Documentation
+**Why:** APIs are contracts. Undocumented APIs are unusable by other agents and external consumers.
+**Problem Solved:** Integration failures, incorrect assumptions about endpoint behavior, duplicate implementations.
+**Best Practice:** OpenAPI 3.1 specs for all HTTP APIs. AsyncAPI for event schemas. Include example requests, error responses, and rate limit headers.
+**Tradeoff:** Maintaining OpenAPI specs manually is tedious. Generate from code where possible (e.g., FastAPI auto-generation).
+**Example:** The Agent Tool Registry API has a complete OpenAPI spec with authenticated example requests.
+**Non-Violable Rule:** No API endpoint may be deployed without corresponding documentation and at least one example.
+
+---
+
+## 10. Security Principles
+
+### 10.1 Defense in Depth
+**Why:** Autonomous systems are high-value targets. A single security control will fail.
+**Problem Solved:** Single point of security failure, over-reliance on perimeter security.
+**Best Practice:** Layer controls: network segmentation, authentication, authorization, input validation, output encoding, encryption at rest and in transit, audit logging.
+**Tradeoff:** Performance overhead and operational complexity.
+**Example:** Even inside the Docker network, services authenticate to each other using mTLS. The database requires TLS. API inputs are validated by Pydantic and then sanitized before LLM ingestion.
+**Non-Violable Rule:** No service may trust another service implicitly based on network location alone.
+
+### 10.2 Least Privilege
+**Why:** Agents with excessive permissions can cause catastrophic damage autonomously.
+**Problem Solved:** Unauthorized data access, destructive operations, privilege escalation.
+**Best Practice:** Each agent has a defined permission scope (RBAC). Agents use short-lived tokens. Secrets are injected via secure vaults (e.g., HashiCorp Vault or Docker Secrets). No agent runs as root.
+**Tradeoff:** Permission management requires ongoing governance.
+**Example:** The "Blog Publisher" agent has write access to the CMS API but no access to the production database or deployment pipeline.
+**Non-Violable Rule:** No agent may possess permissions beyond its documented scope. Permission grants require human approval.
+
+### 10.3 Input Sanitization
+**Why:** LLM agents process untrusted external data (web content, user inputs). This data may contain prompt injection, malware, or malicious instructions.
+**Problem Solved:** Prompt injection attacks, code execution via malicious inputs, data exfiltration.
+**Best Practice:** All external inputs pass through a sanitization layer before reaching LLM prompts. Use allowlists, not blocklists. HTML is parsed, not rendered blindly. File uploads are scanned and sandboxed.
+**Tradeoff:** Aggressive sanitization may strip legitimate content. Tune per data source.
+**Example:** Web scraping results have HTML tags stripped and JavaScript removed before being included in LLM context.
+**Non-Violable Rule:** No external data may be passed directly to an LLM prompt without sanitization and validation.
+
+### 10.4 Secrets Management
+**Why:** Hardcoded secrets are the most common source of security breaches in automated systems.
+**Problem Solved:** Credential leaks, unauthorized access, inability to rotate credentials.
+**Best Practice:** Secrets are stored in a vault, injected at runtime, never logged, never committed. Regular rotation. No secrets in environment variables for production (use secret mounts).
+**Tradeoff:** Local development setup is slightly more complex.
+**Example:** API keys for external services are mounted as files in `/run/secrets/` inside Docker containers, not passed as environment variables.
+**Non-Violable Rule:** Committed secrets result in immediate credential rotation and incident response.
+
+### 10.5 Auditability
+**Why:** Autonomous actions must be attributable. When something goes wrong, we need to know exactly what happened and who (or what) authorized it.
+**Problem Solved:** Undetected malicious actions, inability to investigate incidents, compliance failures.
+**Best Practice:** Immutable audit logs for all agent actions, especially those involving external systems, financial transactions, or data modifications. Logs are append-only and regularly backed up.
+**Tradeoff:** Storage costs and slight performance overhead.
+**Example:** Every deployment by the Deployment Agent is logged with: timestamp, agent ID, deployment parameters, human approval reference, and outcome.
+**Non-Violable Rule:** Audit logs must never be modifiable by the system that generates them. Separate storage and access controls.
+
+### 10.6 Sandboxing
+**Why:** Agents execute code, scrape the web, and interact with external systems. These are inherently dangerous activities.
+**Problem Solved:** Malicious code execution, system compromise, data destruction.
+**Best Practice:** All code execution occurs in isolated environments (Docker containers, gVisor, or Firecracker microVMs). Network egress is restricted. Filesystem access is read-only except for explicitly mounted volumes.
+**Tradeoff:** Container startup latency and resource overhead.
+**Example:** The "Code Generator" agent writes code to a temporary volume. A sandboxed container compiles and tests the code with no network access and no access to the host filesystem.
+**Non-Violable Rule:** No agent may execute arbitrary code outside a sandboxed environment.
+
+---
+
+## 11. Cost Optimization Philosophy
+
+### 11.1 Cost Transparency
+**Why:** Costs that are invisible cannot be optimized. Every operation must have a known price tag.
+**Problem Solved:** Runaway cloud bills, uneconomical business operations, surprise invoices.
+**Best Practice:** Every agent operation is tagged with: compute cost, API cost, storage cost, and estimated human oversight cost. Dashboards track cost per business, per product, and per agent.
+**Tradeoff:** Instrumentation overhead.
+**Example:** The "Market Research" agent reports that its last run cost $0.23 in API calls and 12 minutes of compute.
+**Non-Violable Rule:** No agent may be deployed without cost tracking instrumentation.
+
+### 11.2 Local Inference Priority
+**Why:** Cloud LLM APIs are the largest variable cost in AI systems. Local inference converts variable costs to fixed costs.
+**Problem Solved:** Per-token pricing that destroys margins at scale.
+**Best Practice:** Default to local models (Ollama, vLLM) for all operations where quality is acceptable. Use cloud APIs only for tasks that demonstrably require larger models. Cache embeddings locally.
+**Tradeoff:** Higher upfront hardware investment. Slightly lower capability for some tasks.
+**Example:** Sentiment analysis, classification, and summarization run on local 7B-13B models. Only complex business strategy generation uses cloud APIs.
+**Non-Violable Rule:** A cloud API call must be justified by a documented quality gap that local models cannot close.
+
+### 11.3 Aggressive Caching
+**Why:** Many agent operations are repetitive or operate on stable data. Re-computation is waste.
+**Problem Solved:** Redundant API calls, redundant LLM inferences, redundant web scraping.
+**Best Practice:** Cache at multiple levels: HTTP responses (Redis), LLM responses (semantic cache with pgvector), embeddings, and deterministic computation results. Set appropriate TTLs per data type.
+**Tradeoff:** Stale data risk. Cache invalidation is a hard problem.
+**Example:** Competitor pricing data is cached for 6 hours. LLM-generated marketing copy for unchanged products is cached indefinitely.
+**Non-Violable Rule:** No agent may make an external API call or LLM inference without first checking a relevant cache.
+
+### 11.4 Batch Processing
+**Why:** Per-unit costs drop dramatically with batching. Sequential one-by-one processing is economically irrational.
+**Problem Solved:** Inefficient resource utilization, excessive API round trips.
+**Best Practice:** Design agents to collect tasks and process them in batches. Use Celery/Temporal for queue-based batch execution. LLM requests are batched where the API supports it.
+**Tradeoff:** Increased latency for individual tasks. Requires buffering and queue management.
+**Example:** The SEO agent analyzes 50 pages in a single batch job overnight rather than making 50 individual API calls during business hours.
+**Non-Violable Rule:** Single-item processing loops that call external APIs must include a written justification for why batching is impossible.
+
+### 11.5 Cost-Driven Circuit Breakers
+**Why:** Autonomous systems can spiral when a failing process retries indefinitely, racking up costs.
+**Problem Solved:** Infinite retry loops, runaway API usage during outages.
+**Best Practice:** Implement cost-based circuit breakers. If an agent's operation exceeds its budget, it is halted and escalated to human review.
+**Tradeoff:** False positives may halt legitimate but expensive operations.
+**Example:** If the "Ad Campaign" agent spends more than $5 in API calls without a successful campaign launch, the circuit opens.
+**Non-Violable Rule:** No agent may exceed its documented operational budget without explicit human authorization.
+
+---
+
+## 12. Scalability Principles
+
+### 12.1 Horizontal Scaling
+**Why:** Vertical scaling has physical limits and creates single points of failure.
+**Problem Solved:** Capacity ceilings, hardware bottlenecks, downtime during upgrades.
+**Best Practice:** All services are stateless and share-nothing. Scale by adding container instances. Use load balancers. Database scaling uses read replicas and connection pooling.
+**Tradeoff:** Distributed systems complexity. Eventual consistency.
+**Example:** When the number of monitored competitors doubles, new instances of the "Competitor Monitor" agent are spun up to distribute the load.
+**Non-Violable Rule:** No service may require a specific single instance to operate. All services must support N+1 redundancy.
+
+### 12.2 Queue-Based Load Leveling
+**Why:** Traffic is bursty. Direct synchronous calls cause overload and cascading failures.
+**Problem Solved:** Thundering herd problems, service overload during peak activity, dropped requests.
+**Best Practice:** Use message queues (Redis, RabbitMQ, or Temporal) between producers and consumers. Producers enqueue tasks; consumers process at sustainable rates. Implement backpressure.
+**Tradeoff:** Increased latency. Queue management overhead.
+**Example:** When a trend is detected, 100 content generation tasks are enqueued rather than triggering 100 synchronous API calls.
+**Non-Violable Rule:** No high-volume inter-service communication may be purely synchronous without a documented exception.
+
+### 12.3 Database Connection Management
+**Why:** Database connections are finite and expensive. Poor connection management is the most common scalability bottleneck.
+**Problem Solved:** Connection pool exhaustion, database overload, query timeouts.
+**Best Practice:** Use connection pooling (PgBouncer for PostgreSQL). Set aggressive pool sizes per service. Close connections promptly. Use read replicas for analytical queries.
+**Tradeoff:** Slight query latency from pooling middleware.
+**Example:** Each service instance maintains a connection pool of maximum 10 connections to PostgreSQL.
+**Non-Violable Rule:** No service may create unbounded database connections.
+
+### 12.4 Resource Limits
+**Why:** Unbounded resource consumption by one agent or business can starve others.
+**Problem Solved:** Noisy neighbor problems, resource exhaustion, unpredictable performance.
+**Best Practice:** Enforce CPU, memory, and disk limits per container. Use cgroups. Implement fair scheduling for background jobs.
+**Tradeoff:** Resource limits may cause OOM kills if set too aggressively.
+**Example:** The "Video Generator" agent is limited to 4 CPU cores and 8GB RAM. If it exceeds these limits, it is terminated and flagged.
+**Non-Violable Rule:** No container may run without defined resource limits.
+
+---
+
+## 13. Reliability Principles
+
+### 13.1 Idempotency
+**Why:** Networks are unreliable. Messages are delivered more than once. Operations must be safe to retry.
+**Problem Solved:** Duplicate charges, duplicate deployments, duplicate content publication.
+**Best Practice:** All agent operations that modify state must be idempotent. Use idempotency keys for external API calls. Design database operations as upserts where possible.
+**Tradeoff:** Idempotency requires unique identifiers and careful state tracking.
+**Example:** Publishing a blog post uses an idempotency key derived from the content hash. Re-publishing the same content is a no-op.
+**Non-Violable Rule:** No state-modifying operation may be implemented in a way that is unsafe to retry at least once.
+
+### 13.2 Circuit Breakers
+**Why:** Failing fast prevents cascading failures and preserves system capacity for healthy components.
+**Problem Solved:** Retry storms, cascading latency, total system collapse when one dependency fails.
+**Best Practice:** Implement circuit breakers on all external calls (LLM APIs, third-party services, databases). Breakers trip on error rate thresholds and recover with exponential backoff.
+**Tradeoff:** False positives may degrade service unnecessarily.
+**Example:** If the OpenAI API returns 5xx errors at >50% rate for 60 seconds, the circuit opens and the system falls back to local models.
+**Non-Violable Rule:** No external HTTP call may be made without a circuit breaker.
+
+### 13.3 Graceful Degradation
+**Why:** Perfect availability is impossible. The system must provide partial value when components fail.
+**Problem Solved:** All-or-nothing failures, poor user experience during outages.
+**Best Practice:** Define degraded modes for every critical path. Degraded modes must be safe and useful, not just error messages.
+**Tradeoff:** Degraded modes require additional code paths and testing.
+**Example:** If the analytics service is down, the system continues operating businesses using last-known metrics and queues analytics for backfill.
+**Non-Violable Rule:** No critical business process may have a single point of failure that results in complete stoppage.
+
+### 13.4 Health Checks and Readiness
+**Why:** Orchestrators and load balancers need to know if a service is healthy before routing traffic to it.
+**Problem Solved:** Traffic routed to failing instances, delayed detection of failures.
+**Best Practice:** Implement `/health` (liveness) and `/ready` (readiness) endpoints. Readiness checks verify database connectivity and critical dependency availability.
+**Tradeoff:** Health checks add minor traffic overhead.
+**Example:** The API Gateway's readiness probe fails if it cannot connect to the authentication service, causing Kubernetes to remove it from the load balancer.
+**Non-Violable Rule:** Every service must expose a `/health` endpoint and a `/ready` endpoint.
+
+### 13.5 Backup and Recovery
+**Why:** Data loss is catastrophic and irreversible. Autonomous systems generate valuable business data continuously.
+**Problem Solved:** Hardware failures, corruption, ransomware, human error.
+**Best Practice:** Automated daily backups of PostgreSQL. Point-in-time recovery enabled. Backups tested monthly via restoration drills. Configuration backups separate from data backups.
+**Tradeoff:** Storage costs for backups. Recovery drill time.
+**Example:** The system can restore any business's data to any point in the last 30 days within 2 hours.
+**Non-Violable Rule:** No production database may operate without automated backups and a tested recovery procedure.
+
+---
+
+## 14. Testing Philosophy
+
+### 14.1 Test Pyramid
+**Why:** Unit tests are fast and cheap. End-to-end tests are slow and expensive. The ratio must reflect this.
+**Problem Solved:** Slow CI pipelines, flaky tests, poor test coverage where it matters.
+**Best Practice:** 70% unit tests, 20% integration tests, 10% end-to-end tests. Unit tests run in <10 seconds locally. Integration tests use TestContainers for real dependencies.
+**Tradeoff:** Writing unit tests requires testable architecture (dependency injection, no static state).
+**Example:** The idea ranking algorithm has hundreds of unit tests for edge cases, a dozen integration tests with the database, and two end-to-end tests through the API.
+**Non-Violable Rule:** No code may be merged without unit tests for new logic. No feature may be released without integration tests.
+
+### 14.2 Contract Testing
+**Why:** In a multi-agent system, interfaces between components are the most common source of integration failures.
+**Problem Solved:** Breaking changes in event schemas, API mismatches, consumer-producer misalignment.
+**Best Practice:** Use Pact or similar contract testing. Consumers define expectations. Producers verify they meet them. Run in CI on every PR.
+**Tradeoff:** Contract test maintenance adds overhead.
+**Example:** The "Publisher Agent" defines a contract that the "Content Agent" must provide HTML with specific metadata fields.
+**Non-Violable Rule:** No change to a public API or event schema may be merged without passing contract tests.
+
+### 14.3 Property-Based Testing
+**Why:** Example-based tests only cover known cases. Agents operate in open-ended domains where edge cases are unpredictable.
+**Problem Solved:** Missed edge cases, brittle tests tied to specific examples.
+**Best Practice:** Use Hypothesis for Python. Test properties (e.g., "ranking is always transitive," "sanitization never produces executable JavaScript") rather than just specific inputs.
+**Tradeoff:** Property-based tests can be harder to write and debug when they fail.
+**Example:** The input sanitization module is tested with Hypothesis to verify that no generated input produces `<script>` tags in the output.
+**Non-Violable Rule:** All security-critical and financial-critical functions must have property-based tests.
+
+### 14.4 Chaos Engineering
+**Why:** The system will encounter failures in production that cannot be anticipated. It must be proven resilient.
+**Problem Solved:** Hidden fragility, over-optimism about reliability, untested failure modes.
+**Best Practice:** Regularly inject failures: kill containers, introduce latency, drop network packets, fill disks. Verify the system degrades gracefully.
+**Tradeoff:** Chaos experiments require mature observability and may cause real incidents if conducted carelessly.
+**Example:** Monthly "Game Day" exercises where the LLM API is artificially made unavailable to verify local fallback behavior.
+**Non-Violable Rule:** No release may be promoted to production without evidence that it has survived a chaos experiment in staging.
+
+### 14.5 No Tests, No Deploy
+**Why:** Untested code in an autonomous system is a liability that can act independently to cause damage.
+**Problem Solved:** Production defects, rollback cascades, loss of trust in automation.
+**Best Practice:** CI pipelines enforce coverage thresholds (minimum 80% line coverage, 100% coverage for critical paths). PRs are blocked without tests.
+**Tradeoff:** Testing takes time. This is accepted as a cost of doing business safely.
+**Example:** A hotfix for a deployment bug is rejected by CI because it lacks a regression test.
+**Non-Violable Rule:** Code without tests may not be deployed to production under any circumstances. No exceptions.
+
+---
+
+## 15. Human Approval Rules
+
+### 15.1 Autonomy Levels
+**Why:** Not all actions carry equal risk. A tiered autonomy model balances efficiency with safety.
+**Problem Solved:** Approval bottlenecks for safe actions, dangerous autonomous actions.
+**Best Practice:** Define four levels:
+- **Level 1 (Full Autonomy):** Internal data processing, research, draft generation, monitoring. No approval required.
+- **Level 2 (Logged Autonomy):** Actions with observable external effects that are easily reversible (e.g., publishing a blog post, updating internal documentation). Logged, with alerting.
+- **Level 3 (Human Approval):** Actions with financial, legal, or reputational impact that are difficult to reverse (e.g., deploying to production, spending ad budget, signing contracts). Requires explicit human approval.
+- **Level 4 (Human Escalation):** Actions outside the agent's training or authority (e.g., legal disputes, security incidents, ethical dilemmas). Agent must escalate and await human instruction.
+**Tradeoff:** Level definitions require ongoing refinement as the system matures.
+**Example:** The "Content Agent" operates at Level 2 for blog posts but escalates to Level 3 if the post mentions a competitor by name.
+**Non-Violable Rule:** No agent may operate above its defined autonomy level. Level upgrades require human review and ADR approval.
+
+### 15.2 Approval Interface
+**Why:** Humans cannot approve what they cannot understand. Approval requests must be contextual and actionable.
+**Problem Solved:** Approval fatigue, blind approvals, delayed decisions due to poor context.
+**Best Practice:** Approval requests include: what the agent wants to do, why it wants to do it (with evidence), the estimated cost/risk, the rollback procedure, and a deadline. Delivered via a durable queue (not just ephemeral notification).
+**Tradeoff:** Rich approval requests require agents to generate more context, consuming tokens.
+**Example:** A deployment approval request includes the diff summary, test results, estimated downtime, and one-click approve/reject/escalate buttons.
+**Non-Violable Rule:** No approval request may be sent without estimated risk, cost, and rollback information.
+
+### 15.3 Timeouts and Defaults
+**Why:** Human operators are not always available. The system must have safe defaults when approval is pending.
+**Problem Solved:** Indefinite stalls, business paralysis when humans are offline.
+**Best Practice:** Every approval request has a timeout. If timed out, the action is either cancelled (safe default) or deferred, never auto-approved. Urgent actions trigger escalation (e.g., SMS, phone call).
+**Tradeoff:** False urgency may disturb human operators.
+**Example:** If a critical security patch deployment is not approved within 30 minutes, it escalates to the on-call engineer. It is never auto-deployed.
+**Non-Violable Rule:** Auto-approval on timeout is strictly prohibited for all Level 3 and Level 4 actions.
+
+### 15.4 Audit Trail for Approvals
+**Why:** Accountability requires knowing who approved what and when.
+**Problem Solved:** Disputed decisions, compliance requirements, post-incident analysis.
+**Best Practice:** All approvals and rejections are logged immutably with: timestamp, human identity, agent ID, action details, and justification.
+**Tradeoff:** Storage and privacy considerations for approval logs.
+**Example:** A rejected ad campaign approval is logged with the human's reason: "budget exceeds monthly allocation."
+**Non-Violable Rule:** Approval logs must be append-only and retained for a minimum of 7 years.
+
+---
+
+## 16. Logging & Observability Principles
+
+### 16.1 Structured Logging
+**Why:** Text logs are unparseable by machines. In a multi-agent system, logs must be queryable, aggregatable, and correlatable.
+**Problem Solved:** Manual grep debugging, inability to aggregate errors across services, missed patterns.
+**Best Practice:** JSON structured logs with standard fields: `timestamp`, `level`, `service`, `agent_id`, `trace_id`, `span_id`, `message`, `context`. Use `structlog` or equivalent.
+**Tradeoff:** Slightly larger log volumes. Requires log aggregation infrastructure.
+**Example:** `{"timestamp": "2026-07-31T14:20:00Z", "level": "INFO", "service": "idea-ranker", "agent_id": "agent-42", "trace_id": "abc-123", "message": "Ranking completed", "context": {"ideas_count": 50, "top_idea": "AI Resume Builder"}}`
+**Non-Violable Rule:** No unstructured plain-text logs in production services.
+
+### 16.2 Distributed Tracing
+**Why:** A single business operation may touch a dozen agents and services. Debugging requires seeing the entire flow.
+**Problem Solved:** Distributed debugging hell, inability to attribute latency, invisible failure propagation.
+**Best Practice:** Implement OpenTelemetry tracing across all services. Every agent execution is a span. Propagate trace context through events and HTTP headers.
+**Tradeoff:** Tracing overhead and storage costs.
+**Example:** A trace for "Launch New Product" shows spans for: Market Research Agent → Idea Ranker → Product Builder → Content Agent → Deployment Agent, with timing and status for each.
+**Non-Violable Rule:** No inter-service call may occur without propagating trace context.
+
+### 16.3 Metrics and Alerting
+**Why:** The system cannot be operated reactively. Problems must be detected before they become outages.
+**Problem Solved:** Unknown unknowns, delayed incident detection, operational blindness.
+**Best Practice:** Export Prometheus metrics from all services: request rates, error rates, latencies (RED method), business metrics (conversions, revenue, agent success rates). Alert on SLO breaches.
+**Tradeoff:** Alert fatigue from poorly tuned thresholds.
+**Example:** An alert fires when the deployment agent's success rate drops below 95% over a 10-minute window.
+**Non-Violable Rule:** Every production service must expose a `/metrics` endpoint and have at least one defined SLO with corresponding alert.
+
+### 16.4 No Sensitive Data in Logs
+**Why:** Logs are often stored in less secure environments than databases. Leaking secrets or PII through logs is a common and serious vulnerability.
+**Problem Solved:** Data breaches, compliance violations (GDPR, CCPA), credential exposure.
+**Best Practice:** Explicitly redact PII, API keys, tokens, and financial data before logging. Use allowlists for log fields, not blocklists.
+**Tradeoff:** Debugging may be harder when sensitive context is redacted. Use trace IDs to correlate with secure audit logs.
+**Example:** An API error log shows `user_id=12345` but never `credit_card=****` or `api_key=****`.
+**Non-Violable Rule:** No secret, credential, or PII may appear in application logs or traces.
+
+### 16.5 Observability as a First-Class Concern
+**Why:** Observable systems are the only systems that can be safely automated. If you cannot observe it, you cannot trust it to run autonomously.
+**Problem Solved:** Unmonitored autonomous actions, silent failures, inability to improve.
+**Best Practice:** Observability is designed into systems from day one, not bolted on later. Every ADR includes an observability section. Every agent has a dashboard.
+**Tradeoff:** Upfront design time.
+**Example:** The ADR for the new "Video Generator" agent includes its metrics, logs, and tracing strategy before any code is written.
+**Non-Violable Rule:** No feature may be considered complete without corresponding observability implementation (logs, metrics, and traces).
+
+---
+
+## 17. Definition of Success
+
+### 17.1 System Success Criteria
+**Why:** "It works" is insufficient for a production autonomous system. Success must be measurable, objective, and tied to business outcomes.
+**Problem Solved:** Subjective assessments, moving goalposts, inability to prioritize improvements.
+**Best Practice:** Define success across dimensions:
+- **Autonomy Ratio:** Percentage of business operations completed without human intervention. Target: >90% for Level 1-2 operations.
+- **Mean Time Between Failures (MTBF):** Target: >720 hours for critical paths.
+- **Mean Time To Recovery (MTTR):** Target: <30 minutes for automated recovery, <2 hours for human-involved recovery.
+- **Cost Per Business Operation:** Must decrease over time as local inference and caching improve. Target: 20% cost reduction per quarter.
+- **Revenue Per Human Hour:** The economic output generated per hour of human oversight. Target: 10x improvement year-over-year.
+- **Agent Success Rate:** Percentage of agent tasks completed successfully without escalation. Target: >95%.
+**Tradeoff:** Aggressive targets may encourage gaming metrics or cutting corners on safety.
+**Example:** Success is not "the blog agent published 100 posts." Success is "the blog agent published 100 posts with >2% click-through rate, zero compliance violations, and a cost of <$0.50 per post."
+
+### 17.2 Business Success Criteria
+**Why:** Agent OS exists to create businesses. Technical metrics are meaningless without business outcomes.
+**Problem Solved:** Building a technically perfect system that generates no value.
+**Best Practice:** Each business operated by Agent OS is measured by: revenue, profit margin, customer satisfaction (NPS), churn rate, and growth rate. The system is successful when the portfolio of businesses is profitable and growing.
+**Tradeoff:** Business volatility may obscure system improvements. Use cohort analysis.
+**Example:** A SaaS product built by Agent OS achieves $1,000 MRR with a 70% gross margin and <5% monthly churn.
+
+### 17.3 Continuous Improvement
+**Why:** Success is not a destination but a direction. The system must demonstrably improve over time.
+**Problem Solved:** Complacency, technical debt accumulation, stagnation.
+**Best Practice:** Quarterly success reviews. Failed businesses are autopsied. Successful patterns are codified into templates. Agent prompts are A/B tested.
+**Tradeoff:** Improvement requires experimentation, which carries risk of regression.
+**Example:** After a failed product launch, the system updates its "Idea Validation" agent with new criteria to avoid similar failures.
+**Non-Violable Rule:** Success is never declared final. The system must always have at least one active improvement initiative.
+
+---
+
+## 18. Rules for Future Expansion
+
+### 18.1 Backward Compatibility
+**Why:** The system will evolve for years. Breaking changes strand existing businesses and agents.
+**Problem Solved:** Migration hell, version fragmentation, fear of upgrading.
+**Best Practice:** Public APIs and event schemas are versioned. Old versions are supported for a minimum of two major releases. Deprecation notices are given 90 days in advance.
+**Tradeoff:** Maintenance burden of legacy versions.
+**Example:** Event schema v1 continues to be consumed even after v2 is introduced, with an adapter translating v1 to v2 internally.
+**Non-Violable Rule:** No breaking change may be deployed without a migration path and deprecation period.
+
+### 18.2 Plugin Architecture
+**Why:** The system cannot anticipate every business model or tool. It must be extensible by third parties and future developers.
+**Problem Solved:** Monolithic bloat, inability to support niche requirements, slow feature delivery.
+**Best Practice:** Define a plugin interface: a Docker container with a well-defined gRPC/HTTP API, manifest file, and capability declaration. The core system discovers and orchestrates plugins.
+**Tradeoff:** Plugin quality and security are outside core control. Implement sandboxing and capability restrictions.
+**Example:** A "Shopify Integration" plugin is developed independently and plugged into Agent OS without modifying core code.
+**Non-Violable Rule:** No business-specific logic may be added to core modules when it can be implemented as a plugin.
+
+### 18.3 Feature Flags
+**Why:** Experimental features must not destabilize production. Gradual rollout is essential.
+**Problem Solved:** Production incidents from new features, inability to revert quickly, all-or-nothing releases.
+**Best Practice:** All new capabilities are behind feature flags (e.g., LaunchDarkly, Unleash, or a built-in system). Flags support targeting (per business, per agent, per user). Default is OFF.
+**Tradeoff:** Feature flag debt. Old flags must be removed after stabilization.
+**Example:** A new "Video Generation" agent is released behind a flag, enabled for 5% of businesses, before global rollout.
+**Non-Violable Rule:** No experimental feature may be deployed to production without a feature flag.
+
+### 18.4 Experimental Modules
+**Why:** Innovation requires safe spaces to fail. Experimental modules must be isolated from production stability.
+**Problem Solved:** Experimental code corrupting production data, unstable features affecting core operations.
+**Best Practice:** Experimental modules run in separate namespaces/containers. They cannot write to production databases. They report to separate metrics and logs. Promotion to production requires passing the full test suite and operational readiness review.
+**Tradeoff:** Duplicated infrastructure for experimental environments.
+**Example:** The "Crypto Trading" experimental module operates on paper trades for 6 months before being eligible for real capital.
+**Non-Violable Rule:** No experimental module may access production business data or financial resources.
+
+### 18.5 Constitutional Amendments
+**Why:** This document must evolve, but changes must be deliberate and safe.
+**Problem Solved:** Drift, reactionary changes, loss of foundational principles.
+**Best Practice:** Amendments require: a written proposal, impact analysis on all existing subsystems, a 7-day review period, and approval by the project architect and a human operator. Amendments are versioned and published.
+**Tradeoff:** Rigidity. The constitution changes slowly.
+**Example:** A proposal to relax the "Local First" rule for a specific high-value model requires demonstrating that no local alternative exists and that the dependency has a documented exit strategy.
+**Non-Violable Rule:** No principle in this document may be bypassed or ignored pending amendment. If a principle is wrong, amend it; do not violate it.
+
+---
+
+## Appendix: Non-Violable Rules Summary
+
+The following rules are absolute. They may not be overridden by subsystem design, operational convenience, or short-term pressure:
+
+1. **Mission Alignment:** No subsystem may contradict the mission.
+2. **Local Fallback:** Core functions must operate without internet connectivity.
+3. **Open Source Core:** Core business logic must not depend on closed-source components without open alternatives.
+4. **Cost Transparency:** Every agent must track and report operational costs.
+5. **Deterministic Boundaries:** No financial, access control, or schema migration decisions by raw LLM output.
+6. **Memory Persistence:** No business-critical state exclusively in local memory.
+7. **Tool Governance:** No unregistered tools. No arbitrary code execution without sandboxing.
+8. **Schema Stability:** No breaking schema changes without backward-compatible transition.
+9. **Security Layering:** No implicit trust based on network location.
+10. **Least Privilege:** No agent permissions beyond documented scope.
+11. **Input Sanitization:** No external data directly passed to LLM prompts.
+12. **Secret Hygiene:** No hardcoded secrets. Committed secrets trigger immediate rotation.
+13. **Sandboxing:** No arbitrary code execution outside sandboxed environments.
+14. **Idempotency:** All state-modifying operations must be safe to retry.
+15. **Circuit Breakers:** All external HTTP calls must have circuit breakers.
+16. **Testing Gate:** No production deployment without tests.
+17. **Auto-Approval Prohibition:** No auto-approval on timeout for Level 3+ actions.
+18. **Structured Observability:** No unstructured logs. No missing traces. No missing metrics.
+19. **Privacy in Logs:** No PII, secrets, or credentials in logs/traces.
+20. **Backward Compatibility:** No breaking changes without migration paths.
+21. **Feature Flags:** No experimental features without flags.
+22. **Constitutional Supremacy:** No bypassing principles without formal amendment.
+
+---
+
+*End of Document*
+

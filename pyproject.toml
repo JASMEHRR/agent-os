@@ -1,0 +1,40 @@
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["ARCHITECTURE_BASELINE", "files"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.isort]
+# Layer 0 libs and deployable modules are first-party; without this ruff sorts
+# them into the third-party block and fights the import layout.
+known-first-party = ["kernel", "core", "persistence", "schema_registry", "security_gateway"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+mypy_path = "libs/kernel:libs/core:libs/persistence:services/schema_registry:services/security_gateway"
+exclude = "(ARCHITECTURE_BASELINE|files)"
+
+[[tool.mypy.overrides]]
+module = "*.tests.*"
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+disallow_untyped_calls = false
+
+[[tool.mypy.overrides]]
+module = ["tests.*", "tests.synthetic_gateway.*"]
+disallow_untyped_defs = false
+disallow_untyped_calls = false
+disallow_incomplete_defs = false
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["libs", "services", "tests"]
+
+[tool.bandit]
+# ponytail: exclude_dirs matches literal dirnames, not globs, so nested
+# */tests/* (libs/*/tests, services/*/tests) needs --exclude "*/tests/*" on
+# the CLI (see .github/workflows/ci.yml) rather than being expressible here.
+exclude_dirs = ["ARCHITECTURE_BASELINE", "files"]

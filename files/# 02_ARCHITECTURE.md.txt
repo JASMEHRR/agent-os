@@ -1,0 +1,2017 @@
+02_ARCHITECTURE.md
+Agent OS — Technical Architecture Blueprint
+Version: 1.0.0
+Status: Draft for Implementation
+Classification: Architecture Specification — Binding on All Implementation Work
+Table of Contents
+High-Level System Overview
+Technology Stack
+Complete Component Architecture
+Multi-Agent Architecture
+Event-Driven Architecture
+Memory Architecture
+Data Architecture
+LLM Architecture
+Tool Architecture
+Workflow Architecture
+Security Architecture
+Scalability Architecture
+Deployment Architecture
+Repository Structure
+Data Flow
+Failure Recovery
+Future Expansion
+1. High-Level System Overview
+1.1 Architectural Paradigm
+Agent OS is a distributed, event-driven, multi-agent operating system built on a microservices foundation. It is not a monolithic application. It is not a single LLM with plugins. It is an orchestration layer that coordinates autonomous, specialized agents through durable workflows, with every subsystem designed for horizontal scalability, local-first operation, and production resilience.
+The architecture adheres to Hexagonal Architecture (Ports and Adapters) at the service level and Event-Driven Architecture at the system level. No service holds business-critical state in memory. All inter-service communication occurs through the Event Bus or through the API Gateway. Direct service-to-service HTTP calls are prohibited except for health probes.
+1.2 System Boundaries
+plain
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                           EXTERNAL BOUNDARY                                  │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
+│  │  Web Dashboard│  │   CLI Tool  │  │  External   │  │   Webhook           │  │
+│  │  (React SPA)  │  │  (Python)   │  │  API Clients│  │   Receivers         │  │
+│  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘  └──────────┬──────────┘  │
+└─────────┼────────────────┼────────────────┼────────────────────┼─────────────┘
+          │                │                │                    │
+          └────────────────┴────────────────┴────────────────────┘
+                                   │
+                    ┌──────────────▼──────────────┐
+                    │      API GATEWAY            │
+                    │  (FastAPI + OAuth2 + mTLS)  │
+                    │  • Authentication           │
+                    │  • Rate Limiting            │
+                    │  • Request Routing          │
+                    └──────────────┬──────────────┘
+                                   │
+          ┌────────────────────────┼────────────────────────┐
+          │                        │                        │
+┌─────────▼──────────┐  ┌──────────▼──────────┐  ┌─────────▼──────────┐
+│   AGENT RUNTIME    │  │   WORKFLOW ENGINE   │  │   PLUGIN MANAGER   │
+│  (Temporal Worker) │  │    (Temporal Svc)   │  │  (gRPC Interface)  │
+│  • Agent execution │  │  • Orchestration    │  │  • Discovery       │
+│  • State hydration │  │  • Saga patterns    │  │  • Lifecycle       │
+│  • Result emission │  │  • Durability       │  │  • Sandboxing      │
+└─────────┬──────────┘  └──────────┬──────────┘  └─────────┬──────────┘
+          │                        │                        │
+          └────────────────────────┼────────────────────────┘
+                                   │
+                    ┌──────────────▼──────────────┐
+                    │        EVENT BUS            │
+                    │     (Redis Streams)         │
+                    │  • At-least-once delivery   │
+                    │  • Consumer groups          │
+                    │  • Persistent log           │
+                    └──────────────┬──────────────┘
+                                   │
+        ┌──────────────────────────┼──────────────────────────┐
+        │                          │                          │
+┌───────▼────────┐    ┌────────────▼────────────┐   ┌────────▼───────┐
+│  MEMORY SYSTEM │    │      TOOL REGISTRY      │   │  LLM ROUTER    │
+│  (Multi-tier)  │    │   (Catalog + Sandbox)   │   │ (LiteLLM +   │
+│  • Semantic    │    │  • Manifest store       │   │  Ollama/vLLM)  │
+│  • Structured  │    │  • Execution broker     │   │  • Cost track  │
+│  • Graph       │    │  • Result validation    │   │  • Fallback    │
+└───────┬────────┘    └────────────┬────────────┘   └────────┬───────┘
+        │                          │                          │
+        └──────────────────────────┼──────────────────────────┘
+                                   │
+                    ┌──────────────▼──────────────┐
+                    │      DATA & STORAGE         │
+                    │  ┌─────────┐ ┌─────────┐   │
+                    │  │PostgreSQL│ │  Redis  │   │
+                    │  │pgvector │ │ Streams │   │
+                    │  │ Apache  │ │  Cache  │   │
+                    │  │  AGE    │ │  Locks  │   │
+                    │  └─────────┘ └─────────┘   │
+                    │  ┌─────────────────────┐   │
+                    │  │       MinIO         │   │
+                    │  │  (Object Storage)   │   │
+                    │  └─────────────────────┘   │
+                    └─────────────────────────────┘
+                                   │
+                    ┌──────────────▼──────────────┐
+                    │    OBSERVABILITY STACK      │
+                    │  Prometheus │ Grafana │ Loki│
+                    │  Tempo/Jaeger │ Alertmanager│
+                    └─────────────────────────────┘
+1.3 Major Subsystems
+Table
+Subsystem	Responsibility	Principle Compliance
+API Gateway	External ingress, authentication, rate limiting, routing	Security (10.1), API-First (4.3)
+Agent Runtime	Executes agent logic, hydrates state, manages agent lifecycle	Agent Principles (6), Stateless Operation (6.2)
+Workflow Engine	Durable orchestration of multi-step business processes	Event-Driven (4.2), Reliability (13)
+Event Bus	All inter-service communication, event persistence, replay	Event-Driven (4.2), Schema Evolution (4.5)
+Memory Gateway	Unified interface to all memory tiers	Memory First (3.4)
+Tool Registry	Tool catalog, schema validation, permission enforcement	Tool Driven (3.6), Security (10)
+Tool Executor	Sandboxed execution of tool code	Sandboxing (10.6), Least Privilege (10.2)
+LLM Router	Model abstraction, routing, cost tracking, failover	Model Agnosticism (5.1), Cost Optimization (11)
+Cost Manager	Budget enforcement, cost attribution, alerting	Cost Transparency (11.1)
+Plugin Manager	Third-party extension discovery and lifecycle	Future Expansion (18)
+Monitoring	Metrics collection, alerting, dashboards	Observability (16)
+2. Technology Stack
+2.1 Core Platform
+Table
+Layer	Technology	Justification
+Language	Python 3.11+	Richest AI/ML ecosystem, native async, type hints
+Web Framework	FastAPI	Auto OpenAPI generation, async-native, Pydantic integration
+Validation	Pydantic v2	Runtime validation, settings management, serialization
+ORM	SQLAlchemy 2.0	Async support, PostgreSQL-specific features, migration tooling
+Migrations	Alembic	Version-controlled schema evolution
+Workflow Engine	Temporal	Durable execution, saga patterns, visibility, horizontal scaling
+Task Queue	Temporal + Redis	Temporal for workflows, Redis Streams for event bus
+Cache & Pub/Sub	Redis 7+	Streams (event bus), cache, sessions, rate limiting, locks
+Database	PostgreSQL 16+	ACID transactions, JSONB, extensions (pgvector, Apache AGE)
+Vector Search	pgvector	Same operational database, no separate infrastructure
+Graph Database	Apache AGE (PostgreSQL extension)	Knowledge graphs without separate database
+Object Storage	MinIO	S3-compatible, local-first, open-source
+LLM Abstraction	LiteLLM	Unified API, cost tracking, fallbacks, model agnosticism
+Local Inference	Ollama + vLLM	Ollama for development, vLLM for production throughput
+Container Runtime	Docker + Docker Compose (dev)	Universal standard, reproducible environments
+Orchestration	Docker Swarm (simple prod) / Kubernetes (complex prod)	Swarm for simplicity aligned with local-first; K8s for scale
+Secret Management	Docker Secrets (local/Swarm) / HashiCorp Vault (K8s)	Runtime injection, no secrets in code
+Service Mesh	Linkerd (optional, K8s only)	mTLS with minimal overhead; omitted in Swarm mode
+2.2 Observability Stack
+Table
+Component	Technology	Purpose
+Metrics	Prometheus	RED metrics, business metrics, agent success rates
+Visualization	Grafana	Dashboards, SLO monitoring
+Logging	Loki	Structured log aggregation
+Tracing	Tempo (or Jaeger)	Distributed tracing, OpenTelemetry
+Alerting	Alertmanager	SLO breach alerts, escalation
+2.3 Technology Tradeoffs
+Table
+Decision	Rejected Alternative	Rationale
+Temporal over Celery	Celery	Temporal provides durable workflow state, saga compensation, and visibility into long-running processes. Celery lacks workflow durability and complex retry semantics.
+Redis Streams over Kafka	Apache Kafka	Redis is already required for caching and sessions. Streams provide sufficient durability and consumer groups without JVM operational overhead. Kafka is preferred only if event volume exceeds 100k/sec sustained.
+Apache AGE over Neo4j	Neo4j	Keeps graph data in PostgreSQL, reducing operational complexity. If graph query complexity exceeds AGE capabilities, migration to dedicated graph DB is supported via the port-adapter pattern.
+MinIO over cloud S3	AWS S3	MinIO runs locally and on-premise, satisfying Local First (3.1). Cloud S3 can be added as a replication target via MinIO bucket federation.
+Docker Swarm default over K8s	Kubernetes default	Swarm satisfies production needs for single-node and small-cluster deployments with significantly lower operational complexity. K8s is supported but not required for initial deployment.
+3. Complete Component Architecture
+3.1 API Gateway
+Responsibility: All external ingress. No external client communicates directly with any internal service.
+Capabilities:
+OAuth2/OIDC authentication with JWT validation
+RBAC authorization (Casbin-backed)
+Rate limiting per tenant, per user, per API key
+Request/response transformation
+API versioning (/v1/, /v2/)
+Request ID generation and trace context injection
+WebSocket support for real-time dashboard updates
+OpenAPI schema serving
+Interfaces:
+Inbound: HTTP/1.1, HTTP/2, WebSocket
+Outbound: HTTP/1.1 to internal services (via service discovery)
+Events: Emits gateway.request_received, gateway.response_sent
+Scaling: Stateless. Horizontally scalable behind a load balancer.
+Design Rationale: Centralizes cross-cutting concerns. Prevents every service from reimplementing auth and rate limiting.
+3.2 Agent Runtime
+Responsibility: The execution environment for all agents. Agents are not long-running processes. They are stateless workers that wake up in response to workflow tasks.
+Capabilities:
+Agent worker pool management
+State hydration from Memory Gateway before execution
+Context assembly (relevant memories, tool schemas, workflow state)
+Agent prompt rendering and LLM invocation via LLM Router
+Tool call dispatch to Tool Executor
+Result validation against output schema
+Event emission upon completion/failure
+Heartbeat reporting to Workflow Engine
+Interfaces:
+Inbound: Temporal activity tasks
+Outbound: Memory Gateway (gRPC), LLM Router (HTTP), Tool Registry (HTTP), Event Bus (Redis Streams)
+Scaling: Stateless workers. Scale horizontally based on Temporal task queue depth.
+Design Rationale: Agents must not own their lifecycle. The Workflow Engine owns scheduling; the Runtime owns execution. This separation enables independent scaling and prevents agent state corruption from affecting orchestration.
+3.3 Workflow Engine (Temporal)
+Responsibility: Durable orchestration of all business processes. Every autonomous action flows through a workflow.
+Capabilities:
+Workflow definition as code (TypeScript or Python SDK)
+Long-running process durability (survives worker restarts)
+Saga pattern implementation for compensating transactions
+Child workflow spawning for parallel agent execution
+Timer and cron support for scheduled operations
+Retry policies with exponential backoff
+Workflow search and visibility UI
+Event-driven workflow triggering (via Event Bus adapters)
+Key Workflow Types:
+Table
+Workflow	Purpose	Typical Duration
+BusinessDiscoveryWorkflow	Research → Idea generation → Ranking	30 min – 2 hours
+ProductBuildWorkflow	Planning → Development → Testing → Deployment	2 hours – 2 days
+MarketingCampaignWorkflow	Content creation → Scheduling → Publishing → Monitoring	1 hour – 1 week
+ContinuousImprovementWorkflow	Analytics → Diagnosis → Prompt refinement → A/B test	1 hour – 1 day
+Interfaces:
+Inbound: Temporal gRPC, Event Bus triggers
+Outbound: Temporal task queues to Agent Runtime
+Scaling: Temporal server scales horizontally. Workers scale independently per task queue.
+Design Rationale: Temporal was selected because autonomous business processes are long-running, failure-prone, and require exactly-once execution semantics. Celery cannot provide durable workflow state or saga compensation.
+3.4 Event Bus
+Responsibility: The nervous system of Agent OS. All significant state changes and commands flow through the Event Bus.
+Capabilities:
+Redis Streams with consumer groups
+At-least-once delivery semantics
+Schema validation on publish (via registry)
+Dead-letter stream for failed deliveries
+Event archival to MinIO for replay
+Partitioning by event category (modulo stream key)
+Backpressure via pending entry list monitoring
+Event Categories:
+Table
+Category	Stream Key	Purpose
+business	stream:business	Domain events (idea created, product launched)
+agent	stream:agent	Agent lifecycle (started, completed, failed)
+system	stream:system	Infrastructure (service up/down, scaling events)
+command	stream:command	Imperative instructions (approve, cancel, retry)
+audit	stream:audit	Security-relevant actions
+Interfaces:
+Inbound: Redis XADD from any service
+Outbound: Redis XREADGROUP from consumer services
+Scaling: Redis Cluster mode for horizontal partitioning. Consumer groups distribute load across service instances.
+3.5 Memory Gateway
+Responsibility: Unified access layer for all memory systems. No agent accesses Redis or PostgreSQL directly.
+Capabilities:
+Working memory read/write (Redis)
+Long-term fact storage (PostgreSQL)
+Semantic search (pgvector)
+Knowledge graph queries (Apache AGE)
+Cache management (TTL, invalidation)
+Session state management
+Memory tiering (hot → warm → cold migration)
+Interfaces:
+Inbound: gRPC (internal), HTTP (for debugging)
+Outbound: PostgreSQL, Redis, MinIO (cold storage)
+Data Flow:
+plain
+Agent → Memory Gateway → Router → Appropriate Store
+              │
+    ┌─────────┼─────────┬──────────┐
+    │         │         │          │
+    ▼         ▼         ▼          ▼
+  Redis   PostgreSQL  pgvector   MinIO
+ (Hot)    (Warm)     (Semantic) (Cold)
+3.6 Tool Registry
+Responsibility: Central catalog of all capabilities available to agents. Tools are not hardcoded into agents.
+Capabilities:
+Tool manifest storage (JSON Schema definitions)
+Tool versioning and deprecation
+Permission mapping (which agents can use which tools)
+Tool discovery API (agents query at runtime)
+Tool health monitoring
+Tool usage analytics
+Tool Manifest Schema:
+Table
+Field	Type	Description
+tool_id	UUID	Unique identifier
+name	string	Human-readable name
+version	semver	Tool version
+description	string	LLM-visible description
+input_schema	JSON Schema	Validated input structure
+output_schema	JSON Schema	Validated output structure
+sandbox_level	enum	none, container, gvisor, firecracker
+required_permissions	string[]	RBAC permission strings
+cost_estimate	float	Estimated USD cost per invocation
+timeout_seconds	int	Maximum execution time
+Interfaces:
+Inbound: HTTP REST, Event Bus (for health updates)
+Outbound: Tool Executor (gRPC for execution requests)
+3.7 Tool Executor
+Responsibility: Sandboxed execution of tool code. The only component allowed to spawn arbitrary processes.
+Capabilities:
+Container lifecycle management (Docker/gVisor/Firecracker)
+Network egress control (deny-by-default, allowlist)
+Filesystem isolation (read-only root, explicit volume mounts)
+Resource limits (CPU, memory, disk, network bandwidth)
+Output capture and validation
+Cleanup guarantee (containers are always destroyed)
+Secret injection via mounted files (never env vars)
+Sandbox Levels:
+Table
+Level	Isolation	Use Case
+none	Python function call	Internal, deterministic utilities (math, formatting)
+container	Docker container + network deny	Standard tools (web scraper, file processor)
+gvisor	gVisor runsc + seccomp	Untrusted code, user-provided plugins
+firecracker	MicroVM	Maximum isolation for security-critical operations
+Interfaces:
+Inbound: gRPC from Tool Registry
+Outbound: Event Bus (execution results), MinIO (artifact storage)
+3.8 LLM Router
+Responsibility: All LLM traffic flows through this service. No agent calls an LLM directly.
+Capabilities:
+LiteLLM proxy for unified API
+Model selection based on task complexity and cost budget
+Local model management (Ollama/vLLM health, loading)
+Cloud API fallback with circuit breakers
+Prompt token counting and budget enforcement
+Response caching (semantic cache via Redis + exact cache)
+Cost tracking per request, per agent, per business
+Structured output enforcement (JSON mode, function calling)
+Context assembly from Memory Gateway
+Model Tiers:
+Table
+Tier	Models	Use Case	Cost Priority
+Nano	Local 3B-7B (Phi-3, Mistral 7B)	Routing, classification, filtering, simple extraction	Zero API cost
+Standard	Local 13B-30B (Llama 3 70B, Mixtral 8x7B)	Standard tasks: summarization, drafting, code generation	Minimal API cost
+Premium	Claude 3.5 Sonnet, GPT-4o	Complex reasoning, strategy, creative generation, error recovery	Cost justified by quality gap
+Interfaces:
+Inbound: HTTP (OpenAI-compatible API)
+Outbound: Ollama (HTTP), vLLM (HTTP), Cloud APIs (HTTP), Memory Gateway (for context)
+3.9 Cost Manager
+Responsibility: Prevents runaway costs. Enforces the "Free API First" and "Cost Transparency" principles.
+Capabilities:
+Real-time cost tracking per operation, agent, business, tenant
+Budget enforcement (hard stops and soft warnings)
+Cost-based circuit breakers
+Cost projection and alerting
+Optimization recommendations (cache hit rates, model downgrading)
+Integration with LLM Router for pre-flight budget checks
+Budget Levels:
+Table
+Level	Action	Trigger
+Green	Normal operation	Below 50% of budget
+Yellow	Warning logged, alert sent	50-80% of budget
+Orange	Model downgrading enforced	80-95% of budget
+Red	Operations halted, human escalation	>95% of budget
+Interfaces:
+Inbound: HTTP (from LLM Router, Tool Executor), Event Bus
+Outbound: Event Bus (alerts), Alertmanager (pages)
+3.10 Plugin Manager
+Responsibility: Extends Agent OS without modifying core code.
+Capabilities:
+Plugin manifest validation
+Container image registry integration
+Plugin sandbox deployment
+Plugin lifecycle (install, enable, disable, uninstall)
+Plugin API exposure through API Gateway
+Plugin event subscription (plugins can listen to Event Bus)
+Plugin Interface:
+gRPC service with predefined interface
+Manifest declaring: capabilities, event subscriptions, required permissions, resource limits
+Plugins run as sidecars or separate containers, never in core process space
+3.11 Monitoring & Observability
+Responsibility: The system cannot be automated safely if it cannot be observed.
+Capabilities:
+Prometheus metrics exposition (/metrics)
+Structured JSON logging via structlog
+OpenTelemetry trace collection
+Grafana dashboards for: system health, agent performance, business metrics, cost tracking
+Alertmanager for SLO-based alerting
+Loki for log aggregation and search
+Tempo for distributed trace visualization
+Critical Dashboards:
+Table
+Dashboard	Metrics
+System Health	CPU, memory, disk, network, queue depths, error rates
+Agent Performance	Success rate, latency, tool usage, LLM token consumption
+Business Metrics	Revenue, MRR, churn, conversion rates per product
+Cost Tracking	Spend per agent, per business, per model tier, budget burn rate
+Security	Auth failures, permission denials, audit event volume
+4. Multi-Agent Architecture
+4.1 Agent Definition
+An Agent in Agent OS is not a process. It is a deployable artifact consisting of:
+Agent Manifest (manifest.yaml): Metadata, capabilities, permissions, autonomy level
+Prompt Templates (prompts/): Jinja2 templates for LLM interaction
+Tool Bindings (tools.yaml): Declared tool dependencies
+Output Schemas (schemas/): Pydantic models for validation
+Business Logic (src/): Python module with agent-specific deterministic functions
+4.2 Agent Manifest Specification
+yaml
+# Architectural Specification — Not Implementation Code
+agent:
+  id: "agent-market-research-v1"
+  name: "Market Research Agent"
+  version: "1.2.0"
+  autonomy_level: 2          # Level 1-4 per Human Approval Rules
+  capabilities:
+    - "business.opportunity.discover"
+    - "business.competitor.analyze"
+  required_tools:
+    - "web-scraper"
+    - "sentiment-analyzer"
+  memory_access:
+    read: ["market_data", "competitor_profiles"]
+    write: ["research_reports", "opportunity_scores"]
+  max_cost_per_operation: 0.50  # USD
+  timeout_seconds: 300
+  retry_policy:
+    max_attempts: 3
+    backoff: exponential
+4.3 Agent Lifecycle
+plain
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│  REGISTERED │───>│    IDLE     │───>│  EXECUTING  │───>│  COMPLETED  │
+│  (Manifest  │    │ (In worker  │    │ (Temporal   │    │ (Result     │
+│   stored in │    │  pool,      │    │  activity   │    │  validated, │
+│   registry) │    │  awaiting   │    │  running)   │    │  events     │
+│             │    │  task)      │    │             │    │  emitted)   │
+└─────────────┘    └─────────────┘    └──────┬──────┘    └─────────────┘
+       ▲                                      │
+       │                              ┌───────▼───────┐
+       │                              │    FAILED     │
+       │                              │ (Error logged,│
+       │                              │  retry or DLQ)│
+       │                              └───────┬───────┘
+       │                                      │
+       └──────────────────────────────────────┘
+                    (After cleanup / recovery)
+4.4 Agent Communication
+Agents never communicate directly. All interaction is mediated by the Event Bus.
+Pattern: Command → Event → Reaction
+Agent A completes analysis, emits business.analysis.completed
+Event Bus routes to consumers subscribed to business.*
+Agent B (Idea Ranker) receives event, evaluates if it should act
+Agent B emits business.idea.ranked or takes no action
+This enforces loose coupling and enables event replay for debugging.
+4.5 Agent Discovery
+The Workflow Engine discovers agents by querying the Agent Registry (stored in PostgreSQL):
+Table
+Discovery Method	Use Case
+Capability Match	"Find all agents that can handle business.content.generate"
+Event Subscription	"Which agents are listening to business.product.launched?"
+Direct Reference	Workflow explicitly names agent by ID
+4.6 Agent Isolation
+Table
+Isolation Layer	Mechanism
+Process	Each agent runs in a separate Temporal activity worker process
+Network	Agents have no network access except through Tool Executor
+Data	Agents access memory only through Memory Gateway with RBAC
+Compute	Agent workers have CPU/memory limits via container constraints
+Financial	Cost Manager enforces per-operation budgets
+4.7 Agent Permissions
+Agents use Service Account Identity. Each agent has a unique JWT identity with scoped claims:
+JSON
+{
+  "sub": "agent-market-research-v1",
+  "roles": ["agent:market-research"],
+  "permissions": [
+    "memory:read:market_data",
+    "tool:use:web-scraper",
+    "event:publish:business.*"
+  ],
+  "budget_limit": 0.50,
+  "iat": 1722422400,
+  "exp": 1722426000
+}
+Tokens are short-lived (1 hour max) and issued by the API Gateway's internal CA.
+4.8 Agent Health Monitoring
+Heartbeat: Agents report heartbeat to Workflow Engine every 30 seconds during execution
+Stall Detection: No heartbeat for 2× timeout triggers automatic termination and retry
+Success Rate Tracking: Prometheus metrics track per-agent success rates; sustained <90% triggers alert
+Drift Detection: Agent output schemas are continuously validated; schema drift logs warning
+4.9 Agent Recovery
+Table
+Failure Mode	Detection	Recovery Action
+Agent Crash	Heartbeat timeout	Workflow Engine reschedules to new worker; state rehydrated from Memory Gateway
+Agent Stall	Progress timeout	Activity times out; retry with exponential backoff
+Agent Misbehavior	Output schema violation	Event emitted to system.agent.violation; human alert; agent quarantined
+Agent Loop	Excessive tool calls (>50)	Hard limit enforced by Workflow Engine; workflow fails with diagnostic
+5. Event-Driven Architecture
+5.1 Event Bus Topology
+plain
+┌─────────────────────────────────────────────────────────────────┐
+│                     EVENT BUS (Redis Streams)                    │
+│                                                                  │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │  Stream: stream:business                                │    │
+│  │  Entries: business.opportunity.discovered               │    │
+│  │           business.idea.ranked                          │    │
+│  │           business.product.launched                     │    │
+│  └─────────────────────────────────────────────────────────┘    │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │  Stream: stream:agent                                   │    │
+│  │  Entries: agent.execution.started                       │    │
+│  │           agent.execution.completed                     │    │
+│  │           agent.execution.failed                        │    │
+│  └─────────────────────────────────────────────────────────┘    │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │  Stream: stream:system                                  │    │
+│  │  Entries: system.service.healthy                        │    │
+│  │           system.scaling.triggered                      │    │
+│  └─────────────────────────────────────────────────────────┘    │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │  Stream: stream:command                                 │    │
+│  │  Entries: command.approve.request                       │    │
+│  │           command.cancel.workflow                       │    │
+│  └─────────────────────────────────────────────────────────┘    │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │  Stream: stream:audit                                   │    │
+│  │  Entries: audit.approval.granted                        │    │
+│  │           audit.deployment.executed                     │    │
+│  └─────────────────────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────────────────────┘
+         ▲                              │
+         │                              │
+    ┌────┴────┐                   ┌─────┴──────┐
+    │Producer │                   │ Consumers  │
+    │Services │                   │ (Consumer  │
+    │         │                   │  Groups)   │
+    └─────────┘                   └────────────┘
+5.2 Event Structure
+Every event conforms to this schema:
+Table
+Field	Type	Description
+event_id	UUIDv7	Lexicographically sortable, unique idempotency key
+trace_id	UUID	Distributed tracing correlation
+timestamp	ISO-8601	Event emission time
+schema_version	semver	Event schema version
+event_type	string	Dot-notation category (e.g., business.idea.ranked)
+source	string	Service/agent that emitted the event
+tenant_id	UUID	Multi-tenancy isolation
+payload	JSON	Event-specific data (validated by schema registry)
+metadata	JSON	Context: correlation IDs, causation IDs, user agent
+5.3 Event Lifecycle
+plain
+┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐
+│  Publish │───>│ Validate │───>│  Route   │───>│ Deliver  │───>│  Process │
+│          │    │  Schema  │    │ (Stream  │    │ (Consumer│    │          │
+│          │    │          │    │  Key)    │    │  Group)  │    │          │
+└──────────┘    └──────────┘    └──────────┘    └────┬─────┘    └────┬─────┘
+                                                     │               │
+                                              ┌──────▼──────┐   ┌────▼─────┐
+                                              │   SUCCESS   │   │  FAILURE │
+                                              │   (ACK /    │   │ (Retry / │
+                                              │   XACK)     │   │   DLQ)   │
+                                              └─────────────┘   └──────────┘
+5.4 Event Versioning
+The Schema Registry (PostgreSQL table) stores all event schemas:
+Table
+Schema ID	Event Type	Version	Status	Definition
+evt-001	business.idea.ranked	1.0.0	active	{...}
+evt-002	business.idea.ranked	1.1.0	active	Added environmental_score
+evt-003	business.idea.ranked	2.0.0	draft	Breaking change
+Rules:
+Producers must register schemas before emitting events
+Consumers must ignore unknown fields (forward compatibility)
+Fields may be added in minor versions
+Field removal requires major version with 90-day deprecation
+Schema registry validates events at publish time (best-effort) and consume time (strict)
+5.5 Retry Strategy
+Table
+Attempt	Delay	Action
+1	Immediate	First delivery
+2	5 seconds	Retry with same worker
+3	25 seconds	Exponential backoff
+4	125 seconds	Exponential backoff
+5+	600 seconds	Fixed interval, max 10 attempts
+After 10 failed attempts, the event is moved to the Dead-Letter Stream (stream:deadletter) with failure metadata.
+5.6 Dead-Letter Queue (DLQ)
+Storage: Separate Redis Stream + MinIO archive
+Retention: 30 days in Redis, indefinite in MinIO
+Processing: Human-reviewed via dashboard. Replay capability via admin API.
+Alerting: DLQ depth > 10 triggers P2 alert; > 100 triggers P1 page.
+5.7 Event Replay
+Events are archived to MinIO in Parquet format within 5 minutes of emission. Replay workflow:
+Operator specifies time range and event filter
+Temporal workflow reads archived events from MinIO
+Events are re-injected into Event Bus with replay: true metadata
+Consumers handle replay idempotently (via event_id deduplication)
+6. Memory Architecture
+6.1 Memory Tier Hierarchy
+plain
+┌─────────────────────────────────────────────────────────────────────┐
+│                        MEMORY GATEWAY                                │
+│         (Single API: read, write, query, search, graph)              │
+└─────────────────────────────────────────────────────────────────────┘
+                                    │
+        ┌───────────────────────────┼───────────────────────────┐
+        │                           │                           │
+┌───────▼────────┐        ┌────────▼────────┐        ┌─────────▼────────┐
+│  TIER 1: HOT   │        │  TIER 2: WARM   │        │  TIER 3: COLD    │
+│    (Redis)     │        │  (PostgreSQL)   │        │    (MinIO)       │
+│                │        │                 │        │                  │
+│ • Sessions     │        │ • Facts         │        │ • Archived       │
+│ • Working mem  │        │ • Decisions     │        │   memories       │
+│ • Cache        │        │ • Outcomes      │        │ • Large artifacts│
+│ • Locks        │        │ • Structured    │        │ • Event archives │
+│ TTL: Minutes   │        │   records       │        │ TTL: Indefinite  │
+│                │        │ TTL: Years      │        │                  │
+└────────────────┘        └────────┬────────┘        └──────────────────┘
+                                   │
+                    ┌──────────────┼──────────────┐
+                    │              │              │
+            ┌───────▼──────┐ ┌────▼─────┐ ┌──────▼──────┐
+            │   pgvector   │ │  JSONB   │ │ Apache AGE  │
+            │  (Semantic   │ │ (Schema  │ │  (Knowledge │
+            │   Search)    │ │  Flex)   │ │   Graph)    │
+            └──────────────┘ └──────────┘ └─────────────┘
+6.2 Working Memory (Redis)
+Purpose: Ephemeral state for active agent sessions and workflow executions.
+Data Types:
+Table
+Data Type	Redis Structure	TTL	Use Case
+Session State	Hash	1 hour	Active workflow context
+Agent Context	String (JSON)	Duration of execution	Prompt assembly cache
+Rate Limit	Sorted Set	1 hour	API rate tracking
+Distributed Lock	Redlock	30 sec max	Prevent duplicate execution
+Semantic Cache	Hash + Vector	24 hours	LLM response caching
+Access Pattern: Agents read working memory at execution start and write results before completion. No cross-agent working memory sharing.
+6.3 Long-Term Memory (PostgreSQL)
+Purpose: Durable, structured facts and decisions that persist across sessions.
+Schema Design:
+Facts Table: memory_facts — atomic assertions with confidence scores, source attribution, and validity periods
+Decisions Table: memory_decisions — record of agent decisions with rationale, outcome, and retrospective score
+Outcomes Table: memory_outcomes — business results tied to decisions for learning loops
+Episodes Table: memory_episodes — high-level summaries of workflow executions
+Example Fact Record:
+Table
+id	tenant_id	agent_id	fact_type	content	confidence	source	valid_from	valid_until
+uuid	uuid	agent-market-research	competitor_pricing	{"competitor": "X", "price": 29}	0.95	https://...	2026-07-31	2026-08-07
+6.4 Vector Memory (pgvector)
+Purpose: Semantic search and retrieval-augmented generation (RAG).
+Schema:
+Table: memory_embeddings
+Columns: id, tenant_id, content_type, content_text, embedding vector(1536), metadata jsonb, created_at
+Index: hnsw index on embedding column for approximate nearest neighbor search
+Partitioning: By tenant_id and content_type for query performance
+Embedding Strategy:
+Default model: nomic-embed-text (local, 768-dim) or text-embedding-3-small (cloud fallback)
+Chunking: 512 tokens with 50-token overlap for long documents
+Deduplication: Content hash checked before embedding to avoid redundant storage
+6.5 Knowledge Graph (Apache AGE)
+Purpose: Relational reasoning about entities, markets, competitors, and business concepts.
+Graph Schema:
+Nodes: Business, Competitor, Product, Trend, Technology, Persona
+Edges: COMPETES_WITH, ADDRESSES, REQUIRES, TRENDING_IN, BUILDS_ON
+Query Pattern: Agents use Cypher queries via Apache AGE to answer questions like "Which competitors in the CRM space have recently launched AI features?" The graph is populated by extraction agents that parse research outputs into structured triples.
+6.6 Cache Strategy
+Multi-Level Cache:
+Table
+Level	Store	Key Pattern	Invalidation
+L1	In-process LRU	Function result hash	TTL 5 min
+L2	Redis	cache:{type}:{hash}	TTL 1 hour or event-driven
+L3	pgvector semantic	Vector similarity	Manual or scheduled
+L4	MinIO (cold)	archive/{date}/{hash}	Never (append-only)
+Cache Warming: Critical paths (e.g., agent tool schemas) are preloaded into L1/L2 at startup.
+6.7 Memory Access Control
+Agents access memory through the Memory Gateway with tenant-scoped, role-based filters:
+yaml
+# Agent memory binding example
+memory_bindings:
+  read:
+    - scope: "tenant"
+      types: ["facts", "embeddings"]
+      filters: ["fact_type = 'competitor_pricing'"]
+  write:
+    - scope: "tenant"
+      types: ["facts", "decisions"]
+      validation: "schema:v1/fact"
+7. Data Architecture
+7.1 PostgreSQL Design
+Database-per-Module Strategy: Each major subsystem owns its PostgreSQL database. Cross-module queries are prohibited.
+Table
+Database	Purpose	Key Tables
+aos_core	Users, tenants, auth, audit	users, tenants, api_keys, audit_log, agent_registry
+aos_memory	Structured memory, knowledge graph	memory_facts, memory_decisions, memory_episodes, graph_nodes, graph_edges
+aos_events	Event schema registry, event archive index	event_schemas, event_archive_index, dlq_entries
+aos_workflows	Temporal visibility (if not using Temporal's own DB)	Workflow state is managed by Temporal server
+aos_analytics	Aggregated metrics, cost data, business KPIs	daily_metrics, agent_performance, cost_ledger
+aos_approval	Human approval requests and decisions	approval_requests, approval_decisions
+Connection Management:
+PgBouncer in transaction pooling mode
+Max 10 connections per service instance
+Connection string via secrets, never in code
+Read replicas for analytics queries
+7.2 Redis Design
+Database Separation:
+Table
+Redis DB	Purpose	Persistence
+DB 0	Cache (L2)	RDB snapshots
+DB 1	Sessions & Working Memory	AOF + RDB
+DB 2	Rate Limiting & Locks	AOF + RDB
+DB 3	Pub/Sub (internal notifications)	None (ephemeral)
+Streams	Event Bus	AOF + RDB
+Redis Cluster: Required for production to support horizontal scaling and failover.
+7.3 pgvector Design
+Table: memory_embeddings
+Table
+Column	Type	Index	Notes
+id	UUID	PK	
+tenant_id	UUID	B-tree	Partition key
+content_type	VARCHAR	B-tree	research, code, conversation
+content_hash	VARCHAR	Unique	Deduplication
+content_text	TEXT	—	Original text (for re-embedding)
+embedding	vector(1536)	HNSW (ivfflat fallback)	Similarity search
+metadata	JSONB	GIN	Arbitrary filtering
+created_at	TIMESTAMPTZ	B-tree	TTL queries
+Similarity Search Query Pattern:
+sql
+-- Architectural query pattern (not implementation)
+SELECT content_text, metadata, 1 - (embedding <=> query_vector) AS similarity
+FROM memory_embeddings
+WHERE tenant_id = $1 AND content_type = $2
+ORDER BY embedding <=> query_vector
+LIMIT $3;
+7.4 File Storage (MinIO)
+Buckets:
+Table
+Bucket	Purpose	Lifecycle
+agent-artifacts	Generated files (images, videos, code zips)	90 days then Glacier-class
+event-archive	Parquet event archives	Indefinite
+model-cache	Downloaded local models	Indefinite
+backups	PostgreSQL backups	30 days
+audit-logs	Immutable audit exports	7 years
+Access Pattern: Services use S3-compatible SDK with presigned URLs for large transfers. Small objects (<1MB) may be base64-encoded in events.
+7.5 Metadata Storage
+Metadata about agents, tools, workflows, and businesses is stored in PostgreSQL with strict schema versioning:
+Agent Registry: aos_core.agent_registry
+Tool Registry: aos_core.tool_manifests
+Workflow Definitions: Versioned in Git, registered in aos_core.workflow_definitions
+Business Configuration: aos_core.businesses with JSONB config for flexible attributes
+7.6 Logging Storage
+Hot Logs (Loki): 7 days retention, searchable via Grafana
+Warm Logs (MinIO): 90 days, Parquet format
+Cold Logs (MinIO Glacier): 7 years for compliance
+8. LLM Architecture
+8.1 LLM Router Design
+plain
+┌─────────────────────────────────────────────────────────────────┐
+│                         LLM ROUTER                               │
+│                                                                  │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐ │
+│  │   Request   │  │   Context   │  │      Cost Manager       │ │
+│  │  Validator  │  │  Assembler  │  │   (Pre-flight Budget)   │ │
+│  └──────┬──────┘  └──────┬──────┘  └────────────┬────────────┘ │
+│         │                │                      │              │
+│         └────────────────┴──────────────────────┘              │
+│                          │                                     │
+│                   ┌──────▼──────┐                             │
+│                   │    Router   │                             │
+│                   │  (Decision) │                             │
+│                   └──────┬──────┘                             │
+│                          │                                     │
+│         ┌────────────────┼────────────────┐                   │
+│         │                │                │                   │
+│    ┌────▼────┐    ┌─────▼─────┐   ┌─────▼─────┐             │
+│    │  Local  │    │   Local   │   │   Cloud   │             │
+│    │  Nano   │    │  Standard │   │  Premium  │             │
+│    │ (Ollama)│    │  (vLLM)   │   │ (LiteLLM) │             │
+│    └────┬────┘    └─────┬─────┘   └─────┬─────┘             │
+│         │               │               │                    │
+│         └───────────────┴───────────────┘                    │
+│                         │                                    │
+│                  ┌──────▼──────┐                            │
+│                  │   Response   │                            │
+│                  │  Validator   │                            │
+│                  │ (JSON Schema)│                            │
+│                  └──────┬──────┘                            │
+│                         │                                    │
+│                  ┌──────▼──────┐                            │
+│                  │   Cache &   │                            │
+│                  │   Logger    │                            │
+│                  └─────────────┘                            │
+└─────────────────────────────────────────────────────────────────┘
+8.2 Model Selection Logic
+The Router uses a cascading decision tree:
+Budget Check: Cost Manager verifies budget. If insufficient, downgrade tier or reject.
+Complexity Classification: A fast local model (Nano tier) classifies task complexity:
+Simple: Classification, extraction, formatting → Nano tier
+Standard: Summarization, drafting, coding → Standard tier
+Complex: Strategy, reasoning, error analysis → Premium tier
+Availability Check: Circuit breaker status for each model endpoint
+Fallback Chain: If primary model fails, try next in tier, then next tier
+Cache Check: Semantic cache queried before inference
+8.3 Local Inference Stack
+Table
+Component	Technology	Purpose
+Development	Ollama	Easy model pulling, single-node serving
+Production	vLLM	High-throughput, continuous batching, PagedAttention
+Model Cache	MinIO + local volume	Avoid re-downloading models
+GPU Support	NVIDIA Docker runtime	Optional; CPU fallback always available
+Supported Local Models:
+nomic-embed-text (embeddings)
+mistral-7b-instruct (standard tasks)
+llama-3-70b-instruct (complex tasks, requires significant VRAM or CPU)
+phi-3-mini (nano tasks, ultra-low latency)
+mixtral-8x7b-instruct (standard tasks, MoE efficiency)
+8.4 Cloud Fallback
+LiteLLM proxy configured with:
+Primary: Claude 3.5 Sonnet (via Anthropic API)
+Secondary: GPT-4o (via OpenAI API)
+Tertiary: Local model (always available)
+Circuit Breaker Configuration:
+Open after 5 errors in 60 seconds
+Half-open after 5 minutes
+Full close after 3 consecutive successes
+
+
+### 8.5 Prompt Pipeline 
+
+| Stage | Description | Principle |
+|-------|-------------|-----------|
+| **1. Template Selection** | Jinja2 template chosen by agent based on task type | Tool Driven (3.6) |
+| **2. Context Retrieval** | Relevant memories fetched from Memory Gateway via semantic + structured query | Memory First (3.4) |
+| **3. Context Assembly** | Retrieved context ranked by relevance, truncated to fit token budget | Context Engineering (5.3) |
+| **4. Input Sanitization** | External data scrubbed for prompt injection, HTML stripped, length validated | Input Sanitization (10.3) |
+| **5. Prompt Rendering** | Jinja2 renders final prompt with context, instructions, and output schema | — |
+| **6. Token Budget Check** | Pre-flight token count; if over budget, context is summarized or truncated | Cost Optimization (11) |
+| **7. LLM Invocation** | Routed to appropriate model tier via selection logic | Model Agnosticism (5.1) |
+| **8. Output Parsing** | Response parsed against Pydantic schema; invalid outputs trigger retry | Deterministic Boundaries (5.2) |
+| **9. Grounding Validation** | Factual claims checked against source citations; hallucination flags raised | Hallucination Mitigation (5.4) |
+| **10. Cache Storage** | Valid response stored in semantic cache for future retrieval | Aggressive Caching (11.3) |
+
+### 8.6 Context Retrieval
+
+The Memory Gateway provides context to the LLM Router through a **multi-modal retrieval pipeline:**
+
+1. **Semantic Search:** Query embedding compared against `memory_embeddings` via pgvector HNSW index. Returns top-K relevant documents.
+2. **Structured Query:** PostgreSQL queries fetch recent facts, decisions, and outcomes filtered by `tenant_id`, `agent_id`, and `fact_type`.
+3. **Knowledge Graph Traversal:** Apache AGE Cypher queries traverse relationships (e.g., "find competitors of businesses in the same market as this idea").
+4. **Session Hydration:** Redis provides active workflow state and recent conversation turns.
+5. **Re-ranking:** A local cross-encoder model re-ranks retrieved documents by relevance to the specific query, improving precision over pure vector similarity.
+
+**Context Budget Management:**
+- Each agent declares a `max_context_tokens` in its manifest.
+- The retrieval pipeline fills context from most to least relevant until 80% of budget is used.
+- Remaining 20% is reserved for the LLM's response generation.
+- If critical context exceeds budget, a summarization agent (Nano tier) compresses long documents.
+
+### 8.7 Cost Optimization
+
+The LLM Router integrates with the Cost Manager at three checkpoints:
+
+| Checkpoint | Action |
+|------------|--------|
+| **Pre-flight** | Estimate tokens × model cost; reject if over agent budget |
+| **Routing** | Prefer Nano → Standard → Premium only when justified |
+| **Post-flight** | Record actual cost; update running totals; trigger alerts if thresholds breached |
+
+**Caching Strategy:**
+- **Exact Cache:** MD5 hash of (model + prompt + temperature) → stored in Redis. Hit rate target: >30%.
+- **Semantic Cache:** Embedding of prompt queried against pgvector; similar prompts (cosine similarity >0.95) return cached response. Hit rate target: >15%.
+- **Embedding Cache:** Frequently referenced documents have pre-computed embeddings stored in Redis to avoid re-embedding.
+
+### 8.8 Failover Strategy
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    LLM REQUEST LIFECYCLE                     │
+│                                                              │
+│  Primary Model (e.g., vLLM Llama-3-70B)                     │
+│       │                                                      │
+│       ▼                                                      │
+│  [Circuit Closed?] ──NO──> Try Next in Tier                  │
+│       │YES                                                   │
+│       ▼                                                      │
+│  [Healthy Response?] ──NO──> Retry (max 2)                 │
+│       │YES                    └──> After 2 failures:        │
+│       ▼                              Circuit OPEN            │
+│  [Schema Valid?] ──NO──> Retry with stricter prompt          │
+│       │YES                         └──> After 3 failures:   │
+│       ▼                              Fallback to next tier   │
+│  [Within Budget?] ──NO──> Log & Alert                      │
+│       │YES                                                   │
+│       ▼                                                      │
+│  [Cache Result] ──> Return to Agent                        │
+│                                                              │
+│  ULTIMATE FALLBACK: Local Nano model (always available)      │
+│  If Nano fails: Return structured error to Workflow Engine   │
+│  for human escalation (Level 4 autonomy)                       │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 9. Tool Architecture
+
+### 9.1 Tool Registry Design
+
+The Tool Registry is the **single source of truth** for all capabilities available to agents. Tools are not compiled into agents; they are discovered at runtime.
+
+**Tool Manifest Schema (Detailed):**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `tool_id` | UUID | Yes | Immutable identifier |
+| `name` | string | Yes | Human-readable, snake_case |
+| `version` | semver | Yes | Follows semantic versioning |
+| `description` | string (max 2000 chars) | Yes | LLM-visible description of what the tool does, when to use it, and expected inputs/outputs |
+| `input_schema` | JSON Schema (Draft 7) | Yes | Validated by Pydantic at runtime |
+| `output_schema` | JSON Schema (Draft 7) | Yes | Validated before returning to agent |
+| `error_schema` | JSON Schema | Yes | Expected error structures |
+| `sandbox_level` | enum | Yes | `none`, `container`, `gvisor`, `firecracker` |
+| `execution_mode` | enum | Yes | `python_function`, `http_endpoint`, `container_binary`, `plugin_grpc` |
+| `endpoint` | string | Conditional | URL or container image reference |
+| `required_permissions` | string[] | Yes | RBAC permission strings |
+| `cost_estimate_usd` | float | Yes | Per-invocation estimate |
+| `timeout_seconds` | int | Yes | Hard limit enforced by executor |
+| `retry_policy` | object | No | Overrides default retry |
+| `dependencies` | string[] | No | Other tools required |
+| `health_check_endpoint` | string | No | For liveness probes |
+| `example_inputs` | JSON[] | Yes | Few-shot examples for LLM context |
+
+### 9.2 Tool Registration Flow
+
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│  Developer  │────>│  CI Pipeline │────>│   Schema    │────>│   Registry  │
+│  Submits    │     │  Runs Tests │     │  Validation │     │   Storage   │
+│  Tool Code  │     │  + Security │     │  + Linting  │     │ (PostgreSQL) │
+└─────────────┘     └─────────────┘     └─────────────┘     └──────┬──────┘
+                                                                    │
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐            │
+│   Agent     │<────│   Discovery │<────│   Event Bus │<───────────┘
+│  Runtime    │     │    API      │     │  (publish   │
+│  (queries)  │     │  (REST/gRPC)│     │  tool.registered) │
+└─────────────┘     └─────────────┘     └─────────────┘
+```
+
+### 9.3 Tool Permissions
+
+Tools are not universally accessible. Access is governed by **capability-based authorization:**
+
+| Permission Pattern | Example | Grants Access To |
+|---------------------|---------|------------------|
+| `tool:use:{tool_name}` | `tool:use:web_scraper` | Specific tool |
+| `tool:use:category:{cat}` | `tool:use:category:deployment` | Tool category |
+| `tool:use:*` | `tool:use:*` | All tools (admin only) |
+
+Agents receive a JWT with embedded tool permissions at execution time. The Tool Executor validates the token before invoking the tool.
+
+### 9.4 Tool Discovery
+
+Agents discover tools through two mechanisms:
+
+1. **Static Binding:** Agent manifest declares required tools. The Workflow Engine verifies availability before scheduling.
+2. **Dynamic Discovery:** At runtime, the agent queries the Tool Registry: "List all tools in category `content_generation` with cost < $0.10." This enables self-improving agents to find cheaper or better alternatives.
+
+### 9.5 Tool Execution Flow
+
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│  Agent      │────>│  Tool       │────>│  Permission │────>│  Sandbox    │
+│  Requests   │     │  Registry   │     │  + Budget   │     │  Scheduler  │
+│  Tool Call  │     │  Lookup     │     │  Check      │     │             │
+└─────────────┘     └─────────────┘     └─────────────┘     └──────┬──────┘
+                                                                   │
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐         │
+│  Agent      │<────│  Output     │<────│  Execution  │<────────┘
+│  Receives   │     │  Validation │     │  (Sandbox)  │
+│  Result     │     │  (Schema)   │     │             │
+└─────────────┘     └─────────────┘     └─────────────┘
+```
+
+### 9.6 Tool Sandboxing
+
+Every tool execution occurs within a **sandbox boundary** determined by its `sandbox_level`:
+
+| Level | Isolation | Network | Filesystem | Use Case |
+|-------|-----------|---------|------------|----------|
+| `none` | Python function in agent worker process | Same as agent | Same as agent | Pure computation, no I/O (math, formatting) |
+| `container` | Docker container | Denied by default; explicit allowlist | Read-only rootfs; tmpfs for writes | Web scraping, API calls, file processing |
+| `gvisor` | gVisor runsc + seccomp | Denied by default; explicit allowlist | Overlay filesystem; no host access | User-provided plugins, untrusted code |
+| `firecracker` | Firecracker microVM | Virtual NIC with egress filtering | Virtio block device; encrypted | Security-critical, financial operations |
+
+**Sandbox Enforcement:**
+- Container images are scanned by Trivy before registration
+- Network policies (Cilium/Calico in K8s; Docker network policies in Swarm) enforce egress allowlists
+- Seccomp profiles restrict syscalls
+- Resource limits (cgroups) enforce CPU, memory, disk, and network bandwidth caps
+- All sandboxes have a **kill switch**: exceeding timeout or resource limits triggers immediate SIGKILL
+
+### 9.7 Tool Validation
+
+Three validation layers:
+
+1. **Input Validation:** Pydantic validates against `input_schema` before sandbox entry
+2. **Output Validation:** Pydantic validates against `output_schema` after sandbox exit
+3. **Semantic Validation:** For critical tools, a Nano-tier LLM verifies that the output is semantically coherent and safe (e.g., generated code does not contain obvious malware patterns)
+
+---
+
+## 10. Workflow Architecture
+
+### 10.1 Workflow as Code
+
+All business processes in Agent OS are **durable workflows** implemented in Temporal. A workflow is not a script; it is a stateful, fault-tolerant orchestration that survives worker restarts, network partitions, and database failures.
+
+**Workflow Definition Structure:**
+
+| Component | Responsibility |
+|-----------|---------------|
+| **Workflow Function** | Orchestration logic: sequencing, branching, parallel execution, timers |
+| **Activities** | Individual units of work executed by Agent Runtime workers |
+| **Saga Compensations** | Rollback logic for each mutating activity |
+| **Signals** | External events that workflows can receive (approve, cancel, pause) |
+| **Queries** | Read-only methods to inspect workflow state |
+
+### 10.2 Workflow Lifecycle
+
+```
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│   TRIGGER   │───>│   PLANNING  │───>│  EXECUTION  │───>│  VALIDATION │
+│             │    │             │    │             │    │             │
+│ • Scheduled │    │ • Decompose │    │ • Activities│    │ • Output    │
+│ • Event     │    │   into      │    │   executed  │    │   schema    │
+│ • Manual    │    │   activities│    │   in order  │    │   check     │
+│             │    │ • Assign    │    │ • Parallel  │    │ • Business  │
+│             │    │   agents    │    │   where safe│    │   rule      │
+│             │    │ • Build     │    │ • Saga      │    │   validation│
+│             │    │   DAG       │    │   compensations│   │             │
+└─────────────┘    └─────────────┘    └──────┬──────┘    └──────┬──────┘
+                                             │                    │
+                              ┌──────────────┘                    │
+                              │                                   │
+                              ▼                                   ▼
+                    ┌─────────────────┐               ┌─────────────────┐
+                    │   RETRY /       │               │   COMPLETION    │
+                    │   RECOVERY      │               │                 │
+                    │                 │               │ • Emit events   │
+                    │ • Exponential   │               │ • Update memory │
+                    │   backoff       │               │ • Trigger child │
+                    │ • Circuit break │               │   workflows     │
+                    │ • Human         │               │ • Archive state │
+                    │   escalation    │               │                 │
+                    └─────────────────┘               └─────────────────┘
+```
+
+### 10.3 Planning Phase
+
+Before execution, the Workflow Engine constructs an **Execution DAG (Directed Acyclic Graph):**
+
+- **Nodes:** Activities (agent executions, tool calls, human approval gates)
+- **Edges:** Dependencies (data flow, sequencing constraints)
+- **Annotations:** Retry policies, timeouts, compensation activities, required autonomy levels
+
+The DAG is validated for:
+- Cycles (rejected)
+- Missing agent registrations (rejected)
+- Budget violations (rejected or downgraded)
+- Permission conflicts (rejected)
+
+### 10.4 Execution Phase
+
+Activities are dispatched to Agent Runtime workers via Temporal task queues. Each activity:
+
+1. Receives workflow context (read-only) + activity input
+2. Hydrates agent state from Memory Gateway
+3. Executes agent logic (LLM calls, tool calls)
+4. Returns structured output to workflow
+5. Workflow records result and proceeds to next node
+
+**Parallel Execution:** Independent activities execute concurrently. The Workflow Engine manages synchronization barriers where activities must complete before downstream nodes begin.
+
+### 10.5 Validation Phase
+
+Before workflow completion:
+
+| Validation Type | Executor | Failure Action |
+|-----------------|----------|----------------|
+| **Schema Validation** | Workflow Engine | Retry activity with corrected prompt |
+| **Business Rule Check** | Deterministic function | Saga compensation + workflow failure |
+| **Cost Audit** | Cost Manager | Alert if overrun; halt if critical |
+| **Security Scan** | Tool Executor | Quarantine outputs, escalate |
+
+### 10.6 Retry and Recovery
+
+| Failure Type | Retry Strategy | Max Attempts | Escalation |
+|--------------|---------------|------------|------------|
+| Transient LLM error | Exponential backoff (1s, 2s, 4s, 8s) | 4 | Fallback model |
+| Transient tool error | Fixed interval (5s) | 3 | Alternative tool |
+| Schema validation failure | Immediate with corrected prompt | 2 | Human review |
+| Budget exceeded | None | 0 | Human approval (Level 3) |
+| Permission denied | None | 0 | Security alert + audit |
+| Timeout | None (already at limit) | 0 | Saga compensation |
+
+### 10.7 Reflection and Self-Improvement
+
+Certain workflows include a **Reflection Activity** at the end:
+
+1. Compare actual outcome to predicted outcome
+2. Log deviation to `memory_decisions`
+3. If deviation exceeds threshold, trigger `ContinuousImprovementWorkflow`
+4. Improvement workflow may: refine agent prompts, update tool schemas, or recommend new tool development
+
+### 10.8 Saga Compensation
+
+For workflows that perform mutating operations (deployments, financial transactions, content publication), each activity has a **compensation activity:**
+
+| Forward Activity | Compensation Activity |
+|-----------------|----------------------|
+| Deploy application | Rollback to previous version |
+| Publish blog post | Unpublish / revert to draft |
+| Spend ad budget | Request refund (if platform supports) |
+| Create DNS record | Delete DNS record |
+
+Compensations are executed in reverse order if any activity fails. If compensation fails, the workflow enters a **stalled** state requiring human intervention.
+
+---
+
+## 11. Security Architecture
+
+### 11.1 Authentication
+
+**Multi-Factor Identity:**
+
+| Identity Type | Mechanism | Use Case |
+|---------------|-----------|----------|
+| **Human Users** | OAuth2/OIDC (Auth0/Keycloak) + MFA | Dashboard access, approval actions |
+| **Service Accounts** | JWT signed by internal CA | Inter-service communication |
+| **Agents** | Short-lived JWT (1-hour TTL) | Agent execution identity |
+| **API Clients** | API Keys (SHA-256 hashed) | External integrations |
+
+**Token Flow:**
+```
+Human/Client ──> API Gateway ──> OAuth2/OIDC Provider
+                                    │
+                                    ▼
+                              JWT Issued
+                                    │
+                                    ▼
+                              API Gateway validates
+                              signature + claims
+                                    │
+                                    ▼
+                              Request forwarded
+                              with identity headers
+                              (X-User-ID, X-Tenant-ID,
+                               X-Roles)
+```
+
+### 11.2 Authorization
+
+**RBAC + ABAC Hybrid Model:**
+
+- **RBAC (Role-Based):** Broad permission groups (`admin`, `operator`, `agent-runner`, `viewer`)
+- **ABAC (Attribute-Based):** Fine-grained access control using attributes:
+  - `tenant_id`: Data isolation
+  - `autonomy_level`: Maximum allowed autonomy
+  - `budget_remaining`: Financial authorization
+  - `time_of_day`: Some actions restricted to business hours
+
+**Policy Enforcement Points (PEP):**
+1. API Gateway (ingress)
+2. Agent Runtime (before execution)
+3. Tool Executor (before tool invocation)
+4. Memory Gateway (before data access)
+
+### 11.3 Secrets Management
+
+**Architecture:**
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    SECRETS ARCHITECTURE                      │
+│                                                              │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐     │
+│  │   Source    │    │   Runtime   │    │   Access    │     │
+│  │             │    │             │    │             │     │
+│  │ HashiCorp   │    │ Docker      │    │ Mounted as  │     │
+│  │ Vault       │───>│ Secrets     │───>│ files in    │     │
+│  │ (K8s prod)  │    │ (Swarm/     │    │ /run/secrets│     │
+│  │             │    │ local dev)   │    │             │     │
+│  └─────────────┘    └─────────────┘    └─────────────┘     │
+│                                                              │
+│  Rules:                                                      │
+│  • Never commit secrets to Git                               │
+│  • Never pass secrets via environment variables in prod      │
+│  • Rotate secrets quarterly                                  │
+│  • Audit all secret access                                   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 11.4 Sandboxing Architecture
+
+**Defense in Depth for Code Execution:**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    USER CODE / TOOL CODE                     │
+│                                                              │
+│  Layer 1: Input Validation (Pydantic schema)                 │
+│       │                                                      │
+│  Layer 2: Static Analysis (Bandit, Semgrep)                  │
+│       │                                                      │
+│  Layer 3: Container Image Scan (Trivy)                     │
+│       │                                                      │
+│  Layer 4: Runtime Sandbox (gVisor/Firecracker)               │
+│       │                                                      │
+│  Layer 5: Network Policy (Cilium/Calico)                     │
+│       │                                                      │
+│  Layer 6: Filesystem Restrictions (read-only root, noexec)   │
+│       │                                                      │
+│  Layer 7: Resource Limits (cgroups)                         │
+│       │                                                      │
+│  Layer 8: Audit Logging (immutable)                          │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 11.5 Audit Logging
+
+**Immutable Audit Stream:**
+
+| Event | Source | Storage | Retention |
+|-------|--------|---------|-----------|
+| Authentication success/failure | API Gateway | PostgreSQL + MinIO | 7 years |
+| Authorization denial | All services | PostgreSQL + MinIO | 7 years |
+| Agent execution | Agent Runtime | PostgreSQL + MinIO | 7 years |
+| Tool invocation | Tool Executor | PostgreSQL + MinIO | 7 years |
+| Approval granted/denied | Approval Service | PostgreSQL + MinIO | 7 years |
+| Secret access | Vault / Docker | Vault audit + MinIO | 7 years |
+
+**Audit Record Schema:**
+```json
+{
+  "audit_id": "uuid",
+  "timestamp": "2026-07-31T14:20:00Z",
+  "actor_type": "agent|user|service",
+  "actor_id": "uuid",
+  "action": "tool.execute",
+  "resource": "tool:web_scraper",
+  "outcome": "success|failure|denied",
+  "context": {"tenant_id": "uuid", "workflow_id": "uuid"},
+  "integrity_hash": "sha256:..."
+}
+```
+
+### 11.6 Encryption
+
+| Layer | Mechanism | Key Management |
+|-------|-----------|----------------|
+| **Data at Rest (PostgreSQL)** | AES-256-GCM | PostgreSQL TDE or filesystem encryption |
+| **Data at Rest (MinIO)** | AES-256-GCM | MinIO server-side encryption with Vault |
+| **Data in Transit (Internal)** | mTLS (Linkerd or service mesh) | Internal CA, auto-rotation |
+| **Data in Transit (External)** | TLS 1.3 | Let's Encrypt or commercial CA |
+| **Application-Level** | Field-level encryption for PII | Vault Transit engine |
+
+### 11.7 Permission Boundaries
+
+**Agent Permission Boundaries** prevent privilege escalation:
+
+- An agent with `tool:use:web_scraper` cannot grant itself `tool:use:deployment`
+- Agents cannot request token scopes beyond their manifest declaration
+- Workflow Engine enforces that child workflows inherit only the intersection of parent permissions and child requirements
+
+---
+
+## 12. Scalability Architecture
+
+### 12.1 Scaling Dimensions
+
+Agent OS scales across four dimensions:
+
+| Dimension | Scaling Mechanism | Trigger |
+|-----------|-------------------|---------|
+| **Compute** | Horizontal pod/container scaling | CPU > 70% for 2 minutes |
+| **Memory** | Redis Cluster expansion | Memory usage > 80% |
+| **Storage** | PostgreSQL read replicas + partitioning | Query latency > 100ms p99 |
+| **Agents** | Temporal worker pool expansion | Task queue depth > 100 |
+
+### 12.2 From One Agent to Thousands
+
+**Phase 1: Single Node (Development)**
+```
+┌─────────────────────────────────────┐
+│  Single Machine                     │
+│  ┌─────────┐ ┌─────────┐ ┌────────┐ │
+│  │ FastAPI │ │ Temporal│ │ Redis  │ │
+│  │ Gateway │ │ Server  │ │        │ │
+│  └─────────┘ └─────────┘ └────────┘ │
+│  ┌─────────┐ ┌─────────┐           │
+│  │PostgreSQL│ │ Ollama  │           │
+│  │+pgvector│ │         │           │
+│  └─────────┘ └─────────┘           │
+└─────────────────────────────────────┘
+```
+
+**Phase 2: Small Cluster (10-50 Agents)**
+- API Gateway: 2 replicas behind Nginx
+- Temporal: 2 frontend + 2 worker nodes
+- PostgreSQL: Primary + 1 read replica
+- Redis: Sentinel mode (3 nodes)
+- Agent Runtime: 4-8 workers
+- MinIO: 4-node distributed mode
+
+**Phase 3: Production Cluster (100-500 Agents)**
+- API Gateway: 4+ replicas with global rate limiting
+- Temporal: 4 frontend + 8 worker nodes + separate visibility DB
+- PostgreSQL: Primary + 2 read replicas, partitioned by tenant
+- Redis: Cluster mode (6+ nodes)
+- Agent Runtime: 20+ workers, sharded by capability
+- MinIO: 8+ nodes, erasure coding
+- Dedicated LLM inference nodes (GPU)
+
+**Phase 4: Enterprise Scale (1000+ Agents)**
+- Multi-region deployment
+- Temporal with multi-cluster replication
+- PostgreSQL Citus or sharding by tenant
+- Redis Cluster per region with Cross-Region Replication
+- Dedicated vLLM inference clusters with load balancing
+- CDN for static assets
+
+### 12.3 Queue-Based Load Leveling
+
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   Burst     │────>│   Redis     │────>│   Temporal  │────>│   Agent     │
+│   Traffic   │     │   Streams   │     │   Workers   │     │   Workers   │
+│             │     │  (Buffer)   │     │  (Steady    │     │  (Process   │
+│             │     │             │     │   drain)    │     │   rate)     │
+└─────────────┘     └─────────────┘     └─────────────┘     └─────────────┘
+```
+
+Backpressure is implemented via:
+- **Producer Throttling:** API Gateway returns 429 when queue depth exceeds threshold
+- **Consumer Scaling:** Horizontal Pod Autoscaler (HPA) or Docker Swarm replicas
+- **Shedding:** Non-critical events (analytics, non-urgent research) are dropped if system is overloaded
+
+### 12.4 Database Scaling Strategy
+
+| Technique | Application | Implementation |
+|-----------|-------------|----------------|
+| **Read Replicas** | Analytics queries, dashboard reads | PostgreSQL streaming replication |
+| **Partitioning** | Large tables (`memory_embeddings`, `audit_log`) | PostgreSQL declarative partitioning by `tenant_id` + `created_at` |
+| **Connection Pooling** | All services | PgBouncer in transaction mode |
+| **CQRS** | Complex reporting | Materialized views refreshed by Celery/Temporal schedule |
+| **Archival** | Old data | Parquet export to MinIO, soft-delete in PostgreSQL |
+
+---
+
+## 13. Deployment Architecture
+
+### 13.1 Local Development
+
+**Docker Compose Profile:** `dev`
+
+```yaml
+# Architectural specification — not implementation
+services:
+  - gateway: FastAPI with hot reload
+  - temporal: Single-node Temporal server
+  - postgres: PostgreSQL 16 with pgvector + AGE
+  - redis: Redis 7 with persistence
+  - minio: Single-node MinIO
+  - ollama: Ollama with pulled models
+  - agent-runtime: 2 workers
+  - observability: Prometheus + Grafana + Loki + Tempo (optional)
+```
+
+**Developer Experience:**
+- `git clone` → `docker compose up` → system ready in <5 minutes
+- Local IDE debugging via exposed ports
+- Hot reload for all Python services
+- Seed data for testing workflows
+
+### 13.2 Docker Production (Swarm)
+
+**Profile:** `prod-swarm`
+
+- 3+ manager nodes, 3+ worker nodes
+- Overlay networks: `frontend`, `backend`, `database`
+- Docker Secrets for credential injection
+- Traefik or Nginx as edge load balancer
+- Global mode for API Gateway (one per node)
+- Replicated mode for Agent Runtime (scaled by queue depth)
+
+### 13.3 Kubernetes Production
+
+**Profile:** `prod-k8s`
+
+- Namespace per tenant (soft multi-tenancy)
+- Helm charts for all services
+- Linkerd service mesh for mTLS
+- cert-manager for TLS
+- External-DNS for automated DNS
+- Cluster Autoscaler for node scaling
+- GPU node pools for vLLM inference
+
+### 13.4 Multi-Machine Deployment
+
+For on-premise or bare-metal deployments:
+
+| Machine Role | Spec | Services |
+|--------------|------|----------|
+| **Edge** | 4 vCPU, 8GB RAM | Nginx, API Gateway |
+| **Compute** | 16 vCPU, 64GB RAM | Agent Runtime, Temporal Workers |
+| **Database** | 8 vCPU, 32GB RAM, SSD | PostgreSQL, Redis |
+| **Storage** | 4 vCPU, 16GB RAM, HDD | MinIO |
+| **Inference** | 8 vCPU, 64GB RAM, GPU | vLLM, Ollama |
+| **Observability** | 4 vCPU, 16GB RAM | Prometheus, Grafana, Loki, Tempo |
+
+### 13.5 CI/CD Pipeline
+
+```
+┌─────────┐   ┌─────────┐   ┌─────────┐   ┌─────────┐   ┌─────────┐
+│  Commit │──>│   Lint  │──>│  Test   │──>│  Build  │──>│  Stage  │
+│  to PR  │   │ + Type  │   │ (Unit/  │   │ Images  │   │ Deploy  │
+│         │   │ Check   │   │ Integ)  │   │         │   │         │
+└─────────┘   └─────────┘   └─────────┘   └─────────┘   └────┬────┘
+                                                             │
+┌─────────┐   ┌─────────┐   ┌─────────┐   ┌─────────┐      │
+│  Prod   │<──│  Chaos  │<──│  E2E    │<──│  Manual │<─────┘
+│  Deploy │   │  Test   │   │  Test   │   │  Gate   │
+└─────────┘   └─────────┘   └─────────┘   └─────────┘
+```
+
+**Gates:**
+- `mypy --strict` must pass
+- Unit test coverage >80%
+- Integration tests pass (TestContainers)
+- Contract tests pass (Pact)
+- Security scan passes (Trivy, Bandit)
+- Chaos test passes in staging
+- Manual approval for production (Level 3)
+
+### 13.6 Monitoring in Production
+
+| Component | Metric | Alert Threshold |
+|-----------|--------|-----------------|
+| API Gateway | Request latency p99 | > 2 seconds for 5 minutes |
+| Agent Runtime | Task success rate | < 95% for 10 minutes |
+| Temporal | Workflow backlog | > 500 workflows for 15 minutes |
+| PostgreSQL | Connection pool utilization | > 80% |
+| Redis | Memory usage | > 85% |
+| LLM Router | Cost per hour | > $10 (configurable) |
+| MinIO | Disk usage | > 80% |
+
+---
+
+## 14. Repository Structure
+
+```
+agent-os/
+├── README.md
+├── LICENSE
+├── docker-compose.yml              # Dev environment
+├── docker-compose.prod.yml         # Production Swarm
+├── Makefile                        # Common tasks
+├── .github/
+│   ├── workflows/
+│   │   ├── ci.yml                  # Lint, test, build
+│   │   ├── security-scan.yml       # Trivy, Bandit, Semgrep
+│   │   └── release.yml             # Image publishing
+│   └── CODEOWNERS
+├── docs/
+│   ├── architecture/
+│   │   ├── 01_PRINCIPLES.md
+│   │   ├── 02_ARCHITECTURE.md
+│   │   ├── 03_DATA_MODEL.md
+│   │   ├── 04_API_SPEC.md
+│   │   ├── 05_AGENT_DESIGNS.md
+│   │   ├── 06_SECURITY.md
+│   │   ├── 07_DEPLOYMENT.md
+│   │   └── ADRs/
+│   │       ├── ADR-001-use-temporal.md
+│   │       ├── ADR-002-use-redis-streams.md
+│   │       └── ...
+│   ├── runbooks/
+│   │   ├── Runbook-API-Gateway.md
+│   │   ├── Runbook-Agent-Runtime.md
+│   │   ├── Runbook-Database-Recovery.md
+│   │   └── Runbook-Security-Incident.md
+│   └── development/
+│       ├── SETUP.md
+│       ├── TESTING.md
+│       └── CONTRIBUTING.md
+├── infrastructure/
+│   ├── docker/
+│   │   ├── gateway.Dockerfile
+│   │   ├── agent-runtime.Dockerfile
+│   │   ├── temporal-worker.Dockerfile
+│   │   └── tool-sandbox.Dockerfile
+│   ├── terraform/                  # Cloud resources (optional)
+│   ├── kubernetes/
+│   │   ├── helm/
+│   │   └── manifests/
+│   └── ansible/                    # Bare-metal provisioning
+├── src/
+│   ├── gateway/                    # API Gateway service
+│   │   ├── pyproject.toml
+│   │   ├── src/
+│   │   │   ├── __init__.py
+│   │   │   ├── main.py
+│   │   │   ├── auth/
+│   │   │   ├── routing/
+│   │   │   ├── rate_limit/
+│   │   │   └── middleware/
+│   │   └── tests/
+│   ├── agent_runtime/              # Agent execution environment
+│   │   ├── pyproject.toml
+│   │   ├── src/
+│   │   │   ├── workers/
+│   │   │   ├── agent_loader/
+│   │   │   ├── context_builder/
+│   │   │   └── executor/
+│   │   └── tests/
+│   ├── workflow_engine/            # Temporal workflow definitions
+│   │   ├── pyproject.toml
+│   │   ├── src/
+│   │   │   ├── workflows/
+│   │   │   ├── activities/
+│   │   │   ├── sagas/
+│   │   │   └── signals/
+│   │   └── tests/
+│   ├── event_bus/                  # Event bus client library
+│   │   ├── pyproject.toml
+│   │   ├── src/
+│   │   │   ├── publisher.py
+│   │   │   ├── consumer.py
+│   │   │   ├── schema_registry.py
+│   │   │   └── dlq_manager.py
+│   │   └── tests/
+│   ├── memory_gateway/             # Memory access service
+│   │   ├── pyproject.toml
+│   │   ├── src/
+│   │   │   ├── semantic/
+│   │   │   ├── structured/
+│   │   │   ├── graph/
+│   │   │   └── cache/
+│   │   └── tests/
+│   ├── tool_registry/              # Tool catalog and management
+│   │   ├── pyproject.toml
+│   │   ├── src/
+│   │   │   ├── registry.py
+│   │   │   ├── manifest_validator.py
+│   │   │   └── discovery.py
+│   │   └── tests/
+│   ├── tool_executor/              # Sandboxed execution
+│   │   ├── pyproject.toml
+│   │   ├── src/
+│   │   │   ├── sandbox/
+│   │   │   ├── security/
+│   │   │   └── runtime/
+│   │   └── tests/
+│   ├── llm_router/               # LLM abstraction and routing
+│   │   ├── pyproject.toml
+│   │   ├── src/
+│   │   │   ├── router.py
+│   │   │   ├── model_manager.py
+│   │   │   ├── prompt_pipeline.py
+│   │   │   └── cache_manager.py
+│   │   └── tests/
+│   ├── cost_manager/               # Cost tracking and enforcement
+│   │   ├── pyproject.toml
+│   │   ├── src/
+│   │   │   ├── tracker.py
+│   │   │   ├── budget_enforcer.py
+│   │   │   └── alerts.py
+│   │   └── tests/
+│   ├── plugin_manager/             # Plugin lifecycle
+│   │   ├── pyproject.toml
+│   │   ├── src/
+│   │   │   ├── discovery.py
+│   │   │   ├── sandbox.py
+│   │   │   └── lifecycle.py
+│   │   └── tests/
+│   ├── core/                       # Shared domain models and utilities
+│   │   ├── pyproject.toml
+│   │   ├── src/
+│   │   │   ├── models/             # Pydantic models
+│   │   │   ├── events/             # Event schemas
+│   │   │   ├── exceptions.py
+│   │   │   └── constants.py
+│   │   └── tests/
+│   ├── security/                   # Shared security utilities
+│   │   ├── pyproject.toml
+│   │   ├── src/
+│   │   │   ├── auth/
+│   │   │   ├── encryption/
+│   │   │   ├── audit/
+│   │   │   └── sandbox/
+│   │   └── tests/
+│   └── observability/              # Shared observability
+│       ├── pyproject.toml
+│       ├── src/
+│       │   ├── metrics.py
+│       │   ├── tracing.py
+│       │   ├── logging_config.py
+│       │   └── alerts.py
+│       └── tests/
+├── agents/                         # Agent definitions (not code)
+│   ├── market_research/
+│   │   ├── manifest.yaml
+│   │   ├── prompts/
+│   │   │   ├── discover_opportunities.j2
+│   │   │   └── analyze_competitor.j2
+│   │   ├── schemas/
+│   │   │   ├── input.py
+│   │   │   └── output.py
+│   │   └── src/
+│   │       └── analysis_logic.py
+│   ├── idea_ranker/
+│   ├── product_builder/
+│   ├── content_generator/
+│   ├── seo_agent/
+│   ├── deployment_agent/
+│   └── _templates/                 # Agent scaffolding templates
+│       ├── manifest.yaml.template
+│       └── prompts/
+├── tools/                          # Built-in tool definitions
+│   ├── web_scraper/
+│   │   ├── manifest.yaml
+│   │   ├── schemas/
+│   │   ├── src/
+│   │   └── Dockerfile
+│   ├── sentiment_analyzer/
+│   ├── code_generator/
+│   ├── deployment_tool/
+│   └── _registry/                  # Registry metadata
+│       └── index.json
+├── plugins/                        # Third-party plugins (gitignored, installed)
+│   └── README.md
+├── migrations/                     # Alembic migrations
+│   ├── aos_core/
+│   ├── aos_memory/
+│   └── aos_events/
+├── scripts/                        # Operational scripts
+│   ├── setup.sh
+│   ├── seed_data.py
+│   └── backup.sh
+└── tests/                          # End-to-end tests
+    ├── e2e/
+    ├── integration/
+    ├── contract/
+    └── chaos/
+```
+
+---
+
+## 15. Data Flow
+
+### 15.1 Complete Request Flow: Business Discovery to Product Launch
+
+```
+┌────────┐
+│  USER  │
+│(Human) │
+└───┬────┘
+    │ 1. Request: "Discover and build a SaaS idea"
+    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                           API GATEWAY                                    │
+│  • Authenticate user                                                     │
+│  • Check rate limits                                                   │
+│  • Route to Workflow Engine                                              │
+└─────────────────────────────────────────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                        WORKFLOW ENGINE                                   │
+│  2. Start BusinessDiscoveryWorkflow                                      │
+│  3. Build Execution DAG:                                                 │
+│     [Research] → [Analyze] → [Rank] → [Plan] → [Build] → [Deploy]    │
+└─────────────────────────────────────────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│  4. ACTIVITY: Market Research                                            │
+│     Agent Runtime loads MarketResearchAgent                              │
+│     Memory Gateway hydrates: past research, competitor data              │
+│     LLM Router: Nano tier classifies task → Standard tier executes       │
+│     Tool Executor: Web scraper (container sandbox) fetches data        │
+│     Results validated against schema                                     │
+│     Events emitted: business.opportunity.discovered (×N)                 │
+└─────────────────────────────────────────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│  5. ACTIVITY: Competitor Analysis (parallel with step 4)               │
+│     Agent Runtime loads CompetitorAnalyzerAgent                          │
+│     Memory Gateway: Knowledge graph query for similar markets            │
+│     LLM Router: Standard tier for analysis                               │
+│     Tool Executor: API calls to competitor websites                     │
+│     Events emitted: business.competitor.analyzed                         │
+└─────────────────────────────────────────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│  6. SYNCHRONIZATION: Wait for 4 + 5                                     │
+│     Workflow aggregates results                                        │
+└─────────────────────────────────────────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│  7. ACTIVITY: Idea Ranking                                               │
+│     Agent Runtime loads IdeaRankerAgent                                  │
+│     Memory Gateway: Historical success/failure of similar ideas          │
+│     LLM Router: Premium tier for complex multi-factor ranking            │
+│     Deterministic function validates financial projections               │
+│     Events emitted: business.idea.ranked (top 3)                         │
+└─────────────────────────────────────────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│  8. HUMAN APPROVAL GATE (Level 3)                                       │
+│     Workflow pauses, emits command.approval.request                     │
+│     Human receives contextual approval request via Dashboard             │
+│     Human approves "AI Resume Builder" idea                              │
+│     Event: command.approval.granted                                      │
+└─────────────────────────────────────────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│  9. ACTIVITY: Product Planning                                           │
+│     Agent Runtime loads ProductPlannerAgent                              │
+│     LLM Router: Premium tier for architecture decisions                  │
+│     Memory Gateway: Stores product roadmap                               │
+│     Events emitted: business.product.planned                             │
+└─────────────────────────────────────────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│ 10. CHILD WORKFLOW: ProductBuildWorkflow (parallel tracks)               │
+│     Track A: Backend development (CodeGeneratorAgent + TestAgent)        │
+│     Track B: Frontend development (CodeGeneratorAgent + TestAgent)       │
+│     Track C: Content creation (ContentAgent + SEOAgent)                   │
+│     Track D: Infrastructure setup (DeploymentAgent)                       │
+└─────────────────────────────────────────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│ 11. ACTIVITY: Deployment (Level 3 approval)                              │
+│     DeploymentAgent requests approval via Approval Service             │
+│     Human approves                                                       │
+│     Tool Executor: Deploy tool runs in Firecracker sandbox               │
+│     Saga compensation: Rollback script ready if deployment fails         │
+│     Events emitted: business.product.deployed                              │
+└─────────────────────────────────────────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│ 12. ACTIVITY: Marketing Launch                                          │
+│     ContentAgent publishes blog posts                                    │
+│     SEOAgent optimizes metadata                                          │
+│     Events emitted: business.content.published                           │
+└─────────────────────────────────────────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│ 13. WORKFLOW COMPLETION                                                  │
+│     Reflection activity compares predicted vs actual timeline            │
+│     Results archived to memory                                           │
+│     Events emitted: business.workflow.completed                          │
+│     Metrics: Duration, cost, success rate logged to Prometheus           │
+└─────────────────────────────────────────────────────────────────────────┘
+    │
+    ▼
+┌────────┐
+│  USER  │
+│(Notified)│
+└────────┘
+```
+
+### 15.2 Event Propagation Diagram
+
+```
+┌─────────────────┐
+│  User Request   │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│  API Gateway    │────>│  Event Bus      │────>│  Audit Log      │
+│  (auth, route)  │     │  (stream:system)│     │  (immutable)    │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+         │
+         ▼
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│  Workflow Engine│────>│  Event Bus      │────>│  Memory Gateway │
+│  (orchestrate)  │     │  (stream:agent) │     │  (state update) │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+         │
+         ▼
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│  Agent Runtime  │────>│  Event Bus      │────>│  Cost Manager   │
+│  (execute)      │     │  (stream:agent) │     │  (track spend)  │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+         │
+         ▼
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│  LLM Router     │────>│  Event Bus      │────>│  Monitoring     │
+│  (inference)    │     │  (stream:system)│     │  (metrics)      │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+         │
+         ▼
+┌─────────────────┐     ┌─────────────────┐
+│  Tool Executor  │────>│  Event Bus      │
+│  (sandbox)      │     │  (stream:system)│
+└─────────────────┘     └─────────────────┘
+```
+
+---
+
+## 16. Failure Recovery
+
+### 16.1 Agent Crash Recovery
+
+**Detection:** Heartbeat timeout (2× activity timeout) detected by Temporal.
+
+**Recovery Flow:**
+```
+1. Temporal marks activity as failed
+2. Workflow checks retry count
+   ├── If retries remain: Reschedule to new worker, rehydrate state from Memory Gateway
+   └── If retries exhausted: Execute saga compensation, emit agent.execution.failed
+3. Event Bus routes failure to Monitoring (alert) and Memory Gateway (log decision)
+4. Human receives alert if autonomy level ≥ 2
+```
+
+**State Rehydration:** Agent state is never lost because:
+- Working memory is in Redis (persistent)
+- Long-term memory is in PostgreSQL (ACID)
+- Workflow state is in Temporal (durable)
+
+### 16.2 Queue Failure Recovery
+
+**Scenario:** Redis Streams becomes unavailable.
+
+**Recovery:**
+1. Services buffer events in-memory with a 30-second TTL
+2. If Redis recovers within TTL: Flush buffer
+3. If Redis does not recover:
+   - Critical events (approvals, deployments) are persisted to PostgreSQL fallback queue
+   - Non-critical events (analytics, caching) are dropped
+   - Alert triggered for human intervention
+4. Upon recovery: PostgreSQL fallback queue is replayed into Redis Streams
+
+### 16.3 Database Failure Recovery
+
+**Scenario:** PostgreSQL primary is down.
+
+**Recovery:**
+1. Automatic failover to read replica (if configured with Patroni)
+2. Services switch to read-only mode for non-critical operations
+3. Critical writes (approvals, audit) are queued in Redis Streams
+4. Human paged for manual failover decision
+5. After recovery: Queued writes are replayed
+
+**Backup Recovery:**
+- Daily automated backups to MinIO
+- Point-in-time recovery (PITR) via WAL archiving
+- Monthly restoration drills
+
+### 16.4 LLM Failure Recovery
+
+**Scenario:** All LLM providers (local + cloud) are unavailable.
+
+**Recovery:**
+1. LLM Router circuit breakers open on all providers
+2. Agent Runtime receives `LLMUnavailableError`
+3. Workflow decision:
+   - If task is non-critical: Defer to retry queue (Temporal timer for 1 hour)
+   - If task is critical: Escalate to human (Level 4)
+4. When any provider recovers: Circuit breaker half-opens, tests with health probe
+5. Backlog processed in priority order
+
+### 16.5 Tool Failure Recovery
+
+**Scenario:** Tool execution fails (e.g., web scraper blocked by CAPTCHA).
+
+**Recovery:**
+1. Tool Executor returns structured error with failure category
+2. Agent Runtime decides:
+   - **Transient:** Retry with backoff (max 3 attempts)
+   - **Permanent:** Try alternative tool (e.g., different scraper, or API fallback)
+   - **Blocked:** Escalate to human with screenshot/context
+3. If all alternatives fail: Workflow executes saga compensation for any completed steps
+
+### 16.6 Network Failure Recovery
+
+**Scenario:** Network partition between services.
+
+**Recovery:**
+1. Services detect partition via health checks
+2. Partitioned services enter **degraded mode**:
+   - API Gateway: Serve cached responses, queue writes
+   - Agent Runtime: Pause new executions, complete in-flight activities
+   - Memory Gateway: Serve from Redis cache, queue PostgreSQL writes
+3. When partition heals: Reconcile queued operations
+4. If partition lasts >5 minutes: Scale down affected services to prevent split-brain
+
+### 16.7 Complete Failure Matrix
+
+| Failure | Detection | Automatic Recovery | Human Escalation |
+|---------|-----------|-------------------|------------------|
+| Agent crash | Heartbeat timeout | Yes (retry + rehydrate) | After max retries |
+| Agent stall | Progress timeout | Yes (timeout + retry) | After max retries |
+| Queue failure | Redis health check | Yes (fallback queue) | If >5 min |
+| DB primary failure | Connection timeout | Yes (failover if Patroni) | If failover fails |
+| DB corruption | Checksum mismatch | No (restore from backup) | Immediate |
+| LLM all-tiers down | Circuit breaker open | Partial (defer/cancel) | For critical tasks |
+| Tool failure | Non-zero exit | Yes (retry/alternative) | After alternatives |
+| Network partition | Health check failure | Partial (degraded mode) | If >5 min |
+| Cost overrun | Budget threshold | Yes (halt + alert) | Immediate approval |
+| Security breach | Audit anomaly | No (quarantine + alert) | Immediate |
+
+---
+
+## 17. Future Expansion
+
+### 17.1 Plugin Architecture for Future Modules
+
+The architecture is designed so that **future business domains** can be added without modifying core systems.
+
+**Plugin Contract:**
+```yaml
+# Future plugin manifest example
+plugin:
+  id: "plugin-crypto-trading"
+  version: "1.0.0"
+  capabilities:
+    - "business.trading.execute"
+  event_subscriptions:
+    - "business.market.opportunity"
+  required_tools:
+    - "exchange_api"
+  sandbox: "firecracker"
+  resources:
+    cpu: "2"
+    memory: "4Gi"
+```
+
+**Integration Points:**
+- **Event Bus:** Plugins subscribe to existing streams
+- **API Gateway:** Plugin endpoints are registered under `/plugins/{plugin_id}/`
+- **Memory Gateway:** Plugins read/write to isolated memory namespaces
+- **Tool Registry:** Plugins register their own tools
+- **Agent Runtime:** Plugins may provide custom agent definitions
+
+### 17.2 New Agent Onboarding
+
+Adding a new agent requires zero core code changes:
+
+1. Create directory in `agents/`
+2. Write `manifest.yaml` with capabilities and permissions
+3. Write prompt templates in `prompts/`
+4. Write Pydantic schemas in `schemas/`
+5. Register via Tool Registry API or CI pipeline
+6. Workflow Engine discovers agent automatically via capability match
+
+### 17.3 New Model Provider Onboarding
+
+Adding a new LLM provider requires only LLM Router changes:
+
+1. Add provider configuration to LiteLLM proxy
+2. Define tier mapping (Nano/Standard/Premium)
+3. Add circuit breaker configuration
+4. Update cost estimates in Cost Manager
+5. No changes to agents or workflows
+
+### 17.4 Multi-Tenancy Expansion
+
+Current architecture supports single-tenant deployment. Future multi-tenancy:
+
+| Approach | Implementation | Impact on Core |
+|----------|-----------------|----------------|
+| **Namespace Isolation** | K8s namespace per tenant | None (already supported) |
+| **Database Per Tenant** | Separate PostgreSQL DB per tenant | Minimal (connection routing) |
+| **Row-Level Security** | PostgreSQL RLS policies | Minimal (middleware) |
+| **Shared Schema** | `tenant_id` column on all tables | Already designed in |
+
+### 17.5 Cross-Business Learning
+
+Future enhancement: Agent OS operates multiple businesses and shares learnings:
+
+- **Anonymized Memory Sharing:** Successful patterns from Business A are stored in a shared (anonymized) knowledge graph accessible to Business B
+- **Model Fine-Tuning:** Aggregate agent interaction data is used to fine-tune local models for specific domains
+- **Tool Marketplace:** High-quality tools developed for one business are published to the Tool Registry for others
+
+### 17.6 Constitutional Amendment Process
+
+When the architecture must evolve beyond current boundaries:
+
+1. **Proposal:** Written ADR proposing architectural change
+2. **Impact Analysis:** Document impact on all subsystems, agents, and workflows
+3. **Review Period:** 7-day review by architecture team
+4. **Prototype:** Change implemented in experimental namespace
+5. **Chaos Test:** Verify no regression in staging
+6. **Approval:** Human operator + Lead Architect sign-off
+7. **Migration:** Gradual rollout via feature flags
+8. **Documentation:** Update all architecture documents
+
+---
+
+## Appendix A: Non-Violable Architectural Rules
+
+Derived from 01_PRINCIPLES.md, these architectural constraints are absolute:
+
+1. **No Direct Service Calls:** All inter-service communication via Event Bus or API Gateway
+2. **No Local State:** All business state externalized to PostgreSQL, Redis, or MinIO
+3. **No Unregistered Tools:** All capabilities flow through Tool Registry
+4. **No Raw LLM for Deterministic Logic:** Financial, security, and schema operations use deterministic code
+5. **No Secrets in Code:** All credentials via Docker Secrets or Vault
+6. **No Auto-Approve on Timeout:** Level 3+ actions require explicit human approval
+7. **No Breaking Changes Without Migration:** Schema evolution requires backward compatibility
+8. **No Production Without Tests:** CI enforces coverage and contract tests
+9. **No Missing Observability:** Every service exposes /health, /ready, /metrics, and structured logs
+10. **No Agent Over-Permission:** Agents receive minimum viable JWT scopes
+
+---
+
+## Appendix B: Glossary
+
+| Term | Definition |
+|------|------------|
+| **Agent** | A deployable artifact (manifest + prompts + schemas + logic) executed by the Agent Runtime |
+| **Activity** | A unit of work within a Temporal workflow, typically corresponding to one agent execution |
+| **Autonomy Level** | The degree of independence an agent has (1-4), per Human Approval Rules |
+| **Compensation** | A rollback action in a saga pattern that undoes a previously completed activity |
+| **Event Bus** | The Redis Streams-based message backbone for all inter-service communication |
+| **Memory Gateway** | The unified access layer for all data storage (hot, warm, cold, semantic, graph) |
+| **Saga** | A sequence of transactions where each has a compensating transaction for rollback |
+| **Sandbox** | An isolated execution environment for tools (container, gVisor, or Firecracker) |
+| **Temporal** | The workflow engine providing durable execution and state management |
+| **Tool** | A discrete capability with a defined input/output schema, executed in a sandbox |
+| **Workflow** | A durable, orchestrated business process composed of activities and decisions |
+
+---
+
+*End of Document*
+

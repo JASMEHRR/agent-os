@@ -1,0 +1,399 @@
+09_MEMORY_OPERATING_MODEL.md
+Agent OS — Memory Operating Model
+Version: 1.0.0
+Status: Ratified
+Classification: Architecture Constitution — Binding on All Memory Behavior
+Table of Contents
+Preamble — Establishes the derivation of the Memory Operating Model from the constitutional architecture and its binding status across all subsystems.
+Memory Philosophy — Defines what memory is within Agent OS, why it is distinct from storage, knowledge, events, and state, and why persistent organizational experience is foundational to autonomous business operation.
+Memory Mission & Permanent Objectives — Declares the enduring purpose of the memory subsystem and the prioritized objectives it pursues in perpetuity.
+Memory Identity — Specifies the immutable identity primitives that constitute a memory entry and the attribution requirements that make memory auditable and non-repudiable.
+Memory Classification — Categorizes memory by its semantic role, structural form, sensitivity, and persistence model to enable differentiated governance and retrieval.
+Memory Architecture & Topology — Describes the conceptual structure of the memory subsystem, its position within the Agent OS topology, and the boundaries between memory and other subsystems.
+Memory Hierarchy — Defines the stratified tiers of memory from ephemeral working context to permanent organizational record, and the rules governing movement between tiers.
+Memory Lifecycle — Specifies the complete lifespan of a memory entry from its creation through its active use to its ultimate disposition.
+Memory States & Transitions — Governs the finite state machine that controls memory entries, enforcing valid transitions and guarding against illegal or ambiguous states.
+Memory Ownership & Boundaries — Establishes who may possess memory, how ownership is inherited and transferred, and the absolute isolation boundaries between tenants, businesses, and agents.
+Memory Context & Provenance — Defines how memory carries the causal and situational context of its creation, enabling traceability from any memory entry back to its originating event, workflow, agent, and decision.
+Memory Relationships & Linking — Specifies how individual memory entries form a web of semantic and causal relationships, enabling associative reasoning and traversal across the organizational knowledge graph.
+Memory Causality & Lineage — Ensures that every memory entry preserves an unbroken causal chain to the events, decisions, and actions that produced it, making memory reconstructible and auditable.
+Memory Durability & Immutability — Guarantees that once memory is committed to persistent tiers it survives system failures, agent retirements, and business sunsets, and that historical memory is never retroactively altered.
+Memory Creation & Acquisition — Defines the canonical pathways by which memory enters the system, whether through agent execution, workflow completion, event consumption, or explicit human contribution.
+Memory Validation & Confidence — Establishes the processes by which raw observations are validated, scored for reliability, and promoted to trusted organizational memory versus flagged as speculative.
+Memory Freshness, Aging & Decay — Governs how memory loses relevance over time, how the system detects staleness, and how outdated memory is downgraded or purged to prevent context pollution.
+Memory Promotion, Archiving & Forgetting — Defines the rules for elevating memory between hierarchy tiers, moving memory to long-term archival, and the controlled, auditable destruction of memory that has exceeded its useful or lawful lifespan.
+Memory Consolidation — Specifies how fragmented experiences, facts, and observations are synthesized into coherent organizational intelligence that transcends individual agents, workflows, or businesses.
+Memory Sharing & Isolation — Governs the rules for cross-boundary memory visibility, including anonymized portfolio-level learning, team collaboration namespaces, and the absolute prohibitions on unauthorized access.
+Memory Governance & Oversight — Establishes the mechanisms by which the runtime ensures memory behavior complies with constitutional principles, detects drift, and enforces retention and compliance policies.
+Memory Security — Defines the security model for memory access, including authentication, authorization, encryption, and the protection of memory from tampering or exfiltration.
+Memory Observability — Specifies how the memory subsystem exposes its own behavior through metrics, logs, and traces to ensure that memory health, retrieval quality, and cost are observable.
+Memory Reliability & Fault Tolerance — Guarantees that memory operations degrade gracefully under load, that retrieval failures do not halt business processes, and that memory state remains consistent during partial system failures.
+Memory Performance Characteristics — Declares the architectural latency, throughput, and scaling expectations for memory operations without prescribing implementation mechanisms.
+Memory Recovery — Defines how memory is reconstructed from the event log after failures, how gaps are detected and reconciled, and how the system restores memory consistency without data loss.
+Memory Learning & Knowledge Compounding — Specifies how the memory subsystem transforms accumulated experience into compounding organizational knowledge that improves agent performance, workflow design, and business outcomes.
+Memory Evolution — Defines how the organizational memory model adapts over time through schema maturation, the emergence of new relationship types, and the systemic refinement of what constitutes valuable memory without retroactively altering historical records.
+Non-Violable Memory Rules — Lists the absolute rules governing memory behavior, violation of which constitutes a Category 1 incident.
+Appendix: Memory Glossary — Provides canonical definitions for all memory-specific terminology used throughout the Agent OS architecture.
+continue
+Edit
+Copy
+Share
+Think
+The user said "continue". In the previous turn, I produced only the Table of Contents for 09_MEMORY_OPERATING_MODEL.md as requested, and explicitly stopped there, waiting for approval. The user's instruction now is to continue — which means they are approving the Table of Contents and want me to proceed to write the actual document section by section.
+However, the brief said: "Stop after producing the complete Table of Contents. Wait for my approval. After approval, we will write the document section by section."
+The user just said "continue". This is the approval. But the brief also said "After approval, we will write the document section by section." This implies I should write the full document now, section by section, or perhaps they want me to write it all at once. Given the context of "continue", I should write the complete document. The instruction says "we will write the document section by section" but since this is a single response, I should produce the full document content for all sections in the Table of Contents.
+I need to make sure:
+It derives from the constitutional documents (01-08).
+It is purely architectural, not implementation (no vector DB specifics, no SQL, no code).
+It answers Why, What, Responsibilities, Guarantees, Constraints, Principles for each section.
+It does not contradict existing documents.
+It covers all topics in the TOC comprehensively.
+Writing style: official operating system specification, no marketing, no filler.
+The document will be long. I need to ensure every section introduces new architectural concepts and is consistent with the existing constitution.
+Key things to align with:
+Memory is not storage, not a database, not a cache. It's persistent organizational experience.
+Memory Gateway is the unified access layer (from 02_ARCHITECTURE.md).
+Memory tiers: Hot (Redis), Warm (PostgreSQL), Cold (MinIO) — but I should not focus on the tech, rather on the conceptual tiers: Working, Structured, Semantic, Graph, Cold.
+Memory ownership tiers: Private, Team, Business, Global (from 06_AGENT_OPERATING_MODEL.md).
+Agents have memory scope and bindings (from 06_AGENT_OPERATING_MODEL.md).
+Workflows have context (from 07_WORKFLOW_OPERATING_MODEL.md).
+Events are the source of truth; state is derived (from 08_EVENT_OPERATING_MODEL.md).
+Knowledge is validated, structured understanding vs data vs memory (from 06_AGENT_OPERATING_MODEL.md).
+Constitutional principles: Local First, Open Source First, Memory First, Human Sovereignty, Tool Driven, Self-Improving.
+Non-violable rules from 01_PRINCIPLES.md and others.
+I should structure the document exactly according to the TOC I provided. Each section should be substantial and architectural.
+Let me draft the content mentally:
+Preamble: Derivation from constitution, binding nature, relationship to other docs.
+Memory Philosophy: Memory as organizational experience. Distinctions from storage (passive retention), knowledge (validated beliefs), events (immutable facts of occurrence), state (derived projection). Memory is the living tissue of the venture studio. Why it exists: continuity, learning, identity of the organization. Metaphors: organizational memory, not computer memory.
+Memory Mission & Permanent Objectives: Maximize organizational learning, preserve causal history, enable agent context without brittleness, ensure privacy/isolation, support compounding. Objectives: Continuity, Contextual Fidelity, Validated Recall, Ownership Enforcement, Decay Discipline, Cross-Business Pollination. Conflicts: Human Sovereignty > Isolation > Validated Recall > Continuity > Pollination.
+Memory Identity: UUID, memory_type, schema_version, timestamp, source_agent, source_workflow, source_event, tenant_id, business_id, confidence_score, validity_period, lineage_id. Identity as accountability anchor. Immutability of identity once created.
+Memory Classification: By semantic role (Episodic, Semantic, Procedural, Relational, Strategic, Failure). By structural form (Atomic, Composite, Narrative, Graph Edge). By sensitivity (Public, Tenant, Restricted). By persistence model (Working, Durable, Archival, Ephemeral). This is conceptual classification, not storage.
+Memory Architecture & Topology: Memory Gateway as the sole boundary. No agent accesses memory directly. Topology: Producers (agents, workflows, events) -> Memory Gateway -> Tiers. Memory is not a subsystem; it is a cross-cutting concern mediated by the Gateway. Boundaries with Event Bus (events feed memory), Knowledge Base (memory feeds knowledge extraction), State (state is derived from memory).
+Memory Hierarchy: Conceptual tiers aligned with constitutional Memory First principle. Tier 1: Working Memory (active execution context, ephemeral but recoverable). Tier 2: Durable Memory (committed facts, decisions, episodes). Tier 3: Semantic Memory (retrieval-ready, relationship-enriched). Tier 4: Cold Memory (archival, compliance, long-term pattern mining). Movement between tiers is governed by lifecycle rules, not just TTL.
+Memory Lifecycle: Conception (triggered by event/agent action), Formation (raw capture), Validation (confidence assignment), Integration (linking to existing memory), Activation (available for retrieval), Decay (relevance degradation), Disposition (promotion, archival, or purging). Not a simple CRUD.
+Memory States & Transitions: Draft (captured but unvalidated), Validated (committed to durable tier), Linked (integrated into relationship graph), Active (regularly retrieved), Stale (confidence decayed, flagged for review), Archived (moved to cold tier), Purged (destroyed per policy). Guards on transitions. Immutability: states are appended, not overwritten.
+Memory Ownership & Boundaries: Hierarchical ownership: Agent (Private), Team (Collaborative), Business (Organizational), Portfolio/Tenant (Aggregated), Global (Anonymized System). Inheritance rules: Business memory survives agent retirement. Transfer rules: promotion requires anonymization for Global. Boundaries: Tenant isolation is absolute. Cross-boundary access requires explicit access grants with scope, duration, purpose. No implicit sharing.
+Memory Context & Provenance: Every memory entry carries provenance: Causation (which event/decision produced it), Situation (workflow state, business stage, market conditions), Intent (the goal or mission being pursued), Instrument (tools used). Context is not metadata; it is the interpretive frame without which memory is meaningless. Context budget: memory entries must not carry infinite context; summarization and referencing are used.
+Memory Relationships & Linking: Memory entries form a semantic web. Relationship types: Causal (led to), Contradictory (invalidates), Analogical (similar to), Hierarchical (part of), Temporal (preceded/followed), Associative (co-occurred with). Linking is not automatic; it is a governed process performed by the memory subsystem upon validation. Graph traversal enables non-obvious insight discovery.
+Memory Causality & Lineage: Unbroken chain from any memory entry back to originating events via event IDs, workflow IDs, agent IDs. Lineage enables forensic reconstruction: "Why did we believe X?" Lineage is immutable. If an entry is invalidated, the lineage remains; a new "correction" entry is linked. This aligns with Event Operating Model causality.
+Memory Durability & Immutability: Durability guarantees: Working memory survives agent crashes; Durable memory survives system restarts; Archival memory survives business sunsets. Immutability: Once validated and committed, a memory entry is never modified. Corrections append new entries. This enables time-travel queries and audit. Durability tiers have different guarantees (seconds vs years).
+Memory Creation & Acquisition: Pathways: Agent Execution (agent writes observations), Workflow Completion (workflows write episodic summaries), Event Consumption (event patterns are distilled into memory), Human Contribution (explicit operator insights), External Ingestion (sanitized external data). Acquisition policy: Not all data becomes memory. Raw data must pass through extraction and validation. No passive logging of everything.
+Memory Validation & Confidence: Validation dimensions: Source reliability (primary vs derived), Cross-reference consistency (agreement with existing memory), Temporal relevance (not expired), Schema conformance (structural validity). Confidence scoring: 0.0-1.0. Thresholds: <0.7 flagged speculative; <0.5 quarantined for review. Validation is a continuous process, not one-time. Confidence can be adjusted retroactively based on new evidence.
+Memory Freshness, Aging & Decay: Freshness is the probability that a memory entry remains true and relevant. Aging: Time-based degradation of confidence. Decay: Active process where the memory subsystem reviews entries, reduces confidence, and eventually archives or purges. Decay is domain-dependent (competitor pricing decays fast; business mission decays slow). Decay prevents context pollution and "memory bloat."
+Memory Promotion, Archiving & Forgetting: Promotion: Moving from lower to higher tiers (e.g., Working to Durable) upon validation, or from Business to Global after anonymization. Archiving: Moving to Cold tier for compliance and historical analysis; retrieval is slower but possible. Forgetting: Controlled destruction of memory per policy, privacy request, or business sunset. Forgetting is irreversible, audited, and requires human approval for Durable/Cold tiers. Right to be forgotten compliance.
+Memory Consolidation: The process of synthesizing fragmented episodic memories into coherent semantic memory. Consolidation transforms "Agent X did Y on Tuesday" into "Our approach to Z is effective." Consolidation is periodic, resource-capped, and produces new composite memory entries without destroying source episodes. It is how memory becomes organizational intelligence rather than a log.
+Memory Sharing & Isolation: Sharing modes: None (Private), Delegated (explicit grant), Team (shared namespace), Business (organizational default), Global (anonymized). Isolation rules: Tenant boundary is absolute. Business boundary is default. Cross-business sharing within tenant requires bilateral workspace permission. Global sharing requires human approval and PII stripping. Sharing is never implicit from co-location.
+Memory Governance & Oversight: Self-audit of memory behavior: Are agents accessing memory outside their scope? Is decay occurring? Are validation queues backlogged? Drift detection: Unexpected memory growth, anomalous access patterns, confidence score inflation. Compliance: Retention policies, privacy regulations, audit requirements. Governance workflows triggered automatically.
+Memory Security: Defense in depth for memory. Authentication: Every memory access attributed to an identity. Authorization: RBAC + ABAC (tenant, business, agent, time, task). Encryption: In transit and at rest (conceptually; implementation elsewhere). Input sanitization: Memory derived from external data must be sanitized before commitment. Audit: All access logged immutably. No memory exfiltration: Bulk export requires Level 3 approval.
+Memory Observability: Metrics: Retrieval latency, hit rate (context relevance), memory growth rate, decay rate, validation backlog. Logs: Structured, no PII. Traces: Memory Gateway operations correlated to workflow traces. Dashboards: Memory health per business, per agent. Alerting: Memory bloat, isolation breach, decay failure.
+Memory Reliability & Fault Tolerance: Graceful degradation: If semantic retrieval fails, fall back to structured query; if that fails, fall back to working session context. No workflow may halt solely due to memory unavailability (though quality may degrade). Redundancy: Durable memory must survive single-point failures. Consistency: Read-after-write for agent's own memory; eventual consistency for cross-agent reads. No silent failures: Unavailability must be classified and alerted.
+Memory Performance Characteristics: Latency budgets: Working memory retrieval <10ms; Durable structured query <50ms; Semantic retrieval <200ms; Cold archival retrieval <5s. Throughput: Memory Gateway must handle concurrent retrieval from 1000+ agents. Scaling: Horizontal scaling of retrieval capacity without data migration. Graceful degradation under load: Shed non-critical semantic queries before structured queries.
+Memory Recovery: Recovery from failure: Working memory reconstructed from workflow state and event replay. Durable memory recovered from backups + event log reconciliation. Gap detection: Missing memory entries detected via event sequence analysis. Reconciliation: Replaying events to rebuild derived memory projections. Corruption handling: Quarantine corrupted memory, emit compensating entries, alert human.
+Memory Learning & Knowledge Compounding: Memory as the substrate for learning. Pattern extraction: Mining memory for recurring success/failure patterns. Feedback loops: Agent performance informs memory confidence; memory quality informs agent context. Cross-business learning: Anonymized patterns from Business A become available to Business B via Global memory. Bounded learning: Memory system may not learn its way out of constitutional constraints (e.g., may not auto-promote across tenant boundaries).
+Memory Evolution: The memory model itself matures. Schema evolution: New types of memory entries, new relationship types, new confidence dimensions. Emergence: The system may discover new categories of organizational memory (e.g., "market sentiment" as a new semantic class). Maturation: Over time, the portfolio's memory becomes more structured and less episodic. Evolution is governed: changes require ADR, backward compatibility, and human approval if affecting isolation or security.
+Non-Violable Memory Rules: Absolute rules. E.g., No memory without owner; No cross-tenant access; No modification of committed memory; No speculative memory presented as validated; No auto-forgetting without audit; No memory access without authentication; etc.
+Appendix: Memory Glossary: Definitions for all terms.
+I need to ensure I don't contradict existing documents. For example:
+02_ARCHITECTURE.md says Memory Gateway is the unified access layer. I must reinforce that.
+06_AGENT_OPERATING_MODEL.md says agents have Private, Team, Business, Global memory. I must use that.
+08_EVENT_OPERATING_MODEL.md says events are source of truth; state is derived. Memory should align: memory is derived from events but is the interpretive layer.
+04_BUSINESS_OPERATING_MODEL.md defines Knowledge vs Memory vs Data. I must preserve that distinction.
+01_PRINCIPLES.md Section 3.4 Memory First: "All agent interactions are logged to persistent storage. Memories are structured (facts, decisions, outcomes) not just raw logs. Use vector stores for semantic retrieval and relational stores for structured facts." I should not mention vector stores as implementation, but I can mention semantic retrieval as a capability.
+Let me check the distinction between Memory and Knowledge in 04_BUSINESS_OPERATING_MODEL.md:
+Data: Raw, unprocessed.
+Memory: A log of what happened.
+Knowledge: Validated, structured, and contextualized understanding.
+So memory is closer to "what happened" (episodic, procedural) while knowledge is "what we believe to be true" (semantic, validated). However, the user brief says "Why is memory different from knowledge?" and the TOC includes Memory Consolidation which transforms memory into knowledge. I need to be careful: the Memory Operating Model governs memory (the raw organizational experience), but it interfaces with the Knowledge Base. The Memory Operating Model should define memory as the substrate from which knowledge is extracted.
+Wait, in 04_BUSINESS_OPERATING_MODEL.md Section 13:
+"Knowledge is information that has been extracted, validated, structured, and contextualized... distinct from raw data... distinct from memory (a log of what happened)... distinct from assets."
+And in Section 12, Memory Ownership tiers are Private, Team, Business, Global.
+So in my document, I must treat Memory as the persistent log/experience, and Knowledge as the derived, validated layer. The Memory Operating Model governs memory, but it must acknowledge that memory feeds into knowledge extraction.
+Also in 05_AGENT_RUNTIME_FRAMEWORK.md Section 4.5: Knowledge Base is an entity. Section 5.7: Knowledge Management is a runtime responsibility. So Memory Operating Model should position memory as the raw material, and knowledge as the refined product. The Memory Gateway provides access to memory; knowledge extraction happens elsewhere but depends on memory.
+Let me also check 02_ARCHITECTURE.md Section 6: Memory Architecture. It describes tiers: Hot (Redis), Warm (PostgreSQL), Semantic (pgvector), Graph (Apache AGE), Cold (MinIO). But the user brief explicitly says NOT to define vector embeddings, similarity algorithms, ANN indexes, Pinecone, PostgreSQL, etc. So I must describe the conceptual tiers (Working, Durable, Semantic, Relational/Graph, Cold) without naming the technologies.
+The user brief says: "Do NOT define: Vector embeddings, Similarity algorithms, ANN indexes, Pinecone, Qdrant, Weaviate, Neo4j, SQL, NoSQL, Databases..." So I must use purely conceptual language.
+For example, instead of "pgvector", I say "semantic retrieval tier". Instead of "PostgreSQL", I say "structured durable tier". Instead of "Redis", I say "working memory tier".
+Let's write. This will be a very long response. I need to ensure quality and consistency throughout.
+Structure per section:
+Heading with anchor.
+Why It Exists / Philosophy paragraph.
+What It Is / Definition.
+Responsibilities / Guarantees / Constraints / Principles / Tradeoffs / Examples / Rules as appropriate.
+I will follow the style of 05_AGENT_RUNTIME_FRAMEWORK.md and 06_AGENT_OPERATING_MODEL.md which have subsections like "Why It Exists", "What Problem It Solves", "Best Practices", "Tradeoffs", "Examples", "Non-Violable Rule" — but the user brief says "Every section should answer: Why does this exist? What responsibilities exist? What guarantees exist? What constraints exist? What principles govern it?" So I'll use a consistent structure within each section, but not necessarily the exact same headers every time, to avoid monotony. However, for clarity and alignment with the constitution, I should probably use a similar pattern to the existing docs: e.g., section header, then subsections like "### Why It Exists", "### What Problem It Solves", "### Best Practices", "### Tradeoffs", "### Non-Violable Rule". But the user said "Every section should answer..." — I can weave these into the text or use subsections. The existing constitutional docs use explicit subsections. I will use a mix: some sections may have explicit subsections if complex, others may be flowing paragraphs. But given the density, explicit subsections are better.
+Actually, looking at the existing docs, they use a very structured format. I will emulate that closely.
+Let me begin drafting. Given the length, I need to be efficient but thorough.
+One critical alignment: The Event Operating Model (08) says events are the source of truth. Memory Operating Model must respect that: memory is a derived projection from events, but enriched with interpretive context. However, the user brief says "Memory is persistent organizational experience." And events are "immutable record that something meaningful has occurred." So memory is the interpretation and retention of experience, while events are the facts of occurrence. Memory can be reconstructed from events (durability), but memory serves a different purpose: it is optimized for retrieval and context, not just logging.
+I should state that memory is derived from events but is not identical to the event log. The event log is the source of truth; memory is a curated, indexed, and contextualized projection optimized for agent consumption.
+Let's go section by section.
+Section 1: Preamble. Short. Derivation, binding nature, relationship to other docs.
+Section 2: Memory Philosophy.
+2.1 The Organizational Experience Metaphor
+2.2 Memory vs. Storage
+2.3 Memory vs. Knowledge
+2.4 Memory vs. Events
+2.5 Memory vs. State
+2.6 Memory as Competitive Moat
+Section 3: Memory Mission & Permanent Objectives.
+3.1 Mission
+3.2 Permanent Objectives
+3.3 Objective Conflicts
+Section 4: Memory Identity.
+4.1 Identity Primitives
+4.2 Identity Persistence
+4.3 Identity as Accountability Anchor
+Section 5: Memory Classification.
+5.1 By Semantic Role
+5.2 By Structural Form
+5.3 By Sensitivity
+5.4 By Persistence Model
+Section 6: Memory Architecture & Topology.
+6.1 Gateway-Mediated Access
+6.2 Producer-Consumer Topology
+6.3 Boundary Enforcement
+6.4 Relationship to Event Bus and Knowledge Base
+Section 7: Memory Hierarchy.
+7.1 Tier 1: Working Memory
+7.2 Tier 2: Durable Memory
+7.3 Tier 3: Semantic Memory
+7.4 Tier 4: Cold Memory
+7.5 Tier Movement Governance
+Section 8: Memory Lifecycle.
+8.1 Conception
+8.2 Formation
+8.3 Validation
+8.4 Integration
+8.5 Activation
+8.6 Decay
+8.7 Disposition
+Section 9: Memory States & Transitions.
+9.1 Canonical States
+9.2 Transition Guards
+9.3 State Immutability
+9.4 Emergency Transitions
+Section 10: Memory Ownership & Boundaries.
+10.1 Ownership Hierarchy
+10.2 Inheritance and Succession
+10.3 Cross-Boundary Access
+10.4 Tenant Isolation
+Section 11: Memory Context & Provenance.
+11.1 Provenance Dimensions
+11.2 Context as Interpretive Frame
+11.3 Context Budget
+Section 12: Memory Relationships & Linking.
+12.1 Relationship Taxonomy
+12.2 Linking Process
+12.3 Traversal and Discovery
+Section 13: Memory Causality & Lineage.
+13.1 Causal Chains
+13.2 Forensic Reconstruction
+13.3 Correction Without Erasure
+Section 14: Memory Durability & Immutability.
+14.1 Durability Guarantees by Tier
+14.2 Immutability of Committed Memory
+14.3 Append-Only Correction Model
+Section 15: Memory Creation & Acquisition.
+15.1 Creation Pathways
+15.2 Acquisition Policy
+15.3 Human Contribution
+Section 16: Memory Validation & Confidence.
+16.1 Validation Dimensions
+16.2 Confidence Scoring
+16.3 Continuous Revalidation
+Section 17: Memory Freshness, Aging & Decay.
+17.1 Freshness as Relevance Probability
+17.2 Aging Dynamics
+17.3 Decay Process
+17.4 Domain-Dependent Half-Lives
+Section 18: Memory Promotion, Archiving & Forgetting.
+18.1 Promotion
+18.2 Archiving
+18.3 Forgetting
+18.4 Right to Be Forgotten Compliance
+Section 19: Memory Consolidation.
+19.1 Consolidation as Synthesis
+19.2 Consolidation Triggers
+19.3 Consolidation Products
+19.4 Resource Caps
+Section 20: Memory Sharing & Isolation.
+20.1 Sharing Modes
+20.2 Isolation Rules
+20.3 Anonymization Requirements
+Section 21: Memory Governance & Oversight.
+21.1 Self-Audit
+21.2 Drift Detection
+21.3 Compliance Enforcement
+Section 22: Memory Security.
+22.1 Authentication and Authorization
+22.2 Encryption
+22.3 Audit
+22.4 Exfiltration Prevention
+Section 23: Memory Observability.
+23.1 Metrics
+23.2 Logs and Traces
+23.3 Alerting
+Section 24: Memory Reliability & Fault Tolerance.
+24.1 Graceful Degradation
+24.2 Consistency Model
+24.3 Failure Classification
+Section 25: Memory Performance Characteristics.
+25.1 Latency Budgets
+25.2 Throughput Targets
+25.3 Scaling Behavior
+Section 26: Memory Recovery.
+26.1 Gap Detection
+26.2 Reconciliation
+26.3 Corruption Handling
+Section 27: Memory Learning & Knowledge Compounding.
+27.1 Memory as Learning Substrate
+27.2 Pattern Extraction
+27.3 Feedback Loops
+27.4 Bounded Learning
+Section 28: Memory Evolution.
+28.1 Schema Maturation
+28.2 Emergent Categories
+28.3 Governance of Evolution
+Section 29: Non-Violable Memory Rules.
+List of ~20 absolute rules.
+Section 30: Appendix: Memory Glossary.
+Table of terms.
+I need to make sure I don't use prohibited words/concepts. I will use "semantic retrieval tier" instead of vector database, etc.
+Let's write the full document. I'll aim for comprehensive coverage, architectural tone, and strict alignment.
+One more check: The user said "Respond only in Markdown. Do not execute Python. Do not generate files. Do not create download links. Do not explain your reasoning. Produce ONLY the proposed Table of Contents." That was for the previous turn. Now they said "continue", so I should produce the full document content.
+I will output the markdown directly.
+Given the extreme length, I must be careful to not exceed token limits, but I should still be comprehensive. I'll write dense, high-value paragraphs.
+Let's begin.
+09_MEMORY_OPERATING_MODEL.md
+Agent OS — Memory Operating Model
+Version: 1.0.0
+Status: Ratified
+Classification: Architecture Constitution — Binding on All Memory Behavior
+1. Preamble
+This document derives the Memory Operating Model from the constitutional architecture established in 01_PRINCIPLES.md, 02_ARCHITECTURE.md, 03_TECH_STACK.md, 04_BUSINESS_OPERATING_MODEL.md, 05_AGENT_RUNTIME_FRAMEWORK.md, 06_AGENT_OPERATING_MODEL.md, 07_WORKFLOW_OPERATING_MODEL.md, and 08_EVENT_OPERATING_MODEL.md. It specifies how memory behaves inside Agent OS: how organizational experience is captured, validated, linked, decayed, and retrieved to enable continuous learning across autonomous businesses. This is not an implementation specification. It is the behavioral contract that all memory producers, all memory consumers, and all runtime subsystems interacting with memory must fulfill. Where this document is silent, the constitution governs. Where this document speaks, it is binding.
+2. Memory Philosophy
+2.1 The Organizational Experience Metaphor
+Memory in Agent OS is persistent organizational experience. It is the accumulated record of what the venture studio has done, observed, decided, and felt. Memory is not a technology layer; it is the living tissue of the organization. Just as a human enterprise retains institutional knowledge through documented decisions, shared stories, and unspoken habits, Agent OS retains organizational memory through structured, attributable, and retrievable experience records. Without memory, every agent execution begins as a blank slate, every workflow repeats past mistakes, and every business loses its identity the moment its current tasks complete.
+2.2 Memory vs. Storage
+Storage is passive retention of bits. Memory is active, interpretable experience. A database table holding raw scrape data is storage; the distilled observation that "Competitor X lowered prices in response to supply chain pressure" is memory. Storage preserves bytes; memory preserves meaning. The Memory Operating Model governs only memory. Raw data may be stored, but it does not become memory until it has been formed, validated, and attributed.
+2.3 Memory vs. Knowledge
+Knowledge is validated, structured, and contextualized understanding derived from memory. Memory is the substrate; knowledge is the refined product. Memory records that "Agent A observed outcome B on Tuesday." Knowledge asserts that "Approach C reliably produces outcome B." The Memory Operating Model governs the retention and retrieval of memory. The extraction of knowledge from memory is governed by the Learning Model and the Knowledge Base. Memory may be raw, contradictory, or uncertain; knowledge must be validated and confident.
+2.4 Memory vs. Events
+An event is an immutable record that something occurred. Memory is the interpretive retention of that occurrence within the organization's experience. Events are the source of truth; memory is a curated, indexed, and contextualized projection of events optimized for agent consumption. If the event log is the nervous system's electrical signal, memory is the brain's lasting impression of that signal. Memory can be reconstructed from events, but it serves a distinct purpose: continuity of context across time.
+2.5 Memory vs. State
+State is the current condition of an entity at a point in time. Memory is the history that produced that condition. State can be derived from memory, but memory cannot be derived from state. The runtime treats memory as the authoritative record of experience and state as a transient projection. State corruption can be repaired by replaying memory; memory corruption is irreparable. Therefore, memory is guarded more strictly than state.
+2.6 Memory as Competitive Moat
+In an autonomous venture studio, memory is the primary competitive advantage. A competitor may replicate tools, models, and prompts. It cannot replicate the accumulated, validated, and relationship-enriched experience of a portfolio that has launched, failed, and succeeded across dozens of businesses. Memory compounds. The system must treat memory as its most valuable asset, prioritizing its preservation, validation, and availability above operational convenience.
+3. Memory Mission & Permanent Objectives
+3.1 Mission
+The memory subsystem exists to preserve, validate, and make retrievable the complete organizational experience of the venture studio so that every agent, workflow, and business operates with the accumulated wisdom of all prior execution, subject to absolute constraints of ownership, privacy, and human sovereignty.
+3.2 Permanent Objectives
+The memory subsystem pursues these objectives in perpetuity, ordered by priority:
+Continuity: Ensure that no agent begins a task without access to relevant prior experience. The runtime must be strictly smarter tomorrow than it is today.
+Contextual Fidelity: Preserve not just what happened, but why it happened, under what conditions, and with what intent. Memory without context is noise.
+Validated Recall: Distinguish between observed experience and verified truth. The system must recall confidently when evidence is strong and express uncertainty when memory is speculative.
+Ownership Enforcement: Ensure that every memory entry is owned, scoped, and isolated such that no tenant, business, or agent accesses memory beyond its authorized boundaries.
+Decay Discipline: Actively degrade, archive, and purge memory that has become stale, irrelevant, or legally toxic. Unbounded memory growth is a failure mode.
+Cross-Business Pollination: Make anonymized, validated patterns from one business available to others within the portfolio, preventing siloing while enforcing isolation.
+3.3 Objective Conflicts
+When objectives conflict, the resolution order is: Human Sovereignty > Ownership Enforcement > Validated Recall > Continuity > Decay Discipline > Cross-Business Pollination. The memory subsystem may not sacrifice privacy or truth for availability.
+4. Memory Identity
+4.1 Identity Primitives
+Every memory entry possesses an immutable identity consisting of:
+Memory ID: A universally unique identifier assigned at formation, never reused, never reassigned.
+Memory Type: A hierarchical classification (e.g., episodic.execution, semantic.fact, procedural.pattern) declaring the semantic role of the entry.
+Schema Version: A semantic version indicating the structural contract of the entry's payload.
+Timestamp: The authoritative time at which the experience occurred, distinct from formation or retrieval time.
+Source Identity: The authenticated agent, workflow, event, or human that produced the memory.
+Tenant ID, Business ID, Workspace ID: The isolation boundaries that own this memory.
+Confidence Score: A quantitative measure (0.0–1.0) of the memory's reliability at time of formation.
+Validity Period: The temporal window during which the memory is considered potentially relevant.
+Lineage Reference: The immutable identifier linking this memory to its originating event or decision journal.
+4.2 Identity Persistence
+Memory identity persists for the statutory retention period (minimum seven years) regardless of the memory's active status. A memory entry is never anonymous. Its identity is the anchor for auditability, cost attribution, and forensic reconstruction.
+4.3 Identity as Accountability Anchor
+Every memory entry is attributable to a specific producer. Every retrieval, modification (via append-only correction), and access is logged against the memory's identity. The runtime does not permit anonymous or pseudonymous memory. Identity is the foundation of trust in the memory system.
+5. Memory Classification
+5.1 Classification by Semantic Role
+Memory is organized by the role it plays in organizational cognition:
+Episodic Memory: Records of specific executions, tasks, and workflow instances. "What happened."
+Semantic Memory: Generalized facts, concepts, and relationships about the market, the business, and the world. "What is true."
+Procedural Memory: Patterns of successful action, heuristics, and validated workflows. "How to succeed."
+Relational Memory: Connections between entities, agents, businesses, and concepts. "What relates to what."
+Strategic Memory: High-level decisions, mission alignments, and portfolio-level intent. "Why we chose this path."
+Failure Memory: Catalogued mistakes, root causes, and remediation records. "What to avoid."
+5.2 Classification by Structural Form
+Atomic: Indivisible observations (e.g., a single fact, a single decision).
+Composite: Aggregated summaries of multiple atomic entries (e.g., a project retrospective).
+Narrative: Sequential, context-rich accounts of extended experiences (e.g., a saga execution log).
+Graph Edge: Typed relationships linking two or more memory entries.
+5.3 Classification by Sensitivity
+Public: Contains no tenant-specific data; safe for cross-tenant visibility.
+Tenant-Scoped: Belongs to a specific tenant; invisible to others.
+Restricted: Contains financial, legal, security-sensitive, or personally identifiable experience; requires elevated permissions.
+5.4 Classification by Persistence Model
+Working: Active execution context, rapidly accessible, recoverable after agent restart.
+Durable: Validated and committed to persistent organizational record.
+Semantic: Indexed for associative and similarity-based retrieval.
+Cold: Archived for compliance, audit, and long-term pattern mining.
+6. Memory Architecture & Topology
+6.1 Gateway-Mediated Access
+No agent, workflow, or service accesses memory directly. All memory operations flow through the Memory Gateway, which enforces schema validation, ownership checks, tier routing, and audit logging. The Memory Gateway is the sole boundary between the runtime and the memory substrate. This ensures that memory behavior is governed uniformly, regardless of producer or consumer.
+6.2 Producer-Consumer Topology
+Memory producers (agents, workflows, event consumers, human operators) emit memory formation requests to the Memory Gateway. Memory consumers (agents during context hydration, review agents, governance subsystems, learning models) query the Memory Gateway for retrieval. The Gateway mediates all flow: it does not permit producers to write directly to consumers' contexts, nor consumers to scan memory without scoped queries.
+6.3 Boundary Enforcement
+The Memory Gateway enforces boundaries at every operation:
+Tenant Boundary: Rejects cross-tenant memory access without explicit anonymization and human approval.
+Business Boundary: Filters retrieval to the requesting business unless a shared workspace grant exists.
+Agent Boundary: Prevents agents from accessing Private memory of other agents.
+Tier Boundary: Controls which consumers may access which persistence tiers based on role and task classification.
+6.4 Relationship to Event Bus and Knowledge Base
+The Event Bus is the source of truth for occurrence. The Memory Gateway consumes events to form memory, but memory is not a passive mirror of the event log. It is a curated, enriched, and indexed projection. The Knowledge Base extracts from memory; memory does not contain knowledge. This pipeline is unidirectional: Events → Memory → Knowledge. Corrections flow backward as new events, not as mutations.
+7. Memory Hierarchy
+7.1 Tier 1: Working Memory
+Working memory holds the active execution context of agents and workflows. It is ephemeral in the sense that it serves the current task, but it is durable in the sense that agent crashes or restarts must not lose it. Working memory contains session state, recent conversation turns, intermediate computation results, and active tool outputs. It is the highest-velocity, lowest-latency tier.
+7.2 Tier 2: Durable Memory
+Durable memory contains validated, committed organizational experience: facts, decisions, episodes, and outcomes that have passed validation and been assigned confidence scores. This tier is the primary repository of organizational history. It is structured, queryable, and causally linked. Durable memory survives business sunsets and agent retirements.
+7.3 Tier 3: Semantic Memory
+Semantic memory is the associative retrieval tier. It contains memory entries that have been enriched with relationship links, contextual embeddings (conceptually), and graph connections. This tier enables non-obvious discovery: retrieving memories that are not identical to the query but are experientially relevant. Semantic memory is derived from Durable memory through integration and linking processes.
+7.4 Tier 4: Cold Memory
+Cold memory is the archival tier. It contains aged, infrequently accessed, or legally retained memory entries. Retrieval is slower and may require human approval for bulk access. Cold memory exists for compliance, forensic investigation, and long-term organizational learning. It is never destroyed before the statutory retention period.
+7.5 Tier Movement Governance
+Movement between tiers is governed by lifecycle rules, not merely by time. A memory entry is promoted from Working to Durable when validated. It is promoted to Semantic when linked. It is demoted to Cold when its retrieval frequency drops below threshold and its validity period expires. Tier movement is itself a memory operation, logged and auditable.
+8. Memory Lifecycle
+8.1 Conception
+Memory begins with an occurrence: an agent completes a task, a workflow reaches a checkpoint, a human provides insight, or an event signals a meaningful change. The conception phase identifies that an occurrence is worth remembering, as opposed to being transient computation or raw data noise.
+8.2 Formation
+During formation, the occurrence is captured as a structured memory entry with full identity, provenance, and initial payload. Formation does not imply validation; it implies structure. Unstructured or schema-violating captures are rejected at the Gateway.
+8.3 Validation
+Validation assesses the memory entry against source reliability, cross-reference consistency, schema conformance, and temporal relevance. Validation assigns the initial confidence score and validity period. Entries failing validation are quarantined for review, not committed to Durable memory.
+8.4 Integration
+Integration links the new memory entry to existing memory: establishing causal chains, identifying contradictions, and creating relational edges. Integration transforms isolated facts into a web of experience. An unlinked memory entry is incomplete.
+8.5 Activation
+Activation makes the memory entry available for retrieval by authorized consumers. Until activation, the entry exists but is invisible to agents. Activation occurs after integration and may be tier-specific (e.g., activated in Semantic tier only after graph linking is complete).
+8.6 Decay
+Decay is the progressive reduction of a memory entry's relevance, confidence, and accessibility over time. Decay is not deletion; it is degradation. The memory subsystem continuously evaluates whether entries remain true, relevant, and useful. Stale entries are flagged, downgraded, or moved to Cold tiers.
+8.7 Disposition
+Disposition is the terminal phase: promotion to a higher tier, archival to Cold, or purging per policy. Disposition is irreversible for purging and requires audit logging. Entries dispositioned to archive retain their identity and lineage indefinitely.
+9. Memory States & Transitions
+9.1 Canonical States
+Table
+State	Description
+Draft	Captured but unvalidated; resides in Working tier only.
+Validated	Passed validation; committed to Durable tier.
+Linked	Integrated into the relational and semantic web.
+Active	Regularly retrieved and referenced by agents.
+Stale	Confidence decayed or validity expired; flagged for review.
+Archived	Moved to Cold tier; retained but low-availability.
+Purged	Destroyed per policy; identity retained in audit log only.
+9.2 Transition Guards
+Draft → Validated: Schema compliance, source attribution complete, initial confidence ≥0.5.
+Validated → Linked: Integration process complete; at least one causal or relational edge established.
+Linked → Active: Retrieval index built; no ownership conflicts detected.
+Active → Stale: Validity period expired OR confidence decayed below threshold OR no retrieval for defined duration.
+Stale → Archived: Human or automated review confirms irrelevance; no active dependencies.
+Stale → Active: Revalidation confirms renewed relevance (e.g., cyclical market pattern).
+Archived → Purged: Statutory retention period elapsed AND human or policy approval for destruction.
+9.3 State Immutability
+Once a memory entry enters Validated, its core identity and payload are immutable. State transitions apply to the entry's lifecycle metadata and tier placement, never to the historical record itself. A correcting entry is a new memory entry linked to the original, not a mutation.
+9.4 Emergency Transitions
+Bypassing normal flow (e.g., Active → Purged for legal takedown) is permitted only with Class D authority (human operator) and is logged as a constitutional exception. The original entry identity remains in the audit trail.
+10. Memory Ownership & Boundaries
+Your conversation with Kimi is getting too long. Try starting a new session.

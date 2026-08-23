@@ -1,0 +1,969 @@
+# 17_INTEGRATION_OPERATING_MODEL.md
+
+**Agent OS — Integration Operating Model**
+**Version:** 1.0.0
+**Status:** Ratified
+**Classification:** Architecture Constitution — Binding on All Integration Behavior
+
+---
+
+## Table of Contents
+
+1. [Preamble](#1-preamble)
+2. [Integration Philosophy](#2-integration-philosophy)
+3. [Integration Mission & Permanent Objectives](#3-integration-mission--permanent-objectives)
+4. [Integration Identity](#4-integration-identity)
+5. [Integration Classification](#5-integration-classification)
+6. [Integration Architecture & Topology](#6-integration-architecture--topology)
+7. [Integration Anatomy](#7-integration-anatomy)
+8. [Integration Lifecycle](#8-integration-lifecycle)
+9. [Integration States & Transitions](#9-integration-states--transitions)
+10. [Integration Ownership & Boundaries](#10-integration-ownership--boundaries)
+11. [Integration Capability Model](#11-integration-capability-model)
+12. [Integration Registration](#12-integration-registration)
+13. [Integration Discovery](#13-integration-discovery)
+14. [Integration Approval & Authority](#14-integration-approval--authority)
+15. [Integration Trust & Reputation](#15-integration-trust--reputation)
+16. [Integration Contract](#16-integration-contract)
+17. [Integration Composition](#17-integration-composition)
+18. [Integration Context & Constraints](#18-integration-context--constraints)
+19. [Integration Availability & Health](#19-integration-availability--health)
+20. [Integration Reliability & Resilience](#20-integration-reliability--resilience)
+21. [Integration Performance Characteristics](#21-integration-performance-characteristics)
+22. [Integration Cost & Economics](#22-integration-cost--economics)
+23. [Integration Portability & Provider Neutrality](#23-integration-portability--provider-neutrality)
+24. [Integration Security](#24-integration-security)
+25. [Integration Auditability & Lineage](#25-integration-auditability--lineage)
+26. [Integration Observability](#26-integration-observability)
+27. [Integration Governance](#27-integration-governance)
+28. [Integration Evolution & Versioning](#28-integration-evolution--versioning)
+29. [Integration Deprecation & Replacement](#29-integration-deprecation--replacement)
+30. [Integration Retirement](#30-integration-retirement)
+31. [Human Integration Management](#31-human-integration-management)
+32. [Agent Integration Consumption](#32-agent-integration-consumption)
+33. [Workflow Integration Binding](#33-workflow-integration-binding)
+34. [Non-Violable Integration Rules](#34-non-violable-integration-rules)
+35. [Appendix: Integration Glossary](#35-appendix-integration-glossary)
+
+---
+
+## 1. Preamble
+
+This document derives the **Integration Operating Model** from the constitutional architecture established in `01_PRINCIPLES.md` through `16_OBSERVABILITY_OPERATING_MODEL.md`. It specifies how Agent OS establishes, maintains, governs, and terminates relationships with external capability providers while preserving constitutional authority, organizational sovereignty, and vendor independence. Where this document is silent, the constitution governs. Where this document speaks, it is binding.
+
+---
+
+## 2. Integration Philosophy
+
+### 2.1 The Sovereign Bridge Metaphor
+
+Integration is the **sovereign bridge between the autonomous organization and the external ecosystem**. Tools execute external work; Integration defines the governed relationship with the entity that provides the capability to do so. The bridge does not drive the vehicle; it verifies that the road on the other side exists, is safe, is affordable, and can be exited without trapping the traveler. No external system may become part of the constitutional architecture; Integration ensures that every external capability remains a consumable, replaceable, and subordinate asset.
+
+### 2.2 Integration vs. Tool
+
+A tool is an internal organizational asset with a capability signature, sandbox requirement, and compensation logic. An integration is the governed representation of the external system that a tool invokes to fulfill its capability promise. The tool decides *how* to perform work within its contract; the integration defines *with whom* the organization has chosen to transact for that capability. Tools are owned by the business; integrations are relationships with external providers. A tool references an integration; it does not embed it.
+
+### 2.3 Integration vs. Security
+
+Security enforces the trust substrate: identity verification, permission boundaries, tenant isolation, and secret non-exposure. Integration establishes the external system's trustworthiness, risk classification, data handling commitments, and compliance posture, which Security consumes to enforce boundaries. Security asks "is this principal authorized?"; Integration asks "is this external entity worthy of trust?" Security protects against internal misuse; Integration protects against external subversion of organizational sovereignty.
+
+### 2.4 Integration vs. Runtime
+
+Runtime manages execution infrastructure: scheduling, dispatch, sandboxing, and resource allocation. Integration manages external capability availability, contract conformance, and provider health, which Runtime uses to decide whether dispatch is feasible. Runtime asks "can this task run?"; Integration asks "can this external relationship sustain the task?" Runtime is the highway; Integration is the diplomatic treaty that permits travel on foreign roads.
+
+### 2.5 Integration vs. Governance
+
+Governance audits constitutional legitimacy, policy coherence, and organizational authority across all subsystems. Integration ensures that every external relationship is formed, maintained, and retired in compliance with governance mandates, portfolio strategy, and human sovereignty. Governance asks "is our framework for building still legitimate?"; Integration asks "does this external partnership strengthen or erode that legitimacy?" Governance adjudicates; Integration negotiates and monitors.
+
+### 2.6 Integration vs. Observability
+
+Observability transforms operational signals into organizational understanding. Integration defines the signal contracts, health expectations, and evidence lineage required from external relationships so that Observability can assess them. Observability asks "what does it mean?"; Integration asks "what must the external system promise to reveal so that meaning can be derived?" Observability interprets; Integration specifies the terms of visibility.
+
+### 2.7 Integration as Organizational Sovereignty
+
+An integration is not a connector, an API wrapper, or a configuration file. It is a constitutional contract between Agent OS and an external entity that preserves organizational control over data, governance, economics, and exit strategy. Just as a nation negotiates treaties without becoming subject to foreign law, Agent OS integrates with external systems without ceding constitutional authority.
+
+---
+
+## 3. Integration Mission & Permanent Objectives
+
+### 3.1 Mission
+
+The Integration subsystem exists to ensure that **every interaction between Agent OS and an external capability provider is governed by a ratified contract, mapped to a provider-neutral capability abstraction, attributable to an approving authority, economically controlled, continuously validated, and terminable without organizational harm**.
+
+### 3.2 Permanent Objectives
+
+1. **Sovereignty Preservation:** No external system may acquire constitutional authority, governance rights, or decision-making power within Agent OS.
+2. **Provider Neutrality:** Every external capability must be representable by multiple providers; integrations must not embed provider-specific logic that prevents substitution.
+3. **Contractual Governance:** Every external relationship is governed by a canonical contract specifying capability promises, data handling, compliance commitments, and exit terms.
+4. **Trust Verification:** External systems earn and maintain trust scores through provenance validation, behavioral monitoring, and continuous compliance attestation.
+5. **Economic Control:** External spend is budget-checked, attributed, and constrained by portfolio circuit breakers.
+6. **Failure Isolation:** External system degradation or compromise must not propagate into internal constitutional boundaries, tenant isolation, or tool execution integrity.
+7. **Attribution Completeness:** Every external interaction is attributable to its integration, its approving decision, its consuming tool, and its owning business.
+8. **Portability Guarantee:** Organizations must retain the ability to migrate from one external provider to another without rewriting tools or losing data sovereignty.
+9. **Compliance Enforcement:** External systems must adhere to organizational data residency, privacy, security, and governance policies as a condition of relationship validity.
+10. **Knowledge Integrity:** Information consumed from external systems must be distinguishable from internally validated knowledge and must carry appropriate confidence and provenance metadata.
+
+### 3.3 Objective Conflicts
+
+Resolution order: **Sovereignty Preservation > Failure Isolation > Provider Neutrality > Contractual Governance > Trust Verification > Compliance Enforcement > Portability Guarantee > Economic Control > Attribution Completeness > Knowledge Integrity.**
+
+---
+
+## 4. Integration Identity
+
+### 4.1 Identity Primitives
+
+Every integration possesses an immutable identity consisting of:
+
+- **Integration ID:** A universally unique identifier assigned at registration, never reused, never reassigned.
+- **Name:** A human-readable designation reflecting the external capability domain (e.g., "Natural Language Inference Capability").
+- **Version:** A semantic version tracking the integration contract evolution.
+- **Provider Identity:** The authenticated external entity providing the capability, with provenance verification.
+- **Capability Abstraction:** The provider-neutral internal capability signature that this integration fulfills.
+- **Trust Score:** A quantitative measure of provider reliability, contract adherence, and behavioral stability.
+- **Risk Tier:** The classification of external system risk based on data sensitivity, financial exposure, and criticality.
+- **Scope:** Tenant, Business, Workspace, or Portfolio visibility boundaries.
+- **Owner Identity:** The authenticated business, workspace, or portfolio entity responsible for the integration relationship.
+- **Approval Reference:** The immutable identifier of the human-approved decision that authorized this integration.
+- **Provenance Record:** The chain of custody from external provider verification through registration, including validation authority and timestamp.
+- **Schema Version:** The semantic version of the integration manifest contract.
+- **Lineage Reference:** Links to predecessor integrations, successor integrations, and derived variants.
+
+### 4.2 Identity Persistence
+
+Integration identity persists for the statutory retention period (minimum seven years) regardless of disposition. A retired integration retains its identity in archival state. No anonymous integrations are permitted.
+
+### 4.3 Identity as Accountability Anchor
+
+Every external effect produced through an integration is attributed to its Integration ID. Every cost incurred, every decision journal entry referencing the integration, and every audit record carries the integration's identity. This attribution is non-repudiable.
+
+---
+
+## 5. Integration Classification
+
+### 5.1 By Risk Tier
+
+| Tier | Description | Examples |
+|------|-------------|----------|
+| **T1 — Observational** | Read-only access to public or low-sensitivity data | Market data feeds, public research databases |
+| **T2 — Operational** | Read-write access to business-operational data | Customer relationship platforms, content management systems |
+| **T3 — Financial** | Access to financial accounts, transactions, or capital | Payment processors, trading platforms, banking APIs |
+| **T4 — Sovereign** | Access to constitutional data, identity systems, or critical infrastructure | Security providers, identity federations, sovereign cloud |
+
+### 5.2 By Mutability Impact
+
+- **Observational:** External system provides data only; no internal state is altered.
+- **Mutating:** External system receives data or commands that alter external state.
+- **Bidirectional:** Synchronization of state between Agent OS and external system; governed as mutating for approval purposes.
+
+### 5.3 By Scope
+
+- **Tenant-Scoped:** Available across all businesses and workspaces within a tenant.
+- **Business-Scoped:** Available only within a single business and its workspaces.
+- **Workspace-Scoped:** Available only within a single workspace.
+- **Portfolio-Scoped:** Shared across businesses within a portfolio; requires portfolio-level governance approval.
+
+### 5.4 By Authority Requirement
+
+- **I1:** Observational, low-risk; may be approved by Business Steward.
+- **I2:** Operational, moderate-risk; requires human-approved decision at business level.
+- **I3:** Financial or sensitive operational; requires portfolio-level authority and human approval.
+- **I4:** Sovereign or existential; requires human-only authority at portfolio or tenant level.
+
+### 5.5 By Capability Domain
+
+Integrations are organized by the class of external capability they provide:
+
+- **Cognitive:** Language, vision, reasoning, or generative capabilities provided by external AI systems.
+- **Communication:** Messaging, social, email, or telephony platforms.
+- **Financial:** Transaction execution, account management, payment processing.
+- **Infrastructure:** Compute, storage, network, or deployment resources.
+- **Data:** Databases, knowledge graphs, search indices, or analytics platforms.
+- **Identity:** Authentication, authorization, or directory services.
+
+---
+
+## 6. Integration Architecture & Topology
+
+### 6.1 Integration Registry as Canonical Inventory
+
+The **Integration Registry** is the sole authoritative source of truth for all external capability relationships within Agent OS. No integration may be discovered, approved, or consumed except through the Registry. The Registry stores integration identities, manifests, capability abstractions, trust scores, provider provenance, and contract terms. It does not execute integrations; it governs their existence and validity.
+
+### 6.2 Integration Gateway as Sovereign Mediation Layer
+
+The **Integration Gateway** is the unified access layer through which all external capability relationships are established, validated, monitored, and terminated. It enforces: identity verification of external providers, contract validation against organizational policy, approval authority resolution, budget pre-checks for external spend, provider health monitoring, tenant boundary validation, and audit logging. The Gateway is the sole constitutional path between internal consumers and external capability providers. No consumer may interact with an external system directly without Gateway mediation.
+
+### 6.3 Integration Abstraction Layer
+
+The **Integration Abstraction Layer** maps provider-specific external capabilities to provider-neutral internal capability signatures. Tools reference the abstraction, not the provider. When a provider is substituted, the abstraction remains constant; only the integration manifest and contract change. This layer ensures that tools remain portable across providers.
+
+### 6.4 Producer-Consumer Topology
+
+**Producers** (external capability providers, businesses seeking external capabilities) propose integrations to the Registry. **Consumers** (tools, agents, workflows, humans) discover integrations through the Registry and request mediated access through the Gateway. The Gateway mediates all interaction; providers cannot bypass the Gateway to offer direct access, and consumers cannot bypass the Gateway to invoke external capabilities directly.
+
+### 6.5 Relationship to Other Subsystems
+
+- **Tool Gateway:** The Tool Gateway consumes integration records to verify that a tool's declared external capability is backed by an active, approved integration with sufficient trust score and health status.
+- **Security Gateway:** The Integration Gateway relies on Security for provider identity verification, tenant isolation enforcement, and secret reference policy. Security consumes integration risk tiers to enforce boundary policies.
+- **Decision Gateway:** Integration proposals are evaluated as decisions with appropriate authority classes. The Integration Gateway consumes decision records to verify that each integration carries valid approval authority.
+- **Governance Gateway:** Integration artifacts are audited for constitutional compliance, policy coherence, and sovereignty preservation. Governance consumes integration drift metrics and compliance scores.
+- **Observability Gateway:** The Integration subsystem emits lifecycle signals and health data. Observability consumes integration-defined signal contracts to produce external system health models.
+- **Cost Manager:** The Integration Gateway queries the Cost Manager for external spend budget availability and reports actual provider costs after consumption.
+
+---
+
+## 7. Integration Anatomy
+
+### 7.1 Integration Manifest
+
+The manifest is the canonical declaration of an integration's existence. It specifies the integration's identity, version, capability abstraction, provider provenance, risk tier, data handling commitments, compliance attestations, cost model, performance commitments, portability guarantees, dependency declarations, and ownership boundaries. The manifest is immutable once registered; changes require a new version.
+
+### 7.2 Capability Abstraction
+
+The capability abstraction is a provider-neutral declaration of the external capability that this integration fulfills. It is expressed as an internal capability signature (e.g., `capability.cognitive.language.generate`) that tools reference in their manifests. The abstraction includes: required input schema, guaranteed output schema, behavioral invariants, and data handling requirements. Multiple integrations may fulfill the same capability abstraction; tools bind to the abstraction, not the integration.
+
+### 7.3 Provider Contract
+
+The provider contract is the binding agreement between Agent OS and the external entity. It specifies: capability scope, service level commitments, data residency and handling terms, compliance frameworks, incident notification requirements, termination rights, and liability boundaries. The contract is validated against organizational policy before ratification.
+
+### 7.4 Portability Declaration
+
+Every integration must declare its portability characteristics: the ease with which the organization can migrate to an alternative provider fulfilling the same capability abstraction. Portability dimensions include: data extractability, schema standardization, API abstraction completeness, and migration cost estimates. Low-portability integrations require heightened approval authority.
+
+### 7.5 Data Handling Commitments
+
+The manifest declares how data is transmitted to, processed by, and stored at the external provider. Commitments include: data classification limits (no Sovereign-class data to T1 providers), residency requirements, retention limits, deletion guarantees, and subprocessor transparency. Data handling violations invalidate the integration.
+
+### 7.6 Cost Model
+
+The manifest declares the economic contract: per-request pricing, metered usage rates, committed spend tiers, egress fees, and termination penalties. The cost model enables the Gateway to perform pre-flight budget checks and the Cost Manager to attribute external expenditure accurately.
+
+### 7.7 Health Expectations
+
+The manifest declares the external system's expected availability, latency bounds, error rate thresholds, and incident response times. These expectations form the baseline against which Observability measures provider health.
+
+### 7.8 Dependency Declaration
+
+The manifest declares external dependencies that the provider itself relies upon: upstream services, infrastructure regions, or third-party subprocessors. The Registry uses these declarations for cascading risk analysis and concentration monitoring.
+
+---
+
+## 8. Integration Lifecycle
+
+### 8.1 Proposed
+
+An integration enters the Proposed state when a business identifies a need for an external capability and drafts an integration specification. In this state, the integration has no Registry entry and cannot be discovered or consumed. The specification includes capability abstraction, provider identity, risk assessment, data handling analysis, portability assessment, and cost model.
+
+### 8.2 Registered
+
+An integration transitions to Registered when its manifest is submitted to the Registry. Registration creates the Integration ID and stores the manifest. Registered integrations are not yet available for consumption; they await validation and approval.
+
+### 8.3 Validated
+
+An integration transitions to Validated when it passes constitutional review: manifest schema compliance, provider provenance verification, contract policy alignment, data handling validation, portability assessment, and risk tier confirmation. Validation is performed by the Integration Gateway with human oversight for I2+ integrations.
+
+### 8.4 Approved
+
+An integration becomes Approved after validation and explicit human authority ratification at the appropriate I-class level. Approved integrations are discoverable and consumable by authorized tools and workflows within their scope boundaries.
+
+### 8.5 Active
+
+An integration becomes Active when it is both Approved and has passed initial health verification. Active integrations are eligible for tool binding and workflow scheduling.
+
+### 8.6 Deprecated
+
+An integration is Deprecated when its owner, the system, or a successor integration marks it for retirement. Deprecated integrations remain consumable by existing tool bindings but are excluded from new discovery and binding. A deprecation notice period is enforced.
+
+### 8.7 Retired
+
+An integration is Retired when it is permanently removed from active service. Retired integrations cannot be bound to new tools or workflows. Existing bindings must migrate to successor integrations. Retirement requires all in-flight external interactions to complete or timeout.
+
+### 8.8 Archived
+
+An archived integration retains its identity, manifest, contract history, and audit records in cold storage. Archived integrations are historical records; they cannot be reactivated.
+
+### 8.9 State Transition Guards
+
+- **Proposed → Registered:** Manifest schema validation passes; Integration ID assigned; ownership authenticated.
+- **Registered → Validated:** Provider provenance verified; contract terms validated; data handling commitments confirmed; risk tier assessed.
+- **Validated → Approved:** Human authority at appropriate I-class grants ratification; decision record committed.
+- **Approved → Active:** Initial health verification passed; no blocking anomalies.
+- **Active → Deprecated:** Owner command, successor integration registered, or provider contract breach detected; deprecation notice period defined.
+- **Deprecated → Retired:** Deprecation notice period expired; no active bindings remain, or migration deadline passed.
+- **Retired → Archived:** All interactions drained; audit records complete; lineage updated.
+
+---
+
+## 9. Integration States & Transitions
+
+### 9.1 Canonical States
+
+| State | Description |
+|-------|-------------|
+| **Proposed** | Specification drafted; no Registry entry. |
+| **Registered** | Manifest stored; awaiting validation. |
+| **Validated** | Constitutional review passed; awaiting approval. |
+| **Approved** | Human authority ratified; awaiting activation. |
+| **Active** | Available for tool binding, discovery, and consumption. |
+| **Suspended** | Temporarily unavailable due to trust anomaly, contract breach, health failure, or security concern. |
+| **Deprecated** | Scheduled for retirement; existing bindings honored. |
+| **Retired** | Permanently unavailable; migration required. |
+| **Archived** | Historical record only; cold storage. |
+
+### 9.2 Transition Guards
+
+| From | To | Guard |
+|------|-----|-------|
+| Proposed | Registered | Manifest complete; ownership authenticated. |
+| Registered | Validated | Schema, provenance, contract, data handling, and risk checks pass. |
+| Validated | Approved | Approval authority at required I-class grants ratification. |
+| Approved | Active | Activation authorized; health verification passed. |
+| Active | Suspended | Trust score drops below threshold; contract breach detected; security anomaly flagged. |
+| Suspended | Active | Remediation verified; human approval for reactivation (if security-related). |
+| Active | Deprecated | Successor registered or owner commands retirement. |
+| Deprecated | Retired | Notice period expired; bindings migrated. |
+| Any | Archived | Terminal state reached; statutory retention period begins. |
+
+### 9.3 State Immutability
+
+Once an integration enters Active, its core manifest, capability abstraction, and data handling commitments are immutable. Behavioral changes require a new version with a distinct Integration ID lineage. State transitions apply to lifecycle metadata and availability status only.
+
+---
+
+## 10. Integration Ownership & Boundaries
+
+### 10.1 Ownership Hierarchy
+
+- **Portfolio:** Owns portfolio-scoped integrations and cross-business capability abstractions. Governed by the portfolio architect with human sovereign approval for I4 integrations.
+- **Business:** Owns business-scoped integrations. Governed by the business owner.
+- **Workspace:** Owns workspace-scoped integrations. Governed by the workspace lead.
+- **External Provider:** Does not own the integration within Agent OS; the external entity is the counterparty to the contract, not the owner of the integration record.
+
+### 10.2 Tenant Isolation
+
+Integrations from one tenant may not be discovered, consumed, or referenced by another tenant unless explicitly shared through portfolio governance with bilateral permission grants and human approval. Cross-tenant integration sharing requires anonymization review and isolation verification.
+
+### 10.3 Cross-Boundary Impact
+
+An integration scoped to one business but with potential external effects on another (e.g., a financial integration whose transactions affect portfolio capital allocation) must declare cross-boundary impact. The Gateway routes such integrations to portfolio-level authority.
+
+### 10.4 Permission Inheritance
+
+An integration inherits the permissions of its owner, intersected with the permissions of its consumer. An integration may only be consumed by tools and workflows within the intersection of owner scope and consumer scope. The Gateway enforces this at every binding and invocation.
+
+---
+
+## 11. Integration Capability Model
+
+### 11.1 Capability Abstraction Declaration
+
+Capability abstractions are declared in the integration manifest as provider-neutral, typed, versioned internal capability signatures. An abstraction is not an external API endpoint; it is a promise of outcome independent of provider. Abstractions are granular: `capability.cognitive.language.generate` is distinct from `capability.cognitive.language.classify`.
+
+### 11.2 Capability Fulfillment
+
+Multiple integrations may fulfill the same capability abstraction. The Registry maintains the mapping between abstractions and fulfilling integrations. When a tool requests a capability, the Gateway resolves the request to an active integration that fulfills the abstraction, subject to trust score, cost, health, and policy constraints.
+
+### 11.3 Capability Boundaries and Enforcement
+
+The Gateway enforces capability boundaries at binding time. A tool requesting `capability.infrastructure.deploy` cannot be bound to an integration whose abstraction only includes `capability.research.scrape`. Attempts by integrations to provide effects outside their declared abstraction are blocked and logged as violations.
+
+### 11.4 Capability Evolution
+
+Integrations may expand their capability abstractions through version updates, but only within their declared domain. A communication integration may not autonomously add financial capabilities. Abstraction changes require re-validation and, if crossing risk tiers or authority boundaries, human approval.
+
+---
+
+## 12. Integration Registration
+
+### 12.1 Registration as Constitutional Enrollment
+
+Registration is the process by which an external capability relationship enters the Agent OS constitution. It is not merely storage; it is the establishment of trust, the assignment of identity, and the binding of economic and legal accountability. No integration may be consumed without prior registration.
+
+### 12.2 Manifest Submission
+
+The owner submits a complete integration manifest to the Registry. The submission includes: identity primitives, capability abstraction, provider contract terms, data handling commitments, portability declaration, cost model, health expectations, dependency declarations, and provenance metadata.
+
+### 12.3 Validation Checks
+
+The Gateway performs constitutional validation:
+
+- **Schema Compliance:** Manifest conforms to the canonical integration schema.
+- **Provider Provenance:** The external entity's identity, legal status, and supply chain are authenticated.
+- **Contract Policy Alignment:** Provider contract terms align with organizational data handling, security, and governance policies.
+- **Data Handling Validation:** Data residency, classification limits, retention, and deletion commitments are verified.
+- **Portability Assessment:** Migration feasibility to alternative providers is evaluated.
+- **Risk Tier Confirmation:** The integration's risk classification is consistent with its capability domain and data sensitivity.
+- **Economic Review:** The cost model is coherent, attributable, and within budget constraints.
+
+### 12.4 Trust Seeding
+
+Upon validation, the integration receives an initial trust score based on provider provenance quality, contract term favorability, historical provider reputation, and supply chain verification. New integrations from unknown providers receive conservative trust scores and may be restricted to observational or human-supervised use until proven.
+
+### 12.5 No Anonymous Integrations
+
+Every integration must have an authenticated owner and a verified provider identity. Anonymous or pseudonymous integration registration is prohibited. External providers must be registered by an internal sponsor who assumes accountability for their behavior.
+
+---
+
+## 13. Integration Discovery
+
+### 13.1 Registry Queries
+
+Consumers discover integrations through structured queries to the Registry. Queries specify: required capability abstraction, desired risk tier, maximum cost, minimum trust score, scope boundaries, and data handling requirements. The Registry returns matching integrations ranked by relevance and policy compliance.
+
+### 13.2 Capability Abstraction Matching
+
+The Registry matches consumer capability requirements against integration capability abstractions using hierarchical resolution. A consumer requesting `business.content.generate` may receive integrations fulfilling `capability.cognitive.language.generate` if the capability hierarchy permits.
+
+### 13.3 Reputation-Weighted Discovery
+
+Discovery results are weighted by trust score. High-trust integrations are prioritized for autonomous tool binding. Low-trust integrations are surfaced only for human-supervised consumption or excluded from autonomous discovery entirely.
+
+### 13.4 Cost-Aware Discovery
+
+The Registry integrates with the Cost Manager to filter integrations based on the consumer's remaining external spend budget. Integrations whose worst-case consumption cost exceeds the available budget are excluded from results.
+
+---
+
+## 14. Integration Approval & Authority
+
+### 14.1 Approval as Sovereign Commitment
+
+Integration approval is the process by which human authority ratifies a relationship with an external entity. No integration may become Active without approval at the I-class level appropriate to its risk tier and scope. Approval is a Class C or D decision recorded immutably in the Decision Gateway.
+
+### 14.2 Authority Verification
+
+Before activation, the Integration Gateway verifies:
+
+- **Consumer Authenticity:** The requesting business or workspace has valid identity and scope permissions.
+- **Decision Validity:** A committed decision record exists with authority level matching or exceeding the integration's I-class requirement.
+- **Policy Alignment:** The integration manifest aligns with active organizational policies and constitutional provisions.
+- **Autonomy Boundary:** The requester's autonomy level permits proposal of this integration class.
+- **Tenant Boundary:** The integration scope is valid within the requester's tenant.
+- **Budget Sufficiency:** The Cost Manager confirms available funds for projected external consumption.
+
+### 14.3 Approval Constraints
+
+Approvals are: scope-limited, time-bounded, subject to periodic re-validation, and revocable. Standing orders may pre-authorize specific integration classes within defined boundaries, but each integration instance requires specific approval.
+
+### 14.4 Approval Binding
+
+Once approved, the binding is recorded: owner identity, integration identity, capability abstraction, approval reference, decision authority, and timestamp. This binding is immutable and serves as the foundation for attribution, audit, and economic control.
+
+---
+
+## 15. Integration Trust & Reputation
+
+### 15.1 Trust Score
+
+The trust score is a composite metric (0.0–1.0) derived from:
+
+- **Provider Provenance:** Supply chain integrity, legal verification, and ownership clarity (weight: 20%).
+- **Contract Adherence:** Frequency of provider meeting declared service levels, data handling commitments, and incident notification obligations (weight: 25%).
+- **Behavioral Stability:** Consistency of capability output quality, latency, and error rates against manifest expectations (weight: 25%).
+- **Compliance Attestation:** Currency of security certifications, audit reports, and regulatory compliance validations (weight: 15%).
+- **Economic Predictability:** Variance between declared and actual costs, including hidden fees and egress charges (weight: 10%).
+- **Portability History:** Ease of prior migrations to or from this provider within the portfolio (weight: 5%).
+
+### 15.2 Trust Decay
+
+An integration that remains unused for 90 days loses 3% of its trust score to prevent stale relationships from receiving critical tasks without revalidation. Trust is regained through successful consumption and health verification.
+
+### 15.3 Drift Detection
+
+The Gateway continuously monitors integration behavior for drift: changes in output distributions, latency profiles, cost variances, data handling violations, or contract term modifications. Drift triggers automatic review workflows and may result in suspension.
+
+### 15.4 Trust Thresholds
+
+- **< 0.40:** Integration is suspended from autonomous use; human-only consumption permitted.
+- **0.40–0.69:** Integration is restricted to I1–I2 tools; human approval required for I3+.
+- **0.70–0.89:** Standard range for autonomous use.
+- **0.90–1.00:** High-trust integrations eligible for critical path assignment and standing order eligibility.
+
+---
+
+## 16. Integration Contract
+
+### 16.1 The Contract as Sovereign Treaty
+
+Every integration is governed by a constitutional contract between Agent OS and the external provider. The contract specifies the exact terms of the relationship and is recorded immutably before activation. It is not a service-level agreement; it is a binding commitment that preserves organizational sovereignty.
+
+### 16.2 Contract Components
+
+- **Capability Promise:** The specific provider-neutral capability abstraction being fulfilled.
+- **Data Handling Terms:** Classification limits, residency requirements, retention periods, deletion guarantees, and subprocessor transparency.
+- **Service Expectations:** Availability, latency, throughput, and error rate commitments.
+- **Compliance Frameworks:** Applicable security standards, regulatory regimes, and audit rights.
+- **Incident Obligations:** Notification timelines, investigation cooperation, and breach disclosure requirements.
+- **Termination Rights:** Exit terms, data extraction guarantees, notice periods, and penalty limitations.
+- **Portability Guarantees:** Schema commitments, migration assistance, and lock-in prevention measures.
+- **Cost Structure:** Pricing model, metered rates, committed tiers, and penalty disclosures.
+- **Liability Boundaries:** Limitation of liability, indemnification, and dispute resolution frameworks.
+- **Attribution Chain:** The complete lineage from human approval through business, portfolio, and integration to provider.
+
+### 16.3 Contract Validation
+
+The Gateway validates the contract before activation: all components present, policy alignment confirmed, data handling terms verified, portability guarantees assessed, and approval authority sufficient. Invalid contracts are rejected before any external consumption occurs.
+
+### 16.4 Contract Execution
+
+The Gateway monitors contract execution throughout the integration lifecycle. If the provider exceeds cost ceilings, violates data handling terms, breaches service expectations, or modifies contract terms unilaterally, the Gateway flags breach and may suspend the integration.
+
+---
+
+## 17. Integration Composition
+
+### 17.1 Composition Patterns
+
+Integrations may be composed into capability chains where the output of one external system becomes the input to another. Composition occurs through the Gateway, not through direct provider-to-provider interaction. All coordination flows through the tool or workflow orchestrator.
+
+### 17.2 Accountability Preservation
+
+In a composed sequence, each integration retains its own identity, audit trail, and attribution chain. The output of Integration A is not anonymous input to Integration B; it carries provenance metadata linking it to Integration A's execution record.
+
+### 17.3 Risk Escalation Prohibition
+
+A composition may not execute at a risk tier lower than the highest tier required by any component. A chain containing a T4 integration must execute entirely under T4 governance, even if other components are T1.
+
+### 17.4 Portability in Composition
+
+If a composed sequence contains low-portability integrations, the aggregate portability of the chain is degraded. Portfolio policy may prohibit binding critical workflows to low-portability composition chains.
+
+---
+
+## 18. Integration Context & Constraints
+
+### 18.1 Context as Relationship Environment
+
+The integration context is the complete information environment available to a tool when consuming an external capability. It is assembled by the Gateway and injected into the tool execution environment. The context ensures that the tool operates with relevant, bounded, and validated information about the external relationship.
+
+### 18.2 Context Components
+
+- **Decision Context:** The authorizing decision record, including autonomy level and risk class.
+- **Consumer Context:** The identity, permissions, and autonomy level of the invoking tool, agent, or workflow.
+- **Business Context:** The owning business's mission, active goals, and portfolio strategy.
+- **Budget Context:** Real-time external spend remaining for the integration and the containing workflow.
+- **Contract Context:** The active provider contract terms, data handling limits, and service expectations.
+- **Temporal Context:** Validity windows, urgency classification, and timeout deadlines.
+
+### 18.3 Context Budget
+
+Context assembly consumes resources. The Gateway enforces a maximum context assembly cost per integration invocation. If critical context exceeds budget, non-essential metadata is referenced by ID rather than embedded.
+
+### 18.4 Constraints
+
+- **Capability Constraint:** The integration may only provide effects within its declared capability abstraction.
+- **Data Constraint:** The integration may not receive, process, or retain data beyond its declared classification limits and residency requirements.
+- **Cost Constraint:** The integration may not exceed its declared cost model or the invocation's cost ceiling.
+- **Temporal Constraint:** The integration must complete within its timeout or fail explicitly.
+- **Tenant Constraint:** The integration may not access or affect resources outside its authorized tenant scope.
+- **Portability Constraint:** The integration must maintain the abstraction contract that enables provider substitution.
+
+---
+
+## 19. Integration Availability & Health
+
+### 19.1 Health Declaration
+
+Every integration declares its provider's expected health indicators and external dependencies. The Registry monitors these dependencies to determine integration availability. An integration with an unhealthy provider is marked unavailable regardless of its own manifest validity.
+
+### 19.2 Health Checks
+
+The Gateway performs periodic health checks on Active integrations: provider dependency liveness, contract endpoint responsiveness, data handling verification, and compliance attestation currency. Health check frequency scales with integration risk tier and consumption volume.
+
+### 19.3 Availability States
+
+- **Available:** Provider healthy and ready for consumption.
+- **Degraded:** Provider functional with reduced performance or partial dependency failure.
+- **Unavailable:** Provider failed, contract breached, or integration suspended; consumption blocked.
+- **Unknown:** Health data stale; consumption deferred pending verification.
+
+### 19.4 Availability and Discovery
+
+Unavailable integrations are excluded from discovery and binding. Degraded integrations are surfaced with warning annotations and may be bypassed by portfolio policy or require human confirmation.
+
+---
+
+## 20. Integration Reliability & Resilience
+
+### 20.1 Failure Classification
+
+Integration failures are classified within 60 seconds:
+
+- **Transient:** Temporary provider error recoverable via retry (e.g., rate limit, timeout).
+- **Degraded:** Partial success; reduced output quality or incomplete capability fulfillment.
+- **Critical:** Unrecoverable provider error; external state may be inconsistent.
+- **Security:** Data handling violation, unauthorized provider behavior, or compliance breach.
+- **Financial:** Cost ceiling breached or unexpected provider charges.
+- **Portability:** Provider lock-in detected, schema drift, or migration path obstruction.
+
+### 20.2 Failure Response
+
+- **Transient:** Exponential backoff retry within the integration's declared retry policy.
+- **Degraded:** Return partial output with degradation flag; alert consumer.
+- **Critical:** Halt execution, preserve state, trigger tool compensation if mutating, escalate.
+- **Security:** Isolate integration, revoke pending requests, alert human, suspend integration pending review.
+- **Financial:** Block spend, freeze consumer budget, audit trail, alert human.
+- **Portability:** Flag integration for governance review, restrict new bindings, initiate migration planning.
+
+### 20.3 Circuit Breakers
+
+The Gateway enforces circuit breakers per integration: if failure rate exceeds a threshold within a window, subsequent consumptions are rejected until health is restored. Portfolio-level circuit breakers halt all consumptions of an integration class if aggregate failure threatens portfolio stability.
+
+### 20.4 Compensation and Saga Participation
+
+Integrations consumed by mutating tools must support saga compensation through the tool's declared compensation logic. If a workflow fails after the external system has completed its mutating operation, the tool executes compensation to reverse the effect where possible. The integration does not define compensation; the tool does.
+
+### 20.5 No Silent Failures
+
+An unclassified integration failure is treated as critical. The Gateway alerts immediately rather than assuming success. No consumption failure may be swallowed or ignored.
+
+---
+
+## 21. Integration Performance Characteristics
+
+### 21.1 Latency Budgets
+
+| Operation | Target p50 | Target p99 | Maximum |
+|-----------|-----------|-----------|---------|
+| Registry query | 50ms | 200ms | 1s |
+| Gateway authorization | 20ms | 100ms | 500ms |
+| Provider health check | 500ms | 2s | 5s |
+| Capability abstraction resolution | 10ms | 50ms | 200ms |
+| Integration context assembly | 50ms | 200ms | 1s |
+| External capability consumption | 2s | 10s | 30s |
+
+### 21.2 Throughput Targets
+
+- Integration consumptions: 10,000 per minute sustained.
+- Concurrent external interactions: 5,000+.
+- Registry queries: 1,000 per second sustained.
+
+### 21.3 Scaling Behavior
+
+The Integration Gateway scales horizontally by partitioning on tenant and capability domain. Scaling does not require changes to integration manifests, authority rules, or audit policies.
+
+### 21.4 Graceful Degradation
+
+Under load, the Gateway sheds non-critical integration consumptions (optional research, analytics) before degrading critical business operations. Emergency and Panic consumptions are never dropped.
+
+---
+
+## 22. Integration Cost & Economics
+
+### 22.1 Cost Model Types
+
+- **Fixed:** Per-request flat fee regardless of payload or duration.
+- **Metered:** Cost scales with consumption (tokens, bandwidth, compute time, storage).
+- **Tiered:** Cost varies by usage volume or capability depth.
+- **Committed:** Pre-negotiated spend tier with overage rates.
+- **External Passthrough:** Cost is passed through from the provider with markup disclosure.
+
+### 22.2 Budget Enforcement
+
+The Gateway performs pre-flight budget checks: the consumption's worst-case cost must not exceed the consumer's remaining external spend budget. Mid-flight monitoring halts execution if the cost ceiling is breached. Post-flight attribution records actual cost against the consumer's budget pool.
+
+### 22.3 Cost Attribution
+
+Every unit of external spend is attributed to: tenant, business, project, workflow, activity, agent, tool, and integration. Cost dashboards are real-time. Budget overruns are traced to specific consumptions.
+
+### 22.4 Portfolio Circuit Breakers
+
+The Gateway enforces portfolio-level economic circuit breakers: maximum aggregate external spend per business per day, maximum provider concentration exposure per portfolio, and minimum cash reserve buffers. Consumptions that would breach circuit breakers are rejected regardless of local budget availability.
+
+### 22.5 Economic Impact Assessment
+
+Integrations with high external passthrough costs, high variance, or low portability are flagged for portfolio review. The Gateway may restrict such integrations to human approval or require pre-positioned budget buffers.
+
+---
+
+## 23. Integration Portability & Provider Neutrality
+
+### 23.1 Portability as Sovereignty Guarantee
+
+Portability ensures that the organization can migrate from one external provider to another without rewriting tools, losing data, or compromising constitutional guarantees. It is the technical and contractual foundation of vendor independence.
+
+### 23.2 Abstraction Completeness
+
+Capability abstractions must be complete: they must specify all inputs, outputs, behavioral invariants, and data schemas required for a tool to function without provider-specific knowledge. Incomplete abstractions create implicit provider lock-in.
+
+### 23.3 Data Sovereignty
+
+Data transmitted to external providers remains organizational property. Contracts must guarantee: complete data extraction in standard formats, deletion of provider copies upon termination, and no provider claims on derived models or outputs.
+
+### 23.4 Migration Path Preservation
+
+Every integration must declare a migration path: the procedure, cost, and risk of moving to an alternative provider fulfilling the same capability abstraction. The Registry maintains alternative provider mappings for each abstraction.
+
+### 23.5 Provider Concentration Limits
+
+The Gateway monitors portfolio-level provider concentration. If a single external provider fulfills too large a percentage of a capability domain, the Gateway flags concentration risk and may restrict new bindings until diversification is achieved.
+
+### 23.6 No Constitutional Embedding
+
+No constitutional document, policy, or governance artifact may reference a specific external provider by name. All references are to capability abstractions. Provider-specific terms may appear only in integration manifests, which are versioned and replaceable.
+
+---
+
+## 24. Integration Security
+
+### 24.1 Security Posture Declaration
+
+Every integration declares its security posture: encryption in transit and at rest, authentication mechanisms, audit logging capabilities, incident response procedures, and compliance certifications. The Security Gateway consumes these declarations to enforce boundary policies.
+
+### 24.2 Secret Handling
+
+Integrations never handle secrets directly. Secrets required for provider authentication are injected by the Security Gateway through the Tool Executor at invocation time. Integration manifests reference secrets by ID, not by value. Secrets never appear in integration contexts, logs, or audit trails.
+
+### 24.3 Data Classification Enforcement
+
+The Gateway enforces that integrations only receive data within their declared classification limits. A T1 integration cannot receive Confidential or Restricted data. Attempts to transmit higher-classification data to lower-tier integrations are blocked and logged as violations.
+
+### 24.4 Tenant Isolation
+
+Integrations scoped to one tenant may not process data from another tenant. Cross-tenant integration sharing requires explicit bilateral human approval, data anonymization review, and isolation verification.
+
+### 24.5 Threat Model Alignment
+
+Integration security postures are evaluated against the organizational threat model. Providers whose security practices create unacceptable risk vectors are rejected or restricted to observational use with sanitized data.
+
+---
+
+## 25. Integration Auditability & Lineage
+
+### 25.1 Consumption Record
+
+Every integration consumption produces an immutable record containing: Integration ID, version, capability abstraction consumed, consumer identity (tool, agent, workflow), approval reference, timestamp, input parameters (sanitized), output summary (schema-validated), cost incurred, provider health status, success or failure classification, failure cause (if any), and data handling verification status.
+
+### 25.2 Lineage Preservation
+
+Any external effect produced through an integration can be traced backward through its lineage: which decision approved the integration, which business owned the budget, which tool requested consumption, which workflow orchestrated it, and which human authorized the relationship. This traceability is non-repudiable.
+
+### 25.3 Immutability
+
+Integration audit records are append-only. No entity may modify, delete, or retroactively alter a consumption record. Corrections append new records; they do not mutate existing ones.
+
+### 25.4 Retention
+
+Consumption records are retained for a minimum of seven years. Records for retired, superseded, or failed consumptions remain in the audit trail indefinitely.
+
+### 25.5 Privacy
+
+Audit records never contain secrets, credentials, or PII. Sensitive parameters are referenced by secure correlation IDs, not embedded in log entries.
+
+---
+
+## 26. Integration Observability
+
+### 26.1 Metrics
+
+- **Usage:** Consumption rate, capability abstraction distribution, consumer distribution.
+- **Performance:** Latency distribution, throughput, queue depth, provider response time.
+- **Reliability:** Success rate, failure classification distribution, retry rate.
+- **Economic:** External spend burn rate, budget utilization, circuit breaker proximity.
+- **Trust:** Trust score distribution, drift anomaly count, suspension events.
+- **Security:** Data classification violation attempts, provider behavior anomalies, compliance attestation expiry.
+- **Portability:** Migration frequency, provider concentration ratios, abstraction completeness scores.
+
+### 26.2 Logs and Traces
+
+All Gateway operations emit structured logs. Distributed traces follow a consumption from consumer request through Gateway authorization, provider interaction, and output return.
+
+### 26.3 Alerting
+
+Alerts trigger on: integration suspension, circuit breaker breach, high failure rate, cost anomaly, trust score drop, provider contract breach, data handling violation, and provider health degradation.
+
+---
+
+## 27. Integration Governance
+
+### 27.1 Compliance Assessment
+
+The Governance Gateway audits integration artifacts for constitutional compliance: sovereignty preservation, provider neutrality, data handling adherence, portability guarantees, and approval authority validity. Non-compliant integrations trigger governance rulings with mandatory remediation.
+
+### 27.2 Drift Detection
+
+The Gateway monitors integration portfolios for drift: increasing provider concentration, declining portability scores, creeping data classification exposure, and approval authority inflation. Drift triggers escalation to portfolio stewards.
+
+### 27.3 Policy Coherence
+
+Integration policies must align with the policy hierarchy. A business-level integration policy cannot override a portfolio-level provider neutrality mandate. The Gateway detects contradictions and blocks ratification.
+
+### 27.4 Meta-Oversight Support
+
+Governance meta-oversight consumes integration compliance scores, provider concentration metrics, and portability assessments to evaluate whether the organization's external relationships remain constitutionally legitimate.
+
+---
+
+## 28. Integration Evolution & Versioning
+
+### 28.1 Version Lineage
+
+When an integration's behavioral contract changes, the change is released as a new version with a distinct Integration ID linked to its predecessor via a lineage field. Existing tool bindings continue with the version they bound to; new bindings use the latest version.
+
+### 28.2 A/B Validation
+
+Before promoting a new integration version to Active, the Gateway conducts validation: contract compliance, provider verification, portability assessment, and limited consumption testing. Behavioral changes that alter capability abstractions or data handling terms require human approval.
+
+### 28.3 Succession Planning
+
+Every integration must declare a succession policy: whether it will be superseded by a new version, migrated to a different provider, or retired without replacement. Succession policies are reviewed during portfolio audits.
+
+---
+
+## 29. Integration Deprecation & Replacement
+
+### 29.1 Deprecation Policy
+
+Deprecation is a constitutional act, not an informal notice. It requires: a defined notice period, an identified successor integration or alternative provider, a migration plan for existing tool bindings, and human approval for I3+ integrations.
+
+### 29.2 Consumer Notification
+
+Consumers bound to deprecated integrations receive notification through the Event Bus. Notifications include: deprecation timeline, successor recommendation, migration instructions, budget impact, and portability assessment.
+
+### 29.3 Migration Enforcement
+
+After the notice period expires, new bindings to deprecated integrations are rejected. In-flight consumptions are permitted to complete. Workflows planning new activities are blocked from binding to deprecated integrations.
+
+### 29.4 Replacement Lineage
+
+The replacement integration is linked to the deprecated integration via lineage. Audit trails preserve the relationship so that historical external effects can be understood in the context of integration succession.
+
+---
+
+## 30. Integration Retirement
+
+### 30.1 Retirement as Terminal State
+
+Retirement is the permanent termination of an external capability relationship. Retired integrations cannot be reactivated. Retirement requires extraction of organizational data, contract termination, and archival of all records.
+
+### 30.2 Data Extraction
+
+Before retirement, the Gateway verifies that all organizational data has been extracted from the provider in accordance with the portability declaration and data handling terms. Extraction gaps block retirement.
+
+### 30.3 Contract Termination
+
+The Gateway verifies that provider contracts are terminated in accordance with their terms, that final costs are settled, and that no ongoing obligations remain.
+
+### 30.4 Archival
+
+Retired integrations are archived with complete identity, manifest, contract history, consumption records, and audit trails. Archived integrations remain attributable for the statutory retention period.
+
+---
+
+## 31. Human Integration Management
+
+### 31.1 Direct Oversight
+
+Humans may review, approve, suspend, or terminate integrations directly through the Gateway. Direct human actions bypass agent and workflow mediation but are subject to the same Gateway authorization, audit logging, and scope enforcement. Human approvals are recorded as Class D decisions if involving I4 integrations.
+
+### 31.2 Human Override
+
+Humans may override integration selection, force binding to a specific provider, block an integration from being consumed, or invoke emergency termination. Overrides are immediate, irreversible by the system, and logged immutably.
+
+### 31.3 Integration Governance
+
+Humans register integrations, approve capability abstractions, set trust thresholds, review deprecation proposals, authorize cross-tenant integration sharing, and ratify provider contract terms. Human governance decisions are Class D and are not evaluated by the Gateway; they are the terminal authority.
+
+### 31.4 Panic Protocol Integration
+
+Invocation of the Panic Protocol immediately halts all pending and in-flight external capability consumptions, suspends all Active integrations, and requires human intervention to resume. Panic completion must occur within 5 seconds.
+
+---
+
+## 32. Agent Integration Consumption
+
+### 32.1 Inventory Intersection
+
+An agent's available integrations are the intersection of: all integrations in the Registry, the agent's declared capability signature, the agent's assigned tool inventory (which reference integrations), and the agent's autonomy level. The Gateway enforces this intersection at binding time.
+
+### 32.2 Agent Request Flow
+
+The agent requests external capability consumption through the Gateway with: capability abstraction requirement, validated input parameters, approval reference, and idempotency key. The agent does not interact with the external provider, the provider's secrets, or the integration manifest directly.
+
+### 32.3 Agent Output Handling
+
+External capability outputs are returned to the agent through the Gateway after schema validation against the capability abstraction. The agent receives structured, validated data; it does not receive raw provider responses.
+
+### 32.4 Agent Boundaries
+
+An agent may not: consume integrations outside its inventory, bypass the Gateway to interact with external providers, handle provider secrets, modify integration manifests, or escalate an integration's risk tier. Violations are logged as Category 1 incidents.
+
+---
+
+## 33. Workflow Integration Binding
+
+### 33.1 Integration as Workflow Dependency
+
+Integrations participate in workflows as external dependencies declared within workflow activities. A workflow activity declares: required capability abstraction, input schema, output schema, timeout, retry policy, and (for mutating tools) compensation activity. The workflow does not bind to a specific integration; it binds to an abstraction resolved by the Gateway.
+
+### 33.2 Planning Integration
+
+During workflow planning, the orchestrator queries the Registry for integration availability, provider health status, and cost estimates. Integrations that are unavailable, unhealthy, or exceed budget are flagged during planning, before execution begins.
+
+### 33.3 Orchestration Integration
+
+The orchestrator dispatches workflow activities to the Gateway with workflow context, approval reference, and idempotency key. The Gateway resolves the capability abstraction to an active integration and mediates provider interaction. The orchestrator awaits execution events from the Gateway to advance workflow state.
+
+### 33.4 Compensation Integration
+
+Mutating workflow activities must declare compensation logic in the workflow DAG. If the workflow enters compensating state, the orchestrator invokes the tool's compensation through the Gateway. The integration does not define compensation; the tool does.
+
+### 33.5 Workflow Boundaries
+
+A workflow may not: bind unavailable integrations, exceed integration cost ceilings, consume integrations beyond the workflow's autonomy profile, or bypass the Gateway for direct provider access.
+
+---
+
+## 34. Non-Violable Integration Rules
+
+The following rules are absolute. Violation constitutes a Category 1 incident:
+
+1. No integration may be consumed without prior registration and validation in the Integration Registry.
+2. No integration may be activated without a valid human-approved decision record with authority matching the integration's risk tier.
+3. No integration may provide external capabilities outside its declared capability abstraction.
+4. No integration may process data beyond its declared classification limits or residency requirements.
+5. No integration may handle secrets directly; secrets are injected by the Security Gateway only.
+6. No integration may escalate its own permissions, risk tier, or scope without human re-approval.
+7. No anonymous or pseudonymous integration registration is permitted.
+8. No integration may cross tenant boundaries without explicit bilateral human approval and isolation review.
+9. No mutating integration may be consumed without a tool declaring compensation logic.
+10. No integration consumption may exceed its cost ceiling or the consumer's remaining budget.
+11. No integration may bypass the Integration Gateway for direct consumer-to-provider interaction.
+12. No integration audit record may be modified, overwritten, or deleted after formation.
+13. No integration may present unvalidated external data as internal knowledge without provenance and confidence metadata.
+14. No approval gate for I3 or I4 integration activation may auto-approve on timeout.
+15. No integration may suppress failure, cost overrun, or data handling violation information from the Gateway.
+16. No deprecated integration may be bound to new workflow activities after its migration deadline.
+17. No integration may interact with another external system directly; all composition flows through the Gateway.
+18. No integration may store organizational data exclusively in external systems without extraction guarantees.
+19. The Panic Protocol must halt all in-flight integration consumptions within 5 seconds.
+20. No integration may embed provider-specific logic that prevents substitution by an alternative provider fulfilling the same capability abstraction.
+21. No constitutional document, policy, or governance artifact may reference a specific external provider by name.
+22. No integration may reduce human sovereignty below absolute terminal authority over external relationships.
+
+---
+
+## 35. Appendix: Integration Glossary
+
+| Term | Definition |
+|------|------------|
+| **Integration** | A governed, identifiable relationship between Agent OS and an external capability provider, preserving organizational sovereignty and vendor independence. |
+| **Integration Registry** | The canonical inventory of all integrations, their identities, manifests, and trust scores. |
+| **Integration Gateway** | The unified authorization and mediation layer for all external capability relationships. |
+| **Integration Manifest** | The canonical declaration of an integration's identity, capability abstraction, provider contract, and constraints. |
+| **Capability Abstraction** | The provider-neutral internal capability signature that an integration fulfills, enabling tool portability. |
+| **Provider Contract** | The binding agreement between Agent OS and an external entity specifying terms of the relationship. |
+| **Trust Score** | A composite metric of provider provenance, reliability, contract adherence, and behavioral stability. |
+| **Portability Declaration** | The declared ease of migrating from one provider to another for the same capability abstraction. |
+| **Risk Tier** | The classification of external system risk based on data sensitivity and operational criticality. |
+| **I-Class** | The authority requirement level for integration approval, from I1 (Business Steward) to I4 (Human Sovereign). |
+| **Consumption Record** | The immutable audit trail of each integration-mediated external interaction. |
+| **Provider Neutrality** | The architectural guarantee that tools bind to capability abstractions, not specific external providers. |
+| **Data Handling Commitment** | The declared terms for how external providers may transmit, process, and retain organizational data. |
+| **Integration Lineage** | The version succession chain linking predecessor and successor integrations. |
+
+---
+
+*End of Document*

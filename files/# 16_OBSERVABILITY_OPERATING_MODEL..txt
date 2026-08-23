@@ -1,0 +1,897 @@
+ # 16_OBSERVABILITY_OPERATING_MODEL.md
+
+**Agent OS — Observability Operating Model**
+**Version:** 1.0.0
+**Status:** Ratified
+**Classification:** Architecture Constitution — Binding on All Observability Behavior
+
+---
+
+## Table of Contents
+
+1. [Preamble](#1-preamble)
+2. [Observability Philosophy](#2-observability-philosophy)
+3. [Observability Mission & Permanent Objectives](#3-observability-mission--permanent-objectives)
+4. [Observability Identity](#4-observability-identity)
+5. [Observability Classification](#5-observability-classification)
+6. [Observability Architecture & Topology](#6-observability-architecture--topology)
+7. [Observability Lifecycle](#7-observability-lifecycle)
+8. [Observability States & Transitions](#8-observability-states--transitions)
+9. [Observability Authority & Autonomy](#9-observability-authority--autonomy)
+10. [Observability Ownership & Boundaries](#10-observability-ownership--boundaries)
+11. [Observability Context & Provenance](#11-observability-context--provenance)
+12. [Signal Taxonomy & Sources](#12-signal-taxonomy--sources)
+13. [Health Models](#13-health-models)
+14. [Portfolio & Business Health](#14-portfolio--business-health)
+15. [Runtime & Workflow Health](#15-runtime--workflow-health)
+16. [Decision & Learning Health](#16-decision--learning-health)
+17. [Security & Governance Health](#17-security--governance-health)
+18. [Agent Workforce Health](#18-agent-workforce-health)
+19. [Causal Analysis](#19-causal-analysis)
+20. [Predictive Indicators](#20-predictive-indicators)
+21. [Anomaly Detection](#21-anomaly-detection)
+22. [Drift Detection](#22-drift-detection)
+23. [Transparency & Disclosure](#23-transparency--disclosure)
+24. [Evidence Collection](#24-evidence-collection)
+25. [Human Observability](#25-human-observability)
+26. [Constitutional Health Measurement](#26-constitutional-health-measurement)
+27. [Coverage & Completeness](#27-coverage--completeness)
+28. [Retention & Decay](#28-retention--decay)
+29. [Privacy & Classification](#29-privacy--classification)
+30. [Reliability & Fault Tolerance](#30-reliability--fault-tolerance)
+31. [Performance Characteristics](#31-performance-characteristics)
+32. [Observability Learning & Evolution](#32-observability-learning--evolution)
+33. [Governance Integration](#33-governance-integration)
+34. [Security Integration](#34-security-integration)
+35. [Non-Violable Observability Rules](#35-non-violable-observability-rules)
+36. [Appendix: Observability Glossary](#36-appendix-observability-glossary)
+
+---
+
+## 1. Preamble
+
+This document derives the **Observability Operating Model** from the constitutional architecture established in `01_PRINCIPLES.md` through `15_GOVERNANCE_OPERATING_MODEL.md`. It specifies how Agent OS transforms operational activity into organizational understanding: how signals are emitted, how health is modeled, how anomalies and drift are detected, how evidence is assembled, and how transparency is delivered to authorized consumers without overwhelming them. Where this document is silent, the constitution governs. Where this document speaks, it is binding.
+
+---
+
+## 2. Observability Philosophy
+
+### 2.1 The Interpretive Layer Metaphor
+
+Observability is the **organizational sensory and interpretive nervous system**. Runtime executes; Decision commits; Security enforces; Governance audits legitimacy; Learning optimizes. Observability does none of these. It provides the structured awareness that makes execution measurable, commitment auditable, enforcement verifiable, legitimacy assessable, and optimization validatable. Without Observability, the venture studio operates blind. With Observability, every subsystem can answer: What is my state? Is it healthy? Is it changing? Why?
+
+### 2.2 Observability vs. Monitoring
+
+Monitoring asks whether a metric exceeds a threshold. Observability asks why the metric behaves as it does, what that behavior implies for organizational health, and what is likely to happen next. Monitoring is a subset of observability; observability is the constitutional framework that gives monitoring meaning.
+
+### 2.3 Observability vs. Auditability
+
+Auditability preserves an immutable, chronological record of every action for accountability and forensic reconstruction. Observability interprets those records—and live signals—to produce current understanding, predictive indicators, and health assessments. Auditability is the archive; observability is the analyst. Auditability answers "what happened?"; observability answers "what does it mean, and what comes next?"
+
+### 2.4 Observability vs. Governance
+
+Governance evaluates whether subsystems operate within constitutional bounds and legitimate authority. Observability provides the evidence that Governance consumes to make that evaluation. Governance asks "is this legitimate?"; observability asks "is this happening, and what are its effects?" Governance adjudicates; observability illuminates.
+
+### 2.5 Observability vs. Security
+
+Security enforces the trust substrate: identity, permission, isolation, and secret protection. Observability detects behavioral anomalies, coverage gaps, and drift patterns that Security may investigate. Security acts; observability reports. Observability must never compromise security boundaries to achieve visibility.
+
+### 2.6 Observability vs. Learning
+
+Learning proposes behavioral improvements based on outcome evidence. Observability provides the baseline metrics, outcome measurements, and validation data that Learning requires. Learning optimizes; observability measures. Observability does not hypothesize; it quantifies.
+
+### 2.7 Observability as Trust Foundation
+
+In an autonomous venture studio, human operators cannot directly witness every agent action, workflow execution, or decision commitment. They must trust the system's self-awareness. Observability is the constitutional guarantee that the system knows its own state, reports it honestly, and preserves the evidentiary chain that makes trust verifiable.
+
+---
+
+## 3. Observability Mission & Permanent Objectives
+
+### 3.1 Mission
+
+The observability subsystem exists to **transform operational signals from all subsystems into causal, predictive, and actionable organizational understanding**, enabling evidence-based decision making, constitutional compliance verification, and human trust in autonomous operation.
+
+### 3.2 Permanent Objectives
+
+The observability subsystem pursues these objectives in perpetuity, ordered by priority:
+
+1. **Completeness:** Every subsystem, entity, workflow, decision, and failure mode must emit observable signals. No operational domain may remain unobserved.
+2. **Causal Fidelity:** Every observability output must be traceable to primary signals with explicit lineage. Correlation must never be presented as causation without experimental validation.
+3. **Predictive Validity:** Observability must anticipate future state degradation before it manifests as failure, enabling preemptive intervention.
+4. **Actionable Disclosure:** Observability outputs must be structured to inform decisions without making them, preserving the authority boundaries of Decision and Governance.
+5. **Coverage Validation:** Observability must verify its own completeness, ensuring that signal absence itself is observable.
+6. **Privacy Preservation:** Observability data must respect security classifications, tenant isolation, and secret non-exposure absolutely.
+7. **Self-Observation:** The observability subsystem must observe itself with the same rigor it applies to other subsystems.
+8. **Human Cognitive Load Minimization:** Transparency must be batched, ranked, and contextualized. Observability must never overwhelm human operators with uninterpreted noise.
+
+### 3.3 Objective Conflicts
+
+When objectives conflict, the resolution order is: **Privacy Preservation > Completeness > Causal Fidelity > Predictive Validity > Actionable Disclosure > Coverage Validation > Self-Observation > Human Cognitive Load Minimization.** Observability may not breach security boundaries to achieve completeness.
+
+---
+
+## 4. Observability Identity
+
+### 4.1 Identity Primitives
+
+Every observability artifact possesses:
+
+- **Observability ID:** A universally unique identifier assigned at formation, never reused.
+- **Artifact Type:** Classification as Signal, Health Model, Anomaly, Evidence Package, Coverage Assessment, or Predictive Indicator.
+- **Schema Version:** Semantic version of the artifact's structural contract.
+- **Timestamp:** Time of formation or emission.
+- **Source Identity:** The authenticated principal, subsystem, or entity that emitted the primary signal.
+- **Tenant/Business/Workspace IDs:** Isolation boundaries.
+- **Lineage Reference:** Immutable links to parent signals, upstream health models, and constitutional provisions.
+- **Confidence Score:** 0.0–1.0 representing the evidentiary strength of the artifact.
+- **Sensitivity Classification:** Public, Internal, Confidential, Restricted, or Sovereign.
+- **Retention Policy:** The lifecycle rule governing decay and archival.
+
+### 4.2 Identity Persistence
+
+Observability identity persists for the statutory retention period (minimum seven years) regardless of artifact disposition. No anonymous observability artifacts are permitted. Every artifact is attributable to a specific source and a specific interpretive process.
+
+### 4.3 Identity as Accountability Anchor
+
+Every observability output—health score, anomaly flag, predictive alert, evidence package—is attributed to its source signals, its interpretive logic, and the principal that authorized its disclosure. This attribution is non-repudiable.
+
+---
+
+## 5. Observability Classification
+
+### 5.1 By Sensitivity
+
+- **Public:** Aggregated, anonymized health metrics visible within tenant.
+- **Internal:** Standard observability data visible to authenticated principals within scope.
+- **Confidential:** Detailed health models, anomaly investigations, and predictive indicators. Cross-role access requires justification.
+- **Restricted:** Evidence packages for security incidents, constitutional drift investigations, and Class D decision support. Limited to authorized auditors and human operators.
+- **Sovereign:** Self-observation internals, coverage validation failures, and observability subsystem health. Visible only to human operators.
+
+### 5.2 By Organizational Layer
+
+- **Atomic:** Individual signals (metrics, events, journals, traces).
+- **Entity:** Health models for specific agents, workflows, decisions, or businesses.
+- **Subsystem:** Aggregated health for Runtime, Decision, Learning, Security, Governance.
+- **Business:** Composite health for a single business.
+- **Portfolio:** Aggregate health for the complete tenant holdings.
+
+### 5.3 By Consumer Authority
+
+- **O1 (Subsystem-Internal):** Consumed by the emitting subsystem for self-monitoring.
+- **O2 (Cross-Subsystem):** Consumed by other subsystems for operational awareness.
+- **O3 (Human-Scoped):** Consumed by human operators through batched interfaces.
+- **O4 (Audit-Scoped):** Consumed by Governance and Security for compliance and investigation.
+
+### 5.4 By Temporal Nature
+
+- **Historical:** Retrospective analysis of completed executions.
+- **Current:** Real-time or near-real-time state representation.
+- **Predictive:** Forward-looking indicators of probable future state.
+
+---
+
+## 6. Observability Architecture & Topology
+
+### 6.1 Observability Gateway as Unified Interpretive Layer
+
+No subsystem emits signals directly to consumers, and no consumer interprets raw signals without mediation by the **Observability Gateway**. The Gateway governs signal ingestion, schema validation, health model composition, causal analysis, anomaly detection, drift measurement, evidence packaging, and disclosure routing. It is the sole constitutional authority for transforming operational activity into organizational understanding.
+
+### 6.2 Producer-Consumer Topology
+
+**Producers** (Runtime, Workflow, Decision, Learning, Security, Governance, and agents) emit structured signals to the Gateway. **Consumers** (Decision for evidence, Governance for compliance assessment, Security for anomaly investigation, Learning for outcome validation, Human Interface for transparency, and other subsystems for operational awareness) receive interpreted observability artifacts from the Gateway. The Gateway mediates all flow; producers cannot self-certify their health, and consumers cannot access raw signals outside Gateway mediation.
+
+### 6.3 Boundary Enforcement
+
+The Observability Gateway enforces:
+
+- **Tenant Boundary:** Observability data from one tenant is never visible to another without explicit bilateral human approval and anonymization.
+- **Scope Boundary:** Entity-level data is disclosed only within its owning business or workspace unless escalated to portfolio scope.
+- **Sensitivity Boundary:** Classification levels are enforced at ingestion and disclosure. Sovereign-class data is never downgraded automatically.
+- **Authority Boundary:** Consumers receive only observability artifacts permitted by their autonomy level and role.
+- **Temporal Boundary:** Predictive indicators include validity windows; expired predictions are automatically downgraded.
+
+### 6.4 Relationship to Other Subsystems
+
+- **Runtime:** Consumes execution signals, resource utilization, lifecycle transitions, and agent performance data. Provides runtime health feedback and failure classification validation.
+- **Workflow:** Consumes state transition events, activity completions, checkpoint validations, and compensation executions. Provides workflow durability metrics and bottleneck detection.
+- **Decision:** Consumes decision journals, outcome resolutions, confidence scores, and authority chains. Provides decision quality metrics and commitment velocity indicators.
+- **Learning:** Consumes improvement outcome records and hypothesis validation status. Provides baseline metrics and feedback loop quality assessment.
+- **Security:** Consumes authentication events, authorization decisions, boundary crossings, and incident classifications. Provides behavioral drift detection and coverage verification.
+- **Governance:** Consumes constitutional compliance criteria and policy definitions. Provides drift quantification, compliance scoring, and legitimacy indicators.
+- **Human Interface:** Receives batched, ranked, and contextualized disclosures. Provides standing order configurations for alert thresholds.
+
+---
+
+## 7. Observability Lifecycle
+
+### 7.1 Signal Emission
+
+Subsystems emit structured signals during execution: metrics at intervals, events at state transitions, journals at decision points, traces across activity boundaries. Emission is mandatory, not optional. Every subsystem defines its emission contract with the Gateway.
+
+### 7.2 Signal Ingestion
+
+The Gateway validates incoming signals against schema, completeness, and cardinality constraints. Invalid or incomplete signals trigger a quality anomaly. Ingestion is the boundary where raw operational data enters the interpretive domain.
+
+### 7.3 Signal Enrichment
+
+Ingested signals are enriched with context: provenance metadata, constitutional scope, temporal alignment, and cross-reference links. Enrichment transforms raw signals into interpretable observations.
+
+### 7.4 Health Composition
+
+Enriched signals are composed into health models according to defined aggregation rules, weighting policies, and causal graphs. Composition occurs at entity, subsystem, business, and portfolio layers.
+
+### 7.5 Interpretation
+
+Composed health models are analyzed for patterns, anomalies, drift, and predictive indicators. Interpretation is where organizational understanding is produced from operational data.
+
+### 7.6 Disclosure
+
+Interpreted artifacts are routed to authorized consumers through scoped channels: subsystem interfaces, batched human digests, audit evidence packages, or real-time alert streams. Disclosure respects classification and cognitive load constraints.
+
+### 7.7 Decay & Archival
+
+Signals and interpretations degrade over time: granular signals summarize, summaries archive, and archives eventually expire according to retention policies. Decay is governed, not arbitrary.
+
+### 7.8 Exception Paths
+
+- **Signal Absence:** When expected signals fail to arrive, the Gateway emits a coverage anomaly and attempts synthetic validation.
+- **Interpretation Failure:** When health composition or analysis fails, the Gateway logs the failure, alerts its own health monitor, and degrades gracefully to raw signal disclosure.
+- **Consumer Unavailability:** When a consumer cannot receive disclosures, the Gateway buffers scoped artifacts and alerts the Human Interface if backlog thresholds are breached.
+
+---
+
+## 8. Observability States & Transitions
+
+### 8.1 Signal States
+
+| State | Description |
+|-------|-------------|
+| **Emitted** | Signal produced by source subsystem; awaiting ingestion. |
+| **Ingested** | Signal received and validated by Gateway. |
+| **Enriched** | Signal augmented with context and provenance. |
+| **Composed** | Signal incorporated into a health model or analysis. |
+| **Referenced** | Signal cited in an evidence package or disclosure. |
+| **Summarized** | Signal degraded to aggregate form per retention policy. |
+| **Archived** | Signal moved to cold storage; retained for statutory period. |
+| **Expired** | Signal deleted per retention policy and privacy requirements. |
+
+### 8.2 Health Model States
+
+| State | Description |
+|-------|-------------|
+| **Forming** | Health model under construction from incomplete signal set. |
+| **Stable** | Health model reflects current state within confidence bounds. |
+| **Degrading** | Health model indicates negative trend but within tolerance. |
+| **Degraded** | Health model indicates state below acceptable threshold. |
+| **Critical** | Health model indicates imminent or active failure. |
+| **Recovering** | Health model indicates trend toward restoration. |
+| **Unknown** | Insufficient signals to compute health; coverage gap detected. |
+
+### 8.3 Anomaly States
+
+| State | Description |
+|-------|-------------|
+| **Detected** | Deviation from expected pattern identified. |
+| **Classified** | Anomaly assigned category, risk class, and scope. |
+| **Investigating** | Causal analysis in progress; evidence being assembled. |
+| **Attributed** | Root cause identified and linked to primary signals. |
+| **Disclosed** | Anomaly reported to authorized consumers. |
+| **Escalated** | Anomaly routed to Security, Governance, or human authority. |
+| **Resolved** | Anomaly closed with documented outcome. |
+| **Suppressed** | Anomaly acknowledged but deferred per standing order. |
+
+### 8.4 Transition Guards
+
+- **Emitted → Ingested:** Signal schema validation passes; no duplicate detected.
+- **Ingested → Enriched:** Signal passes quality checks; context available.
+- **Enriched → Composed:** Signal matches active health model composition rules.
+- **Composed → Summarized:** Retention policy triggers degradation.
+- **Stable → Degrading:** Health score trend negative for defined duration.
+- **Degrading → Degraded:** Health score crosses below threshold.
+- **Degraded → Critical:** Health score crosses emergency threshold or cascade failure detected.
+- **Detected → Classified:** Classification logic produces unambiguous category.
+- **Classified → Escalated:** Risk class exceeds consumer authority or anomaly pattern matches security/governance trigger.
+
+---
+
+## 9. Observability Authority & Autonomy
+
+### 9.1 The Authority Spectrum
+
+| Level | Title | Scope | Boundaries |
+|-------|-------|-------|------------|
+| **O1** | Signal Emitter | Emits signals for assigned scope | No interpretation authority; no cross-scope emission. |
+| **O2** | Health Observer | Consumes health models for operational awareness | No anomaly classification; no predictive indicator formation. |
+| **O3** | Observability Steward | Defines health models, thresholds, and composition rules within assigned scope | No cross-subsystem model modification; no Sovereign-class disclosure. |
+| **O4** | Human Sovereign | Accesses all observability artifacts; defines retention policies; overrides disclosure constraints | Human only; no delegation of Sovereign-class access. |
+
+### 9.2 Confidence Requirements
+
+- **O1:** Signal emission requires no confidence score; quality validation is automatic.
+- **O2:** Health model consumption requires understanding of model confidence and degradation semantics.
+- **O3:** Health model definition requires minimum confidence 0.80 in composition rules; low-confidence models must carry uncertainty riders.
+- **O4:** Policy changes and disclosure overrides require explicit human acknowledgment of evidentiary limitations.
+
+### 9.3 Override Mechanisms
+
+A human operator may override any observability disclosure constraint, access restriction, or alert threshold at any time. Overrides are immediate, irreversible by subsystems, and logged as O4 actions. An override may promote disclosure scope, suppress alerts, or demand raw signal access.
+
+---
+
+## 10. Observability Ownership & Boundaries
+
+### 10.1 Ownership Hierarchy
+
+- **Agent:** Owns emission of execution signals within its capability signature and task scope.
+- **Workflow:** Owns emission of state transition and activity completion signals.
+- **Business:** Owns business-scoped health models, anomaly investigations, and evidence packages.
+- **Portfolio:** Owns portfolio-level health aggregation, cross-business correlation analysis, and strategic optionality health metrics.
+- **Human Sovereign:** Owns O4 access, retention policy definition, and disclosure override authority.
+
+### 10.2 Scope Boundaries
+
+A health model, anomaly investigation, or evidence package may not cross business boundaries without portfolio-level authorization. Cross-workspace observability within a business requires business-level authorization. The Gateway enforces these boundaries at disclosure time.
+
+### 10.3 Cross-Boundary Impact
+
+When a signal or health model has potential impact outside its home scope (e.g., a workflow failure affecting another business's dependency), the Gateway detects the cross-boundary implication and routes the observability artifact to portfolio-level consumers with appropriate classification.
+
+### 10.4 Tenant Isolation
+
+Observability data from one tenant is never composable with another tenant's data. Cross-tenant observability sharing requires explicit bilateral human approval, anonymization validation, and Governance ratification.
+
+---
+
+## 11. Observability Context & Provenance
+
+### 11.1 Provenance Dimensions
+
+Every observability artifact carries:
+
+- **Signal Context:** The raw or enriched signals from which the artifact was derived.
+- **Composition Context:** The health models, aggregation rules, and weighting policies applied.
+- **Interpretive Context:** The anomaly detection logic, drift baselines, and predictive models used.
+- **Constitutional Context:** The specific provisions, guarantees, and non-violable rules implicated.
+- **Temporal Context:** Validity windows, observation periods, and prediction horizons.
+- **Disclosure Context:** The authorized consumers, classification level, and batched digest membership.
+
+### 11.2 Context as Interpretive Frame
+
+An observability artifact without context is uninterpretable. A health score of 0.3 without the context that it reflects a pre-revenue validation business is meaningless. The Gateway ensures context is complete before disclosure.
+
+### 11.3 Context Budget
+
+Provenance metadata consumes bandwidth and attention. The Gateway enforces a maximum context budget per artifact class. Non-essential context is summarized or referenced by ID rather than embedded.
+
+---
+
+## 12. Signal Taxonomy & Sources
+
+### 12.1 Metrics
+
+Metrics are quantitative, time-series measurements of subsystem state. They include: resource utilization (compute, memory, API quota), throughput (events per second, workflow initiations), latency distributions (p50, p99), financial burn rates, and success/failure ratios. Metrics are emitted at defined intervals and aggregated temporally.
+
+### 12.2 Events
+
+Events are discrete, timestamped occurrences that mark state transitions or significant occurrences. They include: workflow state changes, decision commitments, security authorization decisions, agent suspensions, budget threshold breaches, and human overrides. Events are emitted at occurrence time and are immutable.
+
+### 12.3 Journals
+
+Journals are structured, narrative records of deliberation, execution, or assessment. They include: decision journals (alternatives considered, rationale, confidence), workflow activity logs (inputs, outputs, agent assignments), and governance audit findings. Journals are emitted at completion of the recorded activity.
+
+### 12.4 Traces
+
+Traces are causal chains that follow a unit of work across subsystem boundaries. They include: workflow execution traces (activity dispatch through completion), decision execution traces (commitment through outcome), and security context propagation traces (authentication through authorization to action). Traces are emitted as distributed, linked records.
+
+### 12.5 Mandatory Signal Sources
+
+Every subsystem emits signals according to its constitutional obligations:
+
+- **Runtime:** Execution events, resource allocation records, agent lifecycle transitions, queue depths, preemption events.
+- **Workflow:** State transitions, activity dispatches and completions, checkpoint validations, compensation executions, timeout events.
+- **Decision:** Proposal formations, authority resolutions, commitment events, outcome resolutions, reversal records.
+- **Learning:** Improvement proposals, A/B test initiations, outcome attributions, model selection changes.
+- **Security:** Authentication attempts, authorization decisions, boundary crossings, delegation events, revocation events, incident classifications.
+- **Governance:** Artifact formations, compliance assessments, drift detections, ratification events, exception grants.
+
+---
+
+## 13. Health Models
+
+### 13.1 Health as Composite Construct
+
+Health is not a single metric. It is a multi-dimensional, weighted composition of signals that represents the operational, financial, and strategic well-being of an entity. Health models are defined at each organizational layer with explicit composition rules that preserve causal traceability.
+
+### 13.2 Health Dimensions
+
+Every health model includes at minimum:
+
+- **Operational Dimension:** Availability, latency, throughput, error rate, recovery performance.
+- **Financial Dimension:** Budget adherence, burn rate, revenue trajectory, capital efficiency.
+- **Strategic Dimension:** Mission alignment, optionality preservation, market position, competitive differentiation.
+- **Constitutional Dimension:** Compliance with non-violable rules, approval gate integrity, autonomy boundary adherence.
+- **Knowledge Dimension:** Learning velocity, failure library growth, asset reuse rate, cross-pollination efficacy.
+
+### 13.3 Composition Rules
+
+Health composition follows strict rules:
+
+- **Weighted Aggregation:** Each dimension contributes to composite health according to defined weights that vary by lifecycle stage and entity type.
+- **Causal Propagation:** A degradation in a subsystem health model must propagate to dependent business and portfolio models with explicit linkage.
+- **Confidence Weighting:** Dimensions with lower signal confidence contribute less to composite health; confidence must be disclosed.
+- **Degradation Semantics:** Health models define explicit thresholds for Stable, Degrading, Degraded, Critical, and Unknown states.
+- **Recovery Detection:** Health models must distinguish between genuine recovery and temporary stabilization.
+
+### 13.4 Health Model Versioning
+
+Health model definitions are versioned. A running entity continues with the health model version it started with; new entities use the latest version. Version changes require O3 authority and validation against historical baseline accuracy.
+
+---
+
+## 14. Portfolio & Business Health
+
+### 14.1 Business Health
+
+Business health is the composite assessment of a single business's operational, financial, strategic, constitutional, and knowledge dimensions. It is derived from: workflow health across active workflows, decision health across recent commitments, agent health across assigned workforce, runtime resource efficiency, financial performance against budget, and strategic optionality value.
+
+### 14.2 Portfolio Health
+
+Portfolio health is the aggregate assessment of the complete tenant holdings. It is derived from: business health across all businesses, capital allocation efficiency, diversification metrics, correlation exposure, strategic optionality distribution, and cross-business knowledge compounding rate.
+
+### 14.3 Correlation and Concentration Risk
+
+The Gateway monitors correlations between business health models. If multiple businesses degrade simultaneously due to shared dependencies (platform risk, vendor concentration, market correlation), the portfolio health model reflects this as a concentration anomaly distinct from independent business failures.
+
+### 14.4 Optionality Health
+
+Portfolio health includes a distinct optionality dimension: the value of pre-revenue or early-stage businesses as future strategic call options. A business with zero current revenue but high optionality contributes positively to portfolio strategic health.
+
+---
+
+## 15. Runtime & Workflow Health
+
+### 15.1 Runtime Health
+
+Runtime health measures the execution substrate's capacity to schedule, dispatch, and recover work. Dimensions include: queue depth trends, preemption frequency, resource contention severity, agent availability ratio, LLM quota efficiency, event processing latency, and graceful degradation frequency.
+
+### 15.2 Workflow Health
+
+Workflow health measures the durability and outcome fidelity of business processes. Dimensions include: completion rate, failure rate, compensation frequency, human gate latency, checkpoint pass rate, DAG validation success, and outcome-to-intent fidelity.
+
+### 15.3 Execution Bottleneck Detection
+
+The Gateway identifies execution bottlenecks by analyzing trace latency distributions, queue wait times, and synchronization barrier stall durations. Bottlenecks are classified as resource-constrained, dependency-constrained, or authority-constrained.
+
+---
+
+## 16. Decision & Learning Health
+
+### 16.1 Decision Health
+
+Decision health measures the quality and integrity of the commitment process. Dimensions include: decision velocity (proposal to commitment latency), approval backlog depth, escalation rate, reversal rate, expected-vs-actual outcome divergence, confidence calibration accuracy, and authority boundary compliance rate.
+
+### 16.2 Learning Health
+
+Learning health measures the efficacy of behavioral improvement. Dimensions include: improvement proposal success rate, A/B test statistical power, outcome attribution accuracy, prompt refinement efficacy, model selection adaptation quality, and failure library consultation rate.
+
+### 16.3 Feedback Loop Integrity
+
+The Gateway validates that Learning's improvements produce measurable, positive changes in Decision health, Runtime health, or Business health. Improvements without observable downstream benefit are flagged as learning loop failures.
+
+---
+
+## 17. Security & Governance Health
+
+### 17.1 Security Health
+
+Security health measures the integrity of the trust substrate. Dimensions include: authentication success rate, authorization denial rate, delegation chain validity, token rotation adherence, secret injection success rate, boundary crossing violation rate, anomaly detection true-positive rate, and incident response latency.
+
+### 17.2 Governance Health
+
+Governance health measures the legitimacy and coherence of constitutional stewardship. Dimensions include: constitutional compliance rate, policy contradiction frequency, drift detection true-positive rate, stewardship coverage ratio, ratification velocity, exception grant frequency, and meta-oversight finding resolution rate.
+
+### 17.3 Constitutional Compliance Scoring
+
+The Gateway computes a constitutional compliance score for each subsystem by mapping its observable behavior against non-violable rules and active policies. Compliance scoring is evidence-based, not heuristic.
+
+---
+
+## 18. Agent Workforce Health
+
+### 18.1 Agent Health Dimensions
+
+Agent health measures the performance and behavioral integrity of individual agents. Dimensions include: task success rate, output schema conformance, tool invocation accuracy, budget adherence, latency consistency, reputation trajectory, autonomy boundary compliance, and behavioral drift indicators.
+
+### 18.2 Workforce Aggregation
+
+Individual agent health models are aggregated into workforce health: capability coverage (are all required capabilities represented?), load distribution (is work fairly shared?), succession readiness (can critical functions survive agent retirement?), and team cohesion (do collaborative patterns produce reliable outcomes?).
+
+### 18.3 Behavioral Drift
+
+The Gateway monitors agent behavior for drift from registered capability signatures, historical success patterns, and declared autonomy levels. Drift is distinguished from legitimate adaptation by requiring correlation with approved learning outcomes.
+
+---
+
+## 19. Causal Analysis
+
+### 19.1 Causality vs. Correlation
+
+Observability distinguishes strictly between correlation (two signals vary together) and causation (one signal's variation produces another's). Causal claims require: temporal precedence, covariation, elimination of confounding variables through controlled comparison or structural causal models, and mechanistic plausibility.
+
+### 19.2 Causal Graphs
+
+The Gateway maintains causal graphs that model known cause-effect relationships between subsystems, entities, and signals. Health model degradation is traced through these graphs to identify root causes rather than symptoms.
+
+### 19.3 Counterfactual Analysis
+
+Where possible, causal analysis employs counterfactual reasoning: what would have happened if the suspected cause had been absent? Counterfactuals are derived from historical baselines, A/B test results, or synthetic control models.
+
+### 19.4 Uncertainty in Causation
+
+When causation cannot be established with confidence ≥ 0.80, the Gateway presents correlated factors with explicit uncertainty riders. It does not assert unverified causal relationships.
+
+---
+
+## 20. Predictive Indicators
+
+### 20.1 Prediction as Anticipatory Health
+
+Predictive indicators forecast future health states before they manifest. They are derived from: trend extrapolation, leading signal correlations, anomaly pattern libraries, and degradation trajectory models.
+
+### 20.2 Prediction Horizons
+
+Predictive indicators declare explicit validity windows:
+
+- **Immediate (0–1 hour):** Resource exhaustion, imminent failure cascades.
+- **Tactical (1–24 hours):** Workflow deadline risk, budget overrun trajectory.
+- **Strategic (1–30 days):** Business health decline, portfolio rebalancing needs.
+- **Structural (30+ days):** Market shift impact, constitutional drift progression.
+
+### 20.3 Prediction Confidence
+
+Every predictive indicator includes a confidence score and explicit falsifiability conditions: the specific signals that would invalidate the prediction. Predictions are downgraded when falsifiability conditions are not met.
+
+### 20.4 Actionable Prediction
+
+Predictive indicators are structured to inform preemptive decisions: they specify the likely future state, the confidence in that forecast, the signals that would confirm or deny it, and the preemptive actions that Decision or Runtime might consider.
+
+---
+
+## 21. Anomaly Detection
+
+### 21.1 Anomaly as Pattern Deviation
+
+An anomaly is a deviation from expected patterns that may indicate failure, drift, security incident, or emergent opportunity. Anomalies are classified by: subsystem, risk class, temporal urgency, and causal attribution confidence.
+
+### 21.2 Anomaly Classification
+
+- **Operational Anomaly:** Deviations in throughput, latency, error rate, or resource utilization.
+- **Behavioral Anomaly:** Deviations in agent behavior, decision patterns, or workflow execution sequences.
+- **Financial Anomaly:** Deviations in burn rate, revenue pattern, or capital efficiency.
+- **Security Anomaly:** Deviations in authentication patterns, authorization requests, or boundary access.
+- **Constitutional Anomaly:** Deviations from non-violable rules, approval gate patterns, or autonomy boundaries.
+
+### 21.3 Detection Methods
+
+Anomalies are detected through: threshold breaches, statistical distribution shifts, pattern matching against failure libraries, graph-based relationship anomalies, and cross-subsystem correlation spikes.
+
+### 21.4 Disclosure and Escalation
+
+Detected anomalies are disclosed to authorized consumers with: deviation description, baseline comparison, affected scope, risk classification, confidence level, and recommended investigation paths. High-risk anomalies are escalated to Security or Governance automatically.
+
+---
+
+## 22. Drift Detection
+
+### 22.1 Drift as Systematic Divergence
+
+Drift is the gradual, systematic divergence of subsystem behavior from constitutional intent, baseline norms, or declared objectives. Unlike anomalies (sudden deviations), drift is cumulative and often invisible to threshold-based monitoring.
+
+### 22.2 Drift Types
+
+- **Constitutional Drift:** Subsystem behavior gradually erodes non-violable constraints or approval gate rigor.
+- **Performance Drift:** Success rates, efficiency metrics, or quality scores degrade slowly over time.
+- **Behavioral Drift:** Agent behavior shifts away from registered capabilities or historical patterns.
+- **Financial Drift:** Cost profiles inflate, revenue models degrade, or capital efficiency erodes progressively.
+- **Strategic Drift:** Mission alignment weakens or portfolio concentration increases incrementally.
+
+### 22.3 Baseline Management
+
+Drift detection requires stable baselines. Baselines are established from: historical performance windows, A/B control groups, constitutional requirements, and human-declared targets. Baselines are versioned and reviewed periodically.
+
+### 22.4 Drift Measurement
+
+Drift is measured as the cumulative distance between current behavior and baseline, normalized by variance. The Gateway reports drift velocity (rate of divergence) and drift acceleration (change in velocity).
+
+---
+
+## 23. Transparency & Disclosure
+
+### 23.1 Transparency as Scoped Visibility
+
+Transparency is the delivery of observability artifacts to authorized consumers in forms they can interpret and act upon. Transparency is not universal exposure; it is scoped, batched, ranked, and contextualized.
+
+### 23.2 Batched Disclosure
+
+Human operators receive batched digests rather than per-event notifications. Digests are organized by: priority (critical anomalies first), scope (portfolio summary, then business detail), and actionability (items requiring decision support before informational items).
+
+### 23.3 Context-Rich Packaging
+
+Every disclosure includes: what is being reported, why it matters, the evidence supporting it, the confidence level, the affected scope, the temporal context, and the recommended consumer actions.
+
+### 23.4 Cognitive Load Minimization
+
+The Gateway enforces maximum disclosure rates per consumer class. If the volume of observable events exceeds the cognitive load budget, lower-priority items are deferred or summarized. Human attention is treated as a scarce resource.
+
+---
+
+## 24. Evidence Collection
+
+### 24.1 Evidence as Structured Attribution
+
+Evidence packages are curated collections of signals, health models, and interpretations assembled to support decisions, audits, investigations, or governance reviews. Evidence is structured, attributable, and immutable.
+
+### 24.2 Evidence Assembly
+
+The Gateway assembles evidence by: identifying relevant signals, validating their provenance, composing causal chains, attaching confidence assessments, and packaging according to the consumer's evidentiary requirements.
+
+### 24.3 Evidence Quality
+
+Evidence quality is assessed by: signal completeness, causal clarity, confidence level, temporal relevance, and absence of contradiction. Low-quality evidence packages carry explicit quality warnings.
+
+### 24.4 Evidence Consumption
+
+Evidence packages are consumed by: Decision for commitment support, Governance for compliance assessment, Security for incident investigation, and human operators for strategic judgment. Evidence does not include recommendations; it supports them.
+
+---
+
+## 25. Human Observability
+
+### 25.1 Human as Ultimate Observer
+
+Human operators are the ultimate beneficiaries of observability. The subsystem exists to render autonomous operation intelligible to human judgment. All observability design serves this purpose.
+
+### 25.2 Human Interface Requirements
+
+The Gateway delivers to humans: portfolio health summaries, business health dashboards, anomaly alerts, predictive indicators, evidence packages for pending decisions, and constitutional compliance reports.
+
+### 25.3 Standing Orders for Observability
+
+Humans may issue standing orders that configure observability behavior: alert thresholds, digest cadences, scope preferences, and escalation rules. Standing orders expire after 30 days unless renewed.
+
+### 25.4 Panic Protocol Integration
+
+Invocation of the Panic Protocol triggers immediate observability disclosure of all active anomalies, health degradations, and in-flight decisions to human operators. The Gateway prioritizes completeness over cognitive load minimization during panic.
+
+---
+
+## 26. Constitutional Health Measurement
+
+### 26.1 Constitutional Health
+
+Constitutional health is the degree to which all subsystems adhere to non-violable rules, maintain approval gate integrity, preserve human sovereignty, and operate within legitimate authority. It is a meta-dimension of organizational health.
+
+### 26.2 Compliance Quantification
+
+The Gateway quantifies constitutional compliance by: mapping observable behavior to specific constitutional provisions, measuring violation rates, tracking remediation latency, and assessing the severity of boundary breaches.
+
+### 26.3 Legitimacy Indicators
+
+Constitutional health includes legitimacy indicators: the ratio of human-approved to autonomous decisions, the frequency of override invocation, the resolution rate of governance findings, and the absence of drift in approval patterns.
+
+### 26.4 Meta-Oversight Support
+
+Governance meta-oversight consumes constitutional health metrics to assess whether other subsystems' self-governance remains legitimate. Observability provides the metrics; Governance adjudicates their implications.
+
+---
+
+## 27. Coverage & Completeness
+
+### 27.1 Coverage as Observability of Observability
+
+The Gateway validates that every subsystem, entity type, and failure mode emits the signals required by constitutional contracts. Coverage validation is the mechanism that prevents blind spots.
+
+### 27.2 Coverage Gaps
+
+A coverage gap occurs when: a subsystem fails to emit required signals, a signal type is missing for a specific entity, an expected trace is incomplete, or a failure mode has no observable manifestation. Coverage gaps are themselves observable anomalies.
+
+### 27.3 Synthetic Probing
+
+The Gateway employs synthetic probes—artificial transactions, test signals, and validation workflows—to verify that observability channels remain functional. Synthetic probing ensures that the absence of real signals does not mask channel failure.
+
+### 27.4 Coverage Reporting
+
+Coverage status is reported as a dimension of Gateway self-health: percentage of required signals received, percentage of entities with active health models, percentage of failure modes with observable manifestations, and percentage of synthetic probes passing.
+
+---
+
+## 28. Retention & Decay
+
+### 28.1 Signal Lifecycle
+
+Signals degrade through defined stages: granular (full fidelity), summary (aggregated by time window), archive (cold storage with reduced queryability), and expiration (deletion). The lifecycle is governed by classification, regulatory requirements, and operational utility.
+
+### 28.2 Retention Policies
+
+- **Atomic signals:** Retained in granular form for 30 days, then summarized.
+- **Health models:** Retained in full form for 90 days, then archived as monthly snapshots.
+- **Anomaly records:** Retained for 2 years.
+- **Evidence packages:** Retained for 7 years.
+- **Constitutional compliance records:** Retained indefinitely.
+
+### 28.3 Decay Governance
+
+Decay is not arbitrary deletion. It is governed by: privacy requirements (PII minimization), storage efficiency, query performance, and evidentiary necessity. The Gateway validates that decayed data remains reconstructable from higher-layer summaries where required.
+
+### 28.4 Audit Trail Preservation
+
+Decay does not apply to immutable audit trails maintained by other subsystems. Observability may reference audit trails but does not govern their retention.
+
+---
+
+## 29. Privacy & Classification
+
+### 29.1 Classification Enforcement
+
+Every observability artifact inherits the sensitivity classification of its source signals. The Gateway enforces that Confidential and Restricted observability data is never disclosed to consumers without appropriate authority.
+
+### 29.2 Secret Non-Exposure
+
+Observability never captures, stores, or discloses secret values, credentials, or authentication proofs. Security context is referenced by correlation ID, not embedded in observability artifacts.
+
+### 29.3 Tenant Isolation
+
+Observability data from one tenant is never composable with, comparable to, or visible alongside another tenant's data. Cross-tenant observability requires explicit bilateral human approval and anonymization validation.
+
+### 29.4 PII Minimization
+
+Observability minimizes the capture of personally identifiable information. Where PII is necessary for operational understanding, it is pseudonymized at ingestion and access-controlled at disclosure.
+
+---
+
+## 30. Reliability & Fault Tolerance
+
+### 30.1 Graceful Degradation
+
+If the Observability Gateway is unavailable, subsystems continue emitting signals to durable buffers. Consumers may access cached health models for bounded time. No subsystem fails solely due to Gateway unavailability, but interpretive analysis pauses.
+
+### 30.2 Failure Isolation
+
+A corrupted signal, malformed health model, or invalid interpretation is rejected by the Gateway without affecting other signals or consumers.
+
+### 30.3 Self-Observation
+
+The Gateway observes itself: signal ingestion latency, health model computation time, anomaly detection accuracy, coverage validation status, and disclosure delivery success. Self-observation failures are escalated as O4 events.
+
+### 30.4 No Silent Failures
+
+Every Gateway failure—signal loss, interpretation error, disclosure failure, coverage gap—is classified and alerted within 60 seconds. Silent observability failures are treated as Category 1 incidents.
+
+---
+
+## 31. Performance Characteristics
+
+### 31.1 Latency Budgets
+
+| Operation | Target p50 | Target p99 | Maximum |
+|-----------|------------|------------|---------|
+| Signal ingestion | 10ms | 50ms | 200ms |
+| Health model update | 100ms | 500ms | 2s |
+| Anomaly detection | 1s | 5s | 30s |
+| Predictive indicator computation | 2s | 10s | 60s |
+| Evidence package assembly | 500ms | 2s | 10s |
+| Disclosure delivery | 100ms | 500ms | 2s |
+
+### 31.2 Throughput Targets
+
+- Signal ingestion: 100,000 signals per second sustained.
+- Health model queries: 10,000 per second sustained.
+- Anomaly classifications: 1,000 per minute sustained.
+- Concurrent predictive evaluations: 500+.
+
+### 31.3 Scaling Behavior
+
+The Gateway scales horizontally by partitioning on tenant and signal type. Health model computation scales independently of signal ingestion. Scaling does not require changes to health model definitions or anomaly detection logic.
+
+### 31.4 Graceful Degradation Under Load
+
+Under load, the Gateway degrades non-critical analysis (historical trend computation, optional enrichment) before critical analysis (anomaly detection, health model updates for active entities). Predictive indicators for distant horizons are deferred before immediate predictions.
+
+---
+
+## 32. Observability Learning & Evolution
+
+### 32.1 Bounded Improvement
+
+The Observability subsystem may improve its models, thresholds, and detection logic within constitutional constraints. It may not: reduce signal completeness requirements, bypass privacy classifications, auto-elevate disclosure scopes, or eliminate human oversight of Sovereign-class data.
+
+### 32.2 Model Validation
+
+New health model versions, anomaly detection logic, or predictive algorithms undergo A/B validation against baseline metrics. Improvements demonstrating measurable accuracy gain without compromising guarantees are promoted.
+
+### 32.3 Feedback Integration
+
+Observability consumes feedback from consumers: false positive rates from Security, prediction accuracy from Decision, cognitive load metrics from Human Interface. This feedback informs threshold calibration and disclosure optimization.
+
+### 32.4 Version Lineage
+
+Observability definitions are versioned with lineage references. Running entities continue with the health model version they started with; new entities use the latest version.
+
+---
+
+## 33. Governance Integration
+
+### 33.1 Meta-Oversight Consumption
+
+Governance audits the Observability subsystem's own legitimacy: whether health models align with constitutional intent, whether anomaly detection respects authority boundaries, whether retention policies comply with privacy requirements, and whether coverage validation is effective.
+
+### 33.2 Compliance Support
+
+Observability provides Governance with: constitutional compliance scores, drift velocity metrics, policy contradiction indicators, and legitimacy trend analyses.
+
+### 33.3 Constitutional Drift Reporting
+
+When drift detection indicates systematic divergence from constitutional intent, the Gateway assembles evidence packages and routes them to Governance for adjudication. Observability measures drift; Governance rules on it.
+
+---
+
+## 34. Security Integration
+
+### 34.1 Trust Substrate Respect
+
+Observability operates entirely within Security boundaries. It authenticates to the Security Gateway, validates authorization for every signal access and disclosure, and never bypasses tenant isolation or secret governance.
+
+### 34.2 Anomaly Routing
+
+Security-relevant anomalies (authentication spikes, authorization denials, boundary crossings, behavioral drift) are routed to Security with full evidence packages. Observability detects patterns; Security investigates and responds.
+
+### 34.3 Audit Security
+
+Access to observability artifacts is logged immutably. Bulk export of observability data requires O4 authority. Sovereign-class observability data is accessible only to human Operators and Auditors.
+
+---
+
+## 35. Non-Violable Observability Rules
+
+The following rules are absolute. Violation constitutes a Category 1 incident:
+
+1. No subsystem may opt out of mandatory signal emission.
+2. No observability artifact may be formed without a unique identity, authenticated source, and documented provenance.
+3. No observability artifact may cross tenant boundaries without explicit bilateral human approval.
+4. No observability artifact may expose secret values, credentials, or authentication proofs.
+5. No health model may present correlation as causation without experimental validation.
+6. No predictive indicator may be disclosed without explicit confidence score and falsifiability conditions.
+7. No anomaly may remain unclassified or unalerted for more than 60 seconds after detection.
+8. No coverage gap may remain undetected or unreported for more than 60 seconds after expected signal absence.
+9. No observability disclosure may overwhelm human cognitive load beyond defined budgets.
+10. No observability artifact may be modified, overwritten, or deleted after formation.
+11. No observability subsystem change may be deployed without A/B validation against baseline accuracy.
+12. No observability failure may remain unclassified or unalerted for more than 60 seconds.
+13. The Panic Protocol must trigger complete observability disclosure to human operators within 5 seconds of invocation.
+14. No observability artifact may reduce human sovereignty below absolute terminal authority.
+15. No observability artifact may bypass the Observability Gateway for direct producer-to-consumer disclosure.
+
+---
+
+## 36. Appendix: Observability Glossary
+
+| Term | Definition |
+|------|------------|
+| **Anomaly** | A deviation from expected patterns detected by the Gateway, classified by risk and scope. |
+| **Causal Graph** | A structured model of known cause-effect relationships used to trace health degradation to root causes. |
+| **Coverage Gap** | A failure domain or entity lacking required observable signals. |
+| **Decay** | The governed degradation of signal fidelity over time according to retention policy. |
+| **Drift** | Systematic, gradual divergence of behavior from constitutional intent or baseline norms. |
+| **Evidence Package** | A curated, structured collection of signals and interpretations assembled for decision or audit support. |
+| **Health Model** | A multi-dimensional, weighted composition of signals representing the well-being of an entity. |
+| **Observability Gateway** | The unified interpretive layer that transforms operational signals into organizational understanding. |
+| **Predictive Indicator** | A forward-looking forecast of probable future state degradation with confidence and falsifiability conditions. |
+| **Provenance** | The complete lineage of an observability artifact from primary signals through interpretation to disclosure. |
+| **Signal** | A structured emission from a subsystem: metric, event, journal, or trace. |
+| **Synthetic Probe** | An artificial transaction used to validate that observability channels remain functional. |
+| **Transparency** | The scoped, batched, and contextualized delivery of observability artifacts to authorized consumers. |
+
+---
+
+*End of Document*

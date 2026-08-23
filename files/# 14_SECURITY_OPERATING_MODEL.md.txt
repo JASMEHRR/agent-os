@@ -1,0 +1,907 @@
+ # 14_SECURITY_OPERATING_MODEL.md
+
+**Agent OS — Security Operating Model**
+**Version:** 1.0.0
+**Status:** Ratified
+**Classification:** Architecture Constitution — Binding on All Security Behavior
+
+---
+
+## Table of Contents
+
+1. [Preamble](#1-preamble)
+2. [Security Philosophy](#2-security-philosophy)
+3. [Security Mission & Permanent Objectives](#3-security-mission--permanent-objectives)
+4. [Security Identity](#4-security-identity)
+5. [Security Classification](#5-security-classification)
+6. [Security Architecture & Topology](#6-security-architecture--topology)
+7. [Trust Model](#7-trust-model)
+8. [Identity Model](#8-identity-model)
+9. [Authentication](#9-authentication)
+10. [Authorization](#10-authorization)
+11. [Capability Grants](#11-capability-grants)
+12. [Permission Model](#12-permission-model)
+13. [Role Model](#13-role-model)
+14. [Delegation](#14-delegation)
+15. [Revocation](#15-revocation)
+16. [Least Privilege](#16-least-privilege)
+17. [Separation of Duties](#17-separation-of-duties)
+18. [Tenant Isolation](#18-tenant-isolation)
+19. [Workspace Isolation](#19-workspace-isolation)
+20. [Business Isolation](#20-business-isolation)
+21. [Portfolio Isolation](#21-portfolio-isolation)
+22. [Secret Governance](#22-secret-governance)
+23. [Credential Governance](#23-credential-governance)
+24. [Security Context](#24-security-context)
+25. [Security Boundaries](#25-security-boundaries)
+26. [Security Auditability](#26-security-auditability)
+27. [Security Observability](#27-security-observability)
+28. [Security Reliability](#28-security-reliability)
+29. [Security Incident Classification](#29-security-incident-classification)
+30. [Security Recovery](#30-security-recovery)
+31. [Security Governance](#31-security-governance)
+32. [Human Sovereignty Protection](#32-human-sovereignty-protection)
+33. [Constitutional Protection](#33-constitutional-protection)
+34. [Security Evolution](#34-security-evolution)
+35. [Non-Violable Security Rules](#35-non-violable-security-rules)
+36. [Appendix: Security Glossary](#36-appendix-security-glossary)
+
+---
+
+## 1. Preamble
+
+This document derives the **Security Operating Model** from the constitutional architecture established in `01_PRINCIPLES.md` through `13_LEARNING_OPERATING_MODEL.md`. It specifies how trust, identity, authority, isolation, and protection are established, maintained, and enforced across every subsystem of Agent OS. Where this document is silent, the constitution governs. Where this document speaks, it is binding.
+
+---
+
+## 2. Security Philosophy
+
+### 2.1 The Trust Substrate Metaphor
+
+Security is not a defensive perimeter. It is the **trust substrate** upon which every other subsystem rests. Agent OS is an autonomous venture studio whose workforce, decisions, and accumulated knowledge must operate within a substrate of verifiable trust. Without Security, agents cannot be authenticated, decisions cannot be authorized, learning cannot be isolated, businesses cannot be separated, and human sovereignty cannot be enforced. Security transforms the abstract concepts of identity, permission, and boundary into enforceable, auditable, and recoverable guarantees.
+
+### 2.2 Security vs. Runtime
+
+Runtime governs execution—the *how* of work. Security governs permission—the *whether* of work. Runtime schedules tasks, hydrates context, manages sandboxes, and recovers state. Security verifies that the principal requesting execution is authenticated, authorized, and operating within its declared boundaries. Runtime asks "can this task run efficiently?"; Security asks "is this principal permitted to attempt it?" Runtime is the executor; Security is the gatekeeper.
+
+### 2.3 Security vs. Governance
+
+Governance audits compliance with policy, investigates incidents, and reviews constitutional adherence after the fact. Security enforces the boundaries that make compliance auditable. Governance asks "did we follow the rules?"; Security asks "is this action even possible under the rules?" Governance is retrospective oversight; Security is prospective enforcement. Governance may recommend policy changes; Security implements the access controls that make policy meaningful.
+
+### 2.4 Security vs. Agent
+
+An agent is a subject of security policy, not an enforcer of it. An agent possesses an identity, holds permissions, and operates within boundaries, but it does not define, verify, or revoke those constraints. Granting agents security authority would create circular trust and violate the principle that no entity may escalate its own permissions. Agents propose; Security permits.
+
+### 2.5 Security vs. Decision
+
+Decision governs whether a commitment to action should be formed based on evidence, risk, and strategic alignment. Security governs whether the principal proposing the commitment possesses the identity and authority to make it. A principal may be authenticated and authorized (Security approves) but still lack sufficient evidence for commitment (Decision rejects). Security verifies *who* and *may*; Decision evaluates *what* and *why*. These subsystems must never conflate permission with wisdom.
+
+### 2.6 Security as Constitutional Invariant
+
+Security is the only subsystem whose primary output is the preservation of constraints across all other subsystems. While Memory preserves experience, Knowledge validates belief, Decision commits to action, and Learning proposes improvement, Security ensures that all of these occur within immutable boundaries of identity, authority, and isolation. Security does not change the constitution; it protects it.
+
+---
+
+## 3. Security Mission & Permanent Objectives
+
+### 3.1 Mission
+
+The Security subsystem exists to ensure that **every action within Agent OS is attributable to an authenticated principal, authorized within declared boundaries, isolated from unauthorized principals, and auditable for the statutory retention period**, while preserving the autonomous velocity required for portfolio growth.
+
+### 3.2 Permanent Objectives
+
+1. **Identity Integrity:** Every principal possesses a unique, immutable, non-repudiable identity.
+2. **Authority Enforcement:** No principal may act beyond the intersection of its capability signature, tool inventory, memory scope, autonomy level, cost budget, and workspace boundaries.
+3. **Least Privilege:** Every principal operates with the minimum permissions necessary for its current task.
+4. **Isolation by Default:** Tenants, businesses, workspaces, and portfolios are isolated unless explicitly and bilaterally authorized otherwise.
+5. **Secret Non-Exposure:** Secrets and credentials are never visible to agents, workflows, or decision journals.
+6. **Human Sovereignty Preservation:** Humans retain absolute veto, override, Panic Protocol invocation, and permission revocation authority.
+7. **Audit Immutability:** Every security event is recorded in an append-only, tamper-evident journal retained for a minimum of seven years.
+8. **Trust Revocability:** Permissions, delegations, and authorities are revocable immediately and propagate within bounded time.
+9. **Constitutional Boundary Protection:** Non-violable rules are enforced at the security layer, not merely documented.
+10. **Security Velocity:** Enforcement must not paralyze autonomy; permission decisions must render within defined latency budgets.
+
+### 3.3 Objective Conflicts
+
+Resolution order: **Human Sovereignty > Constitutional Boundary Protection > Identity Integrity > Authority Enforcement > Least Privilege > Isolation by Default > Secret Non-Exposure > Audit Immutability > Trust Revocability > Security Velocity.**
+
+---
+
+## 4. Security Identity
+
+### 4.1 Identity Primitives
+
+Every principal—agent, human operator, service, workflow, or Gateway—possesses an immutable security identity consisting of:
+
+- **Principal ID:** A universally unique identifier assigned at registration, never reused, never reassigned.
+- **Principal Type:** Classification as Agent, Human, Service, Workflow, or Gateway.
+- **Name:** A human-readable designation.
+- **Version:** A semantic version tracking the principal's behavioral or structural evolution.
+- **Tenant ID:** The tenant to which the principal belongs.
+- **Status:** Active, Suspended, Retired, or Archived.
+- **Lineage Reference:** Links to predecessor identities in version succession.
+- **Registration Timestamp:** The moment of identity creation.
+- **Retirement Timestamp:** The moment of permanent decommissioning (nullable until retirement).
+
+### 4.2 Identity Persistence
+
+Security identity persists beyond any single task, workflow, or session. The Security Gateway maintains an Identity Registry as durable system state. When a principal is not active, its identity remains in the registry. Principals are not ephemeral; they are long-lived entities that may be active, suspended, or retired, but their identity and history endure for the statutory retention period.
+
+### 4.3 Identity Lineage and Versioning
+
+When a principal's behavior or structure is materially changed, the change is released as a new version with a distinct Principal ID linked to its predecessor via a lineage field. Running workflows continue with the version they started with; new tasks are scheduled against the latest version. This prevents mid-flight identity changes from corrupting active authorization chains.
+
+### 4.4 Identity as Accountability Anchor
+
+Every security-relevant action—authentication, authorization, delegation, revocation, boundary crossing, secret reference—is attributed to a Principal ID. This attribution is non-repudiable: the Security Gateway does not permit anonymous or pseudonymous actions. Identity is the foundation of auditability and the root of all trust chains.
+
+---
+
+## 5. Security Classification
+
+### 5.1 Classification by Sensitivity
+
+Security-relevant entities are classified by the sensitivity of the resources they protect:
+
+- **Public:** Visible to all principals within the tenant. No authentication required for read; authentication required for write.
+- **Internal:** Visible to all authenticated principals within the tenant or workspace. Standard access controls apply.
+- **Confidential:** Visible only to principals with explicit capability grants. Cross-role access requires justification and logging.
+- **Restricted:** Visible only to specific principals with standing orders or human-approved grants. Includes secrets, credentials, and Class D decision journals.
+- **Sovereign:** Visible only to human operators with Operator or Auditor roles. Includes Panic Protocol logs, override records, and constitutional amendment proposals.
+
+### 5.2 Classification by Risk Impact
+
+Security events and resources are classified by the severity of compromise:
+
+- **Negligible:** No meaningful impact; isolated to a single Class A task.
+- **Low:** Limited impact; recoverable within normal operations without external exposure.
+- **Moderate:** Significant impact; may affect a single business or workspace, requires planned remediation.
+- **High:** Severe impact; may threaten tenant integrity, cross-business isolation, or secret exposure.
+- **Critical:** Catastrophic impact; threatens portfolio viability, human sovereignty, or constitutional integrity.
+
+### 5.3 Classification by Isolation Scope
+
+- **Tenant-Scoped:** Boundaries enforced at the tenant perimeter.
+- **Portfolio-Scoped:** Boundaries enforced across businesses within a tenant.
+- **Business-Scoped:** Boundaries enforced at the business perimeter.
+- **Workspace-Scoped:** Boundaries enforced at the workspace perimeter.
+- **Agent-Scoped:** Boundaries enforced at the individual principal level.
+
+---
+
+## 6. Security Architecture & Topology
+
+### 6.1 Security Gateway as Unified Access Layer
+
+No principal, subsystem, or service may form an identity, assert a capability, access a resource, or cross a boundary without mediation by the **Security Gateway**. The Security Gateway is the sole source of truth for "who may act" and "within what boundaries." All other subsystems—Agent, Decision, Learning, Memory, Knowledge, Tool, and Runtime—delegate identity verification and permission enforcement to the Security Gateway. The Gateway enforces authentication, authorization, delegation validation, revocation checks, boundary enforcement, and audit logging.
+
+### 6.2 Producer-Consumer Topology
+
+**Producers** (agents, workflows, human operators, services, other Gateways) emit identity claims and resource access requests to the Security Gateway. **Consumers** (Runtime for execution permission, Memory for access control, Tool for invocation permission, Event Bus for emission permission, Decision for commitment authority) receive authorization decisions from the Gateway. The Gateway mediates all flow; producers cannot self-authorize, and consumers cannot execute non-trivial actions without a valid authorization decision from the Gateway.
+
+### 6.3 Boundary Enforcement
+
+The Security Gateway enforces:
+
+- **Identity Boundary:** Every action is attributed to a registered, authenticated Principal ID.
+- **Permission Boundary:** Every action is checked against the principal's current permission graph.
+- **Capability Boundary:** Every action is verified against the principal's declared capability signature.
+- **Autonomy Boundary:** Every action is checked against the principal's current autonomy level.
+- **Scope Boundary:** Every action is verified against tenant, portfolio, business, and workspace isolation rules.
+- **Budget Boundary:** Every action is checked against the principal's cost budget before execution.
+- **Temporal Boundary:** Time-bounded delegations and tokens are validated for expiry before authorization.
+
+### 6.4 Relationship to Other Subsystems
+
+- **Agent Gateway:** Security authenticates agent identities, validates capability signatures, and enforces autonomy levels. Agent OM defines capabilities; Security enforces their boundaries.
+- **Decision Gateway:** Security verifies the identity and authority of decision proposers and authorizers. Decision OM defines decision classes and authority rules; Security enforces that no principal commits beyond its autonomy level.
+- **Learning Gateway:** Security enforces tenant and scope isolation for learning entries. Learning OM defines learning scopes; Security prevents cross-tenant propagation without authorization.
+- **Memory Gateway:** Security validates read/write scopes and namespace permissions. Memory OM defines memory tiers; Security enforces access control across tiers.
+- **Tool Gateway:** Security authorizes tool invocations and governs secret injection policy. Tool OM defines tool contracts; Security enforces which principals may invoke which tools.
+- **Runtime:** Security provides execution authorization and propagates security context through task handoffs. Runtime governs execution mechanics; Security governs execution permission.
+
+---
+
+## 7. Trust Model
+
+### 7.1 Trust as Derived, Not Assumed
+
+Trust is not an ambient property of the network or infrastructure. Trust is derived from three sources: immutable identity registration, cryptographically bound authentication tokens, and capability signatures declared at registration time. A principal is trusted only to the extent that its identity is verifiable, its tokens are valid, and its claimed capabilities are registered and unrevoked.
+
+### 7.2 Trust Establishment
+
+Trust is established when a principal registers its identity in the Security Gateway's Identity Registry, declares its capability signature, and receives an initial authentication credential. Registration is a Class C decision requiring human approval for agents and services. Human operator registration requires Auditor verification. The registration event is immutable and logged.
+
+### 7.3 Trust Maintenance
+
+Trust is maintained through continuous validation. Every action re-verifies the principal's current permissions against the live permission graph. Every token validation checks expiry, revocation status, and scope constraints. Every boundary crossing re-confirms isolation rules. Trust decays automatically: tokens expire, standing orders lapse, and idle agents lose reputation-derived permission elevations.
+
+### 7.4 Trust Propagation
+
+Trust propagates transitively only through explicit delegation chains recorded in the Security Gateway. If Principal A delegates authority to Principal B, and Principal B delegates to Principal C, Principal C's effective permissions are the intersection of all three principals' scopes, not the union. The Gateway validates the entire delegation chain at the point of action. Broken or revoked links in the chain invalidate downstream authority.
+
+### 7.5 Trust Revocation
+
+Trust is revoked explicitly through human command, automatically through expiry, or reactively through anomaly detection. Revocation is immediate at the Gateway but propagates to cached permission graphs within bounded time. Upon revocation, the principal's active tokens are invalidated, its pending tasks are suspended, and its in-flight actions are halted.
+
+---
+
+## 8. Identity Model
+
+### 8.1 Principal Categories
+
+The Identity Registry recognizes five categories of principal:
+
+- **Agent:** A persistent digital worker with a capability signature, autonomy level, and reputation score. Defined in Agent OM Section 3.
+- **Human:** A sovereign operator with absolute veto and override authority. Human identities are non-delegable and non-automated.
+- **Service:** A non-agent system service (e.g., a Gateway, a scheduler, a cost manager) that performs infrastructure functions. Services have identities but no autonomy levels; they operate under fixed, human-approved permission sets.
+- **Workflow:** A named, versioned workflow definition that may hold temporary permissions during execution. Workflow identities are bound to the workflow's manifest.
+- **Gateway:** A constitutional subsystem access layer (Agent Gateway, Decision Gateway, Learning Gateway, etc.). Gateway identities are service identities with elevated audit requirements.
+
+### 8.2 Identity Lifecycle States
+
+- **Designed:** Specification drafted; no registry entry.
+- **Registered:** Identity validated and stored; eligible for authentication but not yet active.
+- **Active:** Identity authenticated and authorized for task assignment.
+- **Suspended:** Identity blocked from new actions pending review or remediation.
+- **Retired:** Identity permanently decommissioned; no new actions permitted.
+- **Archived:** Identity preserved in cold storage for audit and lineage; inactive.
+
+### 8.3 State Transition Guards
+
+- **Designed → Registered:** Manifest validation passes; human approval obtained (for agents and services); no identity collision.
+- **Registered → Active:** Initial authentication credential issued; health check passed; no security anomalies.
+- **Active → Suspended:** Security anomaly detected; human command received; autonomy downgrade triggered; success rate threshold breached.
+- **Suspended → Active:** Review completed; remediation verified; human approval for reactivation (if security-related).
+- **Active → Retired:** Human command; superseded by new version; business line closure.
+- **Retired → Archived:** All tasks drained; audit trail complete; lineage record updated.
+
+### 8.4 Identity Side Effects
+
+- **On Registration:** The Security Gateway initializes the principal's permission graph, emits a system event, and creates the initial audit journal entry.
+- **On Suspension:** The Gateway revokes all active tokens, emits a security alert, preserves in-flight action state for forensic review, and suspends pending tasks.
+- **On Retirement:** The Gateway archives the permission graph, invalidates all credentials, and transfers resource ownership per workspace grants.
+- **On Archive:** The Gateway retains the identity, audit trail, and lineage for the statutory retention period (minimum seven years).
+
+---
+
+## 9. Authentication
+
+### 9.1 Authentication as Identity Verification
+
+Authentication is the process by which the Security Gateway verifies that a principal is who it claims to be. Authentication occurs at the boundary of every action: before memory access, before tool invocation, before event emission, before decision commitment, and before task execution. No action proceeds without successful authentication.
+
+### 9.2 Authentication Tokens
+
+Principals authenticate using short-lived tokens issued by the Security Gateway. Tokens carry scoped claims: Principal ID, principal type, roles, permissions, budget limit, tenant ID, and expiry timestamp. Tokens have a maximum time-to-live of one hour. Tokens are rotated automatically and invalidated upon suspension, retirement, or revocation. The Gateway is the sole issuer and validator of tokens.
+
+### 9.3 Token Scope and Claims
+
+Token claims are derived from the principal's current permission graph at issuance time. Claims include:
+
+- **Identity Claims:** Principal ID, version, type, tenant ID.
+- **Authority Claims:** Current autonomy level, role assignments, standing order references.
+- **Resource Claims:** Permitted memory namespaces, tool inventory entries, workspace IDs.
+- **Constraint Claims:** Cost budget remaining, task timeout, maximum retry count.
+- **Temporal Claims:** Issuance time, expiry time, delegation chain validity window.
+
+### 9.4 Token Validation
+
+On every action, the Security Gateway validates: token authenticity (issued by the Gateway), token integrity (unmodified since issuance), token expiry (within valid window), token revocation status (not invalidated since issuance), and claim sufficiency (requested action within token's scope). Any validation failure results in immediate rejection and logging.
+
+### 9.5 Re-Authentication
+
+Re-authentication is required when: a token expires, a principal crosses a scope boundary (e.g., from business A to business B), a task is reassigned to a different principal, or a security anomaly is detected during execution. Re-authentication does not imply re-authorization; authorization is checked independently on every action.
+
+---
+
+## 10. Authorization
+
+### 10.1 Authorization as Permission Decision
+
+Authorization is the process by which the Security Gateway determines whether an authenticated principal is permitted to perform a requested action on a specific resource. Authentication verifies *who*; authorization verifies *may*. Authorization decisions are rendered at the point of action and are context-aware, considering the principal's identity, current task, resource sensitivity, and environmental conditions.
+
+### 10.2 Authorization Decision Flow
+
+1. Principal requests action with authenticated token.
+2. Security Gateway extracts Principal ID and requested resource/action pair.
+3. Gateway queries the live permission graph for the principal's effective permissions.
+4. Gateway evaluates the request against capability signature, role assignments, autonomy level, and scope boundaries.
+5. Gateway checks for separation-of-duties conflicts (e.g., creator reviewing own output).
+6. Gateway checks budget and temporal constraints.
+7. Gateway renders Allow, Deny, or Escalate decision.
+8. Decision is logged immutably; action proceeds only on Allow.
+
+### 10.3 Authorization Escalation
+
+The Gateway may escalate an authorization request to higher authority when: the request is near a boundary threshold, the principal's confidence is low, the action has cross-scope impact, or anomaly detection flags unusual patterns. Escalation routes to the principal's team lead, business manager, portfolio architect, or human sovereign based on decision class and risk.
+
+### 10.4 Caching and Staleness
+
+Authorization decisions may be cached by consuming subsystems for bounded time (not exceeding token expiry) to reduce latency. Cached decisions are validated against a revocation list maintained by the Gateway. If a permission is revoked, the Gateway broadcasts invalidation to all caches within a defined propagation window. No cached authorization survives beyond its maximum time-to-live.
+
+---
+
+## 11. Capability Grants
+
+### 11.1 Capability as Declared Outcome
+
+A capability is a structured declaration of a business function a principal can perform, as defined in Agent OM Section 7.1. Capabilities are hierarchical (e.g., `business.content.generate` is a parent of `business.content.generate.blog_post`). The Security Gateway does not define capabilities; it enforces the boundary between declared capabilities and requested actions.
+
+### 11.2 Capability Registration
+
+Capabilities are registered in the principal's manifest at design time and validated at registration time. The Security Gateway stores the canonical capability signature for each principal. A principal may not perform actions outside its registered capability hierarchy. Capability changes require registration of a new principal version with human approval if the change crosses autonomy boundaries.
+
+### 11.3 Capability Enforcement
+
+The Gateway enforces capability boundaries at task assignment time and at action execution time. A task requiring `business.deploy.execute` cannot be assigned to a principal whose signature only includes `business.content.generate`. Attempts by a principal to invoke tools or access resources outside its capability domain are blocked by the Gateway and logged as violations.
+
+### 11.4 Capability Evolution
+
+Principals may expand capabilities through learning and version updates, but only within their declared domain. Autonomous capability addition is prohibited. The Gateway rejects any action that implies a capability not present in the principal's registered signature.
+
+---
+
+## 12. Permission Model
+
+### 12.1 Permission as Action Right
+
+A permission is a specific right to perform a specific action on a specific resource class. Permissions are derived from capabilities, roles, and delegations, but they are distinct: a capability declares *what outcomes a principal can deliver*; a permission declares *what actions a principal may attempt*. The permission model is the structural schema that maps capabilities and roles to concrete action rights.
+
+### 12.2 Permission Graph
+
+The Security Gateway maintains a permission graph for each principal, representing the complete set of actions the principal is authorized to perform. The graph is derived from: registered capabilities, assigned roles, active delegations, standing orders, and workspace grants. The graph is recomputed when any of these inputs change and is validated before every authorization decision.
+
+### 12.3 Permission Inheritance
+
+Child tasks inherit permissions from their parent task, but only the intersection of parent permissions and child requirements. A parent with permission to use tools X, Y, and Z may spawn a child that requires only X; the child receives X, not Y or Z. The Gateway computes the intersection at task creation time and validates it at execution time. No child task may hold permissions its parent does not possess.
+
+### 12.4 Permission Intersection Rules
+
+When multiple permission sources apply to a principal (e.g., role assignment plus standing order), the effective permission is the intersection, not the union, of all sources. This prevents standing orders from expanding beyond role boundaries or roles from expanding beyond capability signatures. The Gateway resolves intersections before rendering authorization decisions.
+
+### 12.5 Permission Graph Immutability
+
+Historical permission graphs are preserved in the audit journal. When a permission is granted, revoked, or modified, the old graph is archived and the new graph is activated. This enables forensic reconstruction of what a principal was permitted to do at any point in time.
+
+---
+
+## 13. Role Model
+
+### 13.1 Role as Functional Identity
+
+A role is a functional identity that defines responsibilities, permissions, and interaction patterns, as established in Agent OM Section 8. The Security Gateway enforces the security implications of roles: which roles may be held by which principal types, which roles may be temporarily assigned, and which role combinations are prohibited.
+
+### 13.2 Canonical Roles and Security Properties
+
+- **Business Owner:** Human-only. Holds sovereign authority over business scope. Security enforces that no agent may assume this role.
+- **Project Lead:** Human or agent. Holds coordination authority within a project. Security enforces that Project Lead permissions do not exceed business scope.
+- **Agent Worker:** Agent-only. Holds execution authority within capability signature and autonomy level. Security enforces that Worker permissions are bounded by manifest declarations.
+- **Reviewer:** Human or agent. Holds evaluation authority over outputs. Security enforces separation of duties: a principal may not hold Reviewer role for output it created.
+- **Operator:** Human-only. Holds system monitoring and escalation authority. Security enforces that Operator actions are logged with heightened sensitivity.
+- **Auditor:** Human-only. Holds read-only access to all journals and audit trails within tenant scope. Security enforces that Auditor permissions are immutable and non-delegable.
+
+### 13.3 Role Assignment and Security
+
+Roles are assigned at the workspace level and stored in the permission graph. The Security Gateway validates role assignments against principal type constraints (e.g., no agent may be assigned Business Owner). Temporary role assignments expire automatically upon task completion or project closure, at which point the Gateway removes the role from the permission graph.
+
+### 13.4 Role Conflict Detection
+
+The Gateway continuously detects role conflicts: a principal holding both Creator and Reviewer roles for the same output; a principal approving its own decisions; a principal executing and auditing the same workflow. Conflicts are blocked at assignment time and flagged as security anomalies if detected post-assignment.
+
+---
+
+## 14. Delegation
+
+### 14.1 Delegation as Authority Transfer
+
+Delegation is the temporary transfer of authority from one principal to another, scoped, time-bounded, and revocable. Delegation does not create new permissions; it lends existing permissions from the delegator to the delegatee, subject to intersection rules. The Security Gateway records all delegations in the permission graph and validates them at every authorization decision.
+
+### 14.2 Delegation Types
+
+- **Standing Order:** A human-delegated, pre-approved authority for scoped Class C decisions, as defined in Decision OM Section 19. Standing orders expire after 30 days unless renewed. The Gateway validates every standing-order invocation against its constraints.
+- **Temporary Role Assignment:** A human or high-autonomy agent assigns a role to another principal for a specific task or project. Expires upon task completion.
+- **Task Delegation:** A principal assigns a specific task to another principal, lending only the permissions required for that task.
+- **Emergency Delegation:** A human-authorized delegation for safety-critical situations, logged as a constitutional exception.
+
+### 14.3 Delegation Constraints
+
+All delegations are constrained by: maximum scope (tenant, business, workspace), maximum cumulative impact (budget, risk), time window, and revocation conditions. The Gateway rejects delegations that exceed the delegator's own permissions or that would create role conflicts.
+
+### 14.4 Delegation Chain Validation
+
+When a principal acts under delegation, the Gateway validates the entire chain: the delegatee's identity, the delegator's authority to lend, the scope of the delegation, the expiry of the delegation, and the absence of revocation at any link. A broken chain invalidates the authorization.
+
+### 14.5 Delegation Logging
+
+Every delegation—creation, modification, invocation, expiry, and revocation—is logged immutably in the security audit journal. Delegation logs include: delegator ID, delegatee ID, granted permissions, scope, time bounds, and revocation status.
+
+---
+
+## 15. Revocation
+
+### 15.1 Revocation as Permission Removal
+
+Revocation is the immediate or scheduled removal of permissions, capabilities, roles, delegations, or authentication credentials. Revocation is the primary mechanism for trust revocation and incident response. The Security Gateway executes revocation commands and propagates their effects across all dependent subsystems.
+
+### 15.2 Revocation Triggers
+
+- **Human Command:** A human operator explicitly revokes a permission, role, or delegation.
+- **Suspension:** A principal is suspended due to security anomaly, drift detection, or policy violation; all permissions are temporarily revoked.
+- **Retirement:** A principal is retired; all permissions are permanently revoked.
+- **Expiry:** A time-bounded delegation, token, or standing order reaches its expiration.
+- **Anomaly Detection:** Automated systems detect unusual patterns and trigger precautionary revocation.
+- **Constitutional Violation:** A principal violates a non-violable rule; all permissions are revoked pending investigation.
+
+### 15.3 Cascading Revocation
+
+When a principal is revoked, the Gateway cascades the revocation to: all active tokens, all pending tasks, all child tasks, all delegations issued by the principal, and all cached permission graphs. Cascading revocation is atomic within a bounded time window; partial revocation is treated as a system failure and alerted.
+
+### 15.4 Revocation Propagation
+
+Revocation commands propagate from the Gateway to Runtime, Agent, Tool, Memory, and Decision subsystems within defined latency budgets. Subsystems must acknowledge revocation and halt affected actions. The Gateway verifies propagation through heartbeat checks and re-issues revocation if acknowledgment is not received.
+
+### 15.5 Revocation Logging
+
+Every revocation event is logged with: revoked principal ID, revoker ID (human or system), revocation reason, timestamp, scope of revocation, and cascading effects. Revocation logs are Sovereign-class and visible only to human Operators and Auditors.
+
+---
+
+## 16. Least Privilege
+
+### 16.1 Least Privilege as Default Posture
+
+Every principal operates with the minimum permissions necessary for its current task. Least privilege is not an optimization; it is the default security posture. The Security Gateway enforces least privilege at the point of every action: before memory access, before tool invocation, before event emission, before decision commitment, and before resource allocation.
+
+### 16.2 Task-Scoped Permissions
+
+When a principal is assigned a task, the Gateway computes a task-scoped permission set: the intersection of the principal's full permission graph and the task's declared requirements. The principal may not use permissions outside this intersection during task execution. Task-scoped permissions are released upon task completion.
+
+### 16.3 Tool Invocation Least Privilege
+
+A principal may invoke only tools in its registered inventory, and only with parameters within the tool's declared input schema. The Gateway validates that the principal's tool permission matches the requested tool and that the invocation does not exceed the principal's sandbox level.
+
+### 16.4 Memory Access Least Privilege
+
+A principal may access only memory namespaces declared in its manifest and only with the read/write scopes specified. Cross-tier memory access requires explicit permission grants, not implicit inheritance. The Gateway validates memory access against namespace, tenant, and role filters.
+
+### 16.5 Decision Commitment Least Privilege
+
+A principal may commit decisions only within its declared autonomy level and capability signature. The Gateway blocks attempts to commit Class C or D decisions without appropriate authority and rejects attempts to bypass approval gates through confidence manipulation or scope splitting.
+
+---
+
+## 17. Separation of Duties
+
+### 17.1 Separation as Conflict Prevention
+
+Separation of duties ensures that no single principal can perform conflicting functions without independent review. The Security Gateway enforces separation at the permission level by detecting and blocking role conflicts before they can be exploited.
+
+### 17.2 Creator-Reviewer Separation
+
+A principal that creates an output (content, code, decision, artifact) may not review that same output. The Gateway blocks assignment of Reviewer role to the Creator principal for the same output ID. This applies to agents and humans alike.
+
+### 17.3 Executor-Auditor Separation
+
+A principal that executes a task or workflow may not audit that same task or workflow. Auditor roles are assigned independently and are immutable for the duration of the audit scope.
+
+### 17.4 Approver-Implementer Separation
+
+A principal that approves a decision (Class C or D) may not be the same principal that implements or executes that decision. The Gateway validates that the authority identity and source identity are distinct for committed decisions.
+
+### 17.5 Self-Approval Prohibition
+
+No principal may approve its own proposals, decisions, or role assignments. The Gateway rejects any authorization request where the approver and requester Principal IDs match.
+
+---
+
+## 18. Tenant Isolation
+
+### 18.1 Tenant as Sovereign Boundary
+
+The tenant is the highest isolation boundary in Agent OS. A principal in one tenant cannot access resources, memory, decisions, learning entries, or agents in another tenant unless explicitly authorized through bilateral, human-approved grants. Tenant isolation is absolute and enforced at the Security Gateway.
+
+### 18.2 Cross-Tenant Prohibition
+
+By default, all cross-tenant communication, resource sharing, memory access, event emission, and decision propagation are prohibited. The Gateway blocks all cross-tenant requests at the perimeter.
+
+### 18.3 Bilateral Authorization
+
+Cross-tenant access requires explicit bilateral permission grants: both tenant human sovereigns must approve the grant, the grant must specify scope, duration, and resource classes, and the grant must be recorded in both tenants' audit journals. The Gateway validates bilateral grants before permitting any cross-tenant flow.
+
+### 18.4 Tenant Isolation Enforcement
+
+The Gateway enforces tenant isolation by: validating tenant ID claims on every authentication, rejecting resource requests with mismatched tenant IDs, preventing event routing across tenant boundaries, and auditing all cross-tenant grant usage. Tenant ID is a mandatory claim on every token and every audit log entry.
+
+---
+
+## 19. Workspace Isolation
+
+### 19.1 Workspace as Collaborative Boundary
+
+A workspace is a scoped environment within a tenant where principals collaborate on shared tasks. Workspaces have shared memory, shared tools, and collective accountability. The Security Gateway enforces workspace boundaries to prevent unauthorized cross-workspace access.
+
+### 19.2 Workspace Permission Scope
+
+Principals are granted workspace-scoped permissions that are valid only within the workspace. A principal with access to Workspace A cannot access Workspace B resources unless explicitly granted separate workspace permissions. The Gateway validates workspace ID on every resource access.
+
+### 19.3 Shared Workspace Grants
+
+Cross-workspace access within a tenant requires explicit workspace grants. Grants are scoped by principal, resource class, and duration. The Gateway logs all cross-workspace grants and validates them at every authorization decision.
+
+### 19.4 Workspace Dissolution
+
+Upon workspace dissolution, the Gateway revokes all workspace-scoped permissions, invalidates workspace-scoped tokens, and archives workspace access logs. Principals retain their tenant-level permissions but lose all workspace-specific grants.
+
+---
+
+## 20. Business Isolation
+
+### 20.1 Business as Strategic Boundary
+
+A business is a scoped venture within the portfolio with its own strategy, capital, and agent workforce. Business isolation ensures that decisions, resources, and learning in one business do not leak into another without portfolio-level authority.
+
+### 20.2 Cross-Business Impact Detection
+
+The Security Gateway detects cross-business impact by analyzing resource requests, decision proposals, and memory queries that reference resources outside the principal's home business. Cross-business requests are blocked unless the principal holds portfolio-scoped permissions or explicit cross-business grants.
+
+### 20.3 Business-Scoped Permissions
+
+Principals are assigned business-scoped permissions derived from their role and capability signature. A principal may operate within its home business by default. Cross-business operation requires explicit authorization and is logged with heightened sensitivity.
+
+### 20.4 Business Sunset Isolation
+
+When a business is sunset, the Gateway revokes all business-scoped permissions, reassigns resources per portfolio directives, and archives business access logs. Principals formerly assigned to the business retain tenant-level permissions but lose all business-specific grants.
+
+---
+
+## 21. Portfolio Isolation
+
+### 21.1 Portfolio as Aggregate Boundary
+
+The portfolio is the collection of businesses and capital within a tenant. Portfolio isolation ensures that portfolio-level strategic decisions, capital allocation, and cross-business learning occur only under portfolio-level authority.
+
+### 21.2 Portfolio-Scoped Authority
+
+Portfolio-level actions (capital allocation, business incubation, mission revision) require portfolio-scoped permissions held by Portfolio Architects or human sovereigns. The Gateway validates portfolio scope on all strategic decisions and blocks business-level principals from committing portfolio-level actions.
+
+### 21.3 Cross-Business Resource Protection
+
+The Gateway prevents business-level principals from accessing resources owned by other businesses unless the access is authorized as portfolio-level shared resources. Cross-business memory, knowledge, and learning propagation require portfolio-level validation.
+
+### 21.4 Portfolio Circuit Breakers
+
+The Gateway enforces portfolio-level circuit breakers: maximum capital at risk per business, maximum correlation exposure, minimum cash reserves. Decisions that would breach circuit breakers are rejected at the authorization layer, regardless of local merit.
+
+---
+
+## 22. Secret Governance
+
+### 22.1 Secret as Protected Credential
+
+A secret is any credential, key, token, password, or sensitive configuration required to interact with external systems or protect internal data. Secrets are owned by the Security subsystem, not by agents, workflows, or business logic. The Security Gateway governs the entire secret lifecycle.
+
+### 22.2 Secret Non-Exposure Principle
+
+Agents, workflows, and decision journals never handle secret values. They receive only opaque references to secrets. The actual secret values are injected by the Runtime into tool execution environments at invocation time, under authorization from the Security Gateway. Secrets never appear in agent memory, logs, traces, or decision journals.
+
+### 22.3 Secret Lifecycle
+
+- **Creation:** Secrets are created by human Operators or authorized services, encrypted at rest, and assigned a reference ID.
+- **Registration:** Secrets are registered in the Security Gateway with metadata: scope (tenant, business, workspace), permitted tool inventory, rotation schedule, and access audit requirements.
+- **Injection:** At tool invocation, the Gateway authorizes Runtime to inject the secret into the tool's sandbox environment. The agent receives only the reference, not the value.
+- **Rotation:** Secrets are rotated on schedule or on compromise suspicion. Rotation is atomic: new values are registered before old values are retired.
+- **Retirement:** Expired or compromised secrets are retired, their references invalidated, and their usage archived.
+- **Archival:** Retired secrets are preserved in encrypted cold storage for the statutory retention period.
+
+### 22.4 Secret Access Control
+
+Access to secret references is governed by capability signature and tool inventory. A principal may reference only secrets scoped to its tenant, business, or workspace and only for tools in its registered inventory. The Gateway validates every secret reference request against these constraints.
+
+---
+
+## 23. Credential Governance
+
+### 23.1 Credential as Authentication Proof
+
+A credential is any proof of identity used to authenticate a principal: human passwords, service account keys, biometric proofs, or hardware tokens. Credentials are distinct from secrets in that they authenticate principals rather than authorize external system access.
+
+### 23.2 Credential Lifecycle
+
+- **Issuance:** Credentials are issued by the Security Gateway at registration or re-authentication time.
+- **Binding:** Credentials are cryptographically bound to the principal's identity and stored with attestation metadata.
+- **Rotation:** Credentials are rotated on schedule, on suspicion of compromise, or on principal version update.
+- **Revocation:** Credentials are revoked upon suspension, retirement, or explicit human command.
+- **Archival:** Revoked credentials are archived for forensic analysis.
+
+### 23.3 Credential Protection
+
+Credentials are stored with the same protection level as secrets. They are never transmitted in plain text, never logged, and never exposed to agents or workflows. The Gateway validates credential integrity on every authentication attempt.
+
+### 23.4 Human Credential Sovereignty
+
+Human operator credentials are non-delegable and non-automated. No agent, service, or workflow may authenticate using a human credential. Human re-authentication may be required for Class D decisions, override commands, and Panic Protocol invocation.
+
+---
+
+## 24. Security Context
+
+### 24.1 Security Context as Action Provenance
+
+Security context is the complete set of identity, permission, and boundary information that accompanies a principal's action through the system. It includes: Principal ID, authentication token claims, current task ID, workspace ID, business ID, tenant ID, autonomy level, delegated authorities, and security classification of the requested resource.
+
+### 24.2 Context Creation
+
+Security context is created by the Security Gateway at authentication time. It is derived from the principal's identity registry entry, current permission graph, active delegations, and task assignment. Context is immutable for the duration of a single action; changes require re-authentication.
+
+### 24.3 Context Propagation
+
+Security context propagates across all boundaries: from agent to tool, from task to subtask, from workflow step to workflow step, from event producer to event consumer, and from memory query to memory response. Context propagation is mediated by the Security Gateway; no principal may modify its own context.
+
+### 24.4 Context Validation
+
+Every subsystem that receives a propagated context validates it against the Gateway before acting. Validation checks: token authenticity, permission scope, boundary constraints, and temporal validity. Invalid context results in immediate action rejection.
+
+### 24.5 Context Dropping Prohibition
+
+Security context must never be dropped, corrupted, or bypassed during pipeline, ensemble, hierarchy, or market collaborations. If context cannot be propagated (e.g., due to subsystem failure), the action is halted until context is restored or the action is re-authorized.
+
+---
+
+## 25. Security Boundaries
+
+### 25.1 Gateway Boundary
+
+The Security Gateway boundary is the primary enforcement perimeter. No action crosses from one subsystem to another without Gateway-mediated security context validation. This boundary is architectural, not network-based.
+
+### 25.2 Sandbox Boundary
+
+Tool execution occurs within sandboxed environments, as defined in Agent OM Section 16.4. The Security Gateway authorizes sandbox entry and validates that the principal's permissions match the sandbox's risk profile. The Gateway does not define sandbox mechanics; it enforces which principals may enter which sandbox levels.
+
+### 25.3 Memory Boundary
+
+Memory access is bounded by namespace, tier, and scope. The Gateway validates every memory read and write against the principal's declared memory scope and role-based filters. Cross-tier memory access requires explicit permission grants.
+
+### 25.4 Event Boundary
+
+Event emission and consumption are bounded by tenant, workspace, and subscription scope. The Gateway validates that event producers and consumers operate within shared scopes and blocks cross-tenant event routing.
+
+### 25.5 Decision Boundary
+
+Decision commitment is bounded by autonomy level and decision class. The Gateway validates that the principal's authority matches the decision's class before permitting commitment to the Decision Gateway.
+
+---
+
+## 26. Security Auditability
+
+### 26.1 Security Event Journal
+
+Every security-relevant event is recorded in an append-only, immutable Security Event Journal. The journal contains: event ID, timestamp, Principal ID, action type, resource ID, authorization decision (Allow/Deny/Escalate), security context snapshot, and anomaly flags.
+
+### 26.2 Journal Immutability
+
+Security Event Journals are append-only and immutable. No runtime entity may modify, delete, or retroactively alter a journal entry. Corrections append new entries. Journals are cryptographically bound to their predecessor entries to ensure tamper evidence.
+
+### 26.3 Retention
+
+Security Event Journals are retained for a minimum of seven years, regardless of principal retirement, business sunset, or tenant dissolution. Journals are stored with Sovereign-class sensitivity and are accessible only to human Operators and Auditors.
+
+### 26.4 Forensic Reconstruction
+
+The journal enables reconstruction of any security-relevant action: who requested it, when, with what authority, under what context, and with what result. Forensic queries are logged and require Auditor role.
+
+---
+
+## 27. Security Observability
+
+### 27.1 Security Metrics
+
+The Security Gateway emits metrics for: authentication attempts (success/failure), authorization decisions (Allow/Deny/Escalate rates), delegation creations and revocations, permission graph changes, boundary crossing events, token issuance and expiry, and secret reference usage.
+
+### 27.2 Security Traces
+
+Distributed traces follow security context from authentication through authorization to action execution and audit logging. Traces include Gateway decision latency, permission graph query time, and propagation validation steps.
+
+### 27.3 Security Alerting
+
+Alerts trigger on: authentication failure spikes, authorization denial anomalies, delegation chain breaks, permission graph corruption, boundary crossing violations, secret reference abuse, token expiry anomalies, and cascading revocation failures.
+
+---
+
+## 28. Security Reliability
+
+### 28.1 Graceful Degradation
+
+If the Security Gateway is unavailable, previously authenticated and authorized actions may continue for a bounded grace period using cached authority assertions. New non-trivial actions are paused until Gateway availability is restored. No workflow fails solely due to Gateway unavailability, but security-critical actions halt.
+
+### 28.2 Failure Isolation
+
+A corrupted authentication token, malformed permission graph, or invalid delegation chain is rejected at the Gateway without affecting other principals or authorized actions.
+
+### 28.3 Consistency
+
+Read-after-write consistency is guaranteed for security state: a principal that receives a permission grant must see it in subsequent authorization queries. Cross-subsystem security state is eventually consistent within defined propagation bounds.
+
+### 28.4 No Silent Failures
+
+Every Gateway failure—rejection, timeout, corruption, authentication mismatch—is classified and alerted within 60 seconds. Silent security failures are treated as Category 1 incidents.
+
+---
+
+## 29. Security Incident Classification
+
+### 29.1 Incident Taxonomy
+
+Security incidents are classified by nature and response:
+
+- **Operational Anomaly:** Unusual but non-malicious pattern (e.g., permission graph recomputation delay). Response: alert, retry, degrade.
+- **Authentication Breach:** Successful or attempted authentication using invalid, stolen, or revoked credentials. Response: revoke credentials, suspend principal, alert human.
+- **Authorization Violation:** Attempted action beyond declared permissions or autonomy level. Response: block action, log violation, alert human, suspend principal if repeated.
+- **Isolation Breach:** Attempted cross-tenant, cross-business, or cross-workspace access without authorization. Response: block access, alert human, investigate scope of breach.
+- **Secret Exposure:** Secret value appears in log, memory, or agent output. Response: immediately revoke secret, rotate credentials, isolate affected systems, alert human.
+- **Constitutional Violation:** Attempt to bypass non-violable rule, auto-approve on timeout, or modify immutable journal. Response: immediate suspension, preserve evidence, escalate to human sovereign as Category 1 incident.
+
+### 29.2 Automatic Response Triggers
+
+The Gateway automatically triggers incident response when: authentication failure rate exceeds threshold, authorization denial rate spikes, anomaly detection flags behavioral drift, or a non-violable rule violation is detected.
+
+---
+
+## 30. Security Recovery
+
+### 30.1 Recovery as Trust Restoration
+
+Security recovery is the process of restoring verifiable trust after compromise, suspension, or failure. Recovery is not merely technical restoration; it is the re-establishment of confidence that the Security subsystem's guarantees hold.
+
+### 30.2 Recovery Procedures
+
+- **Credential Compromise:** Revoke compromised credentials, re-authenticate affected principals, audit all actions taken under compromised credentials, rotate secrets if exposure is suspected.
+- **Principal Suspension:** Complete forensic review, verify remediation, obtain human approval for reactivation, re-issue credentials, restore permissions incrementally.
+- **Gateway Failure:** Fail over to standby Gateway instance, verify state consistency, restore from durable journal, validate all active tokens and permission graphs.
+- **Isolation Breach:** Identify breach scope, revoke unauthorized access grants, isolate affected resources, audit cross-boundary flows, restore isolation boundaries.
+- **Constitutional Violation:** Preserve all evidence, suspend all involved principals, conduct Auditor review, obtain human sovereign directive, restore only after ratified remediation.
+
+### 30.3 Recovery Validation
+
+After recovery, the Gateway validates: all active principals are authenticated with fresh credentials, all permission graphs are consistent with registered manifests, all boundaries are enforced, all secrets are rotated if exposure was possible, and all audit journals are intact.
+
+---
+
+## 31. Security Governance
+
+### 31.1 Self-Audit
+
+The Security Gateway continuously audits: permission graph integrity, delegation chain validity, token lifecycle compliance, boundary enforcement accuracy, secret rotation adherence, and audit journal completeness.
+
+### 31.2 Drift Detection
+
+The Gateway monitors for security drift: permission inflation over time, delegation scope creep, standing order extension beyond intent, cached authorization staleness, and principal behavior anomalies.
+
+### 31.3 Anomaly Response
+
+- **Permission Anomaly:** Unusual permission graph changes trigger revalidation and human alert.
+- **Delegation Anomaly:** Delegation chains exceeding historical depth or scope trigger review.
+- **Authentication Anomaly:** Authentication patterns inconsistent with principal history trigger step-up authentication or suspension.
+- **Boundary Anomaly:** Cross-boundary access patterns inconsistent with grants trigger investigation.
+
+### 31.4 Constitutional Compliance
+
+Non-compliance with non-violable security rules is escalated as a Category 1 incident. Audit results are stored immutably and reviewed by human Auditors on schedule.
+
+---
+
+## 32. Human Sovereignty Protection
+
+### 32.1 Human as Ultimate Authority
+
+Human operators are the ultimate security authority. The Security Gateway enforces that no agent, service, or automated system may override a human decision, bypass a human approval gate, or escalate its own permissions. Human sovereignty is not a policy preference; it is an architectural invariant enforced by the Gateway.
+
+### 32.2 Level 4 Enforcement
+
+The Gateway blocks any attempt by a non-human principal to commit a Class D decision, to auto-approve on timeout, to invoke the Panic Protocol, or to override a human denial. Level 4 authority is cryptographically bound to human credentials and cannot be delegated to agents or services.
+
+### 32.3 Override Mechanisms
+
+Humans may override any security decision at any time: grant emergency permissions, revoke any principal, bypass any boundary, or halt any action. Overrides are immediate, irreversible by the runtime, and logged as Class D security events with Sovereign-class sensitivity.
+
+### 32.4 Panic Protocol Integration
+
+Invocation of the Panic Protocol triggers immediate revocation of all active tokens, suspension of all non-human principals, halting of all autonomous activity, and transition of all active decisions to Deferred or Reversed. The Panic Protocol completes within 5 seconds of invocation. Only human Operators may resume autonomous activity.
+
+### 32.5 Batched Human Interaction
+
+The Gateway batches security alerts, approval requests, and audit digests to minimize human cognitive load. Critical security events (breach, constitutional violation, secret exposure) trigger immediate notifications. Routine security events are batched into hourly digests.
+
+---
+
+## 33. Constitutional Protection
+
+### 33.1 Non-Violable Rules as Architectural Invariants
+
+The non-violable rules defined in Agent OM Section 23, Decision OM Section 31, and Learning OM Section 36 are not merely documented prohibitions. They are architectural invariants enforced by the Security Gateway at the point of action. The Gateway is the final line of defense against constitutional violation.
+
+### 33.2 Enforcement Mechanisms
+
+The Gateway enforces non-violable rules by: blocking actions that exceed capability signatures, rejecting tool invocations outside registered inventory, preventing autonomy level violations, halting arbitrary code execution outside sandboxes, rejecting Class D autonomous commitments, preventing auto-approval on timeout, blocking human denial overrides, enforcing private memory isolation, prohibiting direct agent invocation, preventing permission escalation, halting on ambiguous preconditions, requiring decision journals for external impact, prohibiting local-only state storage, blocking unvalidated data presentation as knowledge, enforcing cost budget halts, preventing self-review, blocking Creator-Reviewer role conflicts, preventing Learning Model modification of constitutional principles, requiring A/B testing for learned changes, and enforcing Event Bus mediation for all inter-agent communication.
+
+### 33.3 Violation Response
+
+Detection of a non-violable rule violation triggers: immediate action blocking, principal suspension, evidence preservation, human sovereign alert, and Category 1 incident escalation. The violating principal is suspended pending investigation; no appeal is possible at the agent level.
+
+---
+
+## 34. Security Evolution
+
+### 34.1 Bounded Improvement
+
+The Security subsystem may improve its mechanisms—permission graph algorithms, anomaly detection models, audit efficiency, latency optimizations—within constitutional constraints. However, Security may not evolve its way out of human sovereignty, non-violable rules, or isolation guarantees.
+
+### 34.2 Human-Ratified Changes
+
+Proposed changes to the Security Operating Model, permission schemas, or trust model require human sovereign ratification. The system may propose security improvements, but adoption requires explicit human approval.
+
+### 34.3 A/B Validation
+
+Before deploying security mechanism changes, the Gateway conducts limited-scope trials against baseline metrics. Improvements demonstrating measurable benefit without compromising guarantees are promoted; others are discarded.
+
+### 34.4 Version Lineage
+
+Security subsystem versions are tracked with lineage references. Running workflows continue with the security version they started with; new tasks use the latest version. This prevents mid-flight security changes from corrupting active authorization chains.
+
+---
+
+## 35. Non-Violable Security Rules
+
+The following rules are absolute. Violation constitutes a Category 1 incident:
+
+1. No principal may act without a registered, authenticated identity.
+2. No principal may act beyond the intersection of its capability signature, tool inventory, memory scope, autonomy level, cost budget, and workspace boundaries.
+3. No principal may escalate its own permissions, roles, or autonomy level.
+4. No agent may access tools not in its registered inventory.
+5. No agent may execute arbitrary operations outside a sandboxed environment.
+6. No agent may make a Class D decision autonomously.
+7. No approval gate may be auto-approved on timeout for Level 3 or 4 actions.
+8. No human denial may be overridden by an agent or automated system.
+9. No principal may access another principal's private memory without explicit delegation.
+10. No principal may communicate with another principal except through the Event Bus.
+11. No principal may bypass the Security Gateway for authentication or authorization.
+12. No secret value may be exposed to an agent, workflow, or decision journal.
+13. No security event journal may be modified, overwritten, or deleted after formation.
+14. No anonymous or pseudonymous action is permitted.
+15. No cross-tenant access is permitted without bilateral human approval.
+16. No cached authorization may survive beyond its maximum time-to-live.
+17. No revocation may remain unpropagated beyond its defined latency budget.
+18. No security failure may remain unclassified or unalerted for more than 60 seconds.
+19. No security subsystem change may be deployed without human ratification.
+20. The Panic Protocol must halt all autonomous activity within 5 seconds of invocation.
+
+---
+
+## 36. Appendix: Security Glossary
+
+| Term | Definition |
+|------|------------|
+| **Authentication** | The verification of a principal's identity claim by the Security Gateway. |
+| **Authorization** | The rendering of a permission decision for a specific action by the Security Gateway. |
+| **Capability Signature** | The structured declaration of business functions a principal is registered to perform. |
+| **Credential** | A proof of identity used to authenticate a principal. |
+| **Delegation** | The temporary, scoped, time-bounded transfer of authority from one principal to another. |
+| **Gateway Boundary** | The architectural perimeter enforced by the Security Gateway on all cross-subsystem actions. |
+| **Identity Registry** | The canonical store of all principal identities maintained by the Security Gateway. |
+| **Least Privilege** | The principle that every principal operates with the minimum permissions necessary for its current task. |
+| **Permission Graph** | The computed set of action rights for a principal, derived from capabilities, roles, and delegations. |
+| **Principal** | Any entity with a registered identity: agent, human, service, workflow, or Gateway. |
+| **Revocation** | The immediate or scheduled removal of permissions, credentials, or delegations. |
+| **Secret** | A credential or sensitive configuration required for external system interaction, never exposed to principals. |
+| **Security Context** | The complete set of identity, permission, and boundary information accompanying an action. |
+| **Security Event Journal** | The immutable, append-only log of all security-relevant events. |
+| **Security Gateway** | The unified access layer through which all identity verification and permission enforcement flow. |
+| **Separation of Duties** | The architectural constraint preventing conflicting roles from being held by the same principal for the same output. |
+| **Sovereign-Class** | The highest sensitivity classification, accessible only to human Operators and Auditors. |
+| **Tenant Isolation** | The absolute boundary preventing cross-tenant access without bilateral human approval. |
+| **Token** | A short-lived, scoped authentication credential issued by the Security Gateway. |
+| **Trust Substrate** | The foundational layer of verifiable trust upon which all other subsystems rest. |
+
+---
+
+*End of Document*

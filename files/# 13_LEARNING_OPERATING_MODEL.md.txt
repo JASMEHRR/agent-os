@@ -1,0 +1,771 @@
+# 13_LEARNING_OPERATING_MODEL.md
+
+**Agent OS — Learning Operating Model**
+**Version:** 1.0.0
+**Status:** Ratified
+**Classification:** Architecture Constitution — Binding on All Learning Behavior
+
+---
+
+## Table of Contents
+
+1. [Preamble](#1-preamble)
+2. [Learning Philosophy](#2-learning-philosophy)
+3. [Learning Mission & Permanent Objectives](#3-learning-mission--permanent-objectives)
+4. [Learning Identity](#4-learning-identity)
+5. [Learning Classification](#5-learning-classification)
+6. [Learning Architecture & Topology](#6-learning-architecture--topology)
+7. [Learning Sources & Inputs](#7-learning-sources--inputs)
+8. [Learning Lifecycle](#8-learning-lifecycle)
+9. [Learning States & Transitions](#9-learning-states--transitions)
+10. [Learning Ownership & Boundaries](#10-learning-ownership--boundaries)
+11. [Learning Context & Provenance](#11-learning-context--provenance)
+12. [Learning Evidence & Attribution](#12-learning-evidence--attribution)
+13. [Learning Validation & Confidence](#13-learning-validation--confidence)
+14. [Learning Patterns & Abstraction](#14-learning-patterns--abstraction)
+15. [Learning Consolidation](#15-learning-consolidation)
+16. [Learning Propagation & Adoption](#16-learning-propagation--adoption)
+17. [Learning Prioritization](#17-learning-prioritization)
+18. [Learning Feedback Loops](#18-learning-feedback-loops)
+19. [Learning Decay & Deprecation](#19-learning-decay--deprecation)
+20. [Learning Economics & Cost Control](#20-learning-economics--cost-control)
+21. [Learning Governance & Oversight](#21-learning-governance--oversight)
+22. [Learning Security](#22-learning-security)
+23. [Learning Observability](#23-learning-observability)
+24. [Learning Reliability & Fault Tolerance](#24-learning-reliability--fault-tolerance)
+25. [Learning Performance Characteristics](#25-learning-performance-characteristics)
+26. [Organizational Learning](#26-organizational-learning)
+27. [Portfolio Learning](#27-portfolio-learning)
+28. [Business Learning](#28-business-learning)
+29. [Agent Learning](#29-agent-learning)
+30. [Workflow Learning](#30-workflow-learning)
+31. [Tool Learning](#31-tool-learning)
+32. [Decision Learning](#32-decision-learning)
+33. [Human Learning Integration](#33-human-learning-integration)
+34. [Failure Transformation & Success Replication](#34-failure-transformation--success-replication)
+35. [Continuous Improvement & Adaptation](#35-continuous-improvement--adaptation)
+36. [Non-Violable Learning Rules](#36-non-violable-learning-rules)
+37. [Appendix: Learning Glossary](#37-appendix-learning-glossary)
+
+---
+
+## 1. Preamble
+
+This document derives the **Learning Operating Model** from the constitutional architecture established in `01_PRINCIPLES.md` through `12_TOOL_OPERATING_MODEL.md`. It specifies how Agent OS improves itself from evidence: how outcomes are attributed, how patterns are abstracted, how improvements are validated, and how organizational capability compounds across time. Where this document is silent, the constitution governs. Where this document speaks, it is binding.
+
+---
+
+## 2. Learning Philosophy
+
+### 2.1 The Adaptation Metaphor
+Learning is **permanent organizational adaptation**. It is the constitutional process through which the venture studio transforms experience into systematic improvement. Memory asks what happened; Knowledge asks what is true; Decision asks what shall be done; Tool asks how to act; Learning asks how to become better at all of these. Learning is the only subsystem whose output is change to the other subsystems.
+
+### 2.2 Learning vs. Memory
+Memory preserves experience. Learning consumes experience to produce improvement. Memory is the archive; Learning is the editor that reads the archive and proposes revisions to the script. Memory is passive retention; Learning is active transformation.
+
+### 2.3 Learning vs. Knowledge
+Knowledge is validated belief. Learning proposes new beliefs and challenges old ones, but it does not validate. Knowledge Gateway owns validation; Learning Gateway owns proposal. Learning feeds the Knowledge pipeline; it does not bypass it.
+
+### 2.4 Learning vs. Decision
+Decision commits to action. Learning proposes changes to how decisions are formed, evaluated, and authorized. Learning improves the decision process; it does not make decisions. A learning entry that proposes a standing order refinement is not a decision; it is a proposal that must pass through the Decision Gateway.
+
+### 2.5 Learning vs. Tool
+Tool executes action. Learning proposes changes to tool selection, trust calibration, and capability refinement. Learning improves execution; it does not execute. A learning entry that suggests a tool is unreliable is not a tool invocation; it is a proposal to the Tool Gateway.
+
+### 2.6 Learning as Compounding Moat
+In an autonomous venture studio, the rate of learning is the primary determinant of long-term value. A competitor may replicate a single business model or tool stack. It cannot replicate the accumulated, validated, and propagated improvements of a portfolio that learns from every failure and success. Learning compounds exponentially when feedback loops are tight and attribution is accurate.
+
+---
+
+## 3. Learning Mission & Permanent Objectives
+
+### 3.1 Mission
+The learning subsystem exists to ensure that every outcome—success or failure—is transformed into **validated, attributable, and propagated improvement** across the organization, subject to absolute constraints of evidence quality, authority boundaries, and human sovereignty.
+
+### 3.2 Permanent Objectives
+1. **Attribution Integrity:** Every improvement proposal is traceable to specific evidence and specific outcomes.
+2. **Pattern Abstraction:** Raw experience is distilled into reusable patterns without losing contextual fidelity.
+3. **Validation Before Propagation:** No improvement is adopted without passing through the target subsystem's governance mechanisms.
+4. **Bounded Self-Modification:** Learning may propose changes to operational subsystems but never to constitutional constraints or human approval gates.
+5. **Asymmetric Improvement:** Learning must prevent repeated failures faster than it must replicate successes. Failure prevention preserves capital; success replication grows it.
+6. **Portfolio Coherence:** Improvements are evaluated at the portfolio level, not merely the business or task level.
+7. **Human Sovereignty Preservation:** Humans retain absolute veto, override, and strategic direction over all learning outputs.
+8. **Economic Control:** The cost of learning must not exceed the value it produces.
+9. **Feedback Loop Closure:** Every adopted improvement is measured against subsequent outcomes to confirm or refute efficacy.
+10. **Anti-Drift:** Learning must detect and counteract organizational drift away from mission, strategy, or constitutional principles.
+
+### 3.3 Objective Conflicts
+Resolution order: **Human Sovereignty > Bounded Self-Modification > Attribution Integrity > Validation Before Propagation > Asymmetric Improvement > Portfolio Coherence > Economic Control > Feedback Loop Closure > Anti-Drift > Pattern Abstraction.**
+
+---
+
+## 4. Learning Identity
+
+### 4.1 Identity Primitives
+Every learning entry possesses:
+- **Learning ID:** Unique, sortable, immutable.
+- **Learning Type:** Hierarchical classification (e.g., `learning.agent.capability`, `learning.decision.heuristic`).
+- **Schema Version:** Semantic version of payload contract.
+- **Timestamp:** Time of formation.
+- **Source Identity:** Authenticated observer (agent, workflow, or human).
+- **Target Subsystem:** The subsystem the entry proposes to improve (Memory, Knowledge, Decision, Tool, Agent, Workflow, Business, Portfolio).
+- **Tenant/Business/Workspace IDs:** Isolation boundaries.
+- **Evidence References:** Immutable links to source memory, knowledge, decision, tool, or event records.
+- **Confidence Score:** 0.0–1.0 evidentiary strength of the proposed improvement.
+- **Scope:** Private, Team, Business, Portfolio, or Global.
+- **Lineage Reference:** Links to predecessor learning entries and triggering outcomes.
+- **Expected Improvement:** Predicted effect of adoption.
+- **Actual Improvement:** Observed effect after adoption (nullable until measured).
+
+### 4.2 Identity Persistence
+Learning identity persists for the statutory retention period (minimum seven years) regardless of disposition. No anonymous learning entries are permitted.
+
+### 4.3 Identity as Accountability Anchor
+Every learning entry is attributable to a specific observer and a specific evidence chain. Every proposal, propagation, adoption, and reversal is logged against the learning entry's identity.
+
+---
+
+## 5. Learning Classification
+
+### 5.1 By Semantic Role
+- **Attribution:** Correlates outcomes with causes.
+- **Pattern:** Abstracts recurring structures from experience.
+- **Hypothesis:** Proposes a candidate improvement.
+- **Consolidation:** Synthesizes multiple hypotheses into a coherent proposal.
+- **Feedback:** Measures the efficacy of an adopted improvement.
+- **Drift Detection:** Identifies divergence from expected organizational behavior.
+
+### 5.2 By Structural Form
+- **Atomic:** Single observation or single proposal.
+- **Composite:** Aggregated pattern from multiple observations.
+- **Narrative:** Sequential causal account of how an outcome was achieved or avoided.
+- **Graph Edge:** Relationship linking a learning entry to a target subsystem element.
+
+### 5.3 By Scope
+- **Private:** Scoped to a single agent.
+- **Team:** Scoped to a shared workspace.
+- **Business:** Scoped to a single business.
+- **Portfolio:** Scoped across businesses within a tenant.
+- **Global:** Anonymized, system-wide patterns.
+
+### 5.4 By Target Subsystem
+- **Memory Learning:** Proposes consolidation, decay rate, or relevance adjustments.
+- **Knowledge Learning:** Proposes hypotheses, revalidation triggers, or ontology extensions.
+- **Decision Learning:** Proposes heuristic, option-generation, or standing-order refinements.
+- **Tool Learning:** Proposes trust, selection, or capability adjustments.
+- **Agent Learning:** Proposes capability signature or reasoning heuristic refinements.
+- **Workflow Learning:** Proposes DAG, checkpoint, or error-handling adjustments.
+- **Business Learning:** Proposes strategy, product, or market-fit adjustments.
+- **Portfolio Learning:** Proposes capital allocation or strategic positioning adjustments.
+
+---
+
+## 6. Learning Architecture & Topology
+
+### 6.1 Learning Gateway as Meta-Layer
+No learning operation bypasses the **Learning Gateway**. It is the unified access layer through which all observation, extraction, validation, consolidation, and propagation flow. The Learning Gateway enforces: evidence sufficiency, attribution completeness, scope validation, and authority checks before permitting propagation to target subsystems.
+
+### 6.2 Producer-Consumer Topology
+**Producers** (observer agents, review workflows, governance subsystems, human operators) emit learning entries to the Gateway. **Consumers** (target subsystem Gateways, human strategists, governance auditors) receive validated learning proposals from the Gateway. The Gateway mediates all flow; producers cannot push improvements directly into Memory, Knowledge, Decision, or Tool subsystems.
+
+### 6.3 Boundary Enforcement
+The Learning Gateway enforces:
+- **Tenant Boundary:** No cross-tenant learning propagation without explicit anonymization and human approval.
+- **Business Boundary:** Business-scoped learning cannot propagate to portfolio scope without elevation.
+- **Authority Boundary:** Proposals are rejected if they exceed the observer's autonomy level or the target subsystem's approval requirements.
+- **Confidence Boundary:** Proposals below minimum confidence for their target class are escalated or quarantined.
+
+### 6.4 Relationship to Other Subsystems
+- **Memory Gateway:** Learning consumes memory for pattern extraction and proposes memory consolidation or decay adjustments.
+- **Knowledge Gateway:** Learning proposes knowledge hypotheses and consumes knowledge deprecations/contradictions for re-evaluation.
+- **Decision Gateway:** Learning proposes decision heuristics and consumes decision journals for outcome attribution.
+- **Tool Gateway:** Learning proposes tool trust adjustments and consumes tool execution records for failure analysis.
+- **Event Bus:** Learning consumes lifecycle events as observation triggers and emits learning lifecycle events.
+
+---
+
+## 7. Learning Sources & Inputs
+
+### 7.1 Decision Outcomes
+Decision journals provide the canonical record of expected vs. actual outcomes. Learning consumes committed decisions, reversals, supersessions, and approval latency metrics to attribute success and failure to decision quality.
+
+### 7.2 Memory Episodes
+Episodic and durable memory provide the raw experience from which patterns are extracted. Learning queries memory through the Memory Gateway with scoped, time-bounded, and context-rich retrieval.
+
+### 7.3 Knowledge Changes
+Knowledge deprecations, contradictions, and confidence adjustments signal that organizational belief has evolved. Learning consumes these changes to refine pattern abstraction and hypothesis formation.
+
+### 7.4 Tool Execution Records
+Tool invocation records, failure classifications, cost overruns, and trust score movements provide evidence of execution quality. Learning consumes these to propose tool-level improvements.
+
+### 7.5 Human Feedback
+Explicit human feedback, strategic directives, override explanations, and Panic Protocol invocations are first-class learning inputs. Human feedback is treated as high-confidence evidence and is never overridden by autonomous observation.
+
+### 7.6 Event Stream
+Lifecycle events from all subsystems trigger learning observation cycles. Learning does not poll; it reacts to events.
+
+---
+
+## 8. Learning Lifecycle
+
+### 8.1 Observation
+A learning cycle begins when an event, scheduled review, or human trigger signals that an outcome is available for analysis. Observation identifies that something meaningful has occurred without yet interpreting it.
+
+### 8.2 Extraction
+The observer extracts relevant memory, decision, knowledge, and tool records related to the observed outcome. Extraction is scoped and attribution-preserving.
+
+### 8.3 Pattern Recognition
+The observer identifies recurring structures, anomalies, or correlations within the extracted evidence. Pattern recognition is bounded by scope: a pattern detected in one business is not automatically generalized to the portfolio.
+
+### 8.4 Hypothesis Formation
+The observer forms a candidate improvement: a structured proposal that specifies what should change, in which subsystem, based on what evidence, with what expected outcome. Hypotheses are provisional and carry initial confidence scores.
+
+### 8.5 Validation
+The Learning Gateway validates the hypothesis against evidence sufficiency, attribution accuracy, scope conformance, and contradiction with existing learning entries. Validation assigns the authoritative confidence score.
+
+### 8.6 Consolidation
+Validated hypotheses are integrated with existing learning entries to form coherent, non-contradictory proposals. Consolidation prevents fragmented or conflicting improvements from propagating simultaneously.
+
+### 8.7 Propagation
+The consolidated proposal is delivered to the target subsystem's Gateway as a formal proposal. Propagation is not adoption; it is the handoff to the target subsystem's governance process.
+
+### 8.8 Adoption
+The target subsystem evaluates the proposal through its own constitutional mechanisms. If adopted, the improvement is committed and executed. Learning records the adoption event and begins measurement.
+
+### 8.9 Measurement
+After adoption, learning tracks subsequent outcomes to compare against the expected improvement. Measurement produces feedback that confirms, refutes, or refines the original learning entry.
+
+### 8.10 Disposition
+The learning entry reaches terminal state: **Confirmed**, **Refuted**, **Superseded**, or **Abandoned**. Terminal entries remain in the journal indefinitely.
+
+---
+
+## 9. Learning States & Transitions
+
+### 9.1 Canonical States
+
+| State | Description |
+|-------|-------------|
+| **Observed** | Initial formation; evidence extracted, awaiting pattern recognition. |
+| **Hypothesized** | Pattern recognized; candidate improvement formed, awaiting validation. |
+| **Validated** | Passed evidence and attribution checks; awaiting consolidation. |
+| **Consolidated** | Integrated with existing learning; coherent proposal ready. |
+| **Propagated** | Delivered to target subsystem Gateway; awaiting adoption decision. |
+| **Adopted** | Target subsystem committed the improvement; under measurement. |
+| **Confirmed** | Measurement confirms expected improvement; entry is canonical. |
+| **Refuted** | Measurement contradicts expected improvement; reversal triggered. |
+| **Superseded** | Replaced by newer learning; lineage preserved. |
+| **Abandoned** | Evidence insufficient or authority denied; no propagation. |
+| **Quarantined** | Flagged for anomalous attribution or contradiction; under review. |
+
+### 9.2 Transition Guards
+
+| From | To | Guard |
+|------|-----|-------|
+| Observed | Hypothesized | Pattern recognized with minimum evidentiary support. |
+| Hypothesized | Validated | Evidence sufficiency met; attribution complete; confidence ≥ 0.6. |
+| Hypothesized | Abandoned | Evidence insufficient and no escalation path. |
+| Validated | Consolidated | No unresolved contradiction with existing learning. |
+| Validated | Quarantined | Contradiction detected; anomaly flagged. |
+| Consolidated | Propagated | Target subsystem identified; proposal packaged. |
+| Propagated | Adopted | Target subsystem approves and commits improvement. |
+| Propagated | Abandoned | Target subsystem rejects or timeout without adoption. |
+| Adopted | Confirmed | Measurement window complete; outcome matches expectation. |
+| Adopted | Refuted | Measurement window complete; outcome contradicts expectation. |
+| Adopted | Superseded | Newer learning invalidates pending measurement. |
+| Refuted | Superseded | Correcting learning entry replaces refuted one. |
+
+### 9.3 State Immutability
+Once a learning entry enters **Validated**, its core identity, evidence, and attribution are immutable. State transitions apply to lifecycle metadata and measurement status only. Corrections append new entries.
+
+---
+
+## 10. Learning Ownership & Boundaries
+
+### 10.1 Ownership Hierarchy
+- **Agent:** Owns Private learning entries derived from its own execution.
+- **Team:** Owns collaborative learning within a shared workspace.
+- **Business:** Owns Business-scoped learning and inherits operational learning from its agents.
+- **Portfolio:** Owns cross-business learning and strategic pattern extraction.
+- **Human Sovereign:** Owns Global learning and retains ultimate authority over all learning propagation.
+
+### 10.2 Inheritance and Succession
+Business-owned learning survives agent retirement. Portfolio-owned learning survives business sunset. Ownership transfers are governed by workspace grants and require audit logging.
+
+### 10.3 Cross-Boundary Impact
+A learning entry scoped to one business but with potential portfolio impact must declare cross-boundary impact. The Gateway routes such entries to portfolio-level authority.
+
+### 10.4 Tenant Isolation
+Learning from one tenant may not influence another tenant's subsystems without explicit anonymization and human approval. Cross-tenant learning sharing requires anonymization review and isolation verification.
+
+---
+
+## 11. Learning Context & Provenance
+
+### 11.1 Provenance Dimensions
+Every learning entry carries:
+- **Trigger Context:** The event, review, or feedback that initiated observation.
+- **Evidence Context:** The complete set of memory, decision, knowledge, and tool records consumed.
+- **Mission Context:** Active business mission, portfolio strategy, and human directives.
+- **Temporal Context:** Validity windows, market conditions, and business lifecycle stage.
+
+### 11.2 Context as Interpretive Frame
+A learning entry without context is uninterpretable. A proposal to "reduce ad spend" without the context that it follows a failed holiday campaign is dangerous. The Gateway ensures context is complete before propagation.
+
+### 11.3 Context Budget
+Provenance metadata consumes bandwidth and attention. The Gateway enforces a maximum context budget per learning entry. Non-essential context is summarized or referenced by ID.
+
+---
+
+## 12. Learning Evidence & Attribution
+
+### 12.1 Evidentiary Basis
+Learning entries must be grounded in canonical records: decision journals, validated memory, committed knowledge, or tool execution records. Speculation, quarantined memory, or unvalidated observation may not serve as sole evidence.
+
+### 12.2 Attribution Dimensions
+Attribution assesses:
+- **Causal Proximity:** How directly the proposed cause influenced the observed outcome.
+- **Confounding Control:** Whether alternative explanations have been considered and ruled out.
+- **Temporal Order:** Whether the cause preceded the effect.
+- **Replication:** Whether the pattern has been observed multiple times under similar conditions.
+
+### 12.3 Attribution Error Mitigation
+The Gateway enforces attribution safeguards: minimum observation counts for pattern recognition, mandatory consideration of null hypotheses, and escalation of high-impact attributions to human review.
+
+### 12.4 Evidence Sufficiency by Target Class
+- **Agent/Tool Learning:** At least three observations or one high-confidence human feedback.
+- **Workflow Learning:** At least two complete workflow executions with comparable outcomes.
+- **Decision Learning:** At least five decision outcomes with consistent attribution.
+- **Business/Portfolio Learning:** Comprehensive evidentiary basis with cross-reference consistency and human review.
+
+---
+
+## 13. Learning Validation & Confidence
+
+### 13.1 Confidence Quantification
+Learning confidence is a quantitative measure (0.0–1.0) representing the strength of evidence, quality of attribution, and reliability of expected improvement.
+
+### 13.2 Validation Dimensions
+- **Evidence Quality:** Source reliability, completeness, and freshness.
+- **Attribution Strength:** Causal proximity, confounding control, and replication.
+- **Scope Conformance:** Whether the pattern holds across the proposed scope.
+- **Contradiction Check:** Whether the proposal conflicts with existing confirmed learning.
+
+### 13.3 Confidence Thresholds
+- **< 0.60:** Quarantined or abandoned.
+- **0.60–0.79:** Permitted for Agent/Tool learning; flagged as provisional.
+- **0.80–0.94:** Standard range for Workflow/Decision learning.
+- **0.95–1.00:** Reserved for Business/Portfolio learning with human ratification.
+
+### 13.4 Continuous Revalidation
+Adopted learning entries are continuously re-evaluated against new outcomes. Revalidation can confirm, refute, or refine the entry. Refuted entries trigger reversal proposals to the target subsystem.
+
+---
+
+## 14. Learning Patterns & Abstraction
+
+### 14.1 Pattern Taxonomy
+- **Success Pattern:** A recurring structure that reliably produces positive outcomes.
+- **Failure Pattern:** A recurring structure that reliably produces negative outcomes.
+- **Anomaly Pattern:** A deviation from expected behavior that warrants investigation.
+- **Correlation Pattern:** A co-occurrence without established causation, flagged for further observation.
+
+### 14.2 Abstraction Levels
+- **Instance:** A single observation.
+- **Episode:** A bounded sequence of related observations.
+- **Heuristic:** A generalized rule derived from multiple episodes.
+- **Principle:** A strategic axiom validated across businesses or the portfolio.
+
+### 14.3 Pattern Formation Rules
+Patterns must not be formed from single observations. Success patterns require at least three confirming instances. Failure patterns require at least two confirming instances with root cause attribution. Correlation patterns must be explicitly labeled as non-causal.
+
+---
+
+## 15. Learning Consolidation
+
+### 15.1 Consolidation as Synthesis
+Consolidation transforms fragmented hypotheses into coherent organizational improvements. It resolves contradictions between related learning entries, merges overlapping proposals, and packages them for propagation.
+
+### 15.2 Consolidation Triggers
+- Multiple hypotheses target the same subsystem element.
+- A new hypothesis contradicts an existing validated entry.
+- A scheduled portfolio review initiates comprehensive consolidation.
+
+### 15.3 Consolidation Products
+- **Unified Proposal:** A single, non-contradictory improvement package.
+- **Conflict Report:** An explicit documentation of irreconcilable hypotheses requiring human arbitration.
+- **Scope Narrowing:** A refined proposal that limits applicability to contexts where evidence is strongest.
+
+### 15.4 Resource Caps
+Consolidation consumes organizational attention. The Gateway enforces maximum consolidation depth per cycle to prevent analysis paralysis.
+
+---
+
+## 16. Learning Propagation & Adoption
+
+### 16.1 Propagation as Formal Handoff
+Propagation is the delivery of a validated, consolidated learning proposal to the target subsystem's Gateway. It is not execution. The target subsystem retains full constitutional authority to reject, modify, or escalate the proposal.
+
+### 16.2 Adoption Governance
+- **Memory Learning:** Proposed to Memory Gateway; adoption follows memory governance.
+- **Knowledge Learning:** Proposed to Knowledge Gateway as hypothesis; adoption follows knowledge validation.
+- **Decision Learning:** Proposed to Decision Gateway as heuristic or standing order adjustment; adoption follows decision authority rules.
+- **Tool Learning:** Proposed to Tool Gateway as trust or capability adjustment; adoption follows tool governance.
+- **Agent/Workflow/Business/Portfolio Learning:** Proposed through respective governance mechanisms with appropriate authority levels.
+
+### 16.3 Adoption Rejection
+If a target subsystem rejects a learning proposal, the entry transitions to **Abandoned** with justification logged. Rejection does not invalidate the evidence; it records that the improvement was not adopted under current conditions.
+
+### 16.4 Emergency Propagation
+Bypassing normal propagation flow is permitted only for safety-critical failure patterns with Class D authority. Emergency propagation is logged as a constitutional exception.
+
+---
+
+## 17. Learning Prioritization
+
+### 17.1 Evaluation Criteria
+Learning proposals are prioritized by:
+- **Impact Magnitude:** Expected effect on portfolio value, business health, or operational efficiency.
+- **Risk Reduction:** Potential to prevent known failure modes.
+- **Replication Value:** Applicability across multiple agents, workflows, or businesses.
+- **Evidence Strength:** Confidence score and attribution quality.
+- **Adoption Cost:** Resource required to implement the improvement.
+
+### 17.2 Portfolio-Aware Scoring
+The Gateway applies portfolio-level weights. A high-local-impact proposal that increases portfolio concentration risk is penalized. A moderate-impact proposal that reduces systemic risk is boosted.
+
+### 17.3 Ranking and Scheduling
+The Gateway produces a ranked backlog of learning proposals. Scheduling respects subsystem capacity, human approval bandwidth, and economic constraints.
+
+---
+
+## 18. Learning Feedback Loops
+
+### 18.1 Closed-Loop Structure
+Every adopted improvement enters a measurement window during which subsequent outcomes are compared against the expected improvement. The loop is: **Observe → Propose → Adopt → Measure → Confirm/Refute → Consolidate.**
+
+### 18.2 Measurement Windows
+- **Agent/Tool:** 5–10 subsequent executions.
+- **Workflow:** 3–5 complete workflow instances.
+- **Decision:** 10–20 subsequent decisions.
+- **Business/Portfolio:** 1–3 business cycles or quarters.
+
+### 18.3 Confirmation
+If measurement confirms the expected improvement, the entry transitions to **Confirmed** and may be promoted to higher scope or abstraction.
+
+### 18.4 Refutation and Reversal
+If measurement refutes the expected improvement, the entry transitions to **Refuted**. A reversal proposal is emitted to the target subsystem to undo the adopted change. Refutation is itself a learning entry.
+
+### 18.5 Compounding
+Confirmed learning entries feed back into the observation pipeline as high-confidence priors, accelerating future pattern recognition and improving attribution accuracy.
+
+---
+
+## 19. Learning Decay & Deprecation
+
+### 19.1 Freshness as Relevance Probability
+Learning entries lose relevance as conditions change. A heuristic validated in one market cycle may become harmful in the next. Freshness is the probability that a confirmed learning entry remains applicable.
+
+### 19.2 Aging Dynamics
+Aging is domain-dependent: tool trust patterns age slowly; market tactic patterns age quickly. The Gateway applies domain-specific half-lives to confidence decay.
+
+### 19.3 Decay Process
+The Learning Gateway continuously reviews confirmed entries, reduces confidence over time, and flags stale entries for revalidation. Entries that fail revalidation are deprecated.
+
+### 19.4 Deprecation
+Deprecated learning entries are removed from active recommendation sets but retained in the journal. A deprecation entry is linked via lineage to the original. Deprecation prevents obsolete heuristics from polluting future proposals.
+
+---
+
+## 20. Learning Economics & Cost Control
+
+### 20.1 Cost Model
+Learning consumes capital through: observation cycles, evidence extraction, validation processing, consolidation computation, propagation overhead, and measurement windows. Every learning entry carries an estimated cost of completion.
+
+### 20.2 Budget Enforcement
+The Gateway performs pre-flight budget checks: the estimated cost of a learning cycle must not exceed the allocated learning budget. Mid-flight monitoring halts cycles that exceed cost ceilings.
+
+### 20.3 Cost Attribution
+Every unit of learning spend is attributed to: tenant, business, project, and target subsystem. Cost dashboards are real-time.
+
+### 20.4 Portfolio Circuit Breakers
+The Gateway enforces portfolio-level limits: maximum learning spend per business per period, maximum observation-to-adoption latency, and minimum operational budget preservation. Learning that would breach circuit breakers is deferred.
+
+---
+
+## 21. Learning Governance & Oversight
+
+### 21.1 Self-Audit
+The Gateway continuously audits: learning velocity, attribution accuracy, confirmation rate, refutation rate, propagation latency, and scope boundary compliance.
+
+### 21.2 Drift Detection
+The runtime monitors for learning drift: systematic attribution errors, confidence inflation to bypass validation, excessive scope expansion, or recursive self-modification attempts.
+
+### 21.3 Anomaly Response
+- **Volume Anomaly:** Sudden spike in learning proposals triggers throttling.
+- **Attribution Anomaly:** Unusual cause-effect patterns trigger quarantine.
+- **Scope Anomaly:** Proposals exceeding historical scope boundaries trigger escalation.
+- **Recursion Anomaly:** Learning entries that target the Learning subsystem itself trigger immediate human alert and suspension.
+
+### 21.4 Constitutional Compliance
+Non-compliance with bounded self-modification, authority boundary, or human sovereignty rules is escalated as a Category 1 incident.
+
+---
+
+## 22. Learning Security
+
+### 22.1 Authentication and Authorization
+Every learning producer and consumer authenticates to the Learning Gateway. Authorization enforces: observation scope, propagation boundaries, and sensitivity levels.
+
+### 22.2 Integrity Protection
+Learning journals are tamper-evident. Proposals are cryptographically bound to their evidence and observer identity.
+
+### 22.3 Input Sanitization
+External data included in learning proposals must pass validation before Gateway acceptance.
+
+### 22.4 Audit Security
+Access to learning journals is logged immutably. Bulk export requires Class D authority.
+
+---
+
+## 23. Learning Observability
+
+### 23.1 Metrics
+- **Velocity:** Observations, hypotheses, validations, adoptions per period.
+- **Quality:** Confirmation rate, refutation rate, attribution error rate.
+- **Governance:** Escalation rate, propagation latency, adoption rate.
+- **Health:** Backlog depth, circuit breaker proximity, anomaly count.
+- **Economic:** Cost per learning cycle, budget utilization, ROI estimation.
+
+### 23.2 Logs and Traces
+All Gateway operations emit structured logs. Distributed traces follow a learning entry from observation through propagation to measurement.
+
+### 23.3 Alerting
+Alerts trigger on: attribution anomaly, scope breach, recursion attempt, high refutation rate, and circuit breaker proximity.
+
+---
+
+## 24. Learning Reliability & Fault Tolerance
+
+### 24.1 Graceful Degradation
+If the Learning Gateway is unavailable, operational subsystems continue executing. Learning cycles pause; no workflow fails due to Learning unavailability.
+
+### 24.2 Failure Isolation
+A corrupted or malformed learning proposal is rejected without affecting other proposals or adopted improvements.
+
+### 24.3 Consistency
+Read-after-write consistency is guaranteed for learning state: an observer that forms an entry must see it in subsequent queries.
+
+### 24.4 No Silent Failures
+Every Gateway failure—rejection, timeout, corruption—is classified and alerted within 60 seconds.
+
+---
+
+## 25. Learning Performance Characteristics
+
+### 25.1 Latency Budgets
+
+| Operation | Target p50 | Target p99 | Maximum |
+|-----------|------------|------------|---------|
+| Observation to extraction | 1s | 5s | 30s |
+| Hypothesis validation | 2s | 10s | 60s |
+| Consolidation | 5s | 30s | 120s |
+| Propagation packaging | 1s | 5s | 30s |
+| Measurement cycle initiation | 100ms | 500ms | 2s |
+
+### 25.2 Throughput Targets
+- Observations: 1,000 per second sustained.
+- Validations: 100 per second sustained.
+- Propagations: 50 per minute sustained.
+
+### 25.3 Scaling Behavior
+The Gateway scales horizontally by partitioning on tenant and target subsystem. Scaling does not require changes to validation rules or audit policies.
+
+---
+
+## 26. Organizational Learning
+
+### 26.1 Cross-Cutting Improvement
+Organizational learning transcends individual subsystems to improve the venture studio's meta-capabilities: how it launches businesses, allocates capital, manages risk, and compounds knowledge.
+
+### 26.2 Cultural Persistence
+Organizational learning persists beyond any single agent, workflow, or business. It is the accumulated, validated, and propagated wisdom of the venture studio as an institution.
+
+### 26.3 Meta-Learning
+The Learning Operating Model itself is subject to improvement proposals, but only through human ratification. The system may not auto-modify its own constitutional constraints.
+
+---
+
+## 27. Portfolio Learning
+
+### 27.1 Capital Allocation Improvement
+Portfolio learning identifies patterns in capital deployment efficiency, risk concentration, and return profiles across businesses. It proposes adjustments to allocation heuristics and diversification rules.
+
+### 27.2 Strategic Positioning
+Portfolio learning detects market trends, competitive dynamics, and business model viability patterns across the portfolio. It proposes strategic pivots, sunset criteria, and incubation priorities.
+
+### 27.3 Cross-Business Pollination
+Portfolio learning extracts anonymized, confirmed patterns from one business and proposes their adoption in others, preventing siloing while enforcing tenant isolation.
+
+---
+
+## 28. Business Learning
+
+### 28.1 Strategy Learning
+Business learning refines market positioning, pricing models, and go-to-market strategies based on outcome evidence.
+
+### 28.2 Product Learning
+Business learning identifies feature success patterns, user behavior correlations, and product-market fit signals.
+
+### 28.3 Operational Learning
+Business learning improves execution efficiency: marketing spend optimization, conversion funnel refinement, and customer acquisition cost reduction.
+
+---
+
+## 29. Agent Learning
+
+### 29.1 Capability Refinement
+Agent learning proposes adjustments to capability signatures, reasoning heuristics, and tool selection patterns based on execution outcomes.
+
+### 29.2 Autonomy Calibration
+Agent learning identifies boundaries where autonomy is consistently successful or consistently failing, proposing adjustments to autonomy levels within Decision Gateway rules.
+
+### 29.3 Context Utilization
+Agent learning improves how agents query and utilize memory and knowledge, proposing retrieval pattern refinements and context assembly optimizations.
+
+---
+
+## 30. Workflow Learning
+
+### 30.1 DAG Optimization
+Workflow learning proposes structural adjustments to execution graphs: parallelization opportunities, dependency removals, and bottleneck eliminations.
+
+### 30.2 Checkpoint Placement
+Workflow learning refines checkpoint and compensation placement based on failure pattern analysis.
+
+### 30.3 Error Handling
+Workflow learning improves error classification, retry policies, and escalation heuristics based on observed failure modes.
+
+---
+
+## 31. Tool Learning
+
+### 31.1 Trust Calibration
+Tool learning proposes adjustments to trust scores based on observed reliability, contract adherence, and cost predictability.
+
+### 31.2 Selection Optimization
+Tool learning identifies patterns in tool selection success and failure, proposing inventory and selection heuristic improvements.
+
+### 31.3 Capability Refinement
+Tool learning detects gaps between declared and actual tool capabilities, proposing manifest or contract adjustments.
+
+---
+
+## 32. Decision Learning
+
+### 32.1 Heuristic Improvement
+Decision learning refines option-generation rules, evaluation criteria, and risk assessment models based on decision journal analysis.
+
+### 32.2 Confidence Calibration
+Decision learning detects systematic overconfidence or underconfidence in decision proposals, proposing calibration adjustments.
+
+### 32.3 Standing Order Refinement
+Decision learning analyzes standing order utilization and outcomes, proposing scope adjustments, budget recalibrations, and expiration renewals.
+
+---
+
+## 33. Human Learning Integration
+
+### 33.1 Feedback Entry
+Humans may submit explicit learning entries through the Gateway. Human feedback is treated as high-confidence evidence and bypasses certain automated validation gates while retaining full audit.
+
+### 33.2 Strategic Override
+Humans may override any learning proposal, block its propagation, or demand its escalation. Overrides are immediate, irreversible by the system, and logged as Class D actions.
+
+### 33.3 Governance Participation
+Humans review high-impact learning proposals, arbitrate contradictions, and ratify ontology or heuristic changes that affect strategic direction.
+
+### 33.4 Panic Protocol
+Invocation of the Panic Protocol halts all active learning cycles, defers pending propagations, and requires human intervention to resume. Panic is a Class D decision.
+
+---
+
+## 34. Failure Transformation & Success Replication
+
+### 34.1 Failure Transformation
+Failures are transformed into learning through: root cause attribution, pattern extraction, preventive heuristic formation, and propagation to decision and workflow layers. Failure learning is prioritized over success learning when capital is at risk.
+
+### 34.2 Success Replication
+Successes are transformed into learning through: success factor attribution, pattern abstraction, scope generalization, and propagation as reusable heuristics. Success replication accelerates portfolio growth.
+
+### 34.3 Asymmetric Processing
+The system applies asymmetric rigor: failure patterns require fewer confirming instances but stronger root cause attribution. Success patterns require more confirming instances but permit broader generalization.
+
+---
+
+## 35. Continuous Improvement & Adaptation
+
+### 35.1 Meta-Learning
+The Learning Operating Model itself evolves through human-ratified improvements. The system may propose changes to its own validation rules, confidence thresholds, or measurement windows, but adoption requires human approval.
+
+### 35.2 Bounded Evolution
+Learning may not evolve its way out of constitutional constraints. It may not auto-elevate its own authority, bypass approval gates, or modify non-violable rules.
+
+### 35.3 Improvement Validation
+Proposed changes to the Learning Operating Model are validated against historical data and limited-scope trials before ratification.
+
+---
+
+## 36. Non-Violable Learning Rules
+
+The following rules are absolute. Violation constitutes a Category 1 incident:
+
+1. No learning entry may be formed without authenticated observer identity and complete evidence citation.
+2. No learning proposal may bypass the target subsystem's Gateway or approval mechanisms.
+3. No learning entry may modify constitutional constraints, security boundaries, or human approval gates.
+4. No learning entry may target the Learning subsystem itself without Class D human authority.
+5. No learning proposal may be propagated with confidence below the threshold for its target class.
+6. No learning entry may suppress uncertainty or present correlation as causation.
+7. No anonymous or pseudonymous learning formation or propagation is permitted.
+8. No learning may cross tenant boundaries without explicit anonymization and human approval.
+9. No learning proposal may be adopted without measurement of its actual outcome.
+10. No learning entry may be modified, overwritten, or deleted after validation.
+11. No learning cycle may consume resources that breach portfolio-level circuit breakers.
+12. No learning proposal may override a human sovereign decision or standing order.
+13. No learning entry may proceed on unresolved contradictory evidence without human arbitration.
+14. No learning may be formed from quarantined memory, unvalidated knowledge, or speculative observation as sole evidence.
+15. No learning proposal may escalate the autonomy level of any agent or subsystem without human approval.
+16. No learning feedback loop may remain unclosed for more than its defined measurement window.
+17. No learning may recursively trigger learning cycles without explicit human authorization.
+18. No learning audit record may be modified, overwritten, or deleted after formation.
+19. Learning governance anomalies must be escalated as Category 1 incidents.
+20. The Panic Protocol must halt all active learning cycles within 5 seconds of invocation.
+
+---
+
+## 37. Appendix: Learning Glossary
+
+| Term | Definition |
+|------|------------|
+| **Learning** | The constitutional process of transforming organizational outcomes into validated, attributable, and propagated improvements. |
+| **Learning Gateway** | The unified meta-layer through which all learning operations are mediated, validated, and audited. |
+| **Observation** | The initial identification that an outcome is available for learning analysis. |
+| **Attribution** | The process of correlating outcomes with causes through evidence and causal reasoning. |
+| **Pattern** | A recurring structure abstracted from multiple observations. |
+| **Hypothesis** | A provisional candidate improvement awaiting validation. |
+| **Consolidation** | The synthesis of fragmented hypotheses into coherent, non-contradictory proposals. |
+| **Propagation** | The formal handoff of a validated learning proposal to a target subsystem's Gateway. |
+| **Adoption** | The commitment of a target subsystem to implement a learning proposal. |
+| **Measurement** | The closed-loop evaluation of whether an adopted improvement produced expected outcomes. |
+| **Confirmation** | The state of a learning entry whose expected improvement was validated by measurement. |
+| **Refutation** | The state of a learning entry whose expected improvement was contradicted by measurement. |
+| **Bounded Self-Modification** | The principle that learning may improve operational subsystems but never constitutional constraints. |
+| **Feedback Loop** | The closed cycle connecting observation, proposal, adoption, and outcome measurement. |
+| **Learning Journal** | The immutable record of a learning entry's full lifecycle. |
+| **Attribution Error** | An incorrect correlation between cause and outcome, leading to harmful proposals. |
+| **Scope** | The boundary of applicability for a learning entry (Private, Team, Business, Portfolio, Global). |
+| **Recursion Anomaly** | A learning entry that targets the Learning subsystem itself, requiring immediate human alert. |
+
+---
+
+*End of Document*

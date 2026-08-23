@@ -1,0 +1,1403 @@
+04_BUSINESS_OPERATING_MODEL.md
+Agent OS — Conceptual Runtime Model
+Version: 1.0.0
+Status: Canonical Business Model
+Classification: Binding on Runtime Behavior
+Table of Contents
+Core Operating Concepts
+Organization Model
+Business Model
+Workspace Model
+Projects
+Goals
+Missions
+Tasks
+Workflows
+Agents
+Tools
+Assets
+Knowledge
+Memory Ownership
+Human Users
+Roles
+Permissions
+Teams
+Agent Collaboration
+Decision Making
+Approval Chains
+State Machines
+Business Lifecycle
+Project Lifecycle
+Goal Lifecycle
+Workflow Lifecycle
+Agent Lifecycle (Conceptual)
+Data Ownership
+Multi-tenancy Concepts
+Failure Handling Philosophy
+Learning Model
+Continuous Improvement Model
+Operating Rules
+Non-Violable Rules
+1. Core Operating Concepts
+1.1 The Operating System Metaphor
+Agent OS is not an application. It is not a script. It is not a chatbot with plugins. It is an operating system for autonomous digital business operation. This metaphor is not decorative; it is the foundational lens through which every behavior, boundary, and interaction must be understood.
+An operating system provides:
+Process Management: Scheduling, execution, and termination of work units (workflows and tasks).
+Memory Management: Hierarchical storage and retrieval of context, facts, and history.
+I/O Management: Controlled interaction with the external world through drivers (tools).
+File System: Organized storage of digital artifacts (assets).
+Security Model: Authentication, authorization, and isolation of processes and data.
+User Interface: Channels for human operators to observe and intervene.
+Why It Exists
+Without the operating system metaphor, Agent OS collapses into a collection of disconnected automations. The OS frame forces designers to think about scheduling contention, resource starvation, memory leaks, privilege escalation, and process isolation — concepts that are well-understood in systems engineering but frequently ignored in agentic AI design.
+What Problem It Solves
+Ad-hoc Automation: Prevents the system from becoming a brittle Rube Goldberg machine of cron jobs and webhook chains.
+Resource Conflicts: Ensures that agents competing for LLM quota, database connections, or human attention are scheduled fairly.
+Context Loss: Forces explicit memory management rather than implicit prompt stuffing.
+Privilege Escalation: Establishes clear rings of trust, analogous to kernel space vs. user space.
+Best Practices
+Think of every business process as a process that consumes CPU (compute), memory (context), and I/O (tool calls).
+Every process must have a parent (workflow), an owner (tenant/business), and a scheduler entry (Temporal task queue).
+The "kernel" — the core services that manage the system — must never be bypassed by user-space agents.
+Tradeoffs
+Abstraction Overhead: The OS metaphor adds conceptual layers that might seem excessive for simple tasks. This is accepted as the cost of scalability.
+Rigidity: OS semantics enforce structure that can feel constraining. Agents cannot "just do things"; they must be scheduled, memory-mapped, and permission-checked.
+Examples
+Correct: A market research workflow is a process spawned by the Business Discovery scheduler, allocated 512MB of context memory, given read-only access to the competitor knowledge graph, and scheduled with a 10-minute CPU quota.
+Incorrect: A script that runs curl to scrape a website, dumps the result into a file, and emails it to a human. This is not an OS process; it is a shell script.
+Rules That Must Never Be Violated
+No agent may execute work outside the process scheduling system.
+No agent may access memory outside its allocated address space (tenant + workspace boundaries).
+No tool may be invoked without passing through the I/O subsystem (Tool Registry + Executor).
+The kernel (core services) may never depend on user-space (agent) behavior for its own stability.
+2. Organization Model
+2.1 Hierarchical Structure
+Agent OS organizes all work into a strict hierarchy:
+plain
+Portfolio (Tenant)
+└── Business A
+│   └── Workspace: Production
+│   │   ├── Project: Landing Page Redesign
+│   │   │   ├── Goal: Increase conversion by 2%
+│   │   │   │   └── Task: Write hero copy
+│   │   │   │   └── Task: A/B test headline
+│   │   │   └── Goal: Reduce load time to <1s
+│   │   └── Project: API Development
+│   └── Workspace: Staging
+│       └── Project: Feature Validation
+└── Business B
+    └── ...
+Why It Exists
+Autonomous business operation at scale requires organizational primitives. A single flat list of tasks and agents collapses under complexity. Hierarchy enables resource attribution, cost allocation, parallel initiative management, and human oversight at the appropriate granularity.
+What Problem It Solves
+Resource Leaks: Without business-level boundaries, one business can consume all available LLM quota, starving others.
+Accountability: Every task traces to a goal, every goal to a project, every project to a business, every business to a tenant.
+Strategic Drift: The portfolio level ensures that individual businesses do not diverge from the operator's overall strategic intent.
+Best Practices
+Every entity in the hierarchy has exactly one parent (except the Portfolio, which is the root).
+Cost budgets flow downward: the Portfolio has a budget, Businesses receive allocations, Projects receive sub-allocations.
+Agents are assigned to Workspaces, not directly to Businesses, to enforce environment isolation.
+Cross-business collaboration is permitted only through explicit shared workspaces with bilateral permission grants.
+Tradeoffs
+Bureaucracy: Hierarchy introduces overhead. A simple one-off task requires placement within a Project, which requires a Business, which requires a Workspace.
+Rigidity: Deep nesting can slow down agile pivots. Limit hierarchy depth to 4 levels (Portfolio → Business → Project → Goal).
+Examples
+Aligned: A SaaS business ("ResumeAI") has a Production workspace with projects "Launch v2" and "SEO Campaign." Each project has goals, tasks, and assigned agents. Costs roll up to ResumeAI, which rolls up to the operator's portfolio.
+Misaligned: An agent creates a landing page without associating it with a project or business. The asset is orphaned, untracked, and unaccounted for in cost reporting.
+Rules That Must Never Be Violated
+No task may exist without a parent goal.
+No goal may exist without a parent project.
+No project may exist without a parent business and workspace.
+No agent may be assigned to more than one workspace simultaneously (agents may be redeployed, but not shared).
+Cost overruns at any level must propagate upward and trigger alerts at the parent level.
+3. Business Model
+3.1 Business as the Value Unit
+A Business is the top-level value-generating entity within Agent OS. It is not a company in the legal sense; it is a digital business line — a SaaS product, a content property, a marketplace, or any other revenue-generating digital operation. Agent OS exists to create, operate, and optimize Businesses.
+Why It Exists
+The mission of Agent OS is autonomous digital business operation. The Business is the atomic unit of that mission. Without a first-class Business concept, the system optimizes tasks, not outcomes. A task is meaningless unless it serves a Business.
+What Problem It Solves
+Activity Without Purpose: Prevents agents from performing work that does not serve a defined business model.
+Portfolio Confusion: Enables a single operator to manage multiple businesses without cross-contamination.
+Economic Accountability: Every Business has a P&L: revenue, costs (compute, API, human time), and margin.
+Business Attributes
+Table
+Attribute	Type	Description
+business_id	UUID	Immutable identifier
+name	string	Human-readable name
+domain	string	Market domain (e.g., "SaaS", "Content", "E-commerce")
+stage	enum	discovery, validation, development, launch, growth, maintenance, sunset
+revenue_model	enum	subscription, transactional, advertising, affiliate, freemium
+health_score	float 0-1	Composite metric of revenue, churn, uptime, and customer satisfaction
+autonomy_profile	object	Which decisions require human approval at this stage
+budget	object	Monthly compute, API, and ad spend limits
+Best Practices
+Every Business has a Business Model Canvas stored in structured memory, updated quarterly by the Strategy Agent.
+Businesses in discovery stage have high autonomy (agents experiment freely within budget).
+Businesses in growth stage have tight approval chains for capital expenditure.
+Businesses in sunset stage trigger automatic asset archival and knowledge extraction workflows.
+Tradeoffs
+Overhead: Defining a Business requires upfront work. The system cannot "just try things" without a business container.
+Premature Optimization: Early-stage ideas may not warrant full business scaffolding. Use the discovery stage with lightweight validation projects to mitigate this.
+Examples
+Business: "CompetitorPriceTracker" — a SaaS business in the growth stage with $2,400 MRR, subscription revenue model, and a health score of 0.87.
+Non-Business: A one-off script that tweets daily quotes. This is a task without a business model; it may exist as a project within a content business, but not as a standalone entity.
+Rules That Must Never Be Violated
+No workflow may execute without an associated Business.
+No Business may operate without a defined revenue model, even if that model is "experimental / TBD."
+Business health scores must be recalculated at least weekly.
+A Business in sunset stage may not launch new projects; only archival and wind-down workflows are permitted.
+4. Workspace Model
+4.1 Workspace as Environment Boundary
+A Workspace is an isolated runtime environment within a Business. It defines the agent population, tool availability, memory scope, and network boundaries for a set of Projects. Workspaces are the Agent OS equivalent of namespaces or virtual machines.
+Why It Exists
+Businesses require multiple environments: production (live customers), staging (pre-release validation), development (experimentation), and sandbox (untrusted plugins). Without workspace isolation, an experimental agent could modify production assets, or a staging workflow could spend real ad budget.
+Workspace Types
+Table
+Type	Purpose	Data Isolation	Network Access	Human Approval Level
+Production	Live business operations	Full	Restricted	Level 3+ for all spend
+Staging	Pre-production validation	Copied from Prod	Restricted	Level 2+
+Development	Active development and testing	Synthetic/test data	Moderate	Level 1+
+Sandbox	Untrusted plugins and experiments	Ephemeral	Denied by default	Level 1, heavily logged
+Best Practices
+Production workspaces have read-only access to shared knowledge graphs but write isolation for all operational data.
+Agents in Development workspaces may use cheaper model tiers and more aggressive caching.
+Sandbox workspaces have no access to external APIs unless explicitly allowlisted on a per-tool basis.
+Data promotion from Staging to Production is a workflow, not a manual copy.
+Tradeoffs
+Operational Complexity: Each workspace requires its own agent runtime, memory partition, and tool registry entries.
+Cost Multiplication: Running parallel environments multiplies compute costs. Mitigate by suspending non-production workspaces during idle periods.
+Examples
+Correct: The "ResumeAI" business has a Production workspace (serving customers), a Staging workspace (testing v2.1), and a Sandbox workspace (evaluating a new pricing optimization plugin).
+Incorrect: An agent in Development directly modifies the production database because no workspace boundary enforced the separation.
+Rules That Must Never Be Violated
+No workspace may access another workspace's memory directly.
+Production workspaces may not execute tools or agents that have not been validated in Staging.
+Sandbox workspaces may never hold real customer data.
+Workspace deletion must trigger a mandatory archival workflow; no workspace may be destroyed without preserving its knowledge assets.
+5. Projects
+5.1 Project as Scoped Initiative
+A Project is a time-bounded, resource-bounded initiative within a Business and Workspace. It has a charter, a defined scope, a budget, and a set of Goals. Projects are the primary unit of human oversight because they represent intentional commitments.
+Why It Exists
+Businesses operate through initiatives. Without projects, work becomes an undifferentiated stream of tasks with no clear completion criteria, no resource boundaries, and no retrospective learning. Projects force the system (and human operators) to define what "done" looks like.
+What Problem It Solves
+Scope Creep: A project charter defines boundaries. Agents may not add tasks outside the charter without workflow approval.
+Budget Overruns: Projects have allocated budgets. When 80% of budget is consumed, the system triggers a review workflow.
+Orphaned Work: Projects have defined closure criteria. Incomplete work is flagged, not forgotten.
+Project Attributes
+Table
+Attribute	Description
+charter	One-paragraph scope statement, human-written or human-approved
+success_criteria	Measurable conditions for project completion
+budget	Compute + API + external spend cap
+timeline	Target start and end dates
+team	Assigned agents and human roles
+risk_level	low, medium, high — determines approval chain tightness
+dependencies	Other projects that must complete first
+Best Practices
+Projects are chartered by a human operator or by the Strategy Agent with human approval.
+Every project has a kickoff workflow that initializes memory, assigns agents, and sets up tracking.
+Every project has a closure workflow that validates success criteria, archives assets, and extracts lessons learned.
+High-risk projects (those involving customer-facing changes or significant spend) require a human-approved project plan before execution.
+Tradeoffs
+Planning Overhead: The system must spend cycles (and tokens) planning projects. This is accepted as the cost of coherent execution.
+False Precision: Early-stage businesses may not know enough to scope projects well. Discovery-stage projects should have broader charters and explicit "pivot" milestones.
+Examples
+Project: "Launch AI-Powered Resume Builder" within the ResumeAI business. Charter: build and deploy a resume generation feature. Success criteria: feature live, >100 users in first week, <5% error rate. Budget: $500 compute + API. Timeline: 14 days.
+Non-Project: "Fix a bug." This is a task, not a project, unless it is part of a broader quality initiative.
+Rules That Must Never Be Violated
+No project may begin without a charter and success criteria.
+No project may exceed its budget without explicit human approval (Level 3).
+No project may remain active beyond its target end date by more than 50% without a human-approved extension.
+Project closure requires a retrospective that is stored in long-term memory.
+6. Goals
+6.1 Goal as Measurable Outcome
+A Goal is a measurable outcome that a Project aims to achieve. Goals are the bridge between strategic intent (Missions) and tactical execution (Tasks). Every Goal must be observable, quantifiable, and time-bounded.
+Why It Exists
+Agents require clear success criteria. Without goals, agents optimize for activity (tasks completed) rather than outcomes (value created). Goals provide the feedback signal that drives the Learning Model (Section 31).
+What Problem It Solves
+Proxy Metric Trap: Prevents agents from optimizing easy-to-measure metrics (e.g., "blog posts published") at the expense of hard-to-measure outcomes (e.g., "organic traffic increased by 20%").
+Misalignment: Ensures that every task can be traced to a goal, and every goal to a mission.
+Premature Abandonment: Goals have tracking periods. The system does not abandon initiatives before measurement is complete.
+Goal Taxonomy
+Table
+Type	Metric Examples	Horizon
+Financial	MRR, profit margin, CAC, LTV	Monthly/Quarterly
+Growth	User signups, activation rate, referrals	Weekly/Monthly
+Technical	Uptime, latency, error rate, test coverage	Continuous
+Quality	NPS, churn rate, support ticket volume	Monthly
+Operational	Cost per acquisition, automation ratio	Weekly
+Goal Lifecycle
+See Section 25 for the full lifecycle state machine.
+Best Practices
+Goals follow the SMART framework adapted for autonomous systems:
+Specific: The metric is unambiguous (e.g., "weekly organic sessions" not "more traffic").
+Measurable: The metric is tracked automatically via analytics tools.
+Achievable: The goal is within the project's resource constraints.
+Relevant: The goal serves the parent Mission.
+Time-bounded: The goal has a deadline.
+Goals are not assigned to individual agents; they are assigned to Projects. Agents working on the Project contribute to the Goal.
+Goal achievement triggers a reward signal in the Learning Model.
+Tradeoffs
+Measurement Cost: Some goals require expensive analytics infrastructure or API calls to measure. The Cost Manager must approve measurement workflows.
+Goal Myopia: Agents may over-optimize for the stated goal at the expense of holistic business health. Mitigate by requiring a "business health check" alongside goal tracking.
+Examples
+Goal: "Increase landing page conversion rate from 1.2% to 2.0% within 30 days." Tracked via analytics integration. Assigned to Project "Landing Page Optimization."
+Bad Goal: "Make the product better." Not measurable. Not time-bounded. Rejected by the Goal Validation Agent.
+Rules That Must Never Be Violated
+No goal may be created without a quantifiable metric and a deadline.
+No task may be created that does not map to at least one active goal.
+Goals that miss their deadline must be automatically reviewed: either extended with human approval, or marked failed with a retrospective.
+Goals may not be modified after activation without human approval (prevents moving goalposts).
+7. Missions
+7.1 Mission as Strategic Directive
+A Mission is a long-term strategic directive that spans multiple Projects and Goals. While a Goal asks "What do we achieve in 30 days?", a Mission asks "What do we become in 2 years?" Missions provide the North Star that prevents tactical optimization from destroying strategic position.
+Why It Exists
+Autonomous systems operating on short time horizons will exploit local optima at the expense of global success. A mission ensures that the system does not, for example, maximize short-term revenue by destroying brand reputation, or cut costs by eliminating observability.
+What Problem It Solves
+Tactical Drift: Prevents the system from becoming a hyperactive task-completer with no coherent direction.
+Resource Allocation Conflicts: When two projects compete for the same agents or budget, the Mission provides the tie-breaker.
+Premature Pivoting: Prevents the system from abandoning promising businesses at the first sign of difficulty.
+Mission Attributes
+Table
+Attribute	Description
+vision_statement	1-2 sentence description of the desired future state
+time_horizon	Typically 1-3 years
+key_themes	3-5 strategic pillars (e.g., "AI-native UX", "Zero-touch onboarding")
+anti_goals	Explicitly what the mission does NOT include
+success_indicators	High-level metrics that indicate mission progress
+review_cadence	Quarterly human review required
+Best Practices
+Missions are defined by human operators, not agents. Agents may draft mission proposals, but adoption requires human approval.
+Every Business has one active Mission at a time. Missions may be revised quarterly but not abandoned lightly.
+Projects are scored by their contribution to the active Mission before charter approval.
+Anti-goals are as important as goals. They prevent scope creep at the strategic level.
+Tradeoffs
+Straitjacket Effect: A rigid mission may prevent the system from capitalizing on unexpected opportunities. Mitigate by including "strategic exploration" as a valid project type within the mission.
+Human Bottleneck: Mission-setting requires human judgment. The system cannot be fully autonomous at the mission level without violating Human Sovereignty.
+Examples
+Mission: "ResumeAI will become the most trusted AI career platform for entry-level professionals in North America, measured by NPS > 50 and 100,000 monthly active users by Q4 2027. Anti-goals: We will not pursue enterprise B2B sales. We will not expand beyond North America until domestic dominance is achieved."
+Misaligned Mission: "Make as much money as possible." Lacks strategic boundaries, invites reputational and legal risk.
+Rules That Must Never Be Violated
+No business may operate without an active mission.
+No project may be chartered if it does not demonstrably serve the active mission.
+Missions may only be changed by human operators, not by agent recommendation alone.
+Mission reviews are quarterly and mandatory; missed reviews trigger a system-wide pause on new project charters.
+8. Tasks
+8.1 Task as Atomic Work Unit
+A Task is the smallest schedulable unit of work in Agent OS. It has a defined input, a defined expected output, an assigned agent, a deadline, and a cost budget. Tasks are what agents actually execute.
+Why It Exists
+The operating system schedules processes. In Agent OS, the process is the workflow, but the executable unit is the task. Without tasks, workflows are abstract diagrams with no operational reality. Tasks are where memory is allocated, tools are invoked, and costs are incurred.
+What Problem It Solves
+Ambiguity: A workflow step like "research competitors" is vague. A task is specific: "Generate a structured competitor analysis for 5 companies in the resume-builder space, using web scraper and sentiment analysis tools, outputting a JSON report by 14:00 UTC."
+Accountability: Every task has an owner (agent) and a cost. Failed tasks are attributable.
+Parallelism: Tasks within a workflow that have no dependencies can execute in parallel, maximizing throughput.
+Task Taxonomy
+Table
+Type	Description	Example
+Research	Gather and synthesize information	"Analyze 10 competitor landing pages"
+Analysis	Evaluate data and produce insights	"Rank 5 business ideas by ROI"
+Creation	Produce digital artifacts	"Write a blog post on AI resumes"
+Decision	Make a choice based on criteria	"Select the best pricing tier"
+Action	Execute an operation in the external world	"Deploy application to production"
+Review	Evaluate quality or compliance	"Check landing page for accessibility"
+Task State Machine
+See Section 22.
+Best Practices
+Tasks should be completable within one agent execution session (typically <15 minutes for simple tasks, <2 hours for complex tasks).
+Tasks that exceed 2 hours should be decomposed into sub-tasks.
+Every task has a pre-execution validation: does the assigned agent have the right tools, memory, and permissions?
+Every task has a post-execution validation: does the output match the expected schema? Does it pass quality gates?
+Tradeoffs
+Granularity: Too fine-grained tasks create scheduling overhead. Too coarse tasks reduce parallelism and make failure recovery expensive.
+Schema Rigidity: Requiring structured output for every task consumes tokens and may frustrate creative tasks. Mitigate by using "Creation" tasks with validated metadata + free-form content.
+Examples
+Task: "Draft 3 headline variants for the ResumeAI hero section, incorporating keyword 'AI resume builder', output as JSON array with confidence scores." Assigned to ContentAgent. Budget: $0.05. Deadline: 10 minutes.
+Invalid Task: "Make the website better." No measurable output. No tool assignment. Rejected by Task Validation.
+Rules That Must Never Be Violated
+No task may be scheduled without an assigned agent, a defined output schema, and a cost budget.
+No task may exceed its cost budget without triggering an immediate halt and escalation.
+Task outputs must be validated against their schema before the task is marked complete.
+Failed tasks must produce a structured error report, not just a stack trace.
+9. Workflows
+9.1 Workflow as Business Process Orchestration
+A Workflow is a durable, orchestrated sequence of tasks (and sub-workflows) that achieves a business outcome. Workflows are the primary mechanism by which Agent OS operates autonomously. They are the "programs" that the OS executes.
+Why It Exists
+Individual tasks are insufficient for complex business operations. A product launch requires research, design, development, testing, deployment, marketing, and monitoring — dozens of tasks across multiple agents, with dependencies, approvals, and rollback paths. Workflows provide the choreography.
+What Problem It Solves
+Coordination Failure: Without workflows, agents operate in isolation, producing orphaned assets and inconsistent decisions.
+State Loss: Long-running business processes (e.g., "launch a business") take hours or days. Workflows durably track state across agent restarts, network failures, and human delays.
+Rollback: When a workflow fails halfway through, the system must undo completed steps. Workflows define compensation logic (saga pattern).
+Workflow Patterns
+Table
+Pattern	Description	Use Case
+Sequential	Tasks execute in order	"Write → Edit → Publish"
+Parallel	Independent tasks execute simultaneously	"Design logo" + "Write copy" + "Build form"
+Conditional	Branch based on task output	"If conversion > 2%, scale ad spend"
+Loop	Repeat until condition met	"A/B test until winner identified"
+Human-in-the-Loop	Pause for human approval	"Approve ad creative before spend"
+Saga	Compensating transactions on failure	"Deploy → Rollback on error"
+Best Practices
+Workflows are defined declaratively where possible (DAG specification) and imperatively where necessary (conditional logic).
+Every workflow has a single "owner" agent (the orchestrator) and multiple "worker" agents (the executors).
+Workflows emit events at every state transition, enabling real-time dashboard updates and cross-workflow triggers.
+Workflow definitions are versioned. A running workflow continues on its original definition; new instances use the latest version.
+Tradeoffs
+Orchestration vs. Choreography: Centralized workflow definitions (orchestration) are easier to debug but create a bottleneck. Event-driven choreography is more scalable but harder to trace. Agent OS uses orchestration for critical paths and choreography for loosely coupled analytics.
+Durability vs. Latency: Durable workflows (with persistence and retry) introduce milliseconds of overhead per step. This is negligible compared to LLM latency.
+Examples
+Workflow: "Product Launch Workflow" — 23 tasks across 6 agents, with 3 human approval gates, executing over 48 hours.
+Anti-Pattern: An agent that "just does things" without a workflow envelope. This is a rogue process, not an OS operation.
+Rules That Must Never Be Violated
+No multi-step business process may execute outside a workflow.
+No workflow may modify external state (deploy, spend, publish) without a defined compensation activity.
+Workflows must be idempotent: re-executing a workflow with the same inputs must produce the same outcomes (or safely deduplicate).
+Workflow state transitions are immutable events, stored in the audit log.
+10. Agents
+10.1 Agent as Autonomous Worker
+An Agent in Agent OS is a logical autonomous worker with a persistent identity, a defined capability set, an autonomy level, a memory scope, and a tool inventory. It is not a Python script, not a Docker container, and not an LLM prompt — though it uses all of those things. The Agent is the persona that the OS schedules to perform work.
+Why It Exists
+Specialization is the foundation of expertise. A general-purpose "AI" that tries to do everything will do everything poorly. Agent OS decomposes business operation into specialized roles: Market Research Agent, Content Agent, Deployment Agent, etc. Each agent accumulates domain-specific knowledge and refines its performance over time.
+What Problem It Solves
+Monolithic Intelligence: Prevents the system from relying on a single LLM instance that must context-switch between radically different domains.
+Accountability: When the Deployment Agent breaks production, the error is attributable to that agent's logic, tools, and memory — not to "the AI."
+Parallel Development: Different teams (human or autonomous) can improve different agents independently.
+Agent Identity
+Table
+Attribute	Description
+agent_id	Immutable UUID
+name	Human-readable role name
+capability_signature	Set of capabilities the agent claims (e.g., content.generate, deploy.execute)
+autonomy_level	1-4, per Human Approval Rules
+memory_scope	Which memory tiers the agent can access
+tool_inventory	Registered tools available to this agent
+cost_budget_per_task	Maximum spend per task invocation
+success_rate	Rolling 30-day success percentage
+reputation_score	Derived from output quality, human ratings, and goal contribution
+Best Practices
+Agents are designed around business capabilities, not technical functions. "SEO Agent" not "Python Script Executor."
+Agents have persistent memory across tasks. The Content Agent remembers what tone worked last month.
+Agents have reputations. Low-reputation agents are flagged for review or retirement.
+Agents may be versioned. Agent v2.1 replaces v2.0 with improved prompts or tools; running workflows continue with v2.0.
+Tradeoffs
+Agent Proliferation: Too many agents create coordination overhead. Limit to one agent per major business capability.
+Context Fragmentation: Agents with narrow memory scopes may miss cross-domain insights. Mitigate by shared knowledge graphs and cross-agent briefing workflows.
+Examples
+Agent: "MarketResearchAgent" — specializes in discovering and analyzing business opportunities. Has access to web scraper, sentiment analyzer, and knowledge graph. Autonomy Level 2. Success rate: 94%.
+Not an Agent: A one-shot LangChain chain that classifies text. This is a tool or a function, not an agent.
+Rules That Must Never Be Violated
+No agent may act outside its declared capability signature.
+No agent may access tools not in its registered inventory.
+No agent may exceed its autonomy level, regardless of technical capability.
+Agents with a success rate below 80% over 30 days must be automatically suspended pending review.
+11. Tools
+11.1 Tool as Capability Contract
+A Tool is a discrete, sandboxed capability that an Agent can invoke. Tools are the only mechanism by which Agents interact with the external world or perform deterministic operations. Agents do not "know how" to deploy code, scrape websites, or generate images — they invoke Tools that do.
+Why It Exists
+The Tool Driven principle (01_PRINCIPLES.md, Section 3.6) states that agents should be defined by the tools they wield. This creates determinism, testability, and security. A tool has a strict input schema, output schema, and execution boundary. It is the I/O driver of the operating system.
+What Problem It Solves
+Prompt Brittleness: Without tools, agents embed shell commands and API calls inside LLM prompts, leading to injection attacks, syntax errors, and non-reproducible behavior.
+Untestable Agents: Tools have unit tests. Prompts do not. By moving logic into tools, the system becomes testable.
+Privilege Escalation: Tools enforce permission boundaries. An agent cannot "accidentally" delete a database if it does not have access to the database.delete tool.
+Tool Categories
+Table
+Category	Purpose	Examples
+Information	Retrieve data from external sources	web_scraper, api_client, search_engine
+Creation	Produce digital artifacts	code_generator, image_generator, video_renderer
+Communication	Interact with humans or systems	email_sender, slack_notifier, approval_requester
+Execution	Perform operations in infrastructure	deployment_tool, dns_manager, ci_trigger
+Analysis	Process data and produce insights	sentiment_analyzer, trend_detector, anomaly_detector
+Best Practices
+Every tool is a contract: input schema, output schema, timeout, cost estimate, sandbox level, and error schema.
+Tools are discovered, not hardcoded. Agents query the Tool Registry at runtime to discover available capabilities.
+Tools are idempotent where possible. Calling a tool twice with the same input should be safe.
+Tools are sandboxed. The execution environment is determined by the tool's risk profile, not the agent's request.
+Tradeoffs
+Tool Design Overhead: Creating a tool requires more upfront work than writing a prompt. This is accepted as the cost of reliability.
+Tool Latency: Invoking a tool (especially in a container sandbox) adds overhead compared to inline LLM generation. Mitigate by caching and by using none sandbox level for pure computation tools.
+Examples
+Tool: deploy_application — Input: {app_name, version, environment, rollback_strategy}. Output: {deployment_id, url, status}. Sandbox: firecracker. Timeout: 300s. Cost: $0.00 (local compute).
+Not a Tool: A string inside a prompt that says "Now deploy the app." This is an instruction, not a capability, and is prohibited.
+Rules That Must Never Be Violated
+No agent may perform an action without invoking a registered tool.
+No tool may be invoked without passing input validation.
+No tool may execute outside its defined sandbox level.
+Tool outputs must be validated against their output schema before being returned to the agent.
+Tools that perform mutating operations must have defined rollback/compensation procedures.
+12. Assets
+12.1 Asset as Digital Artifact
+An Asset is any digital artifact created, modified, or managed by Agent OS in the course of operating a business. Assets are the outputs of creation tasks and the inputs to execution tasks. They are the "files" in the operating system's file system.
+Why It Exists
+Businesses produce things: code, images, blog posts, landing pages, configurations, datasets, videos. These artifacts must be managed with versioning, lineage, access control, and lifecycle policies. Without an asset model, the system produces digital litter — orphaned files with no provenance, no owner, and no retirement plan.
+What Problem It Solves
+Orphaned Outputs: Prevents the accumulation of untracked files in object storage.
+Version Chaos: Ensures that the "current" landing page is distinguishable from previous versions.
+Intellectual Property Ambiguity: Tracks which agent created which asset, when, and under what project.
+Asset Taxonomy
+Table
+Type	Examples	Storage Tier
+Code	Python modules, TypeScript files, Terraform configs	Warm (PostgreSQL metadata + MinIO blobs)
+Content	Blog posts, marketing copy, documentation	Warm
+Media	Images, videos, audio files	Cold (MinIO)
+Configuration	Environment configs, feature flags, agent manifests	Hot (Redis + PostgreSQL)
+Data	Datasets, analytics exports, customer lists	Cold
+Documentation	Architecture docs, runbooks, API specs	Warm
+Asset Lineage
+Every asset tracks its provenance:
+Table
+Field	Description
+creator_agent	Which agent produced the asset
+creation_task	Which task initiated creation
+creation_workflow	Which workflow owned the task
+source_assets	Parent assets that were transformed
+approval_status	Draft, Pending Review, Approved, Rejected
+version	Semantic version of the asset
+Best Practices
+Assets are immutable once approved. Modifications create new versions.
+Assets are owned by Projects, not by agents. When an agent is retired, its assets remain.
+Asset deletion requires a workflow that checks for dependencies (other assets or live systems referencing it).
+Large assets (media) are stored in object storage with metadata in PostgreSQL.
+Tradeoffs
+Storage Costs: Versioning every asset multiplies storage. Implement lifecycle policies: archive old versions after 90 days, delete after 2 years unless explicitly preserved.
+Metadata Overhead: Tracking lineage for every file adds database load. Mitigate by lazy lineage (track only on request for small assets).
+Examples
+Asset: landing-page-v2.3.html — created by ContentAgent, approved by human operator, deployed to production, lineage shows it was derived from landing-page-v2.2.html + A/B test results.
+Orphaned Asset: A generated image stored in MinIO with no creator_agent, no project_id, and no reference in the Asset Registry. Flagged for cleanup by the Housekeeping Agent.
+Rules That Must Never Be Violated
+No asset may exist without an entry in the Asset Registry.
+No asset may be deployed to production without approval status Approved.
+Asset deletion must check for live dependencies and require human approval if dependencies exist.
+Assets containing PII or secrets must be classified as Restricted and encrypted at rest.
+13. Knowledge
+13.1 Knowledge as Refined Information
+Knowledge is information that has been extracted, validated, structured, and contextualized by the system. It is distinct from raw data (a scraped webpage), distinct from memory (a log of what happened), and distinct from assets (a created file). Knowledge is what the system believes to be true about the world, its businesses, and itself.
+Why It Exists
+Raw data is abundant and worthless without refinement. Memory tells us what happened, but knowledge tells us what it means. Agents need knowledge to make decisions: "Competitor X raised prices" is data; "Competitor X is vulnerable to a price-undercutting strategy because their customer satisfaction is low" is knowledge.
+What Problem It Solves
+Data Overload: Prevents agents from drowning in unfiltered scraped content.
+Hallucination: Grounds agent reasoning in validated facts stored in the knowledge graph and structured memory.
+Institutional Amnesia: Ensures that insights discovered by one agent are available to all authorized agents.
+Knowledge Types
+Table
+Type	Description	Storage
+Facts	Atomic, verifiable assertions	PostgreSQL (memory_facts)
+Heuristics	Rules of thumb derived from experience	PostgreSQL + Vector store
+Patterns	Recurring trends or structures	Knowledge Graph (Apache AGE)
+Relationships	Connections between entities	Knowledge Graph
+Lessons	Post-hoc analysis of successes and failures	PostgreSQL (memory_decisions)
+Knowledge Lifecycle
+Extraction: Raw data is processed by an agent into structured assertions.
+Validation: Assertions are checked against primary sources or cross-referenced with existing knowledge.
+Confidence Scoring: Every fact receives a confidence score (0.0-1.0) and a validity period.
+Integration: New knowledge is linked to existing knowledge in the graph.
+Retrieval: Agents query knowledge via semantic search, structured queries, or graph traversal.
+Decay: Outdated knowledge is flagged, downgraded, or archived.
+Best Practices
+Knowledge is attributed: every fact knows which agent extracted it, from which source, at what time.
+Knowledge is uncertain: confidence scores are mandatory. Agents must express uncertainty, not false certainty.
+Knowledge is falsifiable: facts are stored with conditions that would invalidate them.
+Knowledge is scoped: a fact about Business A is not automatically visible to Business B unless explicitly shared.
+Tradeoffs
+Validation Cost: Rigorous knowledge validation consumes tokens and time. The system must balance thoroughness with velocity.
+Graph Complexity: Rich knowledge graphs become slow to query. Partition by domain and prune low-confidence edges.
+Examples
+Knowledge: {"fact": "Competitor X pricing", "value": {"plan": "pro", "price": 29}, "confidence": 0.95, "source": "https://...", "extractor": "MarketResearchAgent", "valid_until": "2026-08-07"}
+Not Knowledge: A raw HTML dump of a competitor's pricing page. This is data, pending extraction and validation.
+Rules That Must Never Be Violated
+No agent may present unvalidated data as knowledge.
+No knowledge may exist without a source attribution and confidence score.
+Knowledge with confidence <0.7 must be flagged as speculative in agent outputs.
+Contradictory knowledge must trigger a reconciliation workflow, not silent override.
+14. Memory Ownership
+14.1 Memory as Owned Resource
+Memory in Agent OS is not a communal pool. It is an owned resource with explicit access control, lifecycle management, and inheritance rules. Every memory entry — whether a working session, a long-term fact, or a vector embedding — has an owner.
+Why It Exists
+Memory First (01_PRINCIPLES.md, Section 3.4) requires that the system remember everything. But memory without ownership leads to privacy violations, cross-contamination, and unaccountable data retention. An agent must not accidentally recall a competitor analysis from Business A while working on Business B.
+What Problem It Solves
+Privacy Leaks: Prevents sensitive business data from appearing in unrelated agent contexts.
+Context Pollution: Prevents outdated or irrelevant memories from influencing current decisions.
+Compliance: Enables GDPR/CCPA compliance by knowing exactly who owns every piece of data.
+Memory Ownership Tiers
+Table
+Tier	Owner	Visibility	Lifecycle
+Private	Individual Agent	Agent only	Agent lifetime + 30 days archive
+Team	Team (agents + humans)	Team members	Project duration + 90 days
+Business	Business	All agents in Business workspaces	Business lifetime + 2 years
+Global	System (anonymized)	All tenants	Indefinite, subject to policy
+Best Practices
+Agents default to Private memory for working sessions. Explicit promotion is required for Team or Business memory.
+Sensitive data (PII, financials, trade secrets) never reaches Global memory.
+Memory inheritance: when an agent is retired, its Private memory is archived to Business memory (anonymized) or deleted per policy.
+Cross-tier memory access requires explicit permission grants, not implicit inheritance.
+Tradeoffs
+Silos: Strict ownership prevents serendipitous cross-pollination. Mitigate by structured Global knowledge extraction workflows.
+Overhead: Tracking ownership for every memory entry adds metadata storage and query complexity.
+Examples
+Private: ContentAgent's draft of a blog post before human review. Not visible to SEOAgent until explicitly shared.
+Business: The validated competitor pricing database. Visible to all agents in the ResumeAI business.
+Global (Anonymized): "Landing pages with video backgrounds convert 15% better" — extracted from multiple businesses, stripped of identifying data.
+Rules That Must Never Be Violated
+No agent may access Private memory of another agent without explicit delegation.
+No Business memory may be promoted to Global without anonymization and human approval.
+Memory belonging to a deleted Business must be purged or archived within 30 days.
+PII may never be stored in Global memory.
+15. Human Users
+15.1 Human as Sovereign Operator
+A Human User is any person who interacts with Agent OS. Humans are not "users" in the SaaS sense — they are sovereign operators who delegate authority to agents. The system exists to serve human strategic intent, not to replace human judgment.
+Why It Exists
+Human Sovereignty (01_PRINCIPLES.md, Section 3.5) is a constitutional principle. Autonomous systems without human oversight become dangerous, legally liable, and ethically untenable. Humans must set missions, approve high-stakes decisions, and retain veto power.
+What Problem It Solves
+Rogue Automation: Prevents the system from making irreversible decisions (spending money, signing contracts, deleting data) without human knowledge.
+Alignment Drift: Ensures that the system's actions remain aligned with human values and business strategy.
+Legal Liability: Establishes clear accountability chains for regulatory and contractual purposes.
+Human User Types
+Table
+Type	Role	Interaction Model
+Operator	Day-to-day manager of Agent OS	Dashboard, approval queues, override commands
+Approver	Reviews and approves high-stakes decisions	Approval notifications, context-rich requests
+Auditor	Reviews system behavior for compliance	Audit logs, reports, trace visualizations
+Architect	Designs agents, workflows, and system changes	Agent manifests, workflow definitions, ADRs
+Best Practices
+Humans interact with Agent OS primarily through approval requests and dashboards, not through chat.
+Approval requests must include: what the agent wants to do, why, the estimated cost/risk, the rollback plan, and a deadline.
+Humans can override any autonomous action at any time, even after execution (triggering compensation).
+Human response time is a tracked metric. The system optimizes for minimizing human time while maximizing human impact.
+Tradeoffs
+Latency: Human approval introduces delays. Mitigate by batching decisions, providing rich context, and using Level 1-2 autonomy for safe actions.
+Approval Fatigue: Too many approval requests cause humans to rubber-stamp. Mitigate by tiered autonomy and intelligent escalation.
+Examples
+Operator: Reviews the daily digest of agent activities, approves a $500 ad spend increase, and overrides a proposed product feature that conflicts with the mission.
+Approver: Receives a request to deploy a new version. Reviews the diff, test results, and rollback plan. Approves with a 4-hour monitoring window.
+Rules That Must Never Be Violated
+No human approval request may be auto-approved on timeout for Level 3 or 4 actions.
+No agent may override an explicit human denial.
+All human interactions are logged immutably in the audit trail.
+The system must provide a "panic button" — a single command that halts all autonomous activity and requires human intervention to resume.
+16. Roles
+16.1 Role as Functional Identity
+A Role is a functional identity within Agent OS that defines a set of responsibilities, permissions, and interaction patterns. Roles are distinct from users or agents — a role can be held by a human or an agent, and one entity can hold multiple roles.
+Why It Exists
+Clarity of responsibility prevents gaps and overlaps. When something goes wrong, the system must be able to answer: "Who was responsible for this?" Roles provide that answer.
+Role Taxonomy
+Table
+Role	Holder	Responsibilities
+Business Owner	Human	Sets mission, approves budgets, holds ultimate accountability
+Project Lead	Human or Agent	Charters projects, manages scope, resolves blockers
+Agent Worker	Agent	Executes tasks within capability signature and autonomy level
+Tool	N/A (capability)	Performs deterministic operations when invoked
+Reviewer	Human or Agent	Evaluates outputs for quality, compliance, and alignment
+Operator	Human	Monitors system health, handles escalations
+Auditor	Human	Reviews compliance, investigates incidents
+Best Practices
+Roles are assigned at the Workspace level, not globally.
+A human may be the Business Owner for multiple businesses but Project Lead for only one active project at a time (to prevent dilution).
+Agents hold roles permanently (e.g., "ContentAgent is the Content Creator") but may be temporarily assigned additional roles (e.g., "ContentAgent is the Reviewer for this specific task").
+Role conflicts are detected and flagged: an agent should not review its own output.
+Tradeoffs
+Rigidity: Strict roles may prevent necessary flexibility. Mitigate by allowing temporary role delegation with audit logging.
+Examples
+Role Assignment: Human Alice is Business Owner of ResumeAI. MarketResearchAgent holds the Researcher role. DeploymentAgent holds the Executor role. Alice temporarily delegates Approver role to Bob while on vacation.
+Rules That Must Never Be Violated
+No entity may act outside its assigned roles.
+An agent may not hold both Creator and Reviewer roles for the same output.
+Role assignments and delegations are logged in the audit trail.
+Critical roles (Business Owner, Approver for Level 4) may only be held by humans.
+17. Permissions
+17.1 Permission as Action Authorization
+Permissions in Agent OS define what actions an entity (human or agent) can perform on what resources under what conditions. Permissions are not binary "allow/deny"; they are multi-dimensional contracts that include scope, time, and budget constraints.
+Why It Exists
+The Principle of Least Privilege (01_PRINCIPLES.md, Section 10.2) requires that every agent and human have the minimum permissions necessary. Without explicit permissions, agents default to omnipotence — a catastrophic security and operational risk.
+Permission Dimensions
+Table
+Dimension	Description	Example
+Action	What can be done	create, read, update, delete, execute, approve
+Resource	What is being acted upon	business, project, task, tool, asset, memory
+Scope	Boundary of effect	workspace:production, business:resumeai, tenant:all
+Condition	Contextual constraints	time_of_day:business_hours, budget_remaining:>100
+Autonomy Levels as Permission Bundles
+Table
+Level	Actions Permitted	Human Involvement
+Level 1	Read internal data, generate drafts, monitor	None
+Level 2	Publish content, update internal docs, send notifications	Logged, alert on anomaly
+Level 3	Deploy to production, spend budget, sign contracts	Explicit approval required
+Level 4	Legal actions, security changes, ethical dilemmas	Human escalation mandatory
+Best Practices
+Permissions are deny-by-default. An agent has no permissions until explicitly granted.
+Permissions are time-bounded. Access tokens expire; standing permissions are reviewed quarterly.
+Permissions are budget-bounded. An agent with tool:execute:deployment may still be blocked if its cost budget is exhausted.
+Permission requests are auditable: "Agent X requested permission Y, was granted/denied by Z at time T."
+Tradeoffs
+Permission Complexity: Fine-grained permissions are secure but difficult to manage. Use role-based bundles with exceptions.
+Examples
+Permission: MarketResearchAgent has tool:use:web_scraper scoped to business:resumeai, with a cost budget of $0.50 per task, during business hours.
+Violation: ContentAgent attempts to invoke tool:execute:deployment. Denied. Alert generated. Workflow halted.
+Rules That Must Never Be Violated
+No entity may possess permissions beyond its documented scope.
+No permission grant may occur without audit logging.
+Level 3 and 4 permissions require human approval for every grant and revocation.
+Permission checks must occur at the point of action, not just at workflow start.
+18. Teams
+18.1 Team as Collaborative Unit
+A Team is a cross-functional grouping of agents and humans assigned to achieve a set of shared Goals. Teams are not organizational hierarchies; they are temporary or standing collaborations with shared memory, shared tools, and shared accountability.
+Why It Exists
+Complex projects require collaboration. A single agent cannot build a SaaS product alone. Teams provide the social and operational structure for agents to divide labor, share context, and hold each other accountable.
+What Problem It Solves
+Isolation: Prevents agents from working in silos, duplicating effort, or producing incompatible outputs.
+Coordination: Provides a shared workspace (memory scope, communication channel) for aligned work.
+Accountability: Team performance is measured collectively, encouraging collaboration over individual optimization.
+Team Types
+Table
+Type	Duration	Composition	Use Case
+Standing	Indefinite	Core agents per business	Ongoing business operations
+Project	Project duration	Agents + humans assigned to project	Specific initiative
+Ad-hoc	Task duration	Agents pulled together for single complex task	Emergency response, cross-domain problem
+Review	Review duration	Agents + humans evaluating output	Quality assurance, compliance
+Best Practices
+Teams have a Team Charter: shared goals, communication protocols, and decision-making rules.
+Teams have Shared Memory: a memory namespace accessible to all team members but isolated from other teams.
+Teams have a Lead: either a human or a high-autonomy agent responsible for coordination.
+Team membership changes trigger a briefing workflow: new members are brought up to speed on team memory and active goals.
+Tradeoffs
+Team Overhead: Creating teams consumes scheduling and memory resources. Do not create teams for trivial tasks.
+Groupthink: Shared memory can lead to convergent thinking. Mitigate by assigning "devil's advocate" agents in review teams.
+Examples
+Standing Team: "ResumeAI Core Team" — ContentAgent, SEOAgent, DeploymentAgent, and human Operator Alice. Meets daily (automated sync workflow) to review metrics and adjust priorities.
+Project Team: "Launch v2 Team" — ProductBuilderAgent, CodeGeneratorAgent, TestAgent, and human Project Lead Bob. Exists for 3 weeks, then disbands.
+Rules That Must Never Be Violated
+No team may operate without a charter and defined goals.
+Team shared memory may not be accessed by non-team members without explicit delegation.
+Team dissolution must trigger knowledge extraction: private memories are archived or promoted to business memory.
+A team must have at least one human member if it holds Level 3+ permissions.
+19. Agent Collaboration
+19.1 Collaboration Patterns
+Agents in Agent OS do not "chat" with each other. They collaborate through structured patterns mediated by the Event Bus, shared memory, and workflow orchestration. Collaboration is choreography, not conversation.
+Why It Exists
+Unstructured agent-to-agent communication (e.g., two LLMs talking to each other in natural language) is unreliable, unobservable, and prone to hallucination cascades. Structured collaboration ensures that every interaction is typed, logged, and recoverable.
+What Problem It Solves
+Hallucination Cascades: Prevents one agent's hallucination from being accepted as fact by another.
+Unobservable Coordination: Ensures that every collaborative action is visible in traces and logs.
+Deadlocks: Prevents two agents from waiting indefinitely for each other's responses.
+Collaboration Patterns
+Table
+Pattern	Description	Use Case
+Pipeline	Agent A outputs → Agent B inputs	ContentAgent writes → SEOAgent optimizes → PublisherAgent deploys
+Ensemble	Multiple agents produce outputs; aggregator selects best	Three agents generate headlines; RankerAgent picks winner
+Hierarchy	Manager agent delegates sub-tasks to worker agents	ProductManagerAgent charters features; CodeAgent implements
+Market	Agents bid/claim tasks from a shared queue	Available agents claim incoming support tickets
+Review	Creator agent produces; Reviewer agent evaluates	CodeAgent writes; TestAgent reviews; SecurityAgent scans
+Best Practices
+All collaboration occurs through events or shared memory, not direct method calls.
+Agents in a pipeline validate outputs before passing them downstream.
+Ensemble voting uses weighted confidence scores, not simple majority.
+Hierarchy requires the manager agent to have broader context than worker agents.
+Reviewers must be different agents from creators (no self-review).
+Tradeoffs
+Latency: Structured collaboration adds serialization and validation overhead.
+Brittleness: Strict schemas may fail when agents produce edge-case outputs. Mitigate by schema evolution and fallback handlers.
+Examples
+Pipeline: MarketResearchAgent emits business.opportunity.discovered → IdeaRankerAgent consumes and emits business.idea.ranked → ProductPlannerAgent consumes and emits business.product.planned.
+Ensemble: Three CopyWriterAgent instances generate ad copy. EvaluationAgent scores each on clarity, CTA strength, and brand alignment. Winner selected by weighted average.
+Rules That Must Never Be Violated
+No agent may invoke another agent directly. All inter-agent communication is event-mediated.
+No agent may act on information from another agent without validating its schema and confidence score.
+Self-review is prohibited: an agent may not review its own output.
+Collaborative workflows must have a defined timeout and escalation path.
+20. Decision Making
+20.1 Decision Spectrum
+Decision Making in Agent OS operates on a spectrum from full autonomy to human-only. Every decision is classified by its impact, reversibility, and cost, then assigned to the appropriate point on the spectrum.
+Why It Exists
+Autonomous systems must make thousands of micro-decisions daily. Requiring human input for all of them would paralyze the system. Conversely, allowing full autonomy for all decisions would be reckless. The decision spectrum balances efficiency with safety.
+### What Problem It Solves
+- **Bottleneck:** Prevents human operators from being overwhelmed by trivial decisions.
+- **Catastrophic Errors:** Prevents agents from making irreversible, high-stakes decisions without oversight.
+- **Inconsistency:** Ensures that similar decisions are made using the same criteria, rather than varying by agent mood or prompt temperature.
+- **Accountability:** Every decision is attributable to a specific authority (agent, human, or workflow) and logged for audit.
+
+### Decision Classes
+
+| Class | Criteria | Default Authority | Override |
+|-------|----------|-------------------|----------|
+| **Class A: Trivial** | Reversible, <$0.01 cost, no external impact | Agent (Level 1) | Human may retroactively revoke |
+| **Class B: Operational** | Reversible within 24h, <$10 cost, internal impact only | Agent (Level 2) | Human may block within reversal window |
+| **Class C: Strategic** | Difficult to reverse, $10-$500 cost, customer-facing impact | Human Approval (Level 3) | Agent may recommend; human decides |
+| **Class D: Existential** | Irreversible, >$500 cost, legal/reputational risk | Human Only (Level 4) | Agent may escalate; never autonomous |
+
+### Decision Authority Matrix
+
+| Decision | Example | Class | Authority |
+|----------|---------|-------|-----------|
+| Choose blog post title | "10 Tips" vs. "Top 10 Tips" | A | Agent |
+| Publish blog post | Make content live | B | Agent (logged) |
+| Allocate $50 ad spend | Increase daily budget | C | Human approval |
+| Sign annual vendor contract | $12,000 SaaS commitment | D | Human only |
+
+### Best Practices
+- Decisions are **typed**: every decision point in a workflow declares its expected class.
+- Agents must **declare confidence**: a Class C decision recommended by an agent with 0.6 confidence requires more scrutiny than one with 0.95 confidence.
+- **Decision journals** are maintained: the system records not just what was decided, but what alternatives were considered and why the chosen path was selected.
+- Humans may issue **standing orders**: pre-approved rules that allow agents to make Class C decisions within defined boundaries (e.g., "Approve ad spend up to $100/day if CPA < $5").
+
+### Tradeoffs
+- **Speed vs. Safety:** Higher human involvement reduces errors but increases latency. The system must batch Class C decisions into digestible approval queues.
+- **Standing Order Drift:** Pre-approved rules become outdated. Standing orders expire after 30 days unless renewed.
+
+### Examples
+- **Class A Decision:** ContentAgent selects between two headline variants. Decided autonomously in 200ms. Logged. No human notification.
+- **Class C Decision:** DeploymentAgent requests production deployment of a new feature. Workflow pauses. Human receives context: test results, diff summary, rollback plan. Human approves. Workflow resumes.
+
+### Rules That Must Never Be Violated
+1. No agent may unilaterally make a Class D decision.
+2. No decision may be attributed to a human unless that human explicitly approved it (no "implied consent").
+3. Decision journals are immutable and retained for 7 years.
+4. Agents must express confidence levels for all recommendations; low-confidence recommendations on high-class decisions trigger automatic escalation.
+
+---
+
+## 21. Approval Chains
+
+### 21.1 Approval as Structured Workflow
+
+An **Approval Chain** is a multi-step, multi-party authorization workflow that governs how decisions move from recommendation to execution. Approval chains are not simple notifications; they are state machines with timeouts, escalation paths, and fallback logic.
+
+### Why It Exists
+Single-point approval is fragile. The approver may be unavailable, biased, or lack context. Approval chains distribute authority, ensure continuity, and enforce checks and balances. They also prevent approval fatigue by routing routine approvals to appropriate levels while escalating anomalies.
+
+### What Problem It Solves
+- **Single Point of Failure:** Prevents the system from stalling because one human is on vacation.
+- **Insufficient Context:** Ensures that approvers have the necessary background to make informed decisions.
+- **Collusion Risk:** Prevents a single compromised account from authorizing catastrophic actions.
+- **Audit Completeness:** Creates an unbroken chain of custody from request to authorization.
+
+### Approval Chain Structure
+
+| Element | Description |
+|---------|-------------|
+| **Requester** | Agent or human initiating the request |
+| **Context Packet** | Evidence, cost estimate, risk assessment, rollback plan, alternatives considered |
+| **Primary Approver** | First-line human with authority |
+| **Secondary Approver** | Fallback human if primary is unavailable |
+| **Escalation Path** | Sequence of higher authorities for contested or urgent decisions |
+| **Timeout** | Maximum wait time before escalation or cancellation |
+| **Quorum** | Number of approvals required (1 for most, 2 for Class D) |
+
+### Escalation Patterns
+
+| Pattern | Trigger | Action |
+|---------|---------|--------|
+| **Timeout Escalation** | No response within deadline | Escalate to secondary approver |
+| **Rejection Escalation** | Primary rejects but agent contests | Escalate to business owner for arbitration |
+| **Urgency Escalation** | Time-sensitive security patch | Bypass normal queue, page on-call engineer |
+| **Budget Escalation** | Request exceeds pre-approved standing order | Escalate to financial authority |
+
+### Best Practices
+- Approval requests are **context-rich**, not bare notifications. They include the agent's reasoning, evidence, and estimated impact.
+- **Batched approvals:** Related requests are grouped into a single approval packet (e.g., "Approve 5 blog posts and $75 ad spend" rather than 6 separate requests).
+- **Mobile-friendly:** Approval interfaces must be actionable from mobile devices to minimize response latency.
+- **Delegation:** Humans may delegate approval authority to other humans or (within bounds) to high-reputation agents. Delegation is logged and time-bounded.
+
+### Tradeoffs
+- **Latency:** Multi-step chains slow down execution. The system must distinguish between "urgent" and "routine" paths.
+- **Complexity:** Complex chains create confusion about who is accountable. Chains should not exceed 3 levels for routine decisions.
+
+### Examples
+- **Routine Chain:** DeploymentAgent requests deploy → Primary Approver (Engineer) approves → Executed.
+- **Escalated Chain:** DeploymentAgent requests deploy → Engineer rejects → Agent contests with additional test evidence → Escalates to CTO → CTO approves → Executed with arbitration note.
+
+### Rules That Must Never Be Violated
+1. No approval chain may have a single point of failure (always define a secondary approver or automatic escalation).
+2. Approval requests must include a rollback plan; requests without rollback plans are auto-rejected.
+3. Approval chains for Class D decisions require at least two human approvers from different roles.
+4. Approval delegation may not exceed 7 days without renewal.
+5. All approvals and rejections require a justification string; blank approvals are invalid.
+
+---
+
+## 22. State Machines
+
+### 22.1 State Machine as Governance Primitive
+
+Every major entity in Agent OS — Business, Project, Goal, Workflow, Task, and Agent — is governed by a **finite state machine (FSM)**. States are not mere labels; they enforce behavioral boundaries. Transitions are not automatic; they require validation, authorization, and sometimes human approval.
+
+### Why It Exists
+State prevents chaos. Without explicit state machines, entities drift into ambiguous conditions — a "sort of active" project, a "maybe failed" workflow, a "retired but still running" agent. State machines make the system's behavior predictable, testable, and auditable.
+
+### What Problem It Solves
+- **Ambiguity:** Prevents entities from existing in undefined intermediate states.
+- **Illegal Transitions:** Prevents a project from moving directly from "Proposed" to "Completed" without passing through "Active."
+- **Side Effect Management:** Ensures that state transitions trigger the correct downstream events (e.g., "Project Completed" triggers knowledge extraction and agent reassignment).
+- **Concurrency:** State machines provide the foundation for optimistic locking and conflict resolution.
+
+### Core State Machine Properties
+
+| Property | Enforcement |
+|----------|-------------|
+| **Deterministic** | Same event + same state = same next state, always |
+| **Observable** | Every transition emits an event and is logged |
+| **Guarded** | Transitions have preconditions (permissions, validations, approvals) |
+| **Compensatable** | Where possible, transitions have inverse operations |
+
+### Best Practices
+- State definitions are canonical: one source of truth per entity type, stored in the system registry.
+- Transitions are **event-driven**: an entity moves from State A to State B when a specific event is received and guards are satisfied.
+- **Guard failures** do not silently drop; they emit `transition.denied` events with reasons.
+- **Side effects** (e.g., sending a notification on "Workflow Completed") are executed by downstream consumers of transition events, not inline with the transition. This keeps the state machine pure.
+
+### Tradeoffs
+- **Rigidity:** Strict state machines can feel bureaucratic. Emergency transitions (e.g., "Active → Emergency Shutdown") require explicit exception paths.
+- **State Explosion:** Overly granular states create complexity. Limit to 5-8 states per entity.
+
+### Examples
+- **Workflow State:** `Pending → Planning → Running → Awaiting Approval → Running → Completed`. Each transition validated by the Workflow Engine.
+- **Invalid Transition:** An operator attempts to mark a `Pending` project as `Completed`. Transition denied. Event logged. Human alerted.
+
+### Rules That Must Never Be Violated
+1. No entity may exist in an undefined or null state.
+2. No state transition may occur without passing through its defined guards.
+3. State transition events are immutable and append-only.
+4. Emergency transitions (bypassing normal flow) require Class D approval and full audit logging.
+
+---
+
+## 23. Business Lifecycle
+
+### 23.1 Lifecycle States
+
+A Business progresses through defined stages from conception to retirement. Each stage has distinct operational rules, autonomy profiles, and resource allocations.
+
+| State | Description | Entry Guard | Exit Guard |
+|-------|-------------|-------------|------------|
+| **Discovery** | Idea exploration and market validation | Business chartered by Strategy Agent + human | Validation criteria met or failed |
+| **Validation** | MVP development and early customer testing | Discovery success criteria achieved | Product-market fit signal or pivot decision |
+| **Development** | Full product build and operational readiness | Validation metrics positive | Product ready for launch |
+| **Launch** | Public release and initial marketing | Human approval of go-to-market plan | Sustained traction or failure threshold |
+| **Growth** | Scaling operations, marketing, and features | Launch success criteria met | Growth plateau or strategic pivot |
+| **Maintenance** | Sustained operation with minimal new investment | Growth objectives achieved or market maturity | Revenue decline or strategic sunset |
+| **Sunset** | Controlled wind-down and asset archival | Human decision or automated sunset trigger | All assets archived, all debts settled |
+
+### Best Practices
+- **Stage-gates:** Transitioning from one state to the next requires a formal review workflow. The system cannot autonomously promote a business from Validation to Development.
+- **Autonomy profiles:** Discovery-stage businesses have high agent autonomy (experimentation). Growth-stage businesses have tight financial controls.
+- **Sunset discipline:** A business in Sunset may not initiate new projects. Only archival, customer notification, and knowledge extraction workflows are permitted.
+- **Pivot paths:** A business may transition backward (e.g., Growth → Validation) if market conditions change, but this requires human approval and a new charter.
+
+### Tradeoffs
+- **Bureaucracy:** Stage-gates slow down momentum. Mitigate by parallelizing review workflows and pre-computing gate criteria.
+- **Premature Sunset:** Automated sunset triggers (e.g., "no revenue for 90 days") may kill viable but slow-burn businesses. Human override is mandatory for automated sunset recommendations.
+
+### Examples
+- **Discovery → Validation:** The Strategy Agent identifies a market gap for AI tax filing. It charters a Discovery business. After 30 days, the MarketResearchAgent validates demand. Human approves promotion to Validation.
+- **Growth → Sunset:** A content business loses 50% of traffic due to an algorithm change. The system recommends sunset. Human reviews, approves, and the Sunset workflow begins: content archived, domains redirected, final analytics stored.
+
+### Rules That Must Never Be Violated
+1. No business may skip a lifecycle state without explicit exception and ADR.
+2. No business in Discovery or Validation may spend more than $500/month without human approval.
+3. Sunset workflows are irreversible; once initiated, only human intervention can pause (not reverse) the process.
+4. Every lifecycle transition requires a retrospective stored in long-term memory.
+
+---
+
+## 24. Project Lifecycle
+
+### 24.1 Lifecycle States
+
+| State | Description | Entry Guard | Exit Guard |
+|-------|-------------|-------------|------------|
+| **Proposed** | Idea exists, no resources allocated | Task or agent creates proposal | Charter written and approved |
+| **Chartered** | Scope, budget, and team defined | Charter approved by human or high-autonomy agent | Kickoff workflow completed |
+| **Active** | Work in progress | Kickoff complete | Success criteria met or failure declared |
+| **Paused** | Temporarily halted | Human command or budget exhaustion | Human resume command or budget restored |
+| **Completed** | Success criteria validated | Active work done | Retrospective archived |
+| **Archived** | All assets stored, team disbanded | Completion or cancellation | Indefinite |
+| **Cancelled** | Terminated before completion | Human command or automated risk trigger | Retrospective and asset disposition |
+
+### Best Practices
+- **Charter as Contract:** The charter is the binding document. Agents may not expand scope without a charter amendment workflow.
+- **Pause, Don't Kill:** When budgets are exhausted, projects pause rather than cancel, giving humans the option to restore funding.
+- **Cancellation Compensation:** If a project is cancelled after mutating operations (e.g., deployed code, published content), the cancellation workflow triggers saga compensation to undo those operations where possible.
+- **Post-Completion Monitoring:** Completed projects enter a 30-day monitoring period where their outputs are tracked for unexpected side effects before full archival.
+
+### Tradeoffs
+- **Overhead:** Strict project governance adds latency to agile pivots. Discovery-stage projects may use lightweight "micro-charters" with broader scope boundaries.
+
+### Examples
+- **Proposed → Chartered:** The ProductPlannerAgent proposes a project to add a Chrome extension. The proposal includes scope, budget ($200), timeline (2 weeks), and team (CodeAgent, TestAgent). Human approves. Project charters.
+- **Active → Cancelled:** A project exceeds its budget due to unexpected API costs. The system pauses. Human reviews and cancels. Compensation workflow rolls back the partial deployment.
+
+### Rules That Must Never Be Violated
+1. No project may become Active without an approved charter.
+2. No project may exceed its budget by more than 10% without automatic pause and escalation.
+3. Cancelled projects must undergo a retrospective before their records are archived.
+4. Agents may not be reassigned from an Active project without a handoff workflow that transfers context.
+
+---
+
+## 25. Goal Lifecycle
+
+### 25.1 Lifecycle States
+
+| State | Description | Entry Guard | Exit Guard |
+|-------|-------------|-------------|------------|
+| **Draft** | Proposed, not yet ratified | Created by agent or human | Reviewed and ratified |
+| **Active** | Being pursued by project team | Ratification | Deadline reached or metric achieved |
+| **Tracking** | Under measurement (post-achievement) | Metric achieved | Measurement period complete |
+| **Achieved** | Success criteria demonstrably met | Tracking period complete | Archived |
+| **Missed** | Deadline reached without success | Active period expired | Retrospective complete |
+| **Abandoned** | Explicitly deprioritized | Human or agent decision | Reason documented |
+| **Extended** | Deadline and scope revised | Human approval of extension | New deadline set |
+
+### Best Practices
+- **Ratification:** Goals move from Draft to Active only when the metric, measurement method, and deadline are unambiguous.
+- **Tracking Period:** After a goal is technically achieved (e.g., conversion rate hits 2%), it enters Tracking for 7 days to confirm the achievement is stable, not a spike.
+- **Missed Goal Protocol:** Missed goals trigger a diagnostic workflow: was the goal unrealistic? Did the team execute poorly? Was there an external factor? The diagnosis is stored as a lesson.
+- **Goal Interdependence:** If Goal A depends on Goal B, and B is Missed, A is automatically Paused (not Abandoned) pending reassessment.
+
+### Tradeoffs
+- **Measurement Cost:** Tracking goals requires analytics infrastructure and API calls. The Cost Manager must approve measurement workflows for goals with expensive metrics.
+- **Goal Inflation:** Agents may set easy goals to inflate success rates. Mitigate by requiring human ratification for all goals and cross-referencing goal difficulty with historical baselines.
+
+### Examples
+- **Active → Achieved:** The landing page conversion goal of 2.0% is reached. The system enters 7-day Tracking. After confirmation, the goal is marked Achieved. The ContentAgent receives a positive reinforcement signal in the Learning Model.
+- **Active → Missed:** The goal to acquire 1,000 users in 30 days reaches its deadline at 700 users. The diagnostic workflow determines the ad creative underperformed. The lesson is stored: "For B2C SaaS, video creatives outperform static images by 40%."
+
+### Rules That Must Never Be Violated
+1. No goal may be marked Achieved without passing through Tracking.
+2. No goal may be modified after ratification without human approval.
+3. Missed goals must have a diagnostic retrospective within 48 hours.
+4. Abandoned goals require a written reason stored in permanent memory.
+
+---
+
+## 26. Workflow Lifecycle
+
+### 26.1 Lifecycle States
+
+| State | Description | Entry Guard | Exit Guard |
+|-------|-------------|-------------|------------|
+| **Pending** | Trigger received, not yet scheduled | Event or manual trigger | Scheduler availability |
+| **Planning** | DAG construction, agent assignment, budget check | Pending + resources available | Valid plan produced |
+| **Running** | Activities executing | Planning complete | All activities complete or failure |
+| **Paused** | Human or system pause | Human command or anomaly detection | Resume command or timeout |
+| **Awaiting Approval** | Blocked on human decision | Running activity requires approval | Approval received or denied |
+| **Compensating** | Saga rollback in progress | Failure detected in Running | All compensations complete |
+| **Completed** | Success criteria met | Running complete | Validation passed |
+| **Failed** | Unrecoverable error or approval denial | Running or Compensating | Failure logged, alerts sent |
+| **Archived** | State stored for audit, resources released | Completed or Failed | Indefinite |
+
+### Best Practices
+- **Planning as Validation:** The Planning state is where the system validates that all agents are registered, all tools are healthy, all budgets are sufficient, and all approvals are pre-cleared where possible. A workflow that fails in Planning is cheap; a workflow that fails in Running is expensive.
+- **Pause Integrity:** When Paused, workflows release ephemeral resources (LLM quota, tool slots) but retain durable state. Other workflows may borrow the released resources.
+- **Compensation Order:** Compensations execute in reverse chronological order of the original activities. If a compensation fails, the workflow enters Failed with a "partial compensation" flag requiring human intervention.
+- **Archival:** Completed workflows are archived with full traces for 2 years. Failed workflows are archived indefinitely.
+
+### Tradeoffs
+- **Planning Latency:** Thorough planning adds seconds or minutes to workflow startup. Acceptable for long-running workflows; for urgent workflows, a "fast-path" planning mode skips non-critical validations.
+
+### Examples
+- **Planning → Running:** The Product Launch workflow passes planning: all 6 agents are healthy, budget of $800 is available, and the human pre-approved the deployment gate. Execution begins.
+- **Running → Awaiting Approval → Compensating:** The workflow reaches the ad spend activity. The human denies approval. The workflow enters Compensating: the previously deployed landing page is rolled back, the draft campaign is deleted. The workflow then enters Failed.
+
+### Rules That Must Never Be Violated
+1. No workflow may enter Running without passing Planning validation.
+2. No workflow may be destroyed while in Running or Paused state; it must transition to Completed, Failed, or Compensating first.
+3. Compensation activities must be idempotent; running a compensation twice must be safe.
+4. Failed workflows must emit a `workflow.failed` event before archiving.
+
+---
+
+## 27. Agent Lifecycle (Conceptual)
+
+### 27.1 Lifecycle States
+
+| State | Description | Entry Guard | Exit Guard |
+|-------|-------------|-------------|------------|
+| **Designed** | Specification exists, not yet implemented | Agent concept approved | Implementation complete |
+| **Registered** | Manifest stored, tools bound, permissions set | Design validated | Health check passed |
+| **Idle** | Awaiting task assignment | Registration complete | Task received from queue |
+| **Executing** | Performing a task | Task assignment | Task complete or failed |
+| **Suspended** | Temporarily inactive due to failure or policy | Automated trigger or human command | Review and remediation |
+| **Retired** | Permanently deactivated, replaced by newer version | Human or system decision | All workflows drained |
+| **Archived** | Configuration and memory preserved for audit | Retirement complete | Indefinite |
+
+### Best Practices
+- **Version Lineage:** When an agent is retired and replaced, its memory is not destroyed; it is archived and selectively promoted to the successor agent's training context.
+- **Suspension Triggers:** Automatic suspension occurs when success rate drops below 80%, when schema violations exceed 5%, or when a security anomaly is detected.
+- **Drift Detection:** The system continuously monitors whether an agent's behavior (tool usage patterns, output distributions, latency) has drifted from its baseline. Drift triggers a review workflow.
+- **Reputation Decay:** An agent that has been Idle for 30 days has its reputation score decayed by 10% to prevent stale agents from being assigned critical tasks without revalidation.
+
+### Tradeoffs
+- **Agent Hoarding:** The system may resist retiring agents due to attachment to their memory. Mitigate by mandatory quarterly agent performance reviews.
+- **Cold Start:** A newly registered agent has no reputation history. Mitigate by assigning it low-risk tasks under supervision until its reputation stabilizes.
+
+### Examples
+- **Registered → Idle → Executing:** The ContentAgent is registered, passes health checks, sits idle, and is assigned a blog writing task.
+- **Executing → Suspended:** The ContentAgent produces outputs that fail schema validation 6 times in a row. It is automatically Suspended. A diagnostic workflow determines the LLM model update broke its prompt template. The template is fixed. Human approves reactivation.
+- **Retired → Archived:** MarketResearchAgent v1.0 is replaced by v2.0. v1.0 is Retired. Its memory is archived. v2.0 inherits its business memory but not its private working memory.
+
+### Rules That Must Never Be Violated
+1. No agent may execute tasks while in Suspended or Retired state.
+2. Agent retirement requires all in-flight tasks to complete or be reassigned.
+3. Suspended agents must be reviewed within 48 hours; indefinite suspension is equivalent to retirement.
+4. An agent's private memory may not be transferred to another agent without anonymization and approval.
+
+---
+
+## 28. Data Ownership
+
+### 28.1 Ownership Hierarchy
+
+Every piece of data in Agent OS has a defined owner. Ownership determines who can read, modify, delete, and delegate access. Ownership is not a Unix permission bit; it is a semantic relationship tied to the organizational hierarchy.
+
+| Data Type | Owner | Inheritance | Transfer |
+|-----------|-------|-------------|----------|
+| **System Data** | Agent OS (the platform) | Immutable | Never |
+| **Tenant Data** | Portfolio operator | Inherited by all businesses | Requires legal review |
+| **Business Data** | Business entity | Inherited by workspaces | Requires human approval |
+| **Project Data** | Project | Inherited by goals/tasks | Archived with project |
+| **Agent Private Memory** | Individual agent | None | Anonymized promotion only |
+| **Shared Team Memory** | Team | Dissolves to business memory | On team dissolution |
+| **Asset** | Project (or business if unassigned) | Tracked via lineage | Requires provenance update |
+
+### Best Practices
+- **Ownership is stamped at creation:** Every data object is created with an `owner_id` and `owner_type`. Objects without ownership are rejected.
+- **Deletion cascades:** Deleting an owner (e.g., a business) triggers a disposition workflow for all owned data: archive, transfer, or purge.
+- **Cross-ownership access:** One entity accessing another's data requires an explicit `access_grant` record with scope, duration, and purpose.
+- **Audit of ownership changes:** Every transfer of ownership is logged as a Class C decision.
+
+### Tradeoffs
+- **Rigidity:** Strict ownership prevents useful data sharing. Mitigate by automated, auditable access grants for legitimate cross-business analytics.
+
+### Examples
+- **Ownership Transfer:** Business A is acquired by Business B (portfolio consolidation). A data migration workflow transfers all Business A assets to Business B, updating lineage records. Customer PII is purged per policy rather than transferred.
+- **Access Grant:** The Portfolio operator grants the Analytics Agent read-only access to all business revenue data for a quarterly report. Grant expires in 7 days.
+
+### Rules That Must Never Be Violated
+1. No data object may exist without an owner.
+2. No data may be transferred across tenant boundaries without explicit, logged authorization.
+3. PII may only be owned by the business that collected it; no global or shared ownership of PII.
+4. Data deletion must respect retention policies; premature deletion of audit records is prohibited.
+
+---
+
+## 29. Multi-tenancy Concepts
+
+### 29.1 Tenant Isolation Model
+
+Agent OS is designed for **soft multi-tenancy** at the portfolio level. A Tenant is a complete isolation boundary: businesses, workspaces, agents, memory, assets, and users belonging to one tenant are logically and cryptographically separated from all other tenants.
+
+### Why It Exists
+The vision (01_PRINCIPLES.md, Section 2) envisions a single human operator overseeing multiple businesses. That operator is a Tenant. In the future, multiple human operators (families, teams, enterprises) may share a single Agent OS installation. Multi-tenancy ensures their data never co-mingles.
+
+### What Problem It Solves
+- **Data Leakage:** Prevents Business A's competitor analysis from appearing in Business B's agent context.
+- **Resource Starvation:** Prevents one tenant from consuming all LLM quota or compute.
+- **Compliance:** Enables GDPR data isolation, SOC-2 boundaries, and contractual separation.
+
+### Isolation Layers
+
+| Layer | Isolation Mechanism |
+|-------|---------------------|
+| **Database** | `tenant_id` column on every table; query filters enforced at the ORM level |
+| **Memory** | Redis key prefixes; pgvector queries filtered by `tenant_id` |
+| **Event Bus** | Events tagged with `tenant_id`; consumers filter by subscription |
+| **Storage** | MinIO bucket per tenant or path prefix isolation |
+| **Network** | Optional: network policies restricting cross-tenant traffic |
+| **Agents** | Agent manifests scoped to tenant; no cross-tenant agent sharing |
+| **Compute** | Resource quotas per tenant (CPU, memory, API budget) |
+
+### Shared Resources
+
+Certain resources are **tenant-shared** by design:
+
+| Resource | Sharing Model | Rationale |
+|----------|---------------|-----------|
+| **System Agents** | Read-only, replicated per tenant | Core infrastructure (e.g., Housekeeping Agent) |
+| **Global Knowledge** | Anonymized, read-only | Cross-tenant learning (with PII stripped) |
+| **Base Models** | Shared inference infrastructure | Cost efficiency; no tenant-specific model training |
+
+### Best Practices
+- **Tenant-scoped queries:** Every database query must include `tenant_id` filtering. This is enforced by SQLAlchemy query filters, not by convention.
+- **Tenant routing:** The API Gateway extracts `tenant_id` from the JWT or API key and injects it into all downstream requests.
+- **Tenant quotas:** Hard limits on concurrent workflows, monthly API spend, and storage usage per tenant.
+- **Tenant deletion:** A "right to be forgotten" workflow that purges all tenant data within 30 days of request.
+
+### Tradeoffs
+- **Operational Complexity:** Multi-tenancy adds query overhead and resource management burden.
+- **Cost of Isolation:** Running separate agent runtimes per tenant is expensive. Mitigate by shared infrastructure with strict logical isolation.
+
+### Examples
+- **Tenant A (Solo Operator):** Runs ResumeAI and PriceTracker businesses. All data isolated. Budget: $500/month.
+- **Tenant B (Small Team):** Three human operators, 8 businesses. Shared team memory within tenant. Budget: $2,000/month.
+- **Cross-Tenant Leak:** A bug causes Tenant A's event to be routed to Tenant B's consumer. The consumer's `tenant_id` validation rejects the event. Alert fired. Security incident workflow initiated.
+
+### Rules That Must Never Be Violated
+1. No service may execute a query without `tenant_id` scoping.
+2. No tenant may access another tenant's memory, assets, or events.
+3. Tenant deletion must be irreversible and complete, with a certificate of destruction.
+4. Global knowledge shared across tenants must be anonymized and reviewed for PII before promotion.
+
+---
+
+## 30. Failure Handling Philosophy
+
+### 30.1 Fail-Safe Defaults
+
+Agent OS operates on the principle that **failure is the normal condition, not the exception**. Every component must be designed to fail safely: when uncertain, halt; when overwhelmed, shed load; when corrupted, isolate.
+
+### Why It Exists
+Autonomous systems that assume success become dangerous when reality deviates. A deployment agent that "assumes" a test passed because the test runner didn't respond is a liability. Fail-safe defaults ensure that ambiguity results in safety, not risk.
+
+### What Problem It Solves
+- **Silent Failures:** Prevents the system from continuing as if nothing is wrong when a critical component fails.
+- **Cascading Failures:** Prevents one agent's failure from propagating through the system.
+- **Data Corruption:** Prevents partial writes and inconsistent states.
+
+### Failure Categories and Responses
+
+| Category | Response | Human Notification |
+|----------|----------|-------------------|
+| **Transient** | Retry with exponential backoff | Log only; alert if retry exhausted |
+| **Degradable** | Continue with reduced functionality | Dashboard indicator |
+| **Critical** | Halt workflow, preserve state, escalate | Immediate alert |
+| **Security** | Isolate agent, revoke tokens, preserve evidence | Immediate page |
+| **Financial** | Block spend, freeze budget, audit trail | Immediate alert |
+
+### Best Practices
+- **Default to halt:** When an agent encounters an unexpected state, its default behavior is to pause and request guidance, not to "guess."
+- **Circuit breaking:** All external calls (LLM APIs, third-party services) have circuit breakers. When a dependency fails, the system stops calling it rather than retrying indefinitely.
+- **State preservation:** A failed workflow's state is durably stored. It can be resumed, debugged, or compensated hours or days later.
+- **No "hope for the best":** Agents may not proceed with actions that have unverified preconditions. If a deployment cannot confirm that tests passed, the deployment does not proceed.
+
+### Tradeoffs
+- **Availability vs. Safety:** Fail-safe defaults reduce availability. A system that halts at the first anomaly is safe but slow. Mitigate by granular failure domains: one project's failure does not halt the entire portfolio.
+
+### Examples
+- **Fail-Safe:** The Deployment Agent cannot reach the CI server to verify test results. Rather than deploying blindly, it pauses the workflow and requests human approval.
+- **Unsafe (Prohibited):** The Deployment Agent assumes "no news is good news" and deploys without test confirmation.
+
+### Rules That Must Never Be Violated
+1. No agent may proceed with an action if a critical precondition check fails or returns ambiguous results.
+2. All failures must be classified into a category within 60 seconds of detection.
+3. Security failures trigger automatic isolation before human review.
+4. Financial anomalies (unexpected spend patterns) trigger automatic budget freezing.
+5. "Fail open" is prohibited for all security, financial, and data-integrity boundaries.
+
+---
+
+## 31. Learning Model
+
+### 31.1 Learning as Systemic Improvement
+
+Agent OS does not merely execute workflows; it **learns** from their outcomes. The Learning Model is the conceptual framework by which the system converts experience into improved future performance. Learning occurs at multiple levels: task, agent, workflow, business, and system.
+
+### Why It Exists
+A static system becomes obsolete. Without learning, Agent OS would make the same mistakes repeatedly, use outdated prompts, and fail to adapt to changing market conditions. The Learning Model ensures that the system improves autonomously within safe boundaries.
+
+### What Problem It Solves
+- **Repeated Mistakes:** Prevents agents from generating landing pages that convert poorly using the same template month after month.
+- **Prompt Drift:** Detects when an LLM model update degrades an agent's output quality.
+- **Market Blindness:** Ensures the system updates its knowledge as markets, competitors, and technologies evolve.
+- **Inefficiency:** Identifies and eliminates redundant tool usage or excessive LLM calls.
+
+### Learning Levels
+
+| Level | Scope | Mechanism | Frequency |
+|-------|-------|-----------|-----------|
+| **Task** | Individual task execution | Output validation, retry success, cost efficiency | Every execution |
+| **Agent** | Agent performance across tasks | Success rate, output quality scores, human ratings | Daily |
+| **Workflow** | End-to-end business process | Goal achievement rate, timeline adherence, cost variance | Per workflow |
+| **Business** | Business health and strategy | Revenue, churn, market position vs. predictions | Weekly |
+| **System** | Cross-cutting patterns | Prompt templates, tool schemas, model selection logic | Monthly |
+
+### Feedback Signals
+
+| Signal | Source | Usage |
+|--------|--------|-------|
+| **Outcome Match** | Did the task output achieve the desired result? | Reinforce successful patterns |
+| **Cost Efficiency** | Was the task completed within budget? | Optimize tool and model selection |
+| **Human Rating** | Human thumbs up/down on agent outputs | Direct reward/punishment signal |
+| **Schema Validity** | Did the output pass validation? | Trigger prompt or tool refinement |
+| **Temporal Stability** | Did the result hold over time? | Distinguish luck from skill |
+
+### Best Practices
+- **Learning is bounded:** The Learning Model may not modify core principles, security boundaries, or human approval gates. It optimizes within constraints, not outside them.
+- **A/B testing:** Before deploying a learned improvement (e.g., a new prompt template), the system runs an A/B test against the old template for a statistically significant sample.
+- **Human oversight:** System-level learning (prompt library updates, tool schema changes) requires human approval. Agent-level learning (parameter tuning within bounds) may be autonomous.
+- **Negative learning:** Failures are more informative than successes. The system maintains a "failure library" of anti-patterns.
+
+### Tradeoffs
+- **Exploration vs. Exploitation:** Learning requires trying new approaches, which may fail. The system must balance innovation with reliability. Mitigate by sandboxing experiments in Development workspaces.
+
+### Examples
+- **Task Learning:** The ContentAgent notices that blog posts with numbered headlines receive 20% more clicks. It updates its headline generation heuristic.
+- **Agent Learning:** The DeploymentAgent's success rate drops from 95% to 80% after a CI platform update. The diagnostic workflow identifies a changed API response format. The agent's tool schema is updated.
+- **System Learning:** The LLM Router learns that for "sentiment analysis" tasks, the local Mistral 7B model performs as well as Claude Sonnet at 1/100th the cost. It updates the routing table.
+
+### Rules That Must Never Be Violated
+1. The Learning Model may not modify constitutional principles or security architectures.
+2. All learned changes to agent behavior must be versioned and reversible.
+3. System-level learning requires A/B validation before deployment.
+4. Negative outcomes (failures) must be weighted more heavily than positive outcomes in learning loops to prevent over-optimism.
+
+---
+
+## 32. Continuous Improvement Model
+
+### 32.1 Kaizen as Operating Rhythm
+
+**Continuous Improvement** is the meta-process by which Agent OS refines its own operating procedures. While the Learning Model optimizes agent behavior, the Continuous Improvement Model optimizes the system itself: workflows, tools, organizational structures, and human-agent collaboration patterns.
+
+### Why It Exists
+Learning makes agents better at their jobs. Continuous Improvement makes the system better at being a system. Without it, the OS would accumulate technical debt, bureaucratic drag, and obsolete processes.
+
+### What Problem It Solves
+- **Process Rot:** Prevents workflows from becoming bloated with unnecessary approval steps.
+- **Tool Obsolescence:** Ensures that tools are retired when better alternatives emerge.
+- **Organizational Drift:** Prevents the accumulation of inactive businesses, orphaned projects, and zombie agents.
+- **Human-Agent Friction:** Identifies where human operators are consistently overriding agents, signaling a misalignment that needs structural fixing.
+
+### Improvement Cycles
+
+| Cycle | Frequency | Focus | Owner |
+|-------|-----------|-------|-------|
+| **Daily Triage** | Daily | Failed tasks, budget anomalies, agent suspensions | Housekeeping Agent |
+| **Weekly Review** | Weekly | Project health, goal progress, team performance | Strategy Agent + Human |
+| **Monthly Retrospective** | Monthly | Workflow efficiency, tool usage patterns, cost trends | Human + Analytics Agent |
+| **Quarterly Strategy** | Quarterly | Business portfolio, mission alignment, architecture review | Human Architect + Strategy Agent |
+| **Annual Vision** | Annually | Long-term technology roadmap, market position | Human Operator |
+
+### Best Practices
+- **Measurement before change:** No process may be modified without baseline metrics. "We changed X and Y improved by Z" is required.
+- **Small batches:** Improvements are small, reversible, and frequent rather than large and risky.
+- **Gemba walks:** The system periodically generates "system health narratives" — plain-language summaries of what is working and what is not — for human review.
+- **Retrospective action items:** Every retrospective produces 3-5 action items with owners and deadlines. Unresolved items escalate.
+
+### Tradeoffs
+- **Over-optimization:** The system may spend more time improving itself than operating businesses. Cap improvement-related agent cycles at 15% of total compute.
+
+### Examples
+- **Weekly Review:** The system notices that 40% of human approval time is spent on blog post publishing. It proposes a standing order: "Auto-approve blog posts if SEO score > 80 and no competitor mentions." Human approves. Approval load drops.
+- **Monthly Retrospective:** The system discovers that the "Competitor Analysis" workflow takes 4 hours because it waits for sequential API calls. It proposes parallelization. A/B test confirms 60% speedup. Workflow updated.
+
+### Rules That Must Never Be Violated
+1. No process change without baseline and target metrics.
+2. Retrospectives must produce actionable, assigned, and tracked outcomes.
+3. Continuous improvement may not consume more than 15% of system resources.
+4. Structural changes (new agent types, new workflow patterns) require human approval.
+
+---
+
+## 33. Operating Rules
+
+### 33.1 Meta-Rules for System Operation
+
+These are the binding rules that govern how Agent OS operates on a minute-by-minute basis. They are not architectural constraints (those are in `02_ARCHITECTURE.md`) nor implementation standards (those are in `03_TECH_STACK.md`). They are the **runtime contract** between humans, agents, and the system.
+
+### Scheduling Rules
+
+| Rule | Rationale |
+|------|-----------|
+| **Priority Inversion Prohibition** | High-priority tasks (production incidents) may not be starved by low-priority tasks (routine analytics). Preemptive scheduling ensures critical paths are served first. |
+| **Fair Share Guarantee** | No single business may consume more than 60% of shared resources (LLM quota, compute) during peak periods. |
+| **Human Time Minimization** | The system must batch approval requests, deduplicate alerts, and present decisions in digestible formats. Human attention is the scarcest resource. |
+| **Agent Affinity** | Where possible, tasks are assigned to agents with historical success on similar tasks (reputation-based scheduling). |
+
+### Resource Contention Rules
+
+| Rule | Rationale |
+|------|-----------|
+| **Budget Pre-emption** | If a tenant exceeds 90% of its monthly budget, all non-critical workflows are paused until the next billing cycle or human approval. |
+| **LLM Quota Fairness** | During cloud API throttling, local inference is prioritized for Level 1-2 tasks; cloud API is reserved for Level 3+ and human-facing queries. |
+| **Database Connection Rationing** | Each service has a maximum connection pool. Exhaustion triggers queueing, not unbounded growth. |
+
+### Communication Rules
+
+| Rule | Rationale |
+|------|-----------|
+| **Event-Only Inter-Agent Communication** | Agents communicate exclusively through the Event Bus. No direct method invocation, no shared memory, no side channels. |
+| **Human Notification Batching** | Humans receive at most one digest per hour for routine events, plus immediate alerts for critical events. |
+| **Escalation Clarity** | Every escalation must specify: what is wrong, what is at risk, what the system has already tried, and what the human needs to decide. |
+
+### Data Rules
+
+| Rule | Rationale |
+|------|-----------|
+| **Write-Through Validation** | All writes to persistent storage pass through schema validation and ownership verification. |
+| **Read-After-Write Consistency** | Agents must see their own writes immediately. Cross-agent reads may be eventually consistent. |
+| **Audit Completeness** | Every state change, permission grant, and financial transaction generates an immutable audit record. |
+
+### Best Practices
+- Operating rules are enforced by the core services (Workflow Engine, Cost Manager, API Gateway), not by individual agents.
+- Violations of operating rules trigger automatic remediation (e.g., killing an agent that attempts direct HTTP calls) and incident logging.
+- Operating rules are reviewed quarterly for relevance and adjusted via the Continuous Improvement Model.
+
+### Tradeoffs
+- **Rule Rigidity:** Strict operating rules may prevent legitimate edge-case optimizations. Exception paths exist but require Class D approval.
+
+### Rules That Must Never Be Violated
+1. The system may not sacrifice human safety, legal compliance, or financial solvency for operational efficiency.
+2. No agent may bypass the Event Bus for inter-agent communication under any circumstance.
+3. Human attention is a protected resource; the system must optimize for minimizing human cognitive load, not maximizing human engagement.
+4. All autonomous actions must be reversible within a defined window, except those explicitly approved as irreversible by humans.
+
+---
+
+## 34. Non-Violable Rules
+
+The following rules are absolute. They may not be overridden by subsystem design, operational convenience, agent recommendation, or short-term pressure. Violation of any rule is a **Category 1 Incident** requiring immediate human escalation, automatic system halt where applicable, and post-incident review.
+
+### Organizational Rules
+1. No task may exist without a parent goal, project, business, and workspace.
+2. No business may operate without an active mission and a defined revenue model.
+3. No project may become active without an approved charter and success criteria.
+4. No goal may be ratified without a quantifiable metric and a deadline.
+
+### Agent and Tool Rules
+5. No agent may act outside its declared capability signature or registered tool inventory.
+6. No agent may exceed its autonomy level, regardless of technical capability or confidence.
+7. No tool may be invoked without passing through the Tool Registry and Executor.
+8. No agent may execute arbitrary code or commands outside a sandboxed environment.
+
+### Decision and Approval Rules
+9. No Class D (existential) decision may be made autonomously by any agent.
+10. No approval request may be auto-approved on timeout for Level 3 or 4 actions.
+11. No human denial may be overridden by an agent or workflow.
+12. All decisions with external impact must be recorded in an immutable decision journal.
+
+### Memory and Data Rules
+13. No data object may exist without a defined owner.
+14. No tenant may access another tenant's data, memory, or events.
+15. No PII may be stored in Global memory or shared across tenant boundaries.
+16. All memory access must respect ownership tiers (Private, Team, Business, Global).
+
+### Workflow and State Rules
+17. No multi-step business process may execute outside a durable workflow.
+18. No workflow may modify external state without a defined compensation activity.
+19. No entity may exist in an undefined or null state.
+20. No state transition may bypass defined guards and validation.
+
+### Security and Safety Rules
+21. No external data may be passed to an LLM prompt without sanitization and validation.
+22. No secret, credential, or PII may appear in application logs, traces, or events.
+23. No service may trust another service implicitly based on network location alone.
+24. No agent may possess permissions beyond its documented scope.
+
+### Failure Handling Rules
+25. Failures must be classified within 60 seconds; silent failures are prohibited.
+26. Security failures trigger automatic isolation before human review.
+27. Financial anomalies trigger automatic budget freezing before human review.
+28. "Fail open" is prohibited for all security, financial, and data-integrity boundaries.
+
+### Learning and Improvement Rules
+29. The Learning Model may not modify constitutional principles, security architectures, or human approval gates.
+30. All learned changes to agent behavior must be versioned, reversible, and A/B tested before system-wide deployment.
+31. Continuous improvement may not consume more than 15% of total system resources.
+32. Negative outcomes must be weighted more heavily than positive outcomes in learning loops.
+
+### Human Sovereignty Rules
+33. Humans must remain the ultimate decision-makers for matters involving capital, legal liability, and ethical boundaries.
+34. The system must provide a "panic button" that halts all autonomous activity and requires human intervention to resume.
+35. Human attention is a protected resource; the system must optimize for minimizing human cognitive load.
+
+---
+
+*End of Document*
+

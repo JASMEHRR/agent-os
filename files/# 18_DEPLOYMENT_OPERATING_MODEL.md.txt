@@ -1,0 +1,968 @@
+ # 18_DEPLOYMENT_OPERATING_MODEL.md
+
+**Agent OS — Deployment Operating Model**
+**Version:** 1.0.0
+**Status:** Ratified
+**Classification:** Architecture Constitution — Binding on All Deployment Behavior
+
+---
+
+## Table of Contents
+
+1. [Preamble](#1-preamble)
+2. [Deployment Philosophy](#2-deployment-philosophy)
+3. [Deployment Mission & Permanent Objectives](#3-deployment-mission--permanent-objectives)
+4. [Deployment Identity](#4-deployment-identity)
+5. [Deployment Classification](#5-deployment-classification)
+6. [Deployment Architecture & Topology](#6-deployment-architecture--topology)
+7. [Deployment Domains](#7-deployment-domains)
+8. [Environment Model](#8-environment-model)
+9. [Environment Promotion](#9-environment-promotion)
+10. [Environment Isolation](#10-environment-isolation)
+11. [Tenant Isolation](#11-tenant-isolation)
+12. [Business Isolation](#12-business-isolation)
+13. [Workspace Isolation](#13-workspace-isolation)
+14. [Portfolio Isolation](#14-portfolio-isolation)
+15. [Geographic Distribution](#15-geographic-distribution)
+16. [Sovereign Deployment](#16-sovereign-deployment)
+17. [Multi-Region Deployment](#17-multi-region-deployment)
+18. [Multi-Tenant Deployment](#18-multi-tenant-deployment)
+19. [Operational Continuity](#19-operational-continuity)
+20. [Disaster Recovery](#20-disaster-recovery)
+21. [High Availability](#21-high-availability)
+22. [Fault Domains](#22-fault-domains)
+23. [Deployment Lifecycle](#23-deployment-lifecycle)
+24. [Deployment Health](#24-deployment-health)
+25. [Deployment Capacity](#25-deployment-capacity)
+26. [Deployment Scaling Philosophy](#26-deployment-scaling-philosophy)
+27. [Deployment Portability](#27-deployment-portability)
+28. [Deployment Governance](#28-deployment-governance)
+29. [Deployment Security](#29-deployment-security)
+30. [Deployment Observability](#30-deployment-observability)
+31. [Deployment Economics](#31-deployment-economics)
+32. [Deployment Evolution](#32-deployment-evolution)
+33. [Bootstrap Deployment](#33-bootstrap-deployment)
+34. [Deployment Retirement](#34-deployment-retirement)
+35. [Human Deployment Authority](#35-human-deployment-authority)
+36. [Non-Violable Deployment Rules](#36-non-violable-deployment-rules)
+37. [Appendix: Deployment Glossary](#37-appendix-deployment-glossary)
+
+---
+
+## 1. Preamble
+
+This document derives the **Deployment Operating Model** from the constitutional architecture established in `01_PRINCIPLES.md` through `17_INTEGRATION_OPERATING_MODEL.md`. It specifies where, how, and under what organizational constraints Agent OS may exist, execute, scale, recover, and evolve as an operational entity. Where this document is silent, the constitution governs. Where this document speaks, it is binding.
+
+---
+
+## 2. Deployment Philosophy
+
+### 2.1 The Sovereign Territory Metaphor
+
+Deployment is the **sovereign territory upon which the constitution stands**. Agent OS is an autonomous venture studio whose runtime behavior, security boundaries, governance legitimacy, and integration relationships must exist within a governed operational substrate. Deployment does not merely place software; it establishes the constitutional operating environment—the physical and logical territory where sovereignty, isolation, and resilience are guaranteed. Without Deployment, the constitution is a theory. With Deployment, it is a place.
+
+### 2.2 Deployment vs. Runtime
+
+Runtime governs execution—the *how* of work. Deployment governs existence—the *where* and *under what conditions* of work. Runtime schedules tasks, hydrates context, manages sandboxes, and recovers state. Deployment certifies that the environment hosting that runtime preserves constitutional boundaries, maintains operational continuity, and remains under organizational control. Runtime asks "can this task run efficiently?"; Deployment asks "is this territory constitutionally valid for the task to exist?" Runtime is the engine; Deployment is the ground.
+
+### 2.3 Deployment vs. Security
+
+Security enforces logical trust boundaries—identity, permission, tenant isolation, and secret non-exposure. Deployment enforces operational and physical boundaries—geographic placement, environmental isolation, substrate trust, and fault domain separation. Security ensures that Principal A cannot access Principal B's memory; Deployment ensures that Principal A's operational territory does not physically overlap with Principal B's in ways that compromise Security's logical guarantees. Security is the lock; Deployment is the wall.
+
+### 2.4 Deployment vs. Governance
+
+Governance audits constitutional legitimacy, interprets ambiguity, and ratifies amendments. Deployment implements the environmental conditions that make governance auditable. Governance asks "is our framework legitimate?"; Deployment asks "does the territory upon which we operate permit that legitimacy to be verified and preserved?" Governance adjudicates frameworks; Deployment validates the ground beneath them.
+
+### 2.5 Deployment vs. Integration
+
+Integration governs relationships with external capability providers. Deployment governs the internal operational territory where Agent OS itself resides and where those integrations are consumed. Integration bridges outward; Deployment anchors inward. Integration asks "is this external entity trustworthy?"; Deployment asks "is our own ground sovereign, and does it remain so when external capabilities are consumed upon it?"
+
+### 2.6 Deployment vs. Infrastructure
+
+Infrastructure is implementation—substrate technology, physical hardware, network fabric, and orchestration mechanisms. Deployment is constitutional specification. Deployment defines the properties the substrate must possess; Infrastructure implements those properties. Deployment never names an infrastructure product. It names the guarantees that any valid implementation must provide.
+
+### 2.7 Deployment as Constitutional Existence
+
+A deployment is not a server, a cluster, or a region. It is a constitutional domain where the architecture's guarantees hold. The existence of Agent OS in a deployment is a ratified, governed, and auditable fact. Deployment transforms abstract constitutional principles into bounded operational reality.
+
+---
+
+## 3. Deployment Mission & Permanent Objectives
+
+### 3.1 Mission
+
+The Deployment subsystem exists to ensure that **every instance of Agent OS operates within a constitutionally valid, organizationally sovereign, operationally continuous, and recoverable environment**, while preserving the autonomous velocity required for portfolio growth and never ceding governance authority to external substrate operators.
+
+### 3.2 Permanent Objectives
+
+1. **Constitutional Integrity Preservation:** Every environment must support and never contradict the constitutional guarantees of Security, Governance, Runtime, and Integration.
+2. **Organizational Sovereignty:** The operational substrate remains under ultimate human control; no external substrate operator may acquire constitutional authority, governance rights, or decision-making power.
+3. **Tenant Isolation:** Tenant boundaries are preserved operationally, not merely logically, ensuring no environmental commingling without explicit bilateral human approval.
+4. **Operational Continuity:** Constitutional operations persist through environmental perturbations, substrate failures, and transitions without loss of state, auditability, or human sovereignty.
+5. **Recoverability:** Every deployment supports governed disaster recovery with defined recovery objectives, validated restoration procedures, and human authority triggers.
+6. **Deployment Portability:** Agent OS can be reconstituted in different operational substrates without constitutional compromise, provider lock-in, or loss of organizational knowledge.
+7. **Resilience by Design:** Fault domains, geographic distribution, and capacity boundaries prevent environmental failures from propagating across constitutional boundaries.
+8. **Economic Control:** Deployment costs are attributed, budget-enforced, and constrained by portfolio circuit breakers at the environmental level.
+9. **Environmental Transparency:** Every deployment decision, placement, and transition is attributable, auditable, and human-accessible.
+10. **Bounded Evolution:** Deployment mechanisms improve within constitutional constraints; they do not evolve out of isolation, sovereignty, or human authority.
+
+### 3.3 Objective Conflicts
+
+When objectives conflict, the resolution order is: **Organizational Sovereignty > Tenant Isolation > Constitutional Integrity Preservation > Operational Continuity > Recoverability > Resilience by Design > Deployment Portability > Economic Control > Environmental Transparency > Bounded Evolution.**
+
+---
+
+## 4. Deployment Identity
+
+### 4.1 Identity Primitives
+
+Every deployment possesses an immutable identity consisting of:
+
+- **Deployment ID:** A universally unique identifier assigned at registration, never reused, never reassigned.
+- **Name:** A human-readable designation reflecting the deployment's constitutional purpose (e.g., "Portfolio Primary Sovereign Domain").
+- **Version:** A semantic version tracking the deployment's manifest evolution.
+- **Environment Class:** The constitutional tier of the environment (see Section 8).
+- **Scope:** Tenant, Portfolio, Business, or Workspace visibility boundaries.
+- **Owner Identity:** The authenticated business, portfolio, or tenant entity responsible for the deployment.
+- **Approval Reference:** The immutable identifier of the human-approved decision that authorized this deployment.
+- **Geographic Locality:** The declared jurisdictional and data residency domain.
+- **Sovereignty Tier:** The classification of substrate control (see Section 16).
+- **Risk Tier:** The classification of operational risk based on criticality and exposure.
+- **Trust Score:** A quantitative measure of environmental stability, contract adherence, and substrate reliability.
+- **Provenance Record:** The chain of custody from environmental verification through registration, including validation authority and timestamp.
+- **Schema Version:** The semantic version of the deployment manifest contract.
+- **Lineage Reference:** Links to predecessor deployments, successor deployments, and derived variants.
+
+### 4.2 Identity Persistence
+
+Deployment identity persists for the statutory retention period (minimum seven years) regardless of disposition. A retired deployment retains its identity in archival state. No anonymous deployments are permitted.
+
+### 4.3 Identity as Accountability Anchor
+
+Every operational effect produced within a deployment is attributable to its Deployment ID. Every cost incurred, every decision journal entry referencing the deployment, and every audit record carries the deployment's identity. This attribution is non-repudiable.
+
+---
+
+## 5. Deployment Classification
+
+### 5.1 By Risk Tier
+
+| Tier | Description | Examples |
+|------|-------------|----------|
+| **D1 — Observational** | Read-only, non-critical, easily replaceable environments | Analytics replicas, research sandboxes |
+| **D2 — Operational** | Active business execution with standard resilience requirements | Standard business runtime environments |
+| **D3 — Critical** | Portfolio-critical execution with strict continuity requirements | Primary portfolio runtime, capital allocation systems |
+| **D4 — Sovereign** | Constitutional infrastructure, identity systems, or governance anchors | Security Gateway primary, Governance Gateway primary |
+
+### 5.2 By Scope
+
+- **Tenant-Scoped:** Supports all businesses and workspaces within a tenant.
+- **Portfolio-Scoped:** Shared across businesses within a portfolio; requires portfolio-level authority.
+- **Business-Scoped:** Dedicated to a single business and its workspaces.
+- **Workspace-Scoped:** Dedicated to a single workspace.
+
+### 5.3 By Authority Requirement
+
+- **E1:** D1 deployments; may be approved by Business Steward.
+- **E2:** D2 deployments; requires human-approved decision at business level.
+- **E3:** D3 deployments; requires portfolio-level authority and human approval.
+- **E4:** D4 deployments; requires human-only authority at portfolio or tenant level.
+
+### 5.4 By Sovereignty Tier
+
+- **Sovereign-Owned:** Substrate is under direct organizational control with no external operator holding governance authority.
+- **Sovereign-Leased:** Substrate is operated by an external provider under a constitutional contract that preserves organizational sovereignty and exit rights.
+- **Sovereign-Shared:** Substrate is shared across organizational boundaries under strict isolation guarantees and bilateral human approval.
+
+### 5.5 By Environmental Purpose
+
+- **Primary:** The canonical active environment for a given scope.
+- **Secondary:** A warm or cold standby environment for continuity and recovery.
+- **Experimental:** An isolated environment for testing constitutional changes without operational risk.
+- **Archival:** A read-only environment preserving historical state and audit records.
+
+---
+
+## 6. Deployment Architecture & Topology
+
+### 6.1 Deployment Registry as Canonical Inventory
+
+The **Deployment Registry** is the sole authoritative source of truth for all operational environments within Agent OS. No environment may be discovered, promoted, or consumed except through the Registry. The Registry stores deployment identities, manifests, environmental invariants, sovereignty tiers, geographic localities, and trust scores. It does not execute deployments; it governs their existence and validity.
+
+### 6.2 Deployment Gateway as Sovereign Mediation Layer
+
+The **Deployment Gateway** is the unified access layer through which all environmental relationships are established, validated, monitored, and terminated. It enforces: identity verification of environments, manifest validation against constitutional policy, approval authority resolution, geographic and sovereignty compliance, tenant boundary validation, health monitoring, and audit logging. The Gateway is the sole constitutional path between operational intent and environmental existence. No runtime instance may exist in an environment without Gateway mediation.
+
+### 6.3 Environment Abstraction Layer
+
+The **Environment Abstraction Layer** maps substrate-specific operational capabilities to constitutional environmental invariants. Runtime, Security, and other subsystems reference the abstraction, not the substrate. When a substrate is substituted, the abstraction remains constant; only the deployment manifest changes. This layer ensures that Agent OS remains portable across implementations.
+
+### 6.4 Producer-Consumer Topology
+
+**Producers** (businesses seeking operational territory, portfolio architects, human operators) propose deployments to the Registry. **Consumers** (runtime instances, security services, governance processes) discover environments through the Registry and request mediated access through the Gateway. The Gateway mediates all interaction; runtime instances cannot bypass the Gateway to establish existence in unregistered environments.
+
+### 6.5 Relationship to Other Subsystems
+
+- **Runtime:** Runtime consumes environments to host execution. The Deployment Gateway provides runtime with environment availability, health status, capacity boundaries, and continuity guarantees. Runtime does not select environments; it requests capability abstractions from the Gateway.
+- **Security Gateway:** Deployment relies on Security for identity verification, tenant isolation enforcement, and secret governance for substrate credentials. Security consumes deployment risk tiers and sovereignty classifications to enforce boundary policies.
+- **Governance Gateway:** Deployment artifacts are audited for constitutional compliance, sovereignty preservation, and policy coherence. Governance consumes deployment drift metrics and compliance scores.
+- **Integration Gateway:** Deployment provides the environmental context within which integrations are consumed, including geographic alignment, data residency, and substrate proximity. Integration informs deployment of external provider placement constraints.
+- **Decision Gateway:** Deployment proposals are evaluated as decisions with appropriate authority classes. The Deployment Gateway consumes decision records to verify that each deployment carries valid approval authority.
+
+---
+
+## 7. Deployment Domains
+
+### 7.1 Domain as Constitutional Territory
+
+A **Deployment Domain** is a bounded operational territory within which a specific set of constitutional guarantees holds. It is not a network segment or a data center; it is a logical and operational boundary within which isolation, sovereignty, and resilience are uniformly enforced. Domains are the atomic units of deployment topology.
+
+### 7.2 Domain Invariants
+
+Every domain enforces:
+- **Isolation Invariant:** No runtime entity within the domain may access resources outside the domain without explicit Gateway-mediated authorization.
+- **Sovereignty Invariant:** The substrate underlying the domain remains under the sovereignty tier declared in the domain's manifest.
+- **Resilience Invariant:** The domain maintains operational continuity within its declared fault tolerance boundaries.
+- **Auditability Invariant:** All operations within the domain are attributable and auditable for the statutory retention period.
+
+### 7.3 Domain Composition
+
+Domains may be composed hierarchically: Tenant Domains contain Portfolio Domains, which contain Business Domains, which contain Workspace Domains. Composition does not violate isolation; parent domains may govern child domains but cannot access child domain resources without explicit authorization.
+
+### 7.4 Domain Boundaries
+
+The Deployment Gateway enforces domain boundaries at every environmental transition. A runtime instance assigned to Business Domain A cannot be migrated to Business Domain B without Gateway-mediated re-authorization, re-authentication, and audit logging.
+
+---
+
+## 8. Environment Model
+
+### 8.1 Environment as Constitutional Operating Domain
+
+An **Environment** is a governed operational domain where Agent OS instances execute. It is defined not by its substrate but by its constitutional properties: isolation guarantees, sovereignty tier, geographic locality, resilience commitments, and authority requirements.
+
+### 8.2 Environment Manifest
+
+Every environment is declared by a manifest specifying:
+- **Identity Primitives:** Deployment ID, name, version, scope, owner.
+- **Constitutional Invariants:** The specific guarantees the environment must preserve.
+- **Sovereignty Tier:** Direct control, leased sovereignty, or shared sovereignty.
+- **Geographic Locality:** Jurisdictional domain and data residency commitments.
+- **Fault Domain Assignment:** The failure containment boundary to which the environment belongs.
+- **Capacity Commitments:** Resource sufficiency guarantees for hosted runtime entities.
+- **Resilience Profile:** Recovery time and recovery point commitments.
+- **Security Posture:** Environmental security boundaries complementing logical security.
+- **Approval Authority:** The E-class requirement for environment activation.
+
+### 8.3 Environment Immutability
+
+Once an environment enters Active state, its core manifest invariants—sovereignty tier, geographic locality, scope boundaries, and constitutional guarantees—are immutable. Behavioral changes require a new environment with distinct Deployment ID lineage.
+
+### 8.4 Environment Discovery
+
+Runtime instances discover environments through structured queries to the Registry. Queries specify: required scope, minimum sovereignty tier, geographic locality constraints, maximum risk tier, and capacity requirements. The Registry returns matching environments ranked by trust score and policy compliance.
+
+---
+
+## 9. Environment Promotion
+
+### 9.1 Promotion as Constitutional Advancement
+
+Environment promotion is the governed transition of a deployment from a lower authority class to a higher one, or from experimental to operational status. Promotion is not a technical deployment pipeline; it is a constitutional certification that an environment has passed validation gates and is fit for higher-order operational responsibility.
+
+### 9.2 Promotion Gates
+
+Promotion requires passing defined gates:
+- **Validation Gate:** The environment's manifest conforms to constitutional schema; substrate verification confirms sovereignty tier; isolation boundaries are demonstrable.
+- **Compliance Gate:** The environment aligns with active organizational policies, geographic requirements, and data handling commitments.
+- **Resilience Gate:** Continuity and recovery procedures are validated through governed testing.
+- **Authority Gate:** Human approval at the E-class level appropriate to the target state is obtained and recorded.
+
+### 9.3 Promotion Paths
+
+- **Experimental → Operational:** Requires E2 authority; validates that experimental invariants do not compromise operational boundaries.
+- **Operational → Critical:** Requires E3 authority; validates resilience, continuity, and portfolio-level circuit breaker alignment.
+- **Critical → Sovereign:** Requires E4 authority; validates that the environment can host constitutional infrastructure without sovereignty leakage.
+
+### 9.4 Promotion Reversibility
+
+Promotions are reversible within a defined window (default: 24 hours) through Gateway-mediated demotion. Demotion restores the environment to its prior authority class and suspends runtime entities that exceed the lower class boundaries.
+
+---
+
+## 10. Environment Isolation
+
+### 10.1 Isolation as Operational Separation
+
+Environment isolation ensures that operational domains remain separated by constitutional boundaries regardless of physical substrate or implementation. Two environments may share substrate resources only if the Deployment Gateway can guarantee that no cross-environment information flow, resource contention, or failure propagation violates constitutional isolation.
+
+### 10.2 Isolation Enforcement
+
+The Deployment Gateway enforces isolation by:
+- Validating that runtime instances in one environment cannot access memory, state, or resources of another environment without explicit authorization.
+- Ensuring that environmental failures (substrate degradation, capacity exhaustion, geographic disruption) are contained within declared fault domains.
+- Preventing environmental commingling that would violate tenant, business, or workspace boundaries.
+
+### 10.3 Shared Substrate Constraints
+
+When multiple environments share a substrate, the Gateway requires:
+- Explicit declaration of shared substrate relationships.
+- Validation that the substrate's isolation mechanisms meet or exceed the highest risk tier of any sharing environment.
+- Human approval for D3 and D4 environments sharing substrate with other scopes.
+- Continuous monitoring for isolation boundary violations.
+
+---
+
+## 11. Tenant Isolation
+
+### 11.1 Tenant as Sovereign Environmental Boundary
+
+The tenant is the highest environmental isolation boundary. A tenant's operational territory is physically and logically separated from all other tenants unless explicitly authorized through bilateral, human-approved grants. Tenant environmental isolation is absolute and enforced at the Deployment Gateway.
+
+### 11.2 Cross-Tenant Environmental Prohibition
+
+By default, no environment may share substrate, runtime instances, memory namespaces, or operational state with another tenant. The Gateway blocks all cross-tenant environmental requests at the perimeter.
+
+### 11.3 Bilateral Environmental Authorization
+
+Cross-tenant environmental sharing requires explicit bilateral permission grants: both tenant human sovereigns must approve the grant, the grant must specify scope, duration, and environmental boundaries, and the grant must be recorded in both tenants' audit journals. The Gateway validates bilateral grants before permitting any cross-tenant environmental flow.
+
+### 11.4 Tenant Isolation Enforcement
+
+The Gateway enforces tenant isolation by: validating tenant ID claims on every environmental registration, rejecting deployment requests with mismatched tenant IDs, preventing runtime instance migration across tenant boundaries, and auditing all cross-tenant environmental grants.
+
+---
+
+## 12. Business Isolation
+
+### 12.1 Business as Strategic Environmental Boundary
+
+A business is a scoped venture within the portfolio with its own operational territory. Business isolation ensures that runtime execution, state persistence, and environmental resources in one business do not leak into another without portfolio-level authority.
+
+### 12.2 Cross-Business Environmental Impact
+
+The Deployment Gateway detects cross-business environmental impact by analyzing deployment requests, runtime placement, and resource allocation that reference environments outside the principal's home business. Cross-business environmental requests are blocked unless the principal holds portfolio-scoped permissions or explicit cross-business grants.
+
+### 12.3 Business-Scoped Environments
+
+Businesses are assigned business-scoped environments derived from their portfolio charter. A business operates within its home environment by default. Cross-business operation requires explicit environmental authorization and is logged with heightened sensitivity.
+
+### 12.4 Business Sunset Environmental Isolation
+
+When a business is sunset, the Gateway revokes all business-scoped environmental permissions, reassigns runtime instances per portfolio directives, archives business environmental state, and ensures no residual runtime execution persists in business environments.
+
+---
+
+## 13. Workspace Isolation
+
+### 13.1 Workspace as Collaborative Environmental Boundary
+
+A workspace is a scoped collaborative environment within a business. Workspace isolation ensures that runtime execution and state within one workspace remain separate from others unless explicitly authorized.
+
+### 13.2 Workspace Environmental Scope
+
+Principals are granted workspace-scoped environmental permissions valid only within the workspace. A principal with access to Workspace Environment A cannot access Workspace Environment B resources unless explicitly granted separate permissions. The Gateway validates workspace ID on every environmental resource access.
+
+### 13.3 Shared Workspace Environmental Grants
+
+Cross-workspace environmental access within a business requires explicit workspace grants. Grants are scoped by principal, resource class, and duration. The Gateway logs all cross-workspace environmental grants and validates them at every authorization decision.
+
+---
+
+## 14. Portfolio Isolation
+
+### 14.1 Portfolio as Aggregate Environmental Boundary
+
+The portfolio is the collection of businesses and capital within a tenant. Portfolio isolation ensures that portfolio-level strategic operations, cross-business environmental sharing, and capital allocation occur only under portfolio-level environmental authority.
+
+### 14.2 Portfolio-Scoped Environmental Authority
+
+Portfolio-level environmental actions (cross-business runtime migration, portfolio-wide continuity planning, multi-region coordination) require portfolio-scoped permissions held by Portfolio Architects or human sovereigns. The Gateway validates portfolio scope on all strategic environmental decisions.
+
+### 14.3 Cross-Business Environmental Protection
+
+The Gateway prevents business-level principals from accessing environmental resources owned by other businesses unless the access is authorized as portfolio-level shared resources. Cross-business environmental state sharing requires portfolio-level validation.
+
+### 14.4 Portfolio Environmental Circuit Breakers
+
+The Gateway enforces portfolio-level environmental circuit breakers: maximum percentage of portfolio runtime in a single fault domain, maximum environmental cost exposure per business, and minimum environmental capacity reserves for continuity.
+
+---
+
+## 15. Geographic Distribution
+
+### 15.1 Geographic Locality as Jurisdictional Commitment
+
+Every environment is assigned a geographic locality declaring its jurisdictional domain, data residency obligations, and legal compliance boundaries. Geographic locality is a constitutional property, not a physical coordinate. It determines where organizational data may exist and where runtime execution may occur.
+
+### 15.2 Data Residency Enforcement
+
+The Gateway enforces that environments processing Restricted or Sovereign-class data operate only within localities permitted by organizational policy and legal jurisdiction. Attempts to migrate runtime instances or data to non-compliant localities are blocked and logged as violations.
+
+### 15.3 Multi-Locality Deployment
+
+When a portfolio spans multiple geographic localities, the Gateway ensures that:
+- Each locality maintains independent environmental governance.
+- Cross-locality data flows comply with the lowest data classification permitted by both localities.
+- No single locality holds sole authority over portfolio-level constitutional infrastructure.
+- Human sovereigns retain override authority in every locality.
+
+### 15.4 Locality Drift Detection
+
+The Gateway monitors for geographic drift: runtime instances executing outside declared localities, data replication to unauthorized territories, or substrate provider migration to non-compliant jurisdictions. Drift triggers automatic suspension and governance escalation.
+
+---
+
+## 16. Sovereign Deployment
+
+### 16.1 Sovereignty as Constitutional Control
+
+Sovereign Deployment ensures that the operational substrate remains under ultimate organizational control. No external substrate operator—cloud provider, data center operator, or infrastructure vendor—may acquire constitutional authority, governance rights, or decision-making power within Agent OS. The organization owns its territory.
+
+### 16.2 Sovereignty Tiers
+
+- **Tier S1 — Direct Sovereignty:** The organization owns and operates the substrate directly. No external entity holds operational control.
+- **Tier S2 — Contracted Sovereignty:** The substrate is operated by an external provider under a constitutional contract that preserves organizational exit rights, data sovereignty, and governance independence.
+- **Tier S3 — Shared Sovereignty:** The substrate is shared with other organizations under strict isolation guarantees and bilateral human approval.
+
+### 16.3 Sovereignty Preservation Requirements
+
+All deployments must declare their sovereignty tier. The Gateway validates that:
+- D4 environments operate only under S1 or S2 with explicit exit guarantees.
+- No constitutional document, policy, or governance artifact references a specific substrate operator.
+- Substrate contracts include data extraction guarantees, termination rights, and prohibition on operator governance interference.
+- Sovereignty tier changes require human approval and re-validation.
+
+### 16.4 Substrate Operator Boundary
+
+Substrate operators are external providers, not constitutional principals. They possess no identity in the Security Gateway, no authority in the Decision Gateway, and no stewardship in the Governance Gateway. Their relationship to Agent OS is governed exclusively by the Deployment Gateway as a contractual counterparty.
+
+---
+
+## 17. Multi-Region Deployment
+
+### 17.1 Region as Geographic Fault Domain
+
+A Region is a geographic fault domain—a bounded locality within which environmental failures are correlated and across which failures are uncorrelated. Multi-Region Deployment distributes Agent OS across regions to preserve operational continuity and resilience.
+
+### 17.2 Cross-Region Constitutional Consistency
+
+All regions hosting Agent OS for a single tenant must maintain identical constitutional guarantees. The Gateway ensures that:
+- Policy hierarchy is consistent across regions.
+- Security boundaries and tenant isolation are preserved identically.
+- Governance artifacts apply uniformly unless explicitly scoped to a single region.
+- Runtime behavior models are equivalent.
+
+### 17.3 Region Affinity and Anti-Affinity
+
+Runtime instances are assigned region affinity based on business requirements, data residency, and latency constraints. The Gateway enforces anti-affinity rules: critical redundant instances must not reside in the same region; portfolio-level circuit breakers prevent over-concentration in a single region.
+
+### 17.4 Cross-Region State Coherence
+
+When state must be coherent across regions, the Gateway governs the replication topology: which state is authoritative, replication latency bounds, conflict resolution authority, and human override mechanisms. Cross-region state operations are treated as high-risk and require heightened logging.
+
+---
+
+## 18. Multi-Tenant Deployment
+
+### 18.1 Multi-Tenant as Shared Substrate
+
+Multi-Tenant Deployment occurs when multiple tenants share operational substrate while maintaining absolute logical isolation. This is permitted only when the Deployment Gateway can certify that substrate isolation mechanisms meet constitutional tenant isolation requirements.
+
+### 18.2 Multi-Tenant Validation
+
+Before permitting multi-tenant substrate sharing, the Gateway validates:
+- Substrate isolation is demonstrably equivalent to dedicated substrate for the highest risk tier of any sharing tenant.
+- No tenant can access another tenant's environmental state, runtime instances, or audit records through substrate mechanisms.
+- Failure in one tenant's runtime cannot propagate to another tenant's environment.
+- Human sovereigns from all sharing tenants approve the arrangement bilaterally.
+
+### 18.3 Multi-Tenant Monitoring
+
+Multi-tenant environments are subject to enhanced monitoring: isolation boundary verification, resource contention detection, cross-tenant failure propagation analysis, and periodic re-validation of substrate isolation claims.
+
+---
+
+## 19. Operational Continuity
+
+### 19.1 Continuity as Constitutional Persistence
+
+Operational Continuity is the guarantee that constitutional operations persist through environmental perturbations, substrate failures, and transitions. It is not merely uptime; it is the preservation of sovereignty, integrity, and auditability regardless of substrate condition.
+
+### 19.2 Continuity Requirements
+
+Every D2 and above environment must declare:
+- **Recovery Time Objective (RTO):** The maximum acceptable duration of constitutional operation interruption.
+- **Recovery Point Objective (RPO):** The maximum acceptable loss of operational state.
+- **Continuity Trigger:** The conditions under which continuity procedures activate.
+- **Human Notification:** The mechanism and timeline for alerting human sovereigns to continuity events.
+
+### 19.3 Continuity Execution
+
+When continuity is threatened, the Gateway:
+- Preserves all durable state to the last known good checkpoint.
+- Activates secondary environments per the resilience profile.
+- Maintains audit trail integrity throughout the transition.
+- Notifies human operators within defined latency budgets.
+- Never sacrifices tenant isolation or constitutional integrity for speed of recovery.
+
+### 19.4 Continuity and Autonomy
+
+During continuity events, autonomous activity may be suspended or degraded to preserve constitutional guarantees. The Gateway may reduce runtime autonomy levels, require human approval for Class B decisions, or halt non-critical workflows until continuity is restored.
+
+---
+
+## 20. Disaster Recovery
+
+### 20.1 Recovery as Constitutional Restoration
+
+Disaster Recovery is the governed process of restoring constitutional operation after catastrophic environmental failure. It is not merely technical restoration; it is the re-establishment of valid operational territory where all constitutional guarantees hold.
+
+### 20.2 Recovery Procedures
+
+- **Environmental Failure:** Activate secondary environment, validate constitutional invariants, restore runtime state from durable checkpoints, verify tenant isolation, and resume operations under degraded autonomy until full validation.
+- **Substrate Compromise:** Isolate affected environments, revoke all runtime tokens in compromised territory, validate integrity of archived state, instantiate new environments in uncompromised substrate, and restore with human sovereign approval.
+- **Geographic Disaster:** Activate cross-region environments, validate data residency compliance, redirect runtime instances to healthy regions, and preserve audit trail continuity.
+- **Constitutional Breach:** Preserve evidence, suspend all affected environments, conduct governance review, obtain human sovereign directive, restore only after ratified remediation.
+
+### 20.3 Recovery Validation
+
+After recovery, the Gateway validates: all active environments are constitutionally compliant, all tenant and business isolations are preserved, all audit journals are intact, all human sovereignty mechanisms are functional, and all runtime instances operate within valid authority boundaries.
+
+### 20.4 Human Authority in Recovery
+
+Disaster Recovery requires human sovereign approval for D3 and D4 environments. The Gateway may execute automated recovery for D1 and D2 environments but must notify humans immediately and provide full recovery records for review.
+
+---
+
+## 21. High Availability
+
+### 21.1 Availability as Constitutional Resilience
+
+High Availability is the constitutional guarantee that critical operations remain viable despite environmental failures. It is defined not by infrastructure uptime percentages but by the preservation of sovereignty, integrity, and continuity under stress.
+
+### 21.2 Availability Targets by Tier
+
+- **D1:** Best effort; no constitutional guarantee of availability.
+- **D2:** Operations must remain viable through single environmental failures within a fault domain.
+- **D3:** Operations must remain viable through multiple correlated failures within a region.
+- **D4:** Operations must remain viable through catastrophic substrate loss, requiring cross-region continuity.
+
+### 21.3 Availability and Isolation
+
+Availability mechanisms must never compromise isolation. Redundancy that requires sharing substrate across tenant or business boundaries is prohibited unless the Gateway certifies equivalent isolation to dedicated substrate.
+
+### 21.4 Degraded Availability
+
+When full availability cannot be maintained, the Gateway degrades scope rather than compromising guarantees: non-critical workflows are shed, optional analytics are paused, and discovery scanning is halted before constitutional operations are affected.
+
+---
+
+## 22. Fault Domains
+
+### 22.1 Fault Domain as Failure Containment Boundary
+
+A Fault Domain is a boundary within which environmental failures are correlated and across which they are uncorrelated. Fault domains prevent environmental failures from propagating across constitutional boundaries.
+
+### 22.2 Fault Domain Assignment
+
+Every environment is assigned to a fault domain. The Gateway ensures that:
+- Critical redundant instances reside in different fault domains.
+- No single fault domain contains all instances of a D3 or D4 service.
+- Tenant and business boundaries are preserved across fault domain boundaries.
+- Geographic distribution aligns with fault domain separation.
+
+### 22.3 Fault Domain Hierarchy
+
+- **Substrate Fault Domain:** A single substrate instance or operator.
+- **Local Fault Domain:** A single operational locality or data center.
+- **Regional Fault Domain:** A single geographic region.
+- **Global Fault Domain:** The complete set of regions hosting a tenant.
+
+### 22.4 Fault Domain Exhaustion
+
+The Gateway monitors fault domain exhaustion: when a portfolio's critical instances are concentrated in too few fault domains, it flags concentration risk and blocks new placements until diversification is achieved.
+
+---
+
+## 23. Deployment Lifecycle
+
+### 23.1 Proposed
+
+A deployment enters Proposed state when a business or portfolio identifies a need for operational territory and drafts a deployment specification. In this state, the deployment has no Registry entry and cannot host runtime instances.
+
+### 23.2 Registered
+
+A deployment transitions to Registered when its manifest is submitted to the Registry. Registration creates the Deployment ID and stores the manifest. Registered deployments await validation and approval.
+
+### 23.3 Validated
+
+A deployment transitions to Validated when it passes constitutional review: manifest schema compliance, substrate sovereignty verification, isolation boundary validation, geographic compliance, and resilience profile confirmation.
+
+### 23.4 Approved
+
+A deployment becomes Approved after validation and explicit human authority ratification at the appropriate E-class level. Approved deployments are discoverable but not yet active.
+
+### 23.5 Active
+
+A deployment becomes Active when it is both Approved and has passed initial health verification. Active deployments may host runtime instances and execute constitutional operations.
+
+### 23.6 Degraded
+
+A deployment enters Degraded when health verification indicates partial failure, capacity exhaustion, or substrate instability. Degraded deployments continue hosting runtime instances under reduced autonomy and heightened monitoring.
+
+### 23.7 Recovering
+
+A deployment enters Recovering when continuity procedures are active. Runtime instances may be migrating, state may be restoring, and constitutional guarantees are being revalidated.
+
+### 23.8 Deprecated
+
+A deployment is Deprecated when its owner, the system, or a successor deployment marks it for retirement. Deprecated deployments may not host new runtime instances but continue serving existing instances during migration.
+
+### 23.9 Retired
+
+A deployment is Retired when permanently removed from active service. Retired deployments cannot host runtime instances. Existing instances must migrate to successor environments.
+
+### 23.10 Archived
+
+An archived deployment retains its identity, manifest, and audit records in cold storage. Archived deployments are historical records; they cannot be reactivated.
+
+### 23.11 State Transition Guards
+
+- **Proposed → Registered:** Manifest complete; ownership authenticated.
+- **Registered → Validated:** Schema, sovereignty, isolation, geographic, and resilience checks pass.
+- **Validated → Approved:** Human authority at required E-class grants ratification.
+- **Approved → Active:** Health verification passed; no blocking anomalies.
+- **Active → Degraded:** Health score drops below threshold; capacity exhausted; substrate instability detected.
+- **Degraded → Active:** Remediation verified; health restored.
+- **Degraded → Recovering:** Continuity procedures triggered; failover initiated.
+- **Recovering → Active:** Recovery validation passed; constitutional guarantees restored.
+- **Active → Deprecated:** Successor registered or owner commands retirement.
+- **Deprecated → Retired:** Migration deadline passed; no active instances remain.
+- **Retired → Archived:** All instances drained; audit records complete; lineage updated.
+
+---
+
+## 24. Deployment Health
+
+### 24.1 Health as Constitutional Viability
+
+Deployment health is the measure of an environment's ability to preserve its declared constitutional guarantees. It is not defined by infrastructure metrics but by the environment's capacity to maintain isolation, sovereignty, continuity, and auditability.
+
+### 24.2 Health Dimensions
+
+- **Invariant Health:** Whether isolation, sovereignty, and security boundaries remain intact.
+- **Capacity Health:** Whether the environment can support its assigned runtime load without compromising guarantees.
+- **Resilience Health:** Whether continuity and recovery mechanisms remain viable.
+- **Compliance Health:** Whether the environment continues to meet geographic, legal, and policy requirements.
+- **Trust Health:** Whether the substrate operator maintains contractual commitments and behavioral stability.
+
+### 24.3 Health Monitoring
+
+The Gateway performs periodic health assessment on Active deployments. Assessment frequency scales with deployment risk tier and criticality. Health checks validate invariants, not merely substrate responsiveness.
+
+### 24.4 Health Response
+
+- **Healthy:** Standard operations continue.
+- **Degraded:** Autonomy levels may be reduced; non-critical workflows shed; heightened monitoring activated.
+- **Unhealthy:** Runtime instance migration triggered; new assignments blocked; human operators notified.
+- **Critical:** Emergency continuity procedures activated; all runtime instances evacuated; deployment suspended pending investigation.
+
+---
+
+## 25. Deployment Capacity
+
+### 25.1 Capacity as Guarantee Preservation
+
+Deployment capacity is the measure of an environment's ability to host runtime instances while preserving constitutional guarantees. It is not merely resource availability; it is the assurance that adding runtime entities does not compromise isolation, resilience, or sovereignty.
+
+### 25.2 Capacity Boundaries
+
+Every environment declares capacity boundaries: maximum runtime instances, maximum concurrent workflows, maximum resource consumption, and maximum cross-environment dependency count. The Gateway enforces these boundaries to prevent overload from eroding guarantees.
+
+### 25.3 Capacity Exhaustion
+
+When an environment approaches capacity boundaries, the Gateway:
+- Blocks new runtime instance assignments.
+- Initiates scaling procedures if within policy.
+- Migrates non-critical instances to alternative environments.
+- Alerts human operators before boundaries are breached.
+
+### 25.4 Fair Share
+
+No single business or tenant may consume disproportionate capacity within a shared environment. The Gateway enforces fair-share policies and may preempt non-critical instances to preserve critical operations.
+
+---
+
+## 26. Deployment Scaling Philosophy
+
+### 26.1 Scaling as Territory Expansion
+
+Deployment scaling is the governed expansion of operational territory to accommodate portfolio growth. Scaling is not automatic; it is a constitutional act that requires validation of new territory's sovereignty, isolation, and compliance before activation.
+
+### 26.2 Scaling Triggers
+
+- **Capacity Threshold:** Existing environments approach declared boundaries.
+- **Portfolio Growth:** New businesses or opportunities require additional operational territory.
+- **Resilience Requirement:** Fault domain or geographic distribution policies demand diversification.
+- **Recovery Requirement:** Disaster recovery mandates standby environments.
+
+### 26.3 Scaling Validation
+
+New environments created through scaling must pass the same validation gates as initial deployments: sovereignty verification, isolation confirmation, geographic compliance, and human approval at the appropriate E-class.
+
+### 26.4 Scaling Constraints
+
+Scaling may not:
+- Compromise tenant or business isolation for efficiency.
+- Concentrate critical instances in insufficient fault domains.
+- Exceed portfolio-level environmental cost circuit breakers.
+- Proceed without human approval for D3 and D4 scaling.
+
+---
+
+## 27. Deployment Portability
+
+### 27.1 Portability as Sovereignty Guarantee
+
+Deployment portability ensures that Agent OS can be reconstituted in different operational substrates without constitutional compromise, provider lock-in, or loss of organizational knowledge. It is the foundation of substrate independence.
+
+### 27.2 Abstraction Completeness
+
+Environment abstractions must specify all constitutional requirements—invariants, boundaries, sovereignty tiers, geographic constraints, resilience profiles—independently of substrate. Incomplete abstractions create implicit substrate lock-in.
+
+### 27.3 Migration Path Preservation
+
+Every environment must declare a migration path: the procedure, cost, and risk of moving to an alternative substrate while preserving constitutional guarantees. The Registry maintains alternative substrate mappings for each abstraction.
+
+### 27.4 Substrate Concentration Limits
+
+The Gateway monitors portfolio-level substrate concentration. If a single external substrate operator underlies too large a percentage of operational territory, the Gateway flags concentration risk and may restrict new deployments until diversification is achieved.
+
+### 27.5 No Constitutional Embedding
+
+No constitutional document, policy, or governance artifact may reference a specific substrate operator, technology, or implementation detail. All references are to environment abstractions or capability signatures.
+
+---
+
+## 28. Deployment Governance
+
+### 28.1 Compliance Assessment
+
+The Governance Gateway audits deployment artifacts for constitutional compliance: sovereignty preservation, isolation integrity, geographic adherence, portability guarantees, and approval authority validity. Non-compliant deployments trigger governance rulings with mandatory remediation.
+
+### 28.2 Drift Detection
+
+The Gateway monitors deployment portfolios for drift: increasing substrate concentration, declining portability scores, creeping geographic non-compliance, and approval authority inflation. Drift triggers escalation to portfolio stewards.
+
+### 28.3 Policy Coherence
+
+Deployment policies must align with the policy hierarchy. A business-level deployment policy cannot override a portfolio-level sovereignty mandate. The Gateway detects contradictions and blocks ratification.
+
+### 28.4 Meta-Oversight Support
+
+Governance meta-oversight consumes deployment compliance scores, substrate concentration metrics, and portability assessments to evaluate whether the organization's operational territory remains constitutionally legitimate.
+
+---
+
+## 29. Deployment Security
+
+### 29.1 Environmental Security Posture
+
+Every deployment declares its environmental security posture: physical access controls, substrate encryption, environmental audit capabilities, and incident response procedures. The Security Gateway consumes these declarations to enforce boundary policies.
+
+### 29.2 Substrate Trust Validation
+
+The Gateway validates substrate trustworthiness: operator provenance, contractual security commitments, compliance certifications, and historical behavioral stability. Untrusted substrates are rejected or restricted to D1 environments.
+
+### 29.3 Secret Handling in Deployment
+
+Substrate credentials required for environmental management are governed by the Security Gateway. Deployment processes reference secrets by ID; values are injected at execution time. Secrets never appear in deployment manifests, logs, or audit trails.
+
+### 29.4 Environmental Threat Model
+
+Deployment security postures are evaluated against the organizational threat model. Substrates whose physical or operational security creates unacceptable risk vectors are rejected or restricted to non-critical use.
+
+---
+
+## 30. Deployment Observability
+
+### 30.1 Environmental Transparency
+
+Every deployment decision, placement, promotion, and transition is recorded in an immutable audit trail. The trail includes: Deployment ID, timestamp, steward identity, environmental invariants, approval reference, and validation results.
+
+### 30.2 Metrics
+
+- **Deployment Count:** Active deployments by tier, scope, and sovereignty class.
+- **Environmental Health:** Distribution of health states across the portfolio.
+- **Capacity Utilization:** Capacity consumption relative to boundaries.
+- **Portability Score:** Aggregate migration feasibility across environments.
+- **Substrate Concentration:** Percentage of territory dependent on single operators.
+- **Geographic Compliance:** Adherence to declared locality requirements.
+- **Recovery Validation:** Frequency and success rate of continuity procedure testing.
+
+### 30.3 Alerting
+
+Alerts trigger on: deployment suspension, health degradation, capacity boundary approach, geographic drift, substrate concentration breach, sovereignty tier violation, and recovery procedure failure.
+
+---
+
+## 31. Deployment Economics
+
+### 31.1 Cost Model Types
+
+- **Fixed:** Flat environmental cost regardless of utilization.
+- **Metered:** Cost scales with capacity consumption, instance count, or geographic span.
+- **Committed:** Pre-negotiated environmental capacity tier with overage rates.
+- **External Passthrough:** Substrate cost passed through with markup disclosure.
+
+### 31.2 Budget Enforcement
+
+The Gateway performs pre-flight budget checks: new deployments and scaling operations must not exceed the owning scope's environmental budget. Post-flight attribution records actual cost against the budget pool.
+
+### 31.3 Cost Attribution
+
+Every unit of environmental cost is attributed to: tenant, portfolio, business, workspace, and deployment. Cost dashboards are real-time. Budget overruns are traced to specific deployment decisions.
+
+### 31.4 Portfolio Circuit Breakers
+
+The Gateway enforces portfolio-level economic circuit breakers: maximum aggregate environmental cost per business, maximum substrate operator concentration exposure, and minimum budget reserves for continuity and recovery.
+
+---
+
+## 32. Deployment Evolution
+
+### 32.1 Bounded Improvement
+
+The Deployment subsystem may improve its mechanisms—health assessment algorithms, capacity planning models, recovery efficiency—within constitutional constraints. However, Deployment may not evolve its way out of sovereignty, isolation, or human authority requirements.
+
+### 32.2 Human-Ratified Changes
+
+Proposed changes to the Deployment Operating Model, environment schemas, or sovereignty structures require human sovereign ratification. The system may propose deployment improvements, but adoption requires explicit human approval.
+
+### 32.3 A/B Validation
+
+Before deploying deployment mechanism changes, the Gateway conducts limited-scope trials against baseline metrics. Improvements demonstrating measurable benefit without compromising guarantees are promoted; others are discarded.
+
+### 32.4 Version Lineage
+
+Deployment subsystem versions are tracked with lineage references. Running deployments continue with the version they started with; new deployments use the latest version. This prevents mid-flight deployment changes from corrupting active environmental guarantees.
+
+---
+
+## 33. Bootstrap Deployment
+
+### 33.1 Bootstrap as Constitutional Genesis
+
+Bootstrap Deployment is the process of instantiating Agent OS in an operational environment for the first time or reconstituting it after total environmental loss. It is the constitutional genesis of operational existence.
+
+### 33.2 Bootstrap Requirements
+
+Bootstrap requires:
+- A validated environment manifest with declared sovereignty tier and geographic locality.
+- Human sovereign approval at E4 for initial constitutional instantiation.
+- Security Gateway initialization with identity registry and root credentials.
+- Governance Gateway initialization with policy hierarchy and steward assignments.
+- Deployment Gateway self-registration as the first environment.
+- Validation that all constitutional subsystems can operate within the bootstrapped territory.
+
+### 33.3 Bootstrap Validation
+
+After bootstrap, the Gateway validates: tenant isolation is enforceable, business boundaries can be established, human sovereignty mechanisms are functional, audit trails are recording, and all non-violable rules can be enforced in the new territory.
+
+### 33.4 Bootstrap Recovery
+
+In disaster scenarios, bootstrap may be initiated in a clean environment to recover from total substrate loss. Recovery bootstrap requires human sovereign approval and validation against archived constitutional state.
+
+---
+
+## 34. Deployment Retirement
+
+### 34.1 Retirement as Terminal Environmental State
+
+Retirement is the permanent termination of an operational environment. Retired deployments cannot host runtime instances and cannot be reactivated. Retirement requires extraction of all organizational state, termination of substrate relationships, and archival of records.
+
+### 34.2 State Extraction
+
+Before retirement, the Gateway verifies that all runtime state, audit records, and knowledge assets have been extracted or migrated in accordance with portability declarations and data handling terms. Extraction gaps block retirement.
+
+### 34.3 Substrate Termination
+
+The Gateway verifies that substrate relationships are terminated in accordance with sovereignty contracts, that final costs are settled, and that no ongoing obligations remain.
+
+### 34.4 Archival
+
+Retired deployments are archived with complete identity, manifest, contract history, and audit trails. Archived deployments remain attributable for the statutory retention period.
+
+---
+
+## 35. Human Deployment Authority
+
+### 35.1 Human as Ultimate Deployment Authority
+
+Human operators are the ultimate authority over all deployment decisions. The Deployment Gateway enforces that no agent, service, or automated system may: select operational substrate, override geographic locality requirements, bypass sovereignty validation, approve D4 deployments, or invoke emergency environmental termination.
+
+### 35.2 E4 Enforcement
+
+The Gateway blocks any attempt by a non-human principal to form E4 deployments, ratify bootstrap operations, modify sovereignty tiers, or invoke environmental panic protocols. E4 authority is cryptographically bound to human credentials and cannot be delegated.
+
+### 35.3 Override Mechanisms
+
+Humans may override any deployment decision at any time: force migration, halt scaling, terminate substrate relationships, or invoke emergency continuity procedures. Overrides are immediate, irreversible by subsystems, and logged as E4 actions.
+
+### 35.4 Batched Human Interaction
+
+The Gateway batches deployment alerts, approval requests, and audit digests to minimize human cognitive load. Critical deployment events (sovereignty breach, geographic drift, catastrophic failure) trigger immediate notifications. Routine events are batched into scheduled digests.
+
+---
+
+## 36. Non-Violable Deployment Rules
+
+The following rules are absolute. Violation constitutes a Category 1 incident:
+
+1. No deployment may be activated without prior registration and validation in the Deployment Registry.
+2. No deployment may host runtime instances without a valid human-approved decision record with authority matching the deployment's risk tier.
+3. No deployment may operate outside its declared sovereignty tier without human re-approval.
+4. No deployment may process data beyond its declared geographic locality or residency requirements.
+5. No deployment may share substrate with another tenant without explicit bilateral human approval and isolation verification.
+6. No anonymous or pseudonymous deployment registration is permitted.
+7. No deployment may compromise tenant, business, or workspace isolation for capacity or efficiency.
+8. No deployment may bypass the Deployment Gateway for direct runtime-to-substrate interaction.
+9. No deployment audit record may be modified, overwritten, or deleted after formation.
+10. No deployment may exceed its declared capacity boundaries while continuing to accept new runtime instances.
+11. No D4 deployment may operate under S3 (shared sovereignty) without explicit human sovereign ratification.
+12. No deployment may present unvalidated substrate state as constitutional environmental guarantee.
+13. No approval gate for E3 or E4 deployment activation may auto-approve on timeout.
+14. No deployment may suppress health degradation, capacity exhaustion, or geographic drift information from the Gateway.
+15. No deprecated deployment may host new runtime instances after its migration deadline.
+16. No deployment may reduce human sovereignty below absolute terminal authority over operational territory.
+17. No deployment may embed provider-specific logic that prevents substrate substitution.
+18. No constitutional document may reference a specific substrate operator, technology, or implementation detail.
+19. The environmental panic protocol must halt all runtime instances in affected territory within 5 seconds of invocation.
+20. No deployment failure may remain unclassified or unalerted for more than 60 seconds.
+
+---
+
+## 37. Appendix: Deployment Glossary
+
+| Term | Definition |
+|------|------------|
+| **Deployment** | A governed, identifiable operational environment where Agent OS instances execute within constitutional boundaries. |
+| **Deployment Registry** | The canonical inventory of all deployments, their identities, manifests, and trust scores. |
+| **Deployment Gateway** | The unified authorization and mediation layer for all environmental existence and operation. |
+| **Environment** | A constitutional operating domain with specific isolation, sovereignty, and resilience properties. |
+| **Environment Manifest** | The canonical declaration of a deployment's identity, invariants, sovereignty tier, and constraints. |
+| **Sovereign Deployment** | Operational territory under ultimate organizational control with no external governance authority. |
+| **Sovereignty Tier** | The classification of substrate control: direct, contracted, or shared. |
+| **Geographic Locality** | The declared jurisdictional and data residency domain of an environment. |
+| **Fault Domain** | A boundary within which environmental failures are correlated and across which they are uncorrelated. |
+| **Deployment Domain** | A bounded operational territory within which a specific set of constitutional guarantees holds. |
+| **Environment Abstraction** | The substrate-neutral declaration of constitutional environmental requirements. |
+| **Operational Continuity** | The guarantee that constitutional operations persist through environmental perturbations and failures. |
+| **Bootstrap Deployment** | The constitutional instantiation of Agent OS in an operational environment. |
+| **E-Class** | The authority requirement level for deployment approval, from E1 (Business Steward) to E4 (Human Sovereign). |
+| **Deployment Lineage** | The version succession chain linking predecessor and successor deployments. |
+
+---
+
+*End of Document*
