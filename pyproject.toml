@@ -9,12 +9,12 @@ select = ["E", "F", "I", "UP", "B"]
 [tool.ruff.lint.isort]
 # Layer 0 libs and deployable modules are first-party; without this ruff sorts
 # them into the third-party block and fights the import layout.
-known-first-party = ["kernel", "core", "persistence", "schema_registry", "security_gateway", "event_bus"]
+known-first-party = ["kernel", "core", "persistence", "schema_registry", "security_gateway", "event_bus", "observability_gateway", "cost_manager"]
 
 [tool.mypy]
 python_version = "3.11"
 strict = true
-mypy_path = "libs/kernel:libs/core:libs/persistence:services/schema_registry:services/security_gateway:services/event_bus"
+mypy_path = "libs/kernel:libs/core:libs/persistence:services/schema_registry:services/security_gateway:services/event_bus:services/observability_gateway:services/cost_manager"
 exclude = "(ARCHITECTURE_BASELINE|files)"
 
 [[tool.mypy.overrides]]
