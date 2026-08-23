@@ -17,5 +17,6 @@ for lib in (
     "services/cost_manager",
     "services/memory_gateway",
     "services/knowledge_gateway",
+    "services/decision_gateway",
 ):
     sys.path.insert(0, str(ROOT / lib))

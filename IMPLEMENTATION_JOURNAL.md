@@ -2,10 +2,10 @@
 
 ## Project Status
 
-- **Current Stage:** S4 — Cognition (implementation complete, gates pass locally)
-- **Current Module:** none in progress — S4 exit criterion met; next executable work item is Stage S5 (`decision_gateway`), which first requires the two outstanding kernel mechanisms of 21A §5.2 (Confidence/Authority Resolution, Category 1 Incident escalation)
-- **Repository Status:** Layer 0 substrate plus the Trust, Truth, Instrumentation, Economic and Cognition planes implemented and tested
-- **Overall Progress:** 10 / 26 modules implemented to their stage exit criteria (`kernel`, `core`, `persistence`, `schema_registry`, `security_gateway`, `event_bus`, `observability_gateway` at its ingestion-only profile, `cost_manager`, `memory_gateway`, `knowledge_gateway`); 0 / 26 at full Definition-of-Done — Section 39 criterion 2 (Conformance Gates) still requires the CI pipeline to actually execute, and Poetry-managed reproducible builds and `docker compose up` do not exist yet
+- **Current Stage:** S5 — Authority (implementation complete, gates pass locally)
+- **Current Module:** none in progress — S5 exit criterion met; next executable work item is Stage S6 (`integration_registry`/`integration_gateway`, `tool_registry`/`tool_gateway`/`tool_executor`, `llm_router`)
+- **Repository Status:** Layer 0 substrate complete (all nine universal Gateway mechanisms of 21A §5.2 now implemented), plus the Trust, Truth, Instrumentation, Economic, Cognition and Authority planes
+- **Overall Progress:** 11 / 26 modules implemented to their stage exit criteria (`kernel`, `core`, `persistence`, `schema_registry`, `security_gateway`, `event_bus`, `observability_gateway` at its ingestion-only profile, `cost_manager`, `memory_gateway`, `knowledge_gateway`, `decision_gateway`); 0 / 26 at full Definition-of-Done — Section 39 criterion 2 (Conformance Gates) still requires the CI pipeline to actually execute, and Poetry-managed reproducible builds and `docker compose up` do not exist yet
 
 ---
 
@@ -225,3 +225,46 @@
 
 - **Commit Hash:** (pending)
 - **Notes:** Section 39 status for both modules is **implementation complete, gates pending** — criterion 2 still requires the CI pipeline to actually run, and `memory_gateway` additionally carries the Document 09 caveat above. The S4 integration suite proves the property neither module can prove alone: the **Events → Memory → Knowledge pipeline is unidirectional and acyclic** (09.6.4, 10.6.4). Standing conformance guards added this stage: the Memory Gateway's surface contains no reference to Knowledge, the Knowledge Gateway's view of Memory is a single read method on a Protocol, the Decay Engine exposes no delete path, and each module's cross-module imports are confined to one adapter file. A further test proves corrections flow forward as new linked entries rather than mutating the original.
+
+### 2026-08-24 — Stage S5: Authority (`decision_gateway`)
+
+- **Stage:** S5 — Authority
+- **Module:** `services/decision_gateway`, plus the two outstanding kernel mechanisms
+- **Work Item:** Realize document 11 in full per 21B §18 — the eight Public Interfaces of §18.5 over the twenty Internal Components of §18.3.
+- **Files Created:**
+  - `libs/kernel/kernel/authority.py` — **Confidence/Authority Resolution (21A §5.2 item 5)**, with the 11.9.1 authority spectrum, the 11.9.2 confidence floors, 11.14.3 risk-adjusted escalation, and the shared `derive_confidence` CIR-006 calibration surface
+  - `libs/kernel/kernel/escalation.py` — **Category 1 Incident escalation (21A §5.2 item 10)**, with the fixed 14.33.3 response set and no machine acknowledgement path
+  - `libs/kernel/kernel/tests/test_authority_and_escalation.py` — 27 tests
+  - `services/decision_gateway/` — `pyproject.toml`, `decisions.py` (identity, the four classes, 11.8 states and guards, standing orders, approval requests), `pipeline.py` (Classifier, OptionValidator, EvidenceAssembler, EvaluationEngine, ConfidenceEngine, RiskAssessor, ApprovalOrchestrator, StandingOrderManager, CompensationVerifier, PortfolioCircuitBreaker), `gateway.py` (the eight §18.5 interfaces, overrides, panic), `adapters.py`, `tests/` (62 tests)
+  - `tests/s5_integration/test_s5_exit_criterion.py` — the stage exit criterion end to end plus the mandated adversarial suite (6 tests)
+  - `docs/modules/decision_gateway.md`
+- **Files Modified:** `libs/kernel/kernel/__init__.py`, `conftest.py`, `pyproject.toml`, `IMPLEMENTATION_JOURNAL.md`
+- **Tests Added:** 95 (kernel 27, decision gateway 62, S5 integration 6). Repository total: 497.
+- **Validation Performed:**
+  - `python -m pytest -q` → 497 passed
+  - `python -m ruff check libs services tests` → clean; `ruff format` applied
+  - `python -m mypy .` (`--strict`) → no issues in 130 source files
+  - `python -m bandit -r libs services --exclude "*/tests/*"` → exit 0, zero findings
+  - Coverage 97.36% overall against the 90% CI gate
+- **Build Status:** Passing locally on every gate. Not run through CI, Poetry environments, or `docker compose`.
+
+- **S0 gap closed (second and final tranche):** 21A §5.2's nine universal Gateway mechanisms are now all present in `kernel`. S3 added Signal Emission; this stage adds **Confidence/Authority Resolution** and **Category 1 Incident escalation**, which were the two the S3 Journal entry recorded as outstanding and required before S5 could claim completion. `kernel` now genuinely implements what Build Spec Section 12 assigns it.
+
+- **Issues Encountered (four real defects, all found by tests):**
+  1. **`derive_confidence` made Class C and D structurally unreachable.** The first cut multiplied evidentiary confidence, option quality, temporal relevance and a risk penalty straight through. Four sub-unit factors collapse fast: evidence at 0.95 with a good-but-not-crushing option margin landed at 0.71, below the 0.80 floor for Level 3. Every Class C and D decision would have deferred forever rather than being decided under human approval — the opposite of what the constitution intends. Option quality and temporal relevance now modulate the evidentiary base above a floor rather than replacing it.
+  2. **Risk-escalated decisions were escalated but never routed for approval.** 11.14.3 says a Class B decision at High risk is "treated as Class C for authority purposes". The first cut raised the required authority and then sent the decision to Escalated, which raised the bar and provided no way to clear it. Routing now follows the *effective* authority, so such a decision takes the Class C path and gets a packaged human approval request.
+  3. **Classification used declared rather than effective reversibility.** An agent could mark an option `reversible=True`, supply no compensation reference, and receive Class A treatment for an action nothing can undo — precisely the threshold-gaming 11.24.2 names as a drift pattern. The Classifier and the Compensation Verifier now share one judgement.
+  4. **The portfolio concentration limit fired on an empty portfolio.** The first commitment to any business is 100% concentrated by arithmetic, so the breaker rejected every first commitment. A concentration floor now gates the check.
+  Also: `Approved -> Escalated` is not an edge in 11.8.2. A circuit-breaker breach from Approved now takes `Approved -> Rejected`, which the ratified table does permit, rather than widening the table to suit the response.
+
+- **Resolution:** All resolved in-branch; each has a regression test.
+
+- **Open Items (deferred, not silently absorbed):**
+  - **`event_bus` is not wired into this Gateway.** 21B §18.6 lists it for trigger consumption and decision lifecycle emission. Signals and journalling are in place; lifecycle event publication is not. Small work item, recorded rather than done quietly.
+  - **Human Interface (S8) does not exist**, so `route_to_human` defaults to a no-op: approval requests and escalations are packaged and journalled but delivered nowhere yet.
+  - **Memory Gateway is not consulted** for the sparse-evidence context 21B §18.6 lists it for; only Knowledge is queried, for contradiction status.
+  - Performance is unvalidated against the 21B §18.12 latency table; the store is in-memory.
+  - CIR-004 (composite mediation-chain latency) and CIR-007 (confidence miscalibration propagating through four subsystems) both remain open and both bear directly on this module. `kernel.derive_confidence` is deliberately the single place CIR-006/CIR-007 recalibration will land.
+
+- **Commit Hash:** (pending)
+- **Notes:** Section 39 status is **implementation complete, gates pending** — criterion 2 still requires the CI pipeline to actually execute. The Stage S5 exit criterion is demonstrated end to end in `tests/s5_integration/`, including the adversarial test the Validation Criteria explicitly demand: four distinct attacks on the Class D approval gate (outlast the window repeatedly, self-approve as proposer, answer as a non-human service, commit without an approval at all), every one of which must fail — and does. Standing conformance guards added this stage: the Approval Orchestrator exposes no auto-approval method, and the Decision Gateway exposes no `execute`/`dispatch` method, since 21B §18.7 is explicit that it records commitments and does not execute them.

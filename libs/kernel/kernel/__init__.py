@@ -2,14 +2,30 @@
 
 No constitutional standing of its own — an implementation artifact every
 Gateway builds on: Artifact Identity, Lifecycle State Machine, Boundary
-Enforcement, Immutable Journal, Failure Classification, Signal Emission,
-Panic Protocol participation.
+Enforcement, Immutable Journal, Confidence/Authority Resolution, Failure
+Classification, Signal Emission, Panic Protocol participation, Category 1
+Incident escalation.
 """
 
+from kernel.authority import (
+    MIN_CONFIDENCE_BY_LEVEL,
+    AuthorityLevel,
+    AuthorityResolution,
+    Outcome,
+    RiskClass,
+    derive_confidence,
+    resolve,
+)
 from kernel.boundaries import (
     BoundaryEnforcementEngine,
     BoundaryType,
     BoundaryViolationError,
+)
+from kernel.escalation import (
+    Category1Incident,
+    EscalationChannel,
+    EscalationTrigger,
+    NoAppealError,
 )
 from kernel.failure import FailureCategory, FailureClassifier
 from kernel.identity import ArtifactIdentity
@@ -41,4 +57,15 @@ __all__ = [
     "SignalType",
     "Sensitivity",
     "ConsumerAuthority",
+    "AuthorityLevel",
+    "AuthorityResolution",
+    "RiskClass",
+    "Outcome",
+    "MIN_CONFIDENCE_BY_LEVEL",
+    "resolve",
+    "derive_confidence",
+    "EscalationChannel",
+    "Category1Incident",
+    "EscalationTrigger",
+    "NoAppealError",
 ]
