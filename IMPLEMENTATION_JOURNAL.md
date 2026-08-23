@@ -2,10 +2,10 @@
 
 ## Project Status
 
-- **Current Stage:** S3 — Instrumentation & Economics (implementation complete, gates pass locally)
-- **Current Module:** none in progress — S3 exit criterion met; next executable work item is Stage S4 (`memory_gateway`, `knowledge_gateway`)
-- **Repository Status:** Layer 0 substrate, the Trust and Truth planes, and the Instrumentation and Economic planes implemented and tested
-- **Overall Progress:** 8 / 26 modules implemented to their stage exit criteria (`kernel`, `core`, `persistence`, `schema_registry`, `security_gateway`, `event_bus`, `observability_gateway` at its ingestion-only profile, `cost_manager`); 0 / 26 at full Definition-of-Done — Section 39 criterion 2 (Conformance Gates) still requires the CI pipeline to actually execute, and Poetry-managed reproducible builds and `docker compose up` do not exist yet
+- **Current Stage:** S4 — Cognition (implementation complete, gates pass locally)
+- **Current Module:** none in progress — S4 exit criterion met; next executable work item is Stage S5 (`decision_gateway`), which first requires the two outstanding kernel mechanisms of 21A §5.2 (Confidence/Authority Resolution, Category 1 Incident escalation)
+- **Repository Status:** Layer 0 substrate plus the Trust, Truth, Instrumentation, Economic and Cognition planes implemented and tested
+- **Overall Progress:** 10 / 26 modules implemented to their stage exit criteria (`kernel`, `core`, `persistence`, `schema_registry`, `security_gateway`, `event_bus`, `observability_gateway` at its ingestion-only profile, `cost_manager`, `memory_gateway`, `knowledge_gateway`); 0 / 26 at full Definition-of-Done — Section 39 criterion 2 (Conformance Gates) still requires the CI pipeline to actually execute, and Poetry-managed reproducible builds and `docker compose up` do not exist yet
 
 ---
 
@@ -184,3 +184,44 @@
 
 - **Commit Hash:** (pending)
 - **Notes:** Section 39 status for both modules is **implementation complete, gates pending** — criterion 2 still requires the CI pipeline to actually run. `observability_gateway` is explicitly at its **ingestion-only profile** per the build plan; the interpretive components are absent rather than stubbed, and a test asserts their method names do not exist on the surface so nothing downstream can depend on a hollow implementation. Standing conformance guards added this stage: Observability exposes no mutating verb (21B §24.14 — no hidden control channel), the Cost Manager exposes no budget override, and `cost_manager` imports no observability module (21B §24.13 — the dependency is one-directional). The S3 integration suite also proves the failure posture that makes Observability safe to depend on: with a deliberately broken sink, budget enforcement still halts at Red and still escalates, and the telemetry buffers for a later drain rather than being lost.
+
+### 2026-08-23 — Stage S4: Cognition (`memory_gateway`, `knowledge_gateway`)
+
+- **Stage:** S4 — Cognition
+- **Modules:** `services/memory_gateway`, `services/knowledge_gateway`
+- **Work Item:** Realize document 09 as far as its artifact extends (plus 02.3.5) per 21B §16, and document 10 in full per 21B §17.
+- **Files Created:**
+  - `services/memory_gateway/` — `entries.py` (identity primitives 09.4.1, the four classifications of 09.5, the four tiers of 09.7, states and transition guards of 09.9), `pipeline.py` (Admission Controller, Formation Engine, Quarantine Store, Validation Engine, Integration Engine, Decay Engine), `gateway.py` (the five §16.5 interfaces, four boundaries, disposition), `security_adapter.py`, `tests/` (44 tests)
+  - `services/knowledge_gateway/` — `beliefs.py` (confidence bands of 10.14.2, states and guards of 10.8, Evidence, Falsifiability, Contradiction), `pipeline.py` (Extraction, Hypothesis Store, Validation, Contradiction Detector, Reconciliation Engine), `graph.py` (Graph Engine with the three integrity constraints of 10.17.4, Ontology Manager), `gateway.py` (the seven §17.5 interfaces), `adapters.py`, `tests/` (55 tests)
+  - `tests/s4_integration/test_s4_exit_criterion.py` — the stage exit criterion end to end plus the unidirectional-pipeline guards (6 tests)
+  - `docs/modules/memory_gateway.md`, `docs/modules/knowledge_gateway.md`
+- **Files Modified:** `conftest.py`, `pyproject.toml`, `IMPLEMENTATION_JOURNAL.md`
+- **Tests Added:** 105. Repository total: 402.
+- **Validation Performed:**
+  - `python -m pytest -q` → 402 passed
+  - `python -m ruff check libs services tests` → clean; `ruff format` applied
+  - `python -m mypy .` (`--strict`) → no issues in 117 source files
+  - `python -m bandit -r libs services --exclude "*/tests/*"` → exit 0, zero findings
+  - Coverage 97.63% overall against the 90% CI gate
+- **Build Status:** Passing locally on every gate. Not run through CI, Poetry environments, or `docker compose`.
+
+- **The Document 09 gap, per Build Spec Section 6 and Rule 5:** the artifact terminates mid-Section 10. Sections 10.1–30 are absent, including the Non-Violable Memory Rules, the Glossary and the Performance Characteristics. **No content was fabricated for them.** Sections 4–9 are complete and carry the module: identity primitives, classification, the four tiers, the lifecycle and the state machine with its transition guards are all constitutional here, not inferred. Two consequences stand recorded rather than resolved: memory performance figures are provisional, derived from the Knowledge Gateway's budgets per 21B §16.12 and superseded the moment the source is recovered; and **`memory_gateway`'s conformance suite cannot claim completeness**, because the missing Non-Violable Rules are precisely what such a suite would test against. Per the Stage S4 Definition of Done, this caveat does not block Done status but is carried here as an open item.
+
+- **Issues Encountered:**
+  1. **Decay and retention measured from the wrong clock.** `MemoryEntry.formed_at` defaulted to wall-clock at object construction — the *producer's* instant — while the Gateway runs on an injected clock. Idle-decay and the seven-year retention window were therefore computed against a timestamp the Gateway does not control, which a producer with a skewed clock could have shifted arbitrarily. Fixed at the root: the entry now carries `captured_at` (the producer's stamp, retained for provenance) and `MemoryRecord.formed_at` is assigned by the Formation Engine from the Gateway's clock. Retention and decay read the record.
+  2. **The same bug in `knowledge_gateway`**, found by the same class of test: revalidation cadence measured from `Belief.formed_at`. Fixed identically — `Belief.captured_at` plus `BeliefRecord.formed_at` assigned by the Extraction Engine.
+  3. **`KnowledgeGateway.ontology()` shadowed the `self.ontology` attribute**, so the Ontology Query interface would have overwritten the Ontology Manager at first call. Caught before any test ran; the method is `query_ontology`.
+  4. Two tests asserted behaviour that was actually correct system behaviour rather than a defect: a token expiring after a simulated year (one-hour TTL, 14.9.2) and a credential expiring after 90 days. The tests now rotate the credential and re-authenticate, which is what a long-lived principal must genuinely do.
+  5. A stale `from typing import Any` placed at the bottom of `graph.py` under a false cycle comment; moved to the top.
+
+- **Resolution:** All five resolved in-branch. Issues 1 and 2 are the same root cause in two modules and each has a regression test.
+
+- **Open Items (deferred, not silently absorbed):**
+  - **Two kernel mechanisms of 21A §5.2 are still unbuilt**: Confidence/Authority Resolution and Category 1 Incident escalation. **Stage S5 (`decision_gateway`) is the first consumer of both**; they must land before S5 claims completion. This is now the highest-priority carried item.
+  - Memory: source reliability is an injected callable with a flat 0.8 default; the Learning Gateway (S9) refines it. Working-tier durability against process loss (09.7.1) needs a real store. Consolidation (09.19) and anonymized cross-boundary sharing (09.20) appear in the surviving table of contents but not in the surviving body.
+  - Knowledge: the automated extraction cycle triggered from the Event Bus is not wired; archival tiering needs a real store; load-shedding order (21B §17.12) is unimplemented because there is no load to shed.
+  - **Performance is unvalidated in both modules.** 10.24.1 publishes a full latency table (canonical belief query p50 50ms, 10,000 queries/second, three-hop traversal p50 100ms) measured here against in-memory dicts. Nothing meaningful has been measured.
+  - CIR-003 (data ownership allocation) remains unratified, and both modules' stores are named against 21A §10's *proposed* allocation. Build Spec Section 6 requires ADR ratification "before Stage S4 proceeds on firm ground" — S4 has proceeded on the explicitly provisional basis, and the ratification is still outstanding.
+
+- **Commit Hash:** (pending)
+- **Notes:** Section 39 status for both modules is **implementation complete, gates pending** — criterion 2 still requires the CI pipeline to actually run, and `memory_gateway` additionally carries the Document 09 caveat above. The S4 integration suite proves the property neither module can prove alone: the **Events → Memory → Knowledge pipeline is unidirectional and acyclic** (09.6.4, 10.6.4). Standing conformance guards added this stage: the Memory Gateway's surface contains no reference to Knowledge, the Knowledge Gateway's view of Memory is a single read method on a Protocol, the Decay Engine exposes no delete path, and each module's cross-module imports are confined to one adapter file. A further test proves corrections flow forward as new linked entries rather than mutating the original.
