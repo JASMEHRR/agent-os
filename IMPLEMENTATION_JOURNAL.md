@@ -2,10 +2,10 @@
 
 ## Project Status
 
-- **Current Stage:** S2 — Truth (implementation complete, gates pass locally)
-- **Current Module:** none in progress — S2 exit criterion met; next executable work item is Stage S3 (`observability_gateway` ingestion profile, `cost_manager`)
-- **Repository Status:** Layer 0 substrate plus the Trust and Truth planes implemented and tested
-- **Overall Progress:** 6 / 26 modules implemented to their stage exit criteria (`kernel`, `core`, `persistence`, `schema_registry`, `security_gateway`, `event_bus`); 0 / 26 at full Definition-of-Done — Section 39 criterion 2 (Conformance Gates) still requires the CI pipeline to actually execute, and Poetry-managed reproducible builds and `docker compose up` do not exist yet
+- **Current Stage:** S3 — Instrumentation & Economics (implementation complete, gates pass locally)
+- **Current Module:** none in progress — S3 exit criterion met; next executable work item is Stage S4 (`memory_gateway`, `knowledge_gateway`)
+- **Repository Status:** Layer 0 substrate, the Trust and Truth planes, and the Instrumentation and Economic planes implemented and tested
+- **Overall Progress:** 8 / 26 modules implemented to their stage exit criteria (`kernel`, `core`, `persistence`, `schema_registry`, `security_gateway`, `event_bus`, `observability_gateway` at its ingestion-only profile, `cost_manager`); 0 / 26 at full Definition-of-Done — Section 39 criterion 2 (Conformance Gates) still requires the CI pipeline to actually execute, and Poetry-managed reproducible builds and `docker compose up` do not exist yet
 
 ---
 
@@ -140,3 +140,47 @@
   - Consumer delivery-timeout redelivery is driven by explicit failure signalling and the retry scheduler; a wall-clock timeout sweep for consumers that go silent without signalling is not implemented.
 - **Commit Hash:** (pending)
 - **Notes:** Section 39 status is **implementation complete, gates pending** — criterion 2 still requires the CI pipeline to actually run. The Stage S2 exit criterion is demonstrated end to end in `tests/test_s2_exit_criterion.py`, which runs all five clauses in one narrative. Two architectural-conformance tests are retained as standing guards: one asserts the Bus exposes no authorization method of its own (21A §5.4.2 — it is not a Gateway), and one asserts `security_gateway` is imported in exactly one module, so the permitted S1→S2 dependency edge stays visible in the adapter instead of spreading through the subsystem.
+
+### 2026-08-23 — Stage S3: Instrumentation & Economics (`observability_gateway`, `cost_manager`)
+
+- **Stage:** S3 — Instrumentation & Economics
+- **Modules:** `services/observability_gateway` (ingestion-only profile), `services/cost_manager`
+- **Work Item:** Give every subsequent module's Signal Emission somewhere to land, and its budget enforcement something to enforce against.
+- **Files Created:**
+  - `libs/kernel/kernel/signals.py` — **the Signal Emission contract (21A §5.2 item 7)**, the seventh universal Gateway mechanism, which Stage S0 did not build. See "S0 gap closed" below.
+  - `libs/kernel/kernel/tests/test_signals.py` — 9 tests
+  - `services/observability_gateway/` — `pyproject.toml`, `ingest.py` (Telemetry Ingest, enrichment, quality anomalies), `gateway.py` (ingestion endpoint, read-only Query API, Panic Confirmation Listener, self-health), `security_adapter.py`, `tests/` (32 tests)
+  - `services/cost_manager/` — `pyproject.toml`, `ledger.py` (append-only cost ledger, budget allocations), `breakers.py` (cost-based circuit breakers), `manager.py` (four-level enforcement, attribution, alerting), `tests/` (35 tests)
+  - `tests/s3_integration/test_s3_exit_criterion.py` — the stage exit criterion end to end against a synthetic caller, spanning both modules plus the kernel channel (5 tests)
+  - `docs/modules/observability_gateway.md`, `docs/modules/cost_manager.md`
+- **Files Modified:** `libs/kernel/kernel/__init__.py` (export the new mechanism), `conftest.py`, `pyproject.toml`, `IMPLEMENTATION_JOURNAL.md`
+- **Tests Added:** 81 (kernel signals 9, observability 32, cost manager 35, S3 integration 5). Repository total: 297.
+- **Validation Performed:**
+  - `python -m pytest -q` → 297 passed
+  - `python -m ruff check libs services tests` → clean; `ruff format` applied
+  - `python -m mypy .` (`--strict`) → no issues in 98 source files
+  - `python -m bandit -r libs services --exclude "*/tests/*"` → exit 0, zero findings
+  - Coverage 98.13% overall against the 90% CI gate
+- **Build Status:** Passing locally on every gate. Not run through CI, Poetry environments, or `docker compose`.
+
+- **S0 gap closed:** 21A §5.2 enumerates nine universal Gateway mechanisms and Build Spec Section 12 assigns them to `kernel`. Stage S0 implemented six (identity, lifecycle, boundaries, journal, failure classification, panic) and left **Signal Emission** unbuilt — it went unnoticed because no consumer existed until now. It is implemented in `kernel/signals.py` rather than inside the Observability Gateway, because Section 12 is explicit that these mechanisms are "factored here once rather than reimplemented per-Gateway". This completes S0's mandate rather than redesigning it, so Part IV Section 17's refactoring restriction is not engaged. **`kernel`'s prior stage-completion claim was therefore incomplete when made** — recorded here rather than quietly corrected. The remaining two mechanisms of §5.2 (Confidence/Authority Resolution, Category 1 Incident escalation) are still unbuilt in `kernel`; they have no consumer before S5 and are tracked as an open item below.
+
+- **Issues Encountered:**
+  1. **Ingestion could raise back into an emitting subsystem.** The first cut let `SignalRejected` escape `ingest`. That is Observability steering an operational path, which 16.4 forbids. Fixed on both sides of the seam: `ingest` returns the `QualityAnomaly`, and `SignalEmitter.submit` catches sink failures and buffers rather than propagating.
+  2. **Two tests asserted `QueryNotAuthorized` where an invalid token legitimately raises `AuthenticationError`.** The tests were wrong, not the code — authentication fails before authorization is reached. Split into separate tests for the two barriers.
+  3. **A source-text scan for a prohibited dependency matched prose in a docstring.** Replaced with an import-line scan.
+  4. Two `assert` statements would vanish under `python -O` (Bandit B101); rewritten as ordinary branches.
+
+- **Resolution:** All four resolved in-branch, each with a regression test.
+
+- **Open Items (deferred, not silently absorbed):**
+  - **Two kernel mechanisms of 21A §5.2 remain unbuilt**: Confidence/Authority Resolution and Category 1 Incident escalation. Neither has a consumer before Stage S5 (`decision_gateway`); both must land before that stage claims completion.
+  - Observability's **retention, decay and archival (16.7.7)** are not implemented; the Archived and Expired signal states exist in the lifecycle but tiering is a storage-tier concern awaiting the real telemetry store.
+  - **Coverage anomalies for absent signals (16.7.8)** need the expectation model that arrives with the interpretive profile at S10.
+  - Cost Manager's **cost projection and optimization recommendations** (both named in 02.3.9) are not built: projection needs historical spend curves, and recommendations need the LLM Router (S6). **LLM Router pre-flight integration**, also named in 02.3.9, likewise awaits S6.
+  - Budget period rollover is not automatic; a new period is a new allocation.
+  - Both modules use the in-memory adapter; the high-volume telemetry tier (21B §24.7) and the `aos_analytics` ledger store (21A §10) do not exist.
+  - CIR-003 (data ownership allocation) remains unratified, and 21A §10's allocation is what both modules' stores are named against — still a proposal, not fact.
+
+- **Commit Hash:** (pending)
+- **Notes:** Section 39 status for both modules is **implementation complete, gates pending** — criterion 2 still requires the CI pipeline to actually run. `observability_gateway` is explicitly at its **ingestion-only profile** per the build plan; the interpretive components are absent rather than stubbed, and a test asserts their method names do not exist on the surface so nothing downstream can depend on a hollow implementation. Standing conformance guards added this stage: Observability exposes no mutating verb (21B §24.14 — no hidden control channel), the Cost Manager exposes no budget override, and `cost_manager` imports no observability module (21B §24.13 — the dependency is one-directional). The S3 integration suite also proves the failure posture that makes Observability safe to depend on: with a deliberately broken sink, budget enforcement still halts at Red and still escalates, and the telemetry buffers for a later drain rather than being lost.

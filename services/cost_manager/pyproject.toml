@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "cost-manager"
+version = "0.1.0"
+description = "Agent OS Cost Manager, budget enforcement and circuit breakers (realizes 02.3.9)."
+authors = ["Agent OS"]
+packages = [{ include = "cost_manager" }]
+
+[tool.poetry.dependencies]
+python = ">=3.11,<3.13"
+kernel = { path = "../../libs/kernel", develop = true }
+core = { path = "../../libs/core", develop = true }
+persistence = { path = "../../libs/persistence", develop = true }
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2"
+mypy = "^1.10"
+ruff = "^0.4.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

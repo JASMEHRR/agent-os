@@ -12,5 +12,8 @@ for lib in (
     "libs/persistence",
     "services/schema_registry",
     "services/security_gateway",
+    "services/event_bus",
+    "services/observability_gateway",
+    "services/cost_manager",
 ):
     sys.path.insert(0, str(ROOT / lib))

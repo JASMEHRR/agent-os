@@ -2,8 +2,8 @@
 
 No constitutional standing of its own — an implementation artifact every
 Gateway builds on: Artifact Identity, Lifecycle State Machine, Boundary
-Enforcement, Immutable Journal, Failure Classification, Panic Protocol
-participation.
+Enforcement, Immutable Journal, Failure Classification, Signal Emission,
+Panic Protocol participation.
 """
 
 from kernel.boundaries import (
@@ -16,6 +16,13 @@ from kernel.identity import ArtifactIdentity
 from kernel.journal import ImmutableJournal, JournalTamperError
 from kernel.lifecycle import InvalidTransitionError, LifecycleStateMachine
 from kernel.panic import PanicProtocol
+from kernel.signals import (
+    ConsumerAuthority,
+    Sensitivity,
+    Signal,
+    SignalEmitter,
+    SignalType,
+)
 
 __all__ = [
     "ArtifactIdentity",
@@ -29,4 +36,9 @@ __all__ = [
     "FailureClassifier",
     "FailureCategory",
     "PanicProtocol",
+    "Signal",
+    "SignalEmitter",
+    "SignalType",
+    "Sensitivity",
+    "ConsumerAuthority",
 ]
