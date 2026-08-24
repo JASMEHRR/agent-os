@@ -152,7 +152,7 @@ def test_confidence_and_cost_are_validated(human: HumanInterface) -> None:
 
 
 def test_a_class_c_deadline_defers_and_never_approves(human: HumanInterface, clock: Clock) -> None:
-    """11.18.3 — "Decision is deferred, not approved. No default-to-approve.\" """
+    """11.18.3 — "Decision is deferred, not approved. No default-to-approve.\""""
     human.submit_approval(approval(decision_class="C"))
     clock.advance(timedelta(days=2))
     expired = human.expire_approvals()
@@ -161,7 +161,7 @@ def test_a_class_c_deadline_defers_and_never_approves(human: HumanInterface, clo
 
 
 def test_a_class_d_deadline_rejects(human: HumanInterface, clock: Clock) -> None:
-    """11.18.3 — "Decision is rejected pending explicit human action.\" """
+    """11.18.3 — "Decision is rejected pending explicit human action.\""""
     human.submit_approval(approval(decision_class="D"))
     clock.advance(timedelta(days=2))
     assert [r.state for r in human.expire_approvals()] == [ApprovalState.REJECTED]
@@ -202,7 +202,7 @@ def test_an_operator_may_demand_modification_instead_of_deciding(human: HumanInt
 
 
 def test_a_batch_is_presented_together_and_answered_separately(human: HumanInterface) -> None:
-    """11.18.4 — batched items "are never auto-approved as a group.\" """
+    """11.18.4 — batched items "are never auto-approved as a group.\""""
     for n in range(3):
         human.submit_approval(approval(request_id=f"ar-{n}"))
     batch = human.batch_approvals("batch-1", TENANT, ["ar-0", "ar-1", "ar-2"], "same publication cycle")

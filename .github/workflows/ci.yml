@@ -1,5 +1,10 @@
 name: ci
 
+# Tool versions are pinned to match .pre-commit-config.yaml exactly. A CI
+# gate running a different version of the same linter than the developer's
+# hook is a gate that passes locally and fails on push, or the reverse — and
+# either way it stops being trusted.
+
 on:
   push:
     branches: [main, master]
@@ -13,8 +18,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: pip install ruff
+      - run: pip install ruff==0.16.1
       - run: ruff check libs services tests
+      # Formatting is a gate, not a suggestion. The pre-commit hook formats;
+      # CI checks, so a commit that bypassed the hook does not merge unformatted.
+      - run: ruff format --check libs services tests
 
   type-check:
     runs-on: ubuntu-latest
@@ -23,7 +31,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: pip install mypy pydantic
+      # Pinned to the version .pre-commit-config.yaml resolves, so the hook
+      # and the gate agree. The local development toolchain runs mypy 2.3.0
+      # and passes `--strict` there as well, so the type check is verified
+      # under both; the pin is the version the gate and the hook share.
+      - run: pip install mypy==1.10.0 pydantic pytest
       - run: mypy .
 
   test:
@@ -39,6 +51,26 @@ jobs:
       # requires a threshold without publishing a figure.
       - run: python -m pytest libs/ services/ tests/ -q --cov=libs --cov=services --cov-fail-under=90
 
+  # The other half of the bilingual boundary (21A §9.4.5, 21B §14.4).
+  #
+  # 21B §14.4 calls this seam "the engine's highest-risk internal seam" because
+  # neither language's type system observes both sides. A CI pipeline that ran
+  # only the Python half would leave exactly the half that catches a truncated
+  # or stale generation ungated — which is the failure the seam is named for.
+  workflow-definitions:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/workflow_engine/workflow_definitions
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm ci
+      - run: npm run build # tsc --noEmit, under `strict`
+      - run: npm test # node --test test/*.test.js
+
   security-scan:
     runs-on: ubuntu-latest
     steps:
@@ -46,6 +78,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: pip install bandit pip-audit
+      - run: pip install bandit==1.7.9 pip-audit
       - run: bandit -r libs services --exclude "*/tests/*"
-      - run: pip-audit || true  # ponytail: non-blocking until a real lockfile exists to audit
+      # Non-blocking until a lockfile exists to audit. Poetry-managed
+      # reproducible builds are a Section 39 Definition-of-Done item that has
+      # not been done, and auditing an absent lockfile would report a clean
+      # result that means nothing.
+      - run: pip-audit || true

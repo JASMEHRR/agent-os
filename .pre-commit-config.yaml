@@ -1,8 +1,18 @@
+# Every version here is pinned to the toolchain the repository is actually
+# developed against, and CI pins the same versions.
+#
+# This matters more than it looks. The hook was previously pinned to ruff
+# v0.4.10 while the local toolchain ran 0.16.1, and the two formatters
+# disagreed — so every commit reformatted files one way and the next local
+# run reformatted them back. A gate that fights the developer is a gate that
+# gets bypassed. One version, three places, no ping-pong.
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.4.10
+    rev: v0.16.1
     hooks:
-      - id: ruff
+      # `ruff-check`, not `ruff`: the latter is a legacy alias in 0.16 and
+      # the hook says so on every run.
+      - id: ruff-check
         args: [--fix]
       - id: ruff-format
 

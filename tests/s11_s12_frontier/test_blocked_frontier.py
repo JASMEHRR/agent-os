@@ -132,9 +132,9 @@ def test_s11_continuity_drills_and_bootstrap_cannot_be_exercised() -> None:
         gateway.bootstrap()
     with pytest.raises(DeploymentBlocked):
         gateway.verify_rollback_readiness("env-primary")
-    assert (
-        environment().resilience.continuity_drill_passed is False
-    ), "no drill has been run, and the manifest says so rather than defaulting to passed"
+    assert environment().resilience.continuity_drill_passed is False, (
+        "no drill has been run, and the manifest says so rather than defaulting to passed"
+    )
 
 
 def test_s11_isolation_by_fault_domain_and_locality_is_declared_not_enforced() -> None:

@@ -651,9 +651,9 @@ def test_cross_subsystem_imports_are_confined_to_the_adapter() -> None:
             stripped = line.strip()
             if not stripped.startswith(("import ", "from ")):
                 continue
-            assert not any(
-                name in stripped for name in foreign
-            ), f"{source.name} imports another subsystem directly; route it through adapters.py"
+            assert not any(name in stripped for name in foreign), (
+                f"{source.name} imports another subsystem directly; route it through adapters.py"
+            )
 
 
 def test_the_journal_chain_is_intact_across_a_compensating_run() -> None:

@@ -322,7 +322,7 @@ def policy(policy_id: str, layer: PolicyLayer, scope: str, **overrides: Any) -> 
 
 
 def test_the_policy_hierarchy_is_enforced_across_layers(governance: GovernanceGateway, steward_token: str) -> None:
-    """15.16 — "Lower layers may elaborate but never contradict higher layers.\" """
+    """15.16 — "Lower layers may elaborate but never contradict higher layers.\""""
     governance.form_policy(
         steward_token,
         policy(

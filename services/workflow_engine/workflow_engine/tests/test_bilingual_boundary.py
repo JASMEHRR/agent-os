@@ -126,9 +126,9 @@ def test_field_names_are_camel_case_on_the_typescript_side() -> None:
     """
     for contract in CONTRACTS:
         for field in contract.fields:
-            assert (
-                "_" not in field.name
-            ), f"{contract.name}.{field.name} is snake_case; the TypeScript side is camelCase"
+            assert "_" not in field.name, (
+                f"{contract.name}.{field.name} is snake_case; the TypeScript side is camelCase"
+            )
 
 
 # --------------------------------------- the TypeScript definition is mirrored
