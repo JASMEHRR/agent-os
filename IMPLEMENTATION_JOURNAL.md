@@ -4,7 +4,7 @@
 
 - **Current Stage:** All thirteen stages S0 through S12 addressed, plus Appendix F (21_PLAN §7). **The build is complete to the extent the Build Specification authorizes.**
 - **Current Module:** none in progress. The remaining Definition-of-Done work is environmental rather than architectural: the CI pipeline must actually execute (Section 39 criterion 2), Poetry-managed reproducible builds, and `docker compose up`. None of it is blocked by anything in this repository
-- **Repository Status:** All 26 modules addressed. 22 implemented to their stage exit criteria; 4 at specification-conformant, construction-blocked status, all blocked by the single unresolved CIR-001. Appendix F is generated from the ratified corpus and self-verifying: 464 non-violable rules extracted, 138 proven by named automated tests, 67 blocked by CIR-001, 12 declared not code-checkable with a stated reason each, and 247 uncovered and reported as such
+- **Repository Status:** All 26 modules addressed. 22 implemented to their stage exit criteria; 4 at specification-conformant, construction-blocked status, all blocked by the single unresolved CIR-001. Appendix F is generated from the ratified corpus and self-verifying: 464 non-violable rules extracted, 146 proven by named automated tests, 102 blocked by CIR-001 (67 about subsystems it blocks, 35 that *are* the CIR-001 question), 32 declared not code-checkable with a stated reason each, and 184 uncovered and reported as such
 - **Overall Progress:** 26 / 26 modules addressed — 22 implemented to their stage exit criteria, 4 at specification-conformant, construction-blocked status. 0 / 26 at full Definition-of-Done, and none is claimed to be
 
 ---
@@ -641,3 +641,30 @@
 
 - **Commit Hash:** (pending)
 - **Notes:** The value of this pass was not the coverage figure but what producing it revealed: the conformance work existed and the index did not, so the system could not answer "which rule does this test prove?" in either direction. It can now, for 138 rules, and it says exactly where it cannot for the other 326.
+
+### 2026-08-24 — Appendix F: document 03, and what CIR-001 actually costs
+
+- **Stage:** programme-level (21_PLAN §7, Appendix F)
+- **Work Item:** Classify document 03's 63 uncovered rules, which were the single largest remaining block.
+- **Files Modified:** `tests/conformance/matrix.py`, `docs/appendix_f_traceability.md` (regenerated), `IMPLEMENTATION_JOURNAL.md`
+- **Tests Added:** 37 (parametrized matrix-integrity cases). Repository total: 1458.
+- **Validation Performed:** `ruff check` and `ruff format --check` clean, `mypy .` (`--strict`) clean in 237 files, `bandit` zero findings, `pytest -q` 1458 passed, coverage 97.54%.
+
+- **The finding this pass produced.** Document 03 is the document CIR-001 is *about*, and its rules split three ways. Nine are satisfied by this build and now name the test that proves them — cursor-only pagination, mandatory idempotency keys, TypeScript workflow definitions, no auto-approval on timeout, no plugin in core process space, no direct LLM provider calls. Twenty-one are enforced by the toolchain or by process rather than by a test. And **thirty-five mandate a specific technology.**
+
+- **Those thirty-five occupy a position no other rules in the corpus do.** Every other blocked rule is blocked *behind* CIR-001: a rule about the Deployment Platform becomes provable the moment a G3/G4 ruling authorizes construction. These are different. Adopting FastAPI to satisfy "All HTTP services must use FastAPI" would resolve, by unilateral interpretation, exactly the conflict Section 6 rule 9 forbids resolving that way — because documents 17, 18 and 19 prohibit constitutional documents from naming technologies, and 03 does. **Satisfying them is the conflict, not work waiting behind it**, and the same ruling that would unblock the Deployment Platform might equally strike them. The matrix now says so per rule, naming the technology each mandates.
+
+- **Reporting them as Uncovered would have been the wrong kind of wrong.** It would have implied a test could fix them. Nothing in this repository can: the remedy is a ruling that could go either way.
+
+- **Every non-proven row now carries its reason.** The renderer previously fell back to a dash, which published 318 rows saying nothing. Blocked rows now state which of the two causes applies and, for a technology mandate, which technology. The header separates the two counts, because collapsing them would hide the distinction this pass exists to draw.
+
+- **Running total:** proven 146, blocked 102 (67 subsystem, 35 technology mandate), not code-checkable 32, uncovered 184. Coverage of currently-testable rules 44.2%, up from 10.8% two passes ago. The not-code-checkable brake still holds with room: 32 against 184.
+
+- **Issues Encountered:** The renderer's dash fallback, above — found by reading the generated document rather than by a test, which is a gap in the guards: nothing asserts that a non-proven row explains itself in the *published* file, only that the row object carries a note. Recorded rather than patched over, since the fix and the finding belong in separate passes.
+
+- **Open Items:**
+  - **184 uncovered rules**, now a genuinely clean number. Document 01 holds 78 of them, all principle-level; documents 10, 12, 15 and 16 hold most of the rest and are the ones most likely to yield to another mapping pass.
+  - No test asserts that the *published* file explains every non-proven row, only that the in-memory row does. A published dash would pass today.
+
+- **Commit Hash:** (pending)
+- **Notes:** The most useful output of this pass is not the coverage number. It is that the system can now state, rule by rule and with the technology named, what an unresolved CIR-001 costs: thirty-five constitutional mandates that cannot be honoured without committing the interpretation the Build Specification reserves for Governance.
