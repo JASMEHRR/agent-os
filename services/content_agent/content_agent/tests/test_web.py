@@ -193,3 +193,51 @@ def test_the_error_body_is_json_so_the_page_can_show_it(server) -> None:
 
     assert status == 500
     assert isinstance(body.get("error"), str) and body["error"]
+
+
+def test_a_request_with_a_foreign_host_header_is_refused(server) -> None:
+    """DNS rebinding.
+
+    Loopback binding stops another machine connecting. It does not stop your
+    browser being told to connect: a page can point a hostname it controls at
+    127.0.0.1 and reach this server carrying its own origin. The rebound
+    request arrives with the attacker's hostname in Host, which is the tell.
+    """
+    port = server.rsplit(":", 1)[1]
+    request = urllib.request.Request(
+        f"{server}/api/state",
+        headers={"Host": f"evil.example:{port}"},
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=10) as response:  # nosec B310
+            raise AssertionError(f"served a rebound request: {response.status}")
+    except urllib.error.HTTPError as exc:
+        assert exc.code == 403
+
+
+def test_a_cross_origin_post_is_refused(server) -> None:
+    """A cross-site form POST needs no preflight, so without this check any
+    page you happened to visit could approve or discard your drafts."""
+    request = urllib.request.Request(
+        f"{server}/api/discard",
+        data=json.dumps({"draft_id": "x"}).encode(),
+        headers={"Content-Type": "application/json", "Origin": "https://evil.example"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=10) as response:  # nosec B310
+            raise AssertionError(f"accepted a cross-origin write: {response.status}")
+    except urllib.error.HTTPError as exc:
+        assert exc.code == 403
+
+
+def test_a_same_origin_post_is_accepted(server) -> None:
+    """The check has to let the real page through, or it is just an outage."""
+    request = urllib.request.Request(
+        f"{server}/api/note",
+        data=json.dumps({"body": GOOD_NOTE}).encode(),
+        headers={"Content-Type": "application/json", "Origin": server},
+        method="POST",
+    )
+    with urllib.request.urlopen(request, timeout=10) as response:  # nosec B310
+        assert response.status == 200

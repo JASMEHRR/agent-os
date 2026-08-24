@@ -34,6 +34,15 @@ PAGE = (pathlib.Path(__file__).parent / "page.html").read_text(encoding="utf-8")
 #: not a default someone should widen for convenience.
 HOST = "127.0.0.1"
 
+#: Host header values this server will answer to.
+#:
+#: Loopback binding stops another machine connecting. It does not stop *your*
+#: browser being told to connect: a page you visit can point a hostname it
+#: controls at 127.0.0.1 and reach this server with its own origin attached.
+#: That is DNS rebinding, and the Host header is what distinguishes it, since
+#: the rebound request carries the attacker's hostname rather than ours.
+ALLOWED_HOSTS = frozenset({"127.0.0.1", "localhost", "[::1]"})
+
 
 def _draft_json(draft: Any) -> dict[str, Any]:
     return {
@@ -78,6 +87,34 @@ class Handler(BaseHTTPRequestHandler):
     def _json(self, payload: Any, status: int = 200) -> None:
         self._send(status, json.dumps(payload).encode("utf-8"), "application/json")
 
+    def _request_is_ours(self) -> bool:
+        """Rejects a request this page did not make.
+
+        Two checks, closing two different holes:
+
+        * **Host.** Loopback binding stops another machine connecting; it does
+          not stop your browser being *told* to connect. A page can point a
+          hostname it controls at 127.0.0.1 and reach us. The rebound request
+          carries the attacker's hostname in Host, so ours not being there is
+          the tell.
+        * **Origin.** A cross-site form POST needs no preflight and would
+          otherwise be able to approve or discard your drafts. Same-origin
+          requests either omit Origin or send ours.
+
+        Not a token scheme. A token would be stronger and would need session
+        state and a way to seed it into the page; for a loopback server with
+        one user, these two headers close the paths that actually exist.
+        """
+        host = self.headers.get("Host", "").rsplit(":", 1)[0]
+        if host not in ALLOWED_HOSTS:
+            return False
+        origin = self.headers.get("Origin")
+        if origin is None:
+            return True
+        port = self.server.server_address[1] if isinstance(self.server.server_address, tuple) else 0
+        allowed = {f"http://{name}:{port}" for name in ALLOWED_HOSTS}
+        return origin in allowed
+
     def _read_json(self) -> dict[str, Any]:
         length = int(self.headers.get("Content-Length", "0"))
         if not length:
@@ -88,6 +125,9 @@ class Handler(BaseHTTPRequestHandler):
     # ---------------------------------------------------------------- Routes
 
     def do_GET(self) -> None:  # noqa: N802 - BaseHTTPRequestHandler's naming
+        if not self._request_is_ours():
+            self._json({"error": "refused"}, 403)
+            return
         try:
             if self.path in ("/", "/index.html"):
                 self._send(200, PAGE.encode("utf-8"), "text/html; charset=utf-8")
@@ -102,10 +142,13 @@ class Handler(BaseHTTPRequestHandler):
             self._json({"error": f"{type(exc).__name__}: {exc}"}, 500)
 
     def do_POST(self) -> None:  # noqa: N802
-        # Drained before routing, including on the 404 path. Replying without
-        # reading the body leaves it unread in the socket, and the client sees
-        # a connection abort rather than the status code that was sent.
+        # Drained before anything else, including on the refusal paths.
+        # Replying without reading the body leaves it in the socket, and the
+        # client sees a connection abort rather than the status that was sent.
         payload = self._read_json()
+        if not self._request_is_ours():
+            self._json({"error": "refused"}, 403)
+            return
         try:
             if self.path == "/api/note":
                 self._note(payload)
