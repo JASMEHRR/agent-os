@@ -2,10 +2,10 @@
 
 ## Project Status
 
-- **Current Stage:** S9 — Adaptation (complete to its exit criterion)
-- **Current Module:** none in progress — next executable work item is Stage S10, Oversight (`governance_gateway`, `observability_gateway` full interpretive profile)
-- **Repository Status:** Layer 0 complete, plus the Trust, Truth, Instrumentation, Economic, Cognition, Authority, Effect, Execution, Orchestration, Human and Adaptation planes. The system observes its own outcomes, attributes them, proposes bounded improvements to the subsystems that own the things being changed, and measures every adoption to confirmation or refutation. It still cannot reach the external ecosystem while CIR-001 blocks the Integration Platform, and has no governance layer until S10
-- **Overall Progress:** 22 / 26 modules addressed — 20 implemented to their stage exit criteria (`kernel`, `core`, `persistence`, `schema_registry`, `security_gateway`, `event_bus`, `observability_gateway` at its ingestion-only profile, `cost_manager`, `memory_gateway`, `knowledge_gateway`, `decision_gateway`, `tool_registry`, `tool_gateway`, `tool_executor`, `llm_router`, `agent_runtime`, `workflow_engine`, `api_gateway`, `human_interface`, `learning_gateway`) and 2 at specification-conformant, construction-blocked status (`integration_registry`, `integration_gateway`, both CIR-001). 0 / 26 at full Definition-of-Done — Section 39 criterion 2 still requires the CI pipeline to actually execute, and Poetry-managed reproducible builds and `docker compose up` do not exist yet
+- **Current Stage:** S10 — Oversight (complete to its exit criterion)
+- **Current Module:** none in progress — next executable work item is Stage S11, Territory (`deployment_registry`, `deployment_gateway`, both expected CIR-001 blocked)
+- **Repository Status:** Layer 0 complete, plus the Trust, Truth, Instrumentation, Economic, Cognition, Authority, Effect, Execution, Orchestration, Human, Adaptation and Oversight planes. The system now governs itself: the policy hierarchy is enforced, compliance is assessed from real subsystem journals by principals who are not accountable for what they assess, drift is quantified and escalated, and Observability interprets rather than merely ingesting. It still cannot reach the external ecosystem while CIR-001 blocks the Integration Platform
+- **Overall Progress:** 23 / 26 modules addressed — 21 implemented to their stage exit criteria (`kernel`, `core`, `persistence`, `schema_registry`, `security_gateway`, `event_bus`, `observability_gateway` **now at its full interpretive profile**, `cost_manager`, `memory_gateway`, `knowledge_gateway`, `decision_gateway`, `tool_registry`, `tool_gateway`, `tool_executor`, `llm_router`, `agent_runtime`, `workflow_engine`, `api_gateway`, `human_interface`, `learning_gateway`, `governance_gateway`) and 2 at specification-conformant, construction-blocked status (`integration_registry`, `integration_gateway`, both CIR-001). 0 / 26 at full Definition-of-Done — Section 39 criterion 2 still requires the CI pipeline to actually execute, and Poetry-managed reproducible builds and `docker compose up` do not exist yet
 
 ---
 
@@ -449,3 +449,52 @@
 
 - **Commit Hash:** (pending)
 - **Notes:** Standing conformance guards added this stage: no adoption verb on the Learning Gateway, the non-violable screen at validation, correlation capped below the propagation floor, failure and success pattern minimums held apart (a test asserts the asymmetry directly so a later edit cannot quietly equalize them), the Recursion Guard's five attack shapes, and cross-subsystem imports confined to a single adapter file.
+
+### 2026-08-24 — Stage S10: Oversight
+
+- **Stage:** S10 — Oversight
+- **Modules:** `governance_gateway` (new), `observability_gateway` (full interpretive profile upgrade)
+- **Work Item:** Realize document 15 in full per 21B §23, and complete document 16 by building the interpretive half 21B §24 deferred at S3. Exit criterion (21_PLAN §4.1): "Policy hierarchy enforced, compliance assessed, drift detected and quantified, interpretations ratified, meta-oversight operating." The Build Specification adds two named clauses: no subsystem may self-certify its own compliance (15.6.1), and Governance can assemble evidence directly from subsystem journals (15.7.2, resolving the Governance/Observability circular dependency).
+- **Files Created:**
+  - `services/governance_gateway/` — `artifacts.py` (the G1-G4 spectrum, the eleven canonical states and their transition guards, the six-layer policy hierarchy, stewardships, exceptions, findings), `gateway.py` (evidence assembly, assessment and ruling, ratification, interpretation, policy hierarchy with contradiction detection, stewardship, reviews and audits, exceptions, drift, overhead), `adapters.py`, `tests/test_governance_gateway.py` (70 tests)
+  - `services/observability_gateway/observability_gateway/interpretive.py` — Correlation Engine, SLI/SLO Registry, Alert Router, and 16.26's constitutional health composition
+  - `services/observability_gateway/observability_gateway/tests/test_interpretive_profile.py` (36 tests)
+  - `tests/s10_oversight/test_s10_exit_criterion.py` (12 tests)
+  - `docs/modules/governance_gateway.md`; `docs/modules/observability_gateway.md` extended with the S10 section
+- **Files Modified:** `conftest.py`, `pyproject.toml`, `services/observability_gateway/observability_gateway/{gateway,__init__}.py`, `tests/s3_integration/test_s3_exit_criterion.py`, `IMPLEMENTATION_JOURNAL.md`
+- **Tests Added:** 107. Repository total: 1044.
+- **Validation Performed:**
+  - `python -m pytest -q` -> 1044 passed
+  - `python -m ruff check libs services tests` -> clean; `ruff format` applied
+  - `python -m mypy .` (`--strict`) -> no issues in 215 source files
+  - `python -m bandit -r libs services --exclude "*/tests/*"` -> zero findings
+  - Coverage 97.49% against the 90% CI gate
+
+- **The circular dependency, resolved rather than worked around.** 21A's graph marks Governance and Observability as mutually dependent. 15.7.2 is the clause that dissolves it: Governance assembles evidence **directly from subsystem journals**, so neither module waits on the other — each reads a third party. The S10 exit suite demonstrates it with real journals: Governance assesses the actual Agent Runtime journal while Observability correlates the actual Human Interface panic journal, and neither call touches the other module.
+
+- **What is structural rather than policy, and the failure each prevents:**
+  - **Meta-oversight holds no execution path.** 15.22.3 permits Governance to declare a subsystem non-compliant and forbids it modifying subsystem internals. Asserted against a forbidden verb set, and demonstrated in the exit suite: a non-compliant finding against an agent leaves the agent's state untouched. That gap is the point — remediation routes through the subsystem's own governance or through human authority.
+  - **No self-certification.** `assess` refuses when the assessing principal holds accountability for the scope being assessed, which is 15.6.1 as a check on the assessor's own stewardship rather than as a docstring. The same rule appears again as 15.25.4 and 15.27.4, both enforced at assignment rather than flagged afterwards, because a compromised review is worth nothing once written.
+  - **Timeout never ratifies**, enforced two ways. Behaviourally `expire_reviews` yields Rejected or Escalated only. Structurally, a test reads that method's own source and asserts the string `RATIFIED` does not appear in it, so a future edit cannot add the path without failing a test even if the edit reads innocuously.
+  - **G4 is checked at formation, not at ratification.** An artifact that reached review would already have a constituency, and withdrawing it then costs more than refusing it at the start.
+  - **The Correlation Engine stores no timeline.** 21B §24.4 requires reconstruction from the journal, because a stored timeline is a second version of what happened: editable, and eventually disagreeing with the record. A test appends between two identical queries and confirms the second reflects it.
+  - **The SLO Registry cannot enforce and the Alert Router cannot remediate.** Both asserted against forbidden verb sets. 16.4 gives Observability no return path into a subsystem, and the interpretive profile is exactly the point at which a read-only subsystem acquires one by accident.
+
+- **Issues Encountered:**
+  1. **Cross-subsystem timeline ordering was non-deterministic.** Journal timestamps have finite resolution, so two entries can tie, and the timeline reordered itself between identical queries. A forensic timeline that does that is useless for precisely the incident it exists to explain. Now sorted by timestamp, then journal sequence, then subsystem name.
+  2. **Assembling evidence from zero subsystems produced a package with neither evidence nor a gap**, which would have let an artifact form on no basis at all. Consulting nothing is not the same as finding nothing, and it is now recorded as a gap (15 rule 1).
+  3. **Three Stage S3 tests asserted the interpretive profile was absent.** They were correct when written and are exactly what this stage invalidates. The absence assertion was inverted to a presence assertion rather than deleted, so the S3 suite still states what it guards; the S3 exit criterion's profile assertion was updated with a note explaining why the string changed and why the criterion itself is unaffected.
+  4. An adapter-confinement test scanned raw file text and matched `security_gateway` where the new module names it as the *subject* of a published SLO. Narrowed to import lines, the same fix applied to another module at S3.
+
+- **Resolution:** All four resolved in-branch.
+
+- **Open Items (deferred, not silently absorbed):**
+  - **Compliance assessment is invoked rather than continuous.** 15.18.2 requires continuous assessment; wiring it to the Event Bus (21B §23.6) is deferred. This is the largest gap in this stage: an overseer that only looks when asked is one that can be avoided by not asking.
+  - Non-violable and contradiction screening is textual, so a proposal phrased to avoid the vocabulary would pass.
+  - 15 rule 19's 60-second failure-alert bound is declared as a constant and not measured against.
+  - Sovereign-class access control for exception and ratification logs (15.29.4) is not separately enforced.
+  - Correlation joins on exact field equality with no trace-context propagation, so a timeline is only as complete as the shared identifiers in the journals.
+  - CIR-008 remains open. The Gateway now measures and reports its own overhead ratio against a 15% working ceiling, which makes the question answerable empirically; it does not answer it.
+
+- **Commit Hash:** (pending)
+- **Notes:** With Observability at its full interpretive profile, the deferral recorded in its S3 journal entry and module docstring is closed. Standing conformance guards added this stage: Governance holds no execution path into any subsystem, no principal certifies or audits a scope they are accountable for, `expire_reviews` has no textual path to Ratified, an orphaned or sunset-less policy cannot form, a lower layer contradicting a higher one is suspended automatically, the Correlation Engine stores nothing, and neither the SLO Registry nor the Alert Router can act on the subsystems they report about.

@@ -1,11 +1,15 @@
-"""Observability Gateway — ingestion-only profile (Stage S3, 21B §24).
+"""Observability Gateway — full interpretive profile (Stages S3 and S10, 21B §24).
 
-Stage S3 builds the ingestion half: Telemetry Ingest, signal enrichment, the
+Stage S3 built the ingestion half: Telemetry Ingest, signal enrichment, the
 journal that makes ingested telemetry durable, a read-only query surface, and
-the Panic Confirmation Listener. The **full interpretive profile is deferred
-to Stage S10** by the build plan — Correlation Engine, health composition,
-anomaly interpretation, dashboards, and the SLI/SLO Registry are not built
-here, and are absent rather than stubbed.
+the Panic Confirmation Listener.
+
+**Stage S10 completes it.** The Correlation Engine, the SLI/SLO Registry,
+alerting and escalation routing, and 16.26's constitutional health composition
+live in `interpretive.py` and are exposed here. This module appears twice in
+the dependency graph by design (Build Spec S10): ingestion-only at Level 3 so
+every subsequent module's Signal Emission has somewhere to land, and the full
+interpretive profile at Level 12 once there is enough system to interpret.
 
 The architectural constraint that governs everything in this module: 16.4 —
 "observability reads the system; it does not steer it." 21B §24.14 sharpens
@@ -19,8 +23,8 @@ mutating verb has crept into the surface.
 | Signal ingestion endpoint  | `ingest` / `sink_for`       | S3      |
 | Query API                  | `query`                     | S3      |
 | Panic Confirmation Signal  | `confirm_halt` / `panic_confirmation` | S3 |
-| Incident Timeline API      | —                           | S10     |
-| SLI/SLO Publication        | —                           | S10     |
+| Incident Timeline API      | `correlate`                 | S10     |
+| SLI/SLO Publication        | `publish_slo` / `record_sli`| S10     |
 """
 
 from __future__ import annotations
@@ -39,6 +43,19 @@ from observability_gateway.ingest import (
     QualityAnomaly,
     SignalRejected,
     TelemetryIngest,
+)
+from observability_gateway.interpretive import (
+    SLO,
+    Alert,
+    AlertRouter,
+    ConstitutionalHealth,
+    CorrelationEngine,
+    IncidentTimeline,
+    Severity,
+    SLIReading,
+    SLORegistry,
+    compose_constitutional_health,
+    default_slos,
 )
 from persistence.in_memory import InMemoryRepository
 
@@ -87,10 +104,17 @@ class HaltConfirmation:
 
 @dataclass
 class ObservabilityGateway:
-    """Ingestion-only profile. Depends on Layer 0 plus Security for query authorization."""
+    """Full interpretive profile. Layer 0 plus Security for query authorization."""
 
     authorizer: QueryAuthorizer
     now: Callable[[], datetime] = field(default=lambda: datetime.now(UTC))
+    #: Category 1 escalation, for a breach severe enough to be an incident.
+    escalate: Callable[[Any, str], None] = field(default=lambda trigger, detail: None)
+    #: Where a critical alert reaches Governance. A notification, never a
+    #: command: 16.4 gives this Gateway no return path into a subsystem.
+    notify_governance: Callable[[Alert], None] = field(default=lambda alert: None)
+    #: 16.14.3 — SLO registry changes are Governance-visible.
+    on_slo_change: Callable[[str, SLO], None] = field(default=lambda action, slo: None)
 
     def __post_init__(self) -> None:
         self.ingest_engine = TelemetryIngest(now=self.now)
@@ -98,6 +122,86 @@ class ObservabilityGateway:
         self.repository: InMemoryRepository[EnrichedSignal] = InMemoryRepository()
         self._halt_confirmations: list[HaltConfirmation] = []
         self._panic_started_at: datetime | None = None
+        # Stage S10 — the interpretive half.
+        self.correlation = CorrelationEngine(now=self.now)
+        self.slos = SLORegistry(on_change=self.on_slo_change)
+        self.alerts = AlertRouter(escalate=self.escalate, notify_governance=self.notify_governance, now=self.now)
+        for slo in default_slos():
+            self.slos.publish(slo)
+
+    # -------------------------------------------- Interpretive profile (S10)
+
+    def register_journal(self, subsystem: str, journal: Any) -> None:
+        """Journal read access for timeline reconstruction (21B §24.6).
+
+        Read access only. A Gateway that could write to a subsystem's journal
+        would be able to author the record it later reports on.
+        """
+        self.correlation.register_journal(subsystem, journal)
+
+    def correlate(self, token: str, tenant_id: str, key: str, value: str) -> IncidentTimeline:
+        """**Incident Timeline API** (21B §24.5). Read-only, reconstructed per query.
+
+        Authorized like every other read: 21B §24.10 leaves no privileged
+        observability bypass of Security, and an incident timeline is among the
+        most revealing things the system can produce.
+        """
+        if not self.authorizer.may_query(token, tenant_id, Sensitivity.RESTRICTED.value):
+            raise QueryNotAuthorized(f"the caller may not read incident timelines for tenant '{tenant_id}'")
+        return self.correlation.correlate(key, value)
+
+    def publish_slo(self, slo: SLO) -> SLO:
+        """**SLI/SLO Publication** (21B §24.5). Informational; not enforced here."""
+        return self.slos.publish(slo)
+
+    def record_sli(self, name: str, observed: float) -> SLIReading:
+        """Records a measurement and alerts on a breach. It does not intervene."""
+        reading = self.slos.record(name, observed, self.now())
+        if not reading.meets_target:
+            self.alerts.raise_alert(
+                f"slo-{name}-{len(self.slos.breaches())}",
+                "all",
+                Severity.WARNING,
+                reading.slo.subsystem,
+                f"{name} observed {observed}{reading.slo.unit} against a {reading.slo.target}{reading.slo.unit} target",
+                ratio=reading.ratio,
+            )
+        return reading
+
+    def raise_alert(
+        self, alert_id: str, tenant_id: str, severity: Severity, subsystem: str, summary: str, **detail: Any
+    ) -> Alert:
+        """Alerting and Escalation (16.16, 16.17). Routes by severity."""
+        return self.alerts.raise_alert(alert_id, tenant_id, severity, subsystem, summary, **detail)
+
+    def constitutional_health(
+        self,
+        tenant_id: str,
+        approvals_required: int,
+        approvals_obtained: int,
+        subsystems_reporting: int,
+        subsystems_total: int,
+        escalations_raised: int,
+        escalations_acknowledged: int,
+    ) -> ConstitutionalHealth:
+        """16.26's constitutional health measurement.
+
+        Evidence for Governance, not a verdict: 15.6.1 makes Governance the
+        only subsystem that may declare compliance, and the returned report
+        says so explicitly rather than leaving a consumer to infer it.
+        """
+        return compose_constitutional_health(
+            tenant_id=tenant_id,
+            at=self.now(),
+            approvals_required=approvals_required,
+            approvals_obtained=approvals_obtained,
+            journal_entries=len(self.journal),
+            journal_intact=self.journal.verify_chain(),
+            subsystems_reporting=subsystems_reporting,
+            subsystems_total=subsystems_total,
+            escalations_raised=escalations_raised,
+            escalations_acknowledged=escalations_acknowledged,
+        )
 
     # ------------------------------------------------------- Signal ingestion
 
@@ -244,7 +348,7 @@ class ObservabilityGateway:
         signals = self.ingest_engine.all_signals()
         lags = sorted(s.ingest_lag_seconds for s in signals)
         return {
-            "profile": "ingestion-only",
+            "profile": "full-interpretive",
             "sensitivity": Sensitivity.SOVEREIGN.value,
             "ingested": self.ingest_engine.ingested_count,
             "anomalies": {
@@ -260,6 +364,9 @@ class ObservabilityGateway:
             "journal_entries": len(self.journal),
             "journal_intact": self.journal.verify_chain(),
             "halt_confirmations": len(self._halt_confirmations),
+            "correlation": {"journals_registered": len(self.correlation.registered())},
+            "slos": self.slos.summary(),
+            "alerting": self.alerts.summary(),
         }
 
     def meets_visibility_slo(self) -> Mapping[str, bool]:

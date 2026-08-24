@@ -176,7 +176,10 @@ def test_s3_exit_criterion(
     assert "cost.circuit_breaker.tripped" in emitted
 
     health = observability.health()
-    assert health["profile"] == "ingestion-only"
+    # The profile reads "full-interpretive" since Stage S10 upgraded this
+    # module. What S3 asserts is unchanged: ingestion works, and the S3 exit
+    # criterion is about telemetry landing, not about interpreting it.
+    assert health["profile"] == "full-interpretive"
     assert health["by_source"]["cost_manager"] > 0
     assert health["by_source"]["synthetic_gateway"] == 4
     assert health["anomalies"]["total"] == 0
