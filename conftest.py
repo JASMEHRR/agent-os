@@ -24,5 +24,7 @@ for lib in (
     "services/llm_router",
     "services/integration_registry",
     "services/integration_gateway",
+    "services/agent_runtime",
+    "services/workflow_engine",
 ):
     sys.path.insert(0, str(ROOT / lib))
