@@ -24,6 +24,7 @@ recording are all construction. Each raises `ConstructionBlocked`.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any, NoReturn
 
@@ -99,6 +100,29 @@ class IntegrationGateway:
                 f"integration '{manifest.integration_id}' has no instance-specific approval; a standing "
                 "order may pre-authorize a class but each instance requires specific approval (17.14.1)"
             )
+
+    # ------------------------------------------ Blocked-status reporting
+
+    def is_blocked(self) -> bool:
+        """Uniform across all three CIR-001-blocked subsystems.
+
+        Three modules each reporting their block differently would be three
+        chances for one to drift; one shape is one thing to check.
+        """
+        return True
+
+    def blocker(self) -> str:
+        return CIR_001
+
+    def health(self) -> Mapping[str, Any]:
+        """Reports the block rather than raising. A health surface that raised
+        would make the blocked status itself unobservable."""
+        return {
+            "status": "specification-conformant, construction-blocked",
+            "blocker": "CIR-001",
+            "construction_authorized": False,
+            "resolution_required_at": "G3 or G4 Governance ruling",
+        }
 
     # ------------------------------------------------ Construction (blocked)
 

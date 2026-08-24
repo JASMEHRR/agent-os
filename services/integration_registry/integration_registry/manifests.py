@@ -12,6 +12,7 @@ integration manifest and contract change."
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import IntEnum, StrEnum
@@ -243,6 +244,29 @@ class IntegrationRegistry:
         for manifest in self._specified.values():
             counts[manifest.provider_name] = counts.get(manifest.provider_name, 0) + 1
         return {provider: round(count / total, 4) for provider, count in counts.items()}
+
+    # ------------------------------------------ Blocked-status reporting
+
+    def is_blocked(self) -> bool:
+        """Uniform across all three CIR-001-blocked subsystems.
+
+        Three modules each reporting their block differently would be three
+        chances for one to drift; one shape is one thing to check.
+        """
+        return True
+
+    def blocker(self) -> str:
+        return CIR_001
+
+    def health(self) -> Mapping[str, Any]:
+        """Reports the block rather than raising. A health surface that raised
+        would make the blocked status itself unobservable."""
+        return {
+            "status": "specification-conformant, construction-blocked",
+            "blocker": "CIR-001",
+            "construction_authorized": False,
+            "resolution_required_at": "G3 or G4 Governance ruling",
+        }
 
     # ------------------------------------------------ Construction (blocked)
 

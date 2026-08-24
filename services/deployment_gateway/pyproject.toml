@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "deployment-gateway"
+version = "0.1.0"
+description = "Agent OS deployment_gateway (Stage S11 - Territory; CIR-001 blocked)."
+authors = ["Agent OS"]
+packages = [{ include = "deployment_gateway" }]
+
+[tool.poetry.dependencies]
+python = ">=3.11,<3.13"
+kernel = { path = "../../libs/kernel", develop = true }
+core = { path = "../../libs/core", develop = true }
+deployment-registry = { path = "../deployment_registry", develop = true }
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2"
+mypy = "^1.10"
+ruff = "^0.4.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

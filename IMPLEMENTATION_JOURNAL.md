@@ -2,10 +2,10 @@
 
 ## Project Status
 
-- **Current Stage:** S10 — Oversight (complete to its exit criterion)
-- **Current Module:** none in progress — next executable work item is Stage S11, Territory (`deployment_registry`, `deployment_gateway`, both expected CIR-001 blocked)
-- **Repository Status:** Layer 0 complete, plus the Trust, Truth, Instrumentation, Economic, Cognition, Authority, Effect, Execution, Orchestration, Human, Adaptation and Oversight planes. The system now governs itself: the policy hierarchy is enforced, compliance is assessed from real subsystem journals by principals who are not accountable for what they assess, drift is quantified and escalated, and Observability interprets rather than merely ingesting. It still cannot reach the external ecosystem while CIR-001 blocks the Integration Platform
-- **Overall Progress:** 23 / 26 modules addressed — 21 implemented to their stage exit criteria (`kernel`, `core`, `persistence`, `schema_registry`, `security_gateway`, `event_bus`, `observability_gateway` **now at its full interpretive profile**, `cost_manager`, `memory_gateway`, `knowledge_gateway`, `decision_gateway`, `tool_registry`, `tool_gateway`, `tool_executor`, `llm_router`, `agent_runtime`, `workflow_engine`, `api_gateway`, `human_interface`, `learning_gateway`, `governance_gateway`) and 2 at specification-conformant, construction-blocked status (`integration_registry`, `integration_gateway`, both CIR-001). 0 / 26 at full Definition-of-Done — Section 39 criterion 2 still requires the CI pipeline to actually execute, and Poetry-managed reproducible builds and `docker compose up` do not exist yet
+- **Current Stage:** S12 — Transformation & Extension (complete to its exit criterion, scoped to what is unblocked). **All thirteen stages S0 through S12 are now addressed.**
+- **Current Module:** none in progress. The remaining work is programme-level rather than stage-level: the Non-Violable Rule to Conformance Test traceability matrix (21_PLAN §7 Appendix F), the Definition-of-Done items of Section 39 that require the CI pipeline to actually execute, Poetry-managed reproducible builds, and `docker compose up`
+- **Repository Status:** All 26 modules addressed across 13 stages. 22 are implemented to their stage exit criteria; 4 are at specification-conformant, construction-blocked status (`integration_registry`, `integration_gateway`, `deployment_registry`/`deployment_gateway`, `evolution_gateway`), all four blocked by the single unresolved CIR-001. The system reasons, decides, remembers, executes, orchestrates, answers to humans, learns from its outcomes and governs itself. It reaches nothing external and runs in no registered environment, and both facts are asserted by test rather than left to be discovered
+- **Overall Progress:** 26 / 26 modules addressed — 22 implemented to their stage exit criteria (`kernel`, `core`, `persistence`, `schema_registry`, `security_gateway`, `event_bus`, `observability_gateway` at its full interpretive profile, `cost_manager`, `memory_gateway`, `knowledge_gateway`, `decision_gateway`, `tool_registry`, `tool_gateway`, `tool_executor`, `llm_router`, `agent_runtime`, `workflow_engine`, `api_gateway`, `human_interface`, `learning_gateway`, `governance_gateway`, `plugin_manager`) and 4 at specification-conformant, construction-blocked status. 0 / 26 at full Definition-of-Done — Section 39 criterion 2 still requires the CI pipeline to actually execute, and Poetry-managed reproducible builds and `docker compose up` do not exist yet
 
 ---
 
@@ -498,3 +498,52 @@
 
 - **Commit Hash:** (pending)
 - **Notes:** With Observability at its full interpretive profile, the deferral recorded in its S3 journal entry and module docstring is closed. Standing conformance guards added this stage: Governance holds no execution path into any subsystem, no principal certifies or audits a scope they are accountable for, `expire_reviews` has no textual path to Ratified, an orphaned or sunset-less policy cannot form, a lower layer contradicting a higher one is suspended automatically, the Correlation Engine stores nothing, and neither the SLO Registry nor the Alert Router can act on the subsystems they report about.
+
+### 2026-08-24 — Stages S11 and S12: Territory, Transformation & Extension
+
+- **Stages:** S11 — Territory; S12 — Transformation & Extension
+- **Modules:** `deployment_registry`, `deployment_gateway`, `evolution_gateway` (all three **specification-conformant, construction-blocked**); `plugin_manager` (built)
+- **Work Item:** Specify document 18 per 21B §25 and document 19 per 21B §26 to the extent Build Spec Section 6 authorizes, and build the Plugin Manager (02.3.10, 01.18.2), which is not blocked. Both stages' exit criteria are scoped by the Build Specification to "whatever is unblocked".
+- **Files Created:**
+  - `services/deployment_registry/` — `manifests.py` (18.8.2's manifest field for field, D1-D4 risk tiers mapped to E1-E4 authority, sovereignty tiers, the lifecycle machine, environment class policies, promotion authority), `registry.py`
+  - `services/deployment_gateway/` — `gateway.py` (the promotion sequence and its ordering properties, the gates of 18.9.2, `unbacked_environments`)
+  - `services/evolution_gateway/` — `gateway.py` (the pipeline of 21B §26.4, artifact classes, proposal states, the Confirmed-only learning gate, `ratification_verbs`)
+  - `services/plugin_manager/` — `manager.py` (manifest schema, permission intersection, lifecycle machine, sandbox contract, automatic quarantine)
+  - `services/deployment_registry/.../tests/test_deployment_platform.py` (50 tests)
+  - `services/plugin_manager/.../tests/test_s12.py` (45 tests, covering both S12 modules)
+  - `tests/s11_s12_frontier/test_blocked_frontier.py` (15 tests)
+  - `docs/modules/deployment_platform.md`, `docs/modules/evolution_and_plugins.md`
+- **Files Modified:** `conftest.py`, `pyproject.toml`, `services/integration_registry/.../manifests.py` and `services/integration_gateway/.../gateway.py` (uniform blocked-status surface), `IMPLEMENTATION_JOURNAL.md`
+- **Tests Added:** 110. Repository total: 1154.
+- **Validation Performed:**
+  - `python -m pytest -q` -> 1154 passed
+  - `python -m ruff check libs services tests` -> clean; `ruff format` applied
+  - `python -m mypy .` (`--strict`) -> no issues in 232 source files
+  - `python -m bandit -r libs services --exclude "*/tests/*"` -> zero findings
+  - Coverage 97.54% against the 90% CI gate
+
+- **Why the Deployment block is the one that matters most.** `18.2` calls deployment "the last constitutional checkpoint before code becomes behavior". Every guarantee the preceding ten stages specified — the six authority boundaries, the permission intersection, the five-second panic bound — is only as real as the deployment path that puts it into production. A Deployment Platform built on a guessed answer to CIR-001 would place all of them onto a substrate chosen by inference. That is why the block is honoured rather than worked around, and it is the clearest justification in the whole build for Section 6 rule 9's prohibition on unilateral interpretation.
+
+- **What was built anyway, and it is not small.** The manifest schema of 18.8.2 field for field with real validation; D1-D4 mapped one-to-one to E1-E4 with E4 human-only; the constraint that D4 — which hosts the Security and Governance Gateways themselves — may not sit on a substrate shared across organizational boundaries; the environment class policies of 18.9.2 with rollback readiness required at *every* tier, since there is no class of deployment for which being unable to undo it is acceptable; and the ordering properties asserted against the declared sequence, so that rollback-before-authorization (18.13) and policy-before-decision (18.12, "cannot be satisfied retroactively") survive as reviewable artifacts while construction is blocked.
+
+- **Evolution's defining absence.** `19.3`: Evolution "packages; it does not ratify." A test asserts `ratify`, `approve`, `amend`, `enact`, `adopt` and `commit_amendment` are all absent from the Gateway. That absence is what resolves the Evolution/Governance circular dependency — the edge from Evolution back to ratification does not exist, so 19.16.2's unidirectional handoff is structural rather than agreed. Also enforced: the Recursion Guard precedes packaging (a self-referential proposal reaching Governance would arrive carrying Evolution's own endorsement of a change to Evolution's own bounds), compensation is framed before packaging, and only **Confirmed** learning entries are consumable — never Adopted-but-unconfirmed, because amending a constitutional bound on evidence that might still be refuted is precisely the failure that gate prevents.
+
+- **The Plugin Manager is built for real, and is bounded rather than trusted.** 01.18.2 acknowledges plugin quality is outside core control, so the manager's job is containment. Isolation is structural twice over: `SandboxTier` has no in-process member (an enum value nobody can select beats a check somebody can forget), and the manager holds no verb that executes plugin code at all — a caller that invokes one reports back through `record_invocation`, so reliability is visible without the manager holding a call path. Permissions are the intersection of manifest request and human grant, never the union and never the request alone; granting a permission the manifest never declared is refused rather than ignored, because the mismatch means the operator and the manifest disagree about what the plugin does.
+
+- **The blocked frontier, asserted as one fact.** `tests/s11_s12_frontier/` states which subsystems are blocked, that exactly three are, that all four modules raise rather than no-op, that all name the same G3/G4 ruling, and — most importantly — the two honest consequences: the system reaches nothing external (`UnbackedIntegrationSource`) and runs in no registered environment (`unbacked_environments`). It also names, clause by clause, which parts of the S11 and S12 exit criteria **cannot** be satisfied. A stage marked complete with no test naming what it could not do would be the silent conversion to Done that Section 24 forbids.
+
+- **Issues Encountered:**
+  1. **The three blocked subsystems reported their block three different ways.** Integration had no `is_blocked`, no `blocker` and no `health`; Deployment and Evolution had all three. Three modules each handling the block differently is three chances for one to drift into a quiet no-op, so the S6 Integration modules were given the same surface. The frontier test now checks all four uniformly, which is the check that would have caught the drift.
+  2. A frontier test called `UnbackedIntegrationSource.is_backed` with one argument where it takes two; corrected against the real signature rather than by loosening the assertion.
+
+- **Resolution:** Both resolved in-branch.
+
+- **Open Items (deferred, not silently absorbed):**
+  - **Everything above the specification line in all four blocked modules**, pending a G3 or G4 Governance ruling on CIR-001. This is now the single largest open item in the programme, and it is one decision rather than four.
+  - The Plugin Manager validates a sandbox **contract** and does not enforce it: resource limits and the egress allowlist are declared and unenforced, because there is no container runtime. This is the same gap the Tool Executor carries from S6.
+  - Plugin API exposure through the API Gateway (02.3.10) is not wired, and no plugin is actually subscribed to the Event Bus, since delivery would cross the process boundary the runtime does not provide.
+  - Deployment trust scores (18.6.1) are specified and not computed; there is nothing operating to score.
+  - The Environment Abstraction Layer (18.6.3) is expressed as a manifest field; the mapping to substrate capabilities is the part CIR-001 blocks.
+
+- **Commit Hash:** (pending)
+- **Notes:** With S12 addressed, all thirteen stages S0 through S12 have been built to the extent the Build Specification authorizes. The remaining work is programme-level: the Non-Violable Rule to Conformance Test traceability matrix (21_PLAN §7 Appendix F), and the Section 39 Definition-of-Done items that require the CI pipeline to execute, Poetry-managed reproducible builds, and `docker compose up`. No module is at full Definition-of-Done and none is claimed to be.
