@@ -26,5 +26,7 @@ for lib in (
     "services/integration_gateway",
     "services/agent_runtime",
     "services/workflow_engine",
+    "services/api_gateway",
+    "services/human_interface",
 ):
     sys.path.insert(0, str(ROOT / lib))

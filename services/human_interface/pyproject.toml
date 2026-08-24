@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "human-interface"
+version = "0.1.0"
+description = "Agent OS human_interface (Stage S8 - Human Plane)."
+authors = ["Agent OS"]
+packages = [{ include = "human_interface" }]
+
+[tool.poetry.dependencies]
+python = ">=3.11,<3.13"
+kernel = { path = "../../libs/kernel", develop = true }
+core = { path = "../../libs/core", develop = true }
+security-gateway = { path = "../security_gateway", develop = true }
+decision-gateway = { path = "../decision_gateway", develop = true }
+workflow-engine = { path = "../workflow_engine", develop = true }
+agent-runtime = { path = "../agent_runtime", develop = true }
+observability-gateway = { path = "../observability_gateway", develop = true }
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2"
+mypy = "^1.10"
+ruff = "^0.4.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
