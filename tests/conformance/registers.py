@@ -85,6 +85,12 @@ MODULE_STAGES: dict[str, str] = {
     "deployment_gateway": "S11",
     "evolution_gateway": "S12",
     "plugin_manager": "S12",
+    # A1 is not a Build Specification stage. The plan's thirteen stages build
+    # the platform; this is the first module built *on* it, and calling it S13
+    # would imply the plan named it. "Application, first" is the honest label,
+    # and the register showing a stage the build plan does not contain is the
+    # correct way to say that this was built outside it.
+    "content_agent": "A1",
 }
 
 #: Modules whose construction CIR-001 blocks.
@@ -184,6 +190,7 @@ MODULE_FACADES: dict[str, str] = {
     "deployment_gateway": "DeploymentGateway",
     "evolution_gateway": "EvolutionGateway",
     "plugin_manager": "PluginManager",
+    "content_agent": "ContentStudio",
 }
 
 
@@ -267,6 +274,7 @@ DATA_OWNERSHIP: dict[str, tuple[str, ...]] = {
     "plugin_manager": ("plugin manifests", "plugin grants", "plugin journal"),
     "llm_router": ("prompt templates", "response cache", "router journal"),
     "tool_executor": ("sandboxes", "execution records", "executor journal"),
+    "content_agent": ("weekly notes", "post drafts"),
 }
 
 

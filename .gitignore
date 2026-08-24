@@ -58,3 +58,6 @@ tmp/
 
 # Secrets - never committed. See .env.example
 .env
+agent.db
+agent.db-wal
+agent.db-shm

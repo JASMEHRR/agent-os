@@ -34,5 +34,6 @@ for lib in (
     "services/deployment_gateway",
     "services/evolution_gateway",
     "services/plugin_manager",
+    "services/content_agent",
 ):
     sys.path.insert(0, str(ROOT / lib))

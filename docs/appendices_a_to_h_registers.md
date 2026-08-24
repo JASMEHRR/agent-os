@@ -14,7 +14,7 @@ refuse, fails the suite. A declaration nothing checks is a wish.
 
 ## Appendix A - Module Register
 
-27 modules, 0 construction-blocked by CIR-001.
+28 modules, 0 construction-blocked by CIR-001.
 
 | Module | Layer | Stage | Status | Source files | Tests |
 |---|---|---|---|---|---|
@@ -23,6 +23,7 @@ refuse, fails the suite. A declaration nothing checks is a wish.
 | `persistence` | libs | S0 | implemented to stage exit criteria | 4 | 16 |
 | `agent_runtime` | services | S7 | implemented to stage exit criteria | 3 | 45 |
 | `api_gateway` | services | S8 | implemented to stage exit criteria | 6 | 44 |
+| `content_agent` | services | A1 | implemented to stage exit criteria | 3 | 20 |
 | `cost_manager` | services | S3 | implemented to stage exit criteria | 3 | 28 |
 | `decision_gateway` | services | S5 | implemented to stage exit criteria | 4 | 62 |
 | `deployment_gateway` | services | S11 | implemented to stage exit criteria | 1 | 0 |
@@ -48,7 +49,7 @@ refuse, fails the suite. A declaration nothing checks is a wish.
 
 ## Appendix B - Interface Register
 
-349 public methods across 23 Gateway facades,
+356 public methods across 24 Gateway facades,
 read by introspection so a rename cannot go unrecorded.
 
 | Module | Facade | Method |
@@ -69,6 +70,13 @@ read by introspection so a rename cannot go unrecorded.
 | `api_gateway` | `APIGateway` | `now()` |
 | `api_gateway` | `APIGateway` | `register_route(self, route: 'Route') -> 'Route'` |
 | `api_gateway` | `APIGateway` | `request_ids()` |
+| `content_agent` | `ContentStudio` | `approve(self, draft_id: 'str', principal_id: 'str') -> 'PostDraft'` |
+| `content_agent` | `ContentStudio` | `awaiting_approval(self) -> 'list[PostDraft]'` |
+| `content_agent` | `ContentStudio` | `capture(self, body: 'str', angle: 'str' = '') -> 'WeeklyNote'` |
+| `content_agent` | `ContentStudio` | `discard(self, draft_id: 'str') -> 'PostDraft'` |
+| `content_agent` | `ContentStudio` | `draft(self, note: 'WeeklyNote') -> 'PostDraft'` |
+| `content_agent` | `ContentStudio` | `health(self) -> 'dict[str, Any]'` |
+| `content_agent` | `ContentStudio` | `needs_attention(self) -> 'list[PostDraft]'` |
 | `cost_manager` | `CostManager` | `allocate(self, scope: 'BudgetScope', tenant_id: 'str', limit: 'float') -> 'None'` |
 | `cost_manager` | `CostManager` | `attribution(self, scope: 'BudgetScope | None' = None, principal_id: 'str | None' = None, tenant_id: 'str | None' = None) -> 'Mapping[str, Any]'` |
 | `cost_manager` | `CostManager` | `check(self, scope: 'BudgetScope', tenant_id: 'str', estimated_cost: 'float' = 0.0, dependency: 'str | None' = None) -> 'BudgetVerdict'` |
@@ -412,6 +420,7 @@ rather than restatements; both are explained in the source.
 |---|---|
 | `agent_runtime` | agent manifests, reputation, drift baselines, agent journal |
 | `api_gateway` | routes, rate-limit buckets, idempotency keys, ingress journal |
+| `content_agent` | weekly notes, post drafts |
 | `cost_manager` | budgets, ledger entries, circuit breakers |
 | `decision_gateway` | decision records, standing orders (11.19 pre-authorization), decision journal |
 | `event_bus` | event streams, consumer groups, dead letters |

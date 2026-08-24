@@ -9,12 +9,12 @@ select = ["E", "F", "I", "UP", "B"]
 [tool.ruff.lint.isort]
 # Layer 0 libs and deployable modules are first-party; without this ruff sorts
 # them into the third-party block and fights the import layout.
-known-first-party = ["kernel", "core", "persistence", "schema_registry", "security_gateway", "event_bus", "observability_gateway", "cost_manager", "memory_gateway", "knowledge_gateway", "decision_gateway", "tool_registry", "tool_gateway", "tool_executor", "llm_router", "integration_registry", "integration_gateway", "agent_runtime", "workflow_engine", "api_gateway", "human_interface", "learning_gateway", "governance_gateway", "deployment_registry", "deployment_gateway", "evolution_gateway", "plugin_manager"]
+known-first-party = ["kernel", "core", "persistence", "schema_registry", "security_gateway", "event_bus", "observability_gateway", "cost_manager", "memory_gateway", "knowledge_gateway", "decision_gateway", "tool_registry", "tool_gateway", "tool_executor", "llm_router", "integration_registry", "integration_gateway", "agent_runtime", "workflow_engine", "api_gateway", "human_interface", "learning_gateway", "governance_gateway", "deployment_registry", "deployment_gateway", "evolution_gateway", "plugin_manager", "content_agent"]
 
 [tool.mypy]
 python_version = "3.11"
 strict = true
-mypy_path = "libs/kernel:libs/core:libs/persistence:services/schema_registry:services/security_gateway:services/event_bus:services/observability_gateway:services/cost_manager:services/memory_gateway:services/knowledge_gateway:services/decision_gateway:services/tool_registry:services/tool_gateway:services/tool_executor:services/llm_router:services/integration_registry:services/integration_gateway:services/agent_runtime:services/workflow_engine:services/api_gateway:services/human_interface:services/learning_gateway:services/governance_gateway:services/deployment_registry:services/deployment_gateway:services/evolution_gateway:services/plugin_manager"
+mypy_path = "libs/kernel:libs/core:libs/persistence:services/schema_registry:services/security_gateway:services/event_bus:services/observability_gateway:services/cost_manager:services/memory_gateway:services/knowledge_gateway:services/decision_gateway:services/tool_registry:services/tool_gateway:services/tool_executor:services/llm_router:services/integration_registry:services/integration_gateway:services/agent_runtime:services/workflow_engine:services/api_gateway:services/human_interface:services/learning_gateway:services/governance_gateway:services/deployment_registry:services/deployment_gateway:services/evolution_gateway:services/plugin_manager:services/content_agent"
 exclude = "(ARCHITECTURE_BASELINE|files)"
 
 [[tool.mypy.overrides]]
