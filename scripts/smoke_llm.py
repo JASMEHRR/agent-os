@@ -25,6 +25,9 @@ import sys
 REPO = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
 import conftest  # noqa: E402, F401 - imported for the sys.path setup it performs
+from scripts.env_file import load as load_env  # noqa: E402
+
+load_env()
 from llm_router.backends import (  # noqa: E402 - after the path setup above
     BackendNotConfigured,
     TierRateLimited,
