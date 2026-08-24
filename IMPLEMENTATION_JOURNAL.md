@@ -4,7 +4,7 @@
 
 - **Current Stage:** All thirteen stages S0 through S12 addressed, plus Appendix F (21_PLAN §7). **The build is complete to the extent the Build Specification authorizes.**
 - **Current Module:** none in progress. The remaining Definition-of-Done work is environmental rather than architectural: the CI pipeline must actually execute (Section 39 criterion 2), Poetry-managed reproducible builds, and `docker compose up`. None of it is blocked by anything in this repository
-- **Repository Status:** All 26 modules addressed. 22 implemented to their stage exit criteria; 4 at specification-conformant, construction-blocked status, all blocked by the single unresolved CIR-001. Appendix F is generated from the ratified corpus and self-verifying: 464 non-violable rules extracted, 146 proven by named automated tests, 102 blocked by CIR-001 (67 about subsystems it blocks, 35 that *are* the CIR-001 question), 32 declared not code-checkable with a stated reason each, and 184 uncovered and reported as such
+- **Repository Status:** All 26 modules addressed. 22 implemented to their stage exit criteria; 4 at specification-conformant, construction-blocked status, all blocked by the single unresolved CIR-001. Appendix F is generated from the ratified corpus and self-verifying: 464 non-violable rules extracted, 237 proven by named automated tests, 102 blocked by CIR-001 (67 about subsystems it blocks, 35 that *are* the CIR-001 question), 32 declared not code-checkable with a stated reason each, and 93 uncovered and reported as such. 71.8% of currently-testable rules are proven
 - **Overall Progress:** 26 / 26 modules addressed — 22 implemented to their stage exit criteria, 4 at specification-conformant, construction-blocked status. 0 / 26 at full Definition-of-Done, and none is claimed to be
 
 ---
@@ -668,3 +668,29 @@
 
 - **Commit Hash:** (pending)
 - **Notes:** The most useful output of this pass is not the coverage number. It is that the system can now state, rule by rule and with the technology named, what an unresolved CIR-001 costs: thirty-five constitutional mandates that cannot be honoured without committing the interpretation the Build Specification reserves for Governance.
+
+### 2026-08-24 — Appendix F: the module graph, and closing the guard gap
+
+- **Stage:** programme-level (21_PLAN §7, Appendix F; 01.18 architectural rules)
+- **Work Item:** Close the published-file guard gap recorded last pass, map the remaining subsystem rules, and write the conformance test document 01's architectural rules needed and did not have.
+- **Files Created:** `tests/conformance/test_module_graph.py` (31 tests)
+- **Files Modified:** `tests/conformance/matrix.py`, `tests/conformance/test_appendix_f.py`, `services/knowledge_gateway/knowledge_gateway/adapters.py`, `docs/appendix_f_traceability.md` (regenerated), `IMPLEMENTATION_JOURNAL.md`
+- **Tests Added:** 164. Repository total: 1622.
+- **Validation Performed:** `ruff check` and `ruff format --check` clean, `mypy .` (`--strict`) clean in 238 files, `bandit` zero findings, `pytest -q` 1622 passed, coverage 97.54%.
+
+- **The guard gap from last pass is closed, and closing it corrected the guard's own premise.** The first attempt demanded every non-proven row publish a reason, and failed against 184 uncovered rows. That failure was right and my test was wrong: a rule marked blocked or not-code-checkable is **claiming an exemption** and owes a justification a reader can dispute; a rule marked uncovered is **admitting nobody tested it**, and the state is the whole story. Demanding prose there would have produced 184 restatements of the word "uncovered". The guard is now scoped to excused rows, where it belongs.
+
+- **The module graph test is the one document 01 needed and no module could provide.** 01.18 forbids circular dependencies between modules and forbids a module invoking another's internals. Every module asserts the second locally through its adapter convention; **none of them can assert the first at all**, because a cycle needs two modules to exist and every module in one looks correct on its own. The graph is read from import statements rather than from a maintained list — a maintained list is a second description of the architecture, and when it disagrees with the imports it is the imports that are true. The result: **no cycles across 26 modules**, and Layer 0 imports nothing above it.
+
+- **The internals test was wrong before it was right, and the failure was instructive.** As first written it flagged 130 imports, nearly all of the form `from kernel.journal import ImmutableJournal`. Those are correct: Layer 0 is a library of individually named mechanisms — 21A §5.2 names the nine kernel mechanisms separately — not a peer module with a Gateway interface. A test that condemned the established convention across the whole codebase was measuring the wrong thing. Corrected to check Gateway-to-Gateway imports, which is what 01.18 is about.
+
+- **One genuine finding survived that correction.** `knowledge_gateway/adapters.py` imported `from memory_gateway.entries import MemoryState` while `MemoryState` is published on `memory_gateway.__all__` — the submodule path taken unnecessarily, which diverges from the published surface the moment that `__init__` is curated. Fixed to use the published import.
+
+- **Three mapping passes this session took coverage from 10.8% to 71.8% of currently-testable rules**, 43 proven to 237, without weakening a single definition. Uncovered fell from 354 to 93. The largest single contributor was recognising that several documents state the same rule independently — the 60-second failure-classification bound appears in 04, 05, 07, 11, 14, 15 and 16, and one kernel mechanism satisfies all seven.
+
+- **Open Items:**
+  - **93 uncovered rules.** Document 01 holds 67 of them, and they are the genuinely principle-level ones: local-first operation without internet, no closed-source dependency without an API-compatible alternative, decomposition of agents spanning business domains. Several are testable with work; several are architectural commitments a running system would demonstrate rather than a test assert.
+  - The `import_graph` helper accepts an `include_tests` flag that nothing currently passes. Test-only imports legitimately cross module boundaries, so including them would produce false cycles; the flag exists for a future caller who wants the wider view and is unused today.
+
+- **Commit Hash:** (pending)
+- **Notes:** The module graph test is the first conformance test in this repository that asserts a property of the architecture rather than of a module. It found no violation, which is the outcome worth having: the layering held across thirteen stages without anything checking it, and now something does.

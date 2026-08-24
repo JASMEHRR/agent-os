@@ -216,5 +216,51 @@ def test_the_published_appendix_matches_the_generator() -> None:
     )
 
 
+def test_every_excused_row_justifies_itself_in_the_published_file() -> None:
+    """The guard the previous pass found missing by reading rather than testing.
+
+    `test_every_row_has_a_coverage_state_and_proven_rows_name_tests` checks the
+    in-memory row carries a note. Nothing checked the note survived into the
+    published table — and it had not: the renderer fell back to a dash. The row
+    object was correct and the document was useless, which is exactly what a
+    test on the object alone cannot see.
+
+    Scoped to **excused** rows, not all non-proven ones. A rule marked blocked
+    or not-code-checkable is claiming an exemption and owes a justification a
+    reader can dispute. A rule marked uncovered is admitting nobody tested it,
+    and the state is the whole story — demanding prose there would produce 184
+    restatements of the word "uncovered".
+    """
+    excused = {Coverage.BLOCKED.value, Coverage.NOT_CODE_CHECKABLE.value}
+    published = PUBLISHED.read_text(encoding="utf-8").splitlines()
+    rows = [line for line in published if line.startswith("| `")]
+    assert rows, "the published appendix has no rows"
+
+    silent: list[str] = []
+    for line in rows:
+        cells = [cell.strip() for cell in line.strip("|").split("|")]
+        rule_id, coverage, reason = cells[0].strip("`"), cells[1], cells[2]
+        if coverage in excused and (reason in ("", "—") or len(reason) < 30):
+            silent.append(rule_id)
+    assert not silent, (
+        f"{len(silent)} rows claim an exemption without publishing a justification, starting with "
+        f"{silent[:5]}; an exemption a reader cannot dispute is not an exemption"
+    )
+
+
+def test_every_proven_row_names_its_tests_in_the_published_file() -> None:
+    """The same check in the other direction.
+
+    A proven row whose test column rendered empty would claim coverage without
+    saying by what, which is the shape of an unfalsifiable claim.
+    """
+    for line in PUBLISHED.read_text(encoding="utf-8").splitlines():
+        if not line.startswith("| `"):
+            continue
+        cells = [cell.strip() for cell in line.strip("|").split("|")]
+        if cells[1] == Coverage.PROVEN.value:
+            assert "`test_" in cells[2], f"{cells[0]} is published as proven but names no test"
+
+
 def test_the_published_appendix_warns_against_hand_editing() -> None:
     assert "Do not edit by hand" in PUBLISHED.read_text(encoding="utf-8")

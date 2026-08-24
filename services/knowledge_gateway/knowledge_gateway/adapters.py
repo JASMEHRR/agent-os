@@ -13,8 +13,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from memory_gateway import MemoryGateway
-from memory_gateway.entries import MemoryState
+from memory_gateway import MemoryGateway, MemoryState
 from security_gateway import AuthorizationRequest, Decision, PrincipalType, SecurityGateway
 
 QUERY_PREFIX = "knowledge.query"
