@@ -2,10 +2,10 @@
 
 ## Project Status
 
-- **Current Stage:** S6 — Effect (implementation complete for the four unblocked modules; Integration Platform specification-conformant, construction-blocked)
-- **Current Module:** none in progress — S6 exit criterion met for the unblocked modules; next executable work item is Stage S7, FIRST LIGHT (`agent_runtime`, `workflow_engine`)
-- **Repository Status:** Layer 0 complete, plus the Trust, Truth, Instrumentation, Economic, Cognition, Authority and Effect planes. The system can reason, decide, remember and invoke internal tools; it cannot reach the external ecosystem while CIR-001 blocks the Integration Platform
-- **Overall Progress:** 17 / 26 modules addressed — 15 implemented to their stage exit criteria (`kernel`, `core`, `persistence`, `schema_registry`, `security_gateway`, `event_bus`, `observability_gateway` at its ingestion-only profile, `cost_manager`, `memory_gateway`, `knowledge_gateway`, `decision_gateway`, `tool_registry`, `tool_gateway`, `tool_executor`, `llm_router`) and 2 at specification-conformant, construction-blocked status (`integration_registry`, `integration_gateway`, both CIR-001). 0 / 26 at full Definition-of-Done — Section 39 criterion 2 still requires the CI pipeline to actually execute, and Poetry-managed reproducible builds and `docker compose up` do not exist yet
+- **Current Stage:** S7 — FIRST LIGHT (complete; the organizing milestone of 21A §2.2.4 is met)
+- **Current Module:** none in progress — next executable work item is Stage S8, the Human Plane (`api_gateway`, `human_interface`)
+- **Repository Status:** Layer 0 complete, plus the Trust, Truth, Instrumentation, Economic, Cognition, Authority, Effect, Execution and Orchestration planes. One registered agent executes one task inside one durable workflow, invoking one tool through the full mediation chain, with one human approval gate, one saga compensation path, and complete lineage from human authority to external effect. The system still cannot reach the external ecosystem while CIR-001 blocks the Integration Platform, and has no human-facing surface until S8
+- **Overall Progress:** 19 / 26 modules addressed — 17 implemented to their stage exit criteria (`kernel`, `core`, `persistence`, `schema_registry`, `security_gateway`, `event_bus`, `observability_gateway` at its ingestion-only profile, `cost_manager`, `memory_gateway`, `knowledge_gateway`, `decision_gateway`, `tool_registry`, `tool_gateway`, `tool_executor`, `llm_router`, `agent_runtime`, `workflow_engine`) and 2 at specification-conformant, construction-blocked status (`integration_registry`, `integration_gateway`, both CIR-001). 0 / 26 at full Definition-of-Done — Section 39 criterion 2 still requires the CI pipeline to actually execute, and Poetry-managed reproducible builds and `docker compose up` do not exist yet
 
 ---
 
@@ -316,3 +316,46 @@
 
 - **Commit Hash:** (pending)
 - **Notes:** Section 39 status for the four unblocked modules is **implementation complete, gates pending**; for the two blocked modules it is **specification-conformant, construction-blocked**, which is a distinct status and not a step toward Done. Standing conformance guards added this stage: the Registry exposes no dispatch verb (12.6.1), the Executor exposes no authority verb (12.6.3, 12.17.4), every Integration construction verb raises, and each module's cross-subsystem imports are confined to a single adapter file. The three-way Registry/Gateway/Executor separation that 12.6 mandates is therefore enforced by test rather than by convention.
+
+### 2026-08-24 — Stage S7: FIRST LIGHT
+
+- **Stage:** S7 — First Light (the organizing milestone, 21A §2.2.4)
+- **Modules:** `agent_runtime`, `workflow_engine`, plus the TypeScript `workflow_definitions` package
+- **Work Item:** Realize documents 05, 06 and 07 per 21B §13 and §14, and satisfy the S7 exit criterion verbatim: "One registered agent executes one task inside one durable workflow, invoking one tool through the full mediation chain, with one human approval gate, one saga compensation path, and complete lineage from human authority to external effect."
+- **Files Created:**
+  - `services/agent_runtime/` — `identity.py` (the durable Identity Plane: lifecycle machine, the six authority boundaries of 06.9.6, manifest loader, reputation engine, drift monitor), `runtime.py` (the stateless Execution Plane), `adapters.py`, `tests/test_agent_runtime.py` (45 tests)
+  - `services/workflow_engine/` — `dag.py` (workflow states, Execution DAG, Planning validation, worst-case budget), `engine.py` (trigger, plan, advance, human gates, saga compensation, replay, health), `schema.py` (single source of truth for the bilingual boundary), `adapters.py`, `tests/test_workflow_engine.py` (34 tests), `tests/test_bilingual_boundary.py` (16 tests)
+  - `services/workflow_engine/workflow_definitions/` — TypeScript package: `src/contracts.ts` (generated), `src/firstLight.ts` (the authored DAG), `src/determinism.ts`, `test/firstLight.test.js` (9 tests), `package.json`, `tsconfig.json` (`strict`)
+  - `tests/s7_first_light/test_first_light.py` — 7 tests, retained as the system's standing regression surface
+  - `docs/modules/agent_runtime.md`, `docs/modules/workflow_engine.md`
+- **Files Modified:** `conftest.py`, `pyproject.toml`, `IMPLEMENTATION_JOURNAL.md`
+- **Tests Added:** 102 Python (repository total 703) plus 9 TypeScript.
+- **Validation Performed:**
+  - `python -m pytest -q` -> 703 passed
+  - `python -m ruff check libs services tests` -> clean; `ruff format` applied
+  - `python -m mypy .` (`--strict`) -> no issues in 176 source files
+  - `python -m bandit -r libs services --exclude "*/tests/*"` -> zero findings
+  - Coverage 97.26% against the 90% CI gate
+  - `node --test test/*.test.js` -> 9 passed; `npx tsc --noEmit` clean under `strict`
+
+- **First Light, wired for real.** The exit-criterion test stubs only two things: the model backend and the tool body, which are the two things that would otherwise reach outside the process. Everything else participates genuinely — Security authenticates and authorizes, Memory hydrates, Knowledge grounds, Decision gates, Cost meters and pre-allocates, the Tool Platform mediates with real secret injection, the LLM Router runs its ten-stage pipeline, the Runtime executes and the Engine orchestrates. The test drives: a human authorizes a Class C decision; the workflow triggers; Planning binds the agent and pre-allocates the worst-case budget; the agent executes; the workflow pauses on the human gate releasing its resources with nothing yet published; approval resumes it; the tool executes through the full mediation chain; and lineage is verified end to end from human authority to external effect.
+
+- **The bilingual boundary.** 21B §14.4 calls this "the engine's highest-risk internal seam", because neither language's type system observes both sides. It is handled with single-source generation (`workflow_engine/schema.py` renders `contracts.ts`) plus contract tests in **both** directions. The load-bearing one is `test_the_generated_file_matches_the_generator`: without it, a hand-edit to the generated file diverges the two sides silently and the failure surfaces at runtime in a language neither type checker was watching.
+
+- **Issues Encountered:**
+  1. **A workflow whose terminal activity failed was left Running forever.** `blocked_by_failure` only finds *dependents* of a failure, and a terminal activity has none, so the run sat in Running with nothing left to dispatch and no path out. Fixed with `ExecutionDAG.has_failure()` and a post-loop check in `_advance_one`; `test_a_failing_terminal_activity_does_not_leave_the_workflow_running` pins it.
+  2. **Three `assert` statements in the engine would have vanished under `python -O`** — two narrowing checks that `ExecutionDAG.build` already guarantees, and one on agent binding. All three rewritten as explicit branches raising `PlanningFailure`, so the guarantee survives optimisation.
+  3. **`engine.py` imported `agent_runtime` directly** to construct an `ActivityRequest`, breaking the adapter convention. The `AgentDispatcher` protocol now takes plain fields and `adapters.py` builds the request, so the engine never names the other subsystem. Asserted by test.
+  4. **The TypeScript determinism checker tripped its own rule**, because listing the forbidden patterns put them in the file being checked. Moved to `src/determinism.ts`.
+
+- **Resolution:** All four resolved in-branch; each has a regression test.
+
+- **Open Items (deferred, not silently absorbed):**
+  - **No real Temporal server.** Durability is in-process: the journal and run records survive within the process, not across a restart. 03.3.1's named engine cannot be adopted while CIR-001 is unresolved, so `holds_resources` is a flag the engine maintains rather than a quota a substrate enforces.
+  - No real model backend and no real sandbox runtime, both carried forward from S6 unchanged.
+  - `event_bus` is not wired into either S7 module; signals reach Observability directly through the emitter.
+  - The TypeScript definition is the authored artifact per 03.3.2, but Python holds a mirror of it to exercise the activity side. A test checks the mirror against the source; a real engine would remove the need for one.
+  - Performance is unvalidated against the 21B §13.12 and §14.12 latency tables.
+
+- **Commit Hash:** (pending)
+- **Notes:** Standing conformance guards added this stage: the Runtime exposes no scheduling verb (02.3.2), the Engine exposes no execution verb (07.13.1), an agent may not review its own output (06 rules 16, 17), the six authority boundaries intersect rather than union (06.9.6 with 14.12.4), a paused workflow never appears as holding resources (07.14.5), a failed compensation Stalls rather than Failing, and each module's cross-subsystem imports are confined to a single adapter file. `tests/s7_first_light/` is retained permanently as the standing regression surface, exactly as 21B and the Build Specification intend.
