@@ -2,10 +2,10 @@
 
 ## Project Status
 
-- **Current Stage:** S12 — Transformation & Extension (complete to its exit criterion, scoped to what is unblocked). **All thirteen stages S0 through S12 are now addressed.**
-- **Current Module:** none in progress. The remaining work is programme-level rather than stage-level: the Non-Violable Rule to Conformance Test traceability matrix (21_PLAN §7 Appendix F), the Definition-of-Done items of Section 39 that require the CI pipeline to actually execute, Poetry-managed reproducible builds, and `docker compose up`
-- **Repository Status:** All 26 modules addressed across 13 stages. 22 are implemented to their stage exit criteria; 4 are at specification-conformant, construction-blocked status (`integration_registry`, `integration_gateway`, `deployment_registry`/`deployment_gateway`, `evolution_gateway`), all four blocked by the single unresolved CIR-001. The system reasons, decides, remembers, executes, orchestrates, answers to humans, learns from its outcomes and governs itself. It reaches nothing external and runs in no registered environment, and both facts are asserted by test rather than left to be discovered
-- **Overall Progress:** 26 / 26 modules addressed — 22 implemented to their stage exit criteria (`kernel`, `core`, `persistence`, `schema_registry`, `security_gateway`, `event_bus`, `observability_gateway` at its full interpretive profile, `cost_manager`, `memory_gateway`, `knowledge_gateway`, `decision_gateway`, `tool_registry`, `tool_gateway`, `tool_executor`, `llm_router`, `agent_runtime`, `workflow_engine`, `api_gateway`, `human_interface`, `learning_gateway`, `governance_gateway`, `plugin_manager`) and 4 at specification-conformant, construction-blocked status. 0 / 26 at full Definition-of-Done — Section 39 criterion 2 still requires the CI pipeline to actually execute, and Poetry-managed reproducible builds and `docker compose up` do not exist yet
+- **Current Stage:** All thirteen stages S0 through S12 addressed, plus Appendix F (21_PLAN §7). **The build is complete to the extent the Build Specification authorizes.**
+- **Current Module:** none in progress. The remaining Definition-of-Done work is environmental rather than architectural: the CI pipeline must actually execute (Section 39 criterion 2), Poetry-managed reproducible builds, and `docker compose up`. None of it is blocked by anything in this repository
+- **Repository Status:** All 26 modules addressed. 22 implemented to their stage exit criteria; 4 at specification-conformant, construction-blocked status, all blocked by the single unresolved CIR-001. Appendix F is generated from the ratified corpus and self-verifying: 464 non-violable rules extracted, 43 proven by named automated tests, 67 blocked by CIR-001, 354 uncovered and reported as such
+- **Overall Progress:** 26 / 26 modules addressed — 22 implemented to their stage exit criteria, 4 at specification-conformant, construction-blocked status. 0 / 26 at full Definition-of-Done, and none is claimed to be
 
 ---
 
@@ -547,3 +547,50 @@
 
 - **Commit Hash:** (pending)
 - **Notes:** With S12 addressed, all thirteen stages S0 through S12 have been built to the extent the Build Specification authorizes. The remaining work is programme-level: the Non-Violable Rule to Conformance Test traceability matrix (21_PLAN §7 Appendix F), and the Section 39 Definition-of-Done items that require the CI pipeline to execute, Poetry-managed reproducible builds, and `docker compose up`. No module is at full Definition-of-Done and none is claimed to be.
+
+### 2026-08-24 — Appendix F: the Non-Violable Rule Traceability Matrix
+
+- **Stage:** programme-level (21_PLAN §7, Appendix F)
+- **Work Item:** "Appendix F is the most important: it maps every non-violable rule in Documents 01-19 to the specific automated test that proves it. Exists because approximately two hundred absolute rules are otherwise unenforceable."
+- **Files Created:**
+  - `tests/conformance/rules.py` — extracts non-violable rules from the ratified corpus, handling the three shapes the documents actually use
+  - `tests/conformance/matrix.py` — the rule-to-test mapping, the coverage model, and the renderer
+  - `tests/conformance/generate.py` — regenerates the published appendix
+  - `tests/conformance/test_appendix_f.py` — 89 tests keeping the matrix honest
+  - `docs/appendix_f_traceability.md` — generated, 464 rows
+- **Files Modified:** `IMPLEMENTATION_JOURNAL.md`
+- **Tests Added:** 89. Repository total: 1243.
+- **Validation Performed:**
+  - `python -m pytest -q` -> 1243 passed
+  - `python -m ruff check libs services tests` -> clean; `ruff format` applied
+  - `python -m mypy .` (`--strict`) -> no issues in 237 source files
+  - `python -m bandit -r libs services --exclude "*/tests/*"` -> zero findings
+  - Coverage 97.54% against the 90% CI gate
+
+- **Rules are extracted, not transcribed.** A transcribed list is a second copy that drifts: someone amends a document, the copy stays, and the matrix reports coverage of a rule that no longer says what it did. Reading the corpus means the denominator is always the real one, and a rule added to a document appears immediately as uncovered rather than going unnoticed.
+
+- **The count is larger than the plan estimated, and is reported as found.** 21_PLAN says "approximately two hundred". Extraction finds **464**, largely because documents 01 and 03 state their rules inline throughout rather than in a closing section. The estimate was not adjusted to match the finding, and the finding was not trimmed to match the estimate.
+
+- **The matrix is honest about its own incompleteness.** 43 rules are proven by named tests, 67 belong to CIR-001-blocked subsystems and are marked Blocked rather than Uncovered (the two gaps have different causes and different remedies), and **354 are uncovered**. That number is published in the generated document's header. A matrix claiming completeness it did not have would be worse than no matrix, because it would retire the question.
+
+- **The suite deliberately asserts no coverage floor.** A floor would create pressure to map a rule to a test that does not really prove it, which is precisely the failure mode a traceability matrix exists to prevent. Coverage is reported and left visible instead.
+
+- **Three properties stop it rotting**, each closing a specific way a matrix goes quietly wrong:
+  1. every mapped rule identifier must still resolve to a real rule in the corpus, so a mapping to an amended-away rule fails rather than claiming coverage of nothing;
+  2. **every named test must still exist**, so renaming or deleting a test breaks the matrix instead of silently un-proving the rule it covered;
+  3. the published document must match what the generator produces — the same single-source discipline the bilingual boundary uses at S7.
+
+- **A test asserts no CIR-001-blocked rule is claimed as proven.** That would be the most damaging entry this matrix could contain: an assertion that a rule about a subsystem which does not run is nevertheless enforced.
+
+- **The document 09 corpus gap is now asserted rather than only recorded.** Its Non-Violable Memory Rules section is referenced in its own table of contents and absent from the delivered text. A document with no rules and a document whose rules are missing look identical to a counter, so the gap is declared explicitly and a test fails if document 09 ever starts yielding rules — which is the correct way for a recorded gap to end.
+
+- **Issues Encountered:** The first extraction pass handled two rule shapes and found 400 rules across 17 documents, silently missing document 02 (which uses an appendix heading) and most of document 03 (which states rules inline without bold markers). Both were found by the test asserting every document either contributes rules or is a declared gap — which is exactly the check that was written to catch this class of miss, and it caught it on the first run.
+
+- **Resolution:** The extractor now handles all three shapes; 464 rules across 18 documents, with document 09 the single declared gap.
+
+- **Open Items:**
+  - **354 uncovered rules.** This is the largest single number in the programme and it is now measurable. Documents 01 (78 rules) and 04 (35) are the least covered, being principle-level and business-model-level rather than subsystem-level; many of their rules are organizational commitments rather than code-checkable properties, and distinguishing those from the genuinely untested ones is the obvious next piece of work.
+  - Mapping is one rule to one or more test *names* rather than to node ids, so two identically-named tests in different modules would both satisfy a mapping. Acceptable while names are as distinctive as they are; worth tightening if that stops being true.
+
+- **Commit Hash:** (pending)
+- **Notes:** With Appendix F generated and self-verifying, the programme-level work named in the S7 through S12 journal entries is complete. What remains for Definition-of-Done is environmental — CI execution, Poetry builds, `docker compose up` — and none of it is blocked by anything in this repository.
