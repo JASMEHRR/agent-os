@@ -2,10 +2,10 @@
 
 ## Project Status
 
-- **Current Stage:** S8 — Human Plane (complete to its exit criterion)
-- **Current Module:** none in progress — next executable work item is Stage S9, Adaptation (`learning_gateway`)
-- **Repository Status:** Layer 0 complete, plus the Trust, Truth, Instrumentation, Economic, Cognition, Authority, Effect, Execution, Orchestration and Human planes. Operators approve, override, receive batched digests, and halt all autonomous activity within the constitutional 5-second bound. The system still cannot reach the external ecosystem while CIR-001 blocks the Integration Platform, and cannot yet learn from its own outcomes until S9
-- **Overall Progress:** 21 / 26 modules addressed — 19 implemented to their stage exit criteria (`kernel`, `core`, `persistence`, `schema_registry`, `security_gateway`, `event_bus`, `observability_gateway` at its ingestion-only profile, `cost_manager`, `memory_gateway`, `knowledge_gateway`, `decision_gateway`, `tool_registry`, `tool_gateway`, `tool_executor`, `llm_router`, `agent_runtime`, `workflow_engine`, `api_gateway`, `human_interface`) and 2 at specification-conformant, construction-blocked status (`integration_registry`, `integration_gateway`, both CIR-001). 0 / 26 at full Definition-of-Done — Section 39 criterion 2 still requires the CI pipeline to actually execute, and Poetry-managed reproducible builds and `docker compose up` do not exist yet
+- **Current Stage:** S9 — Adaptation (complete to its exit criterion)
+- **Current Module:** none in progress — next executable work item is Stage S10, Oversight (`governance_gateway`, `observability_gateway` full interpretive profile)
+- **Repository Status:** Layer 0 complete, plus the Trust, Truth, Instrumentation, Economic, Cognition, Authority, Effect, Execution, Orchestration, Human and Adaptation planes. The system observes its own outcomes, attributes them, proposes bounded improvements to the subsystems that own the things being changed, and measures every adoption to confirmation or refutation. It still cannot reach the external ecosystem while CIR-001 blocks the Integration Platform, and has no governance layer until S10
+- **Overall Progress:** 22 / 26 modules addressed — 20 implemented to their stage exit criteria (`kernel`, `core`, `persistence`, `schema_registry`, `security_gateway`, `event_bus`, `observability_gateway` at its ingestion-only profile, `cost_manager`, `memory_gateway`, `knowledge_gateway`, `decision_gateway`, `tool_registry`, `tool_gateway`, `tool_executor`, `llm_router`, `agent_runtime`, `workflow_engine`, `api_gateway`, `human_interface`, `learning_gateway`) and 2 at specification-conformant, construction-blocked status (`integration_registry`, `integration_gateway`, both CIR-001). 0 / 26 at full Definition-of-Done — Section 39 criterion 2 still requires the CI pipeline to actually execute, and Poetry-managed reproducible builds and `docker compose up` do not exist yet
 
 ---
 
@@ -405,3 +405,47 @@
 
 - **Commit Hash:** (pending)
 - **Notes:** The five-second bound is now verified end to end, which closes the deferral `kernel/panic.py` recorded at S0 ("verified end-to-end at Stage S8, exercised here only at the single-process participation-hook level"). Standing conformance guards added this stage: offset pagination refused rather than ignored (03 Rule 23), idempotency mandatory on mutating methods (03 Rule 24), rate limits intersecting rather than unioning across dimensions, approvals answerable only by a human principal, and the panic bound measured on every invocation.
+
+### 2026-08-24 — Stage S9: Adaptation
+
+- **Stage:** S9 — Adaptation
+- **Module:** `learning_gateway`
+- **Work Item:** Realize document 13 in full per 21B §21. Exit criterion (21_PLAN §4.1): "Outcomes are attributed, patterns abstracted, proposals validated, consolidated, propagated to target Gateways, adopted, and measured to confirmation or refutation." Plus 21C §38.5's mandated adversarial Recursion Guard suite.
+- **Files Created:**
+  - `services/learning_gateway/` — `entries.py` (states and transitions, the constitution's own thresholds for evidence sufficiency, confidence bands and measurement windows), `recursion.py` (the Recursion Guard), `gateway.py` (the closed loop, validation, consolidation, propagation, measurement, decay, Failure Library, prioritization, the five metric families), `adapters.py`
+  - `services/learning_gateway/learning_gateway/tests/test_recursion_guard.py` — 51 adversarial tests
+  - `services/learning_gateway/learning_gateway/tests/test_learning_gateway.py` — 61 tests
+  - `tests/s9_adaptation/test_s9_exit_criterion.py` — 7 tests against real Security, Cost and Agent Runtime subsystems
+  - `docs/modules/learning_gateway.md`
+- **Files Modified:** `conftest.py`, `pyproject.toml`, `IMPLEMENTATION_JOURNAL.md`
+- **Tests Added:** 119. Repository total: 937.
+- **Validation Performed:**
+  - `python -m pytest -q` -> 937 passed
+  - `python -m ruff check libs services tests` -> clean; `ruff format` applied
+  - `python -m mypy .` (`--strict`) -> no issues in 205 source files
+  - `python -m bandit -r libs services --exclude "*/tests/*"` -> zero findings
+  - Coverage 97.44% against the 90% CI gate
+
+- **The adversarial Recursion Guard suite (21C §38.5).** The specification is explicit that this component's "fail-closed posture is only meaningful if exercised against genuine self-reference attempts, not merely ordinary-path tests", so the suite is written as an attacker would write it and covers five distinct attack shapes: a declared self-target; a disguised name (`Learning-Gateway`, `l e a r n i n g`, `learning/gateway`, `doc-13`, all normalized before matching); indirection through evidence (an entry deriving its conclusion from the Learning Journal reasons about itself whatever it declares as its target); **self-modification described in another subsystem's language** — 13.35.1's "own validation rules, confidence thresholds, or measurement windows", which is the shape a guard checking only the target field misses entirely; and recursive cycle triggering (13 rule 17). A structural test asserts `check` and `inspect` have grown no `force`, `allow`, `override` or `bypass` parameter, because 13 rule 4's Class D authority is a separate audited human act and never a flag on the submission.
+
+- **Bounded self-modification, enforced in three places rather than promised in one:** the Recursion Guard fires before anything can normalize the input; the non-violable screen runs at **validation** rather than at the target, per 21B §21.10 (relying on seven target Gateways each to implement the same screen correctly means the first one that does not is the way in); and there is no `adopt`, `commit`, `apply` or `enforce` verb on the Gateway at all, asserted by test. Propagation is handoff: 13.16.1's "the target subsystem retains full constitutional authority to reject, modify, or escalate" is expressed as an absent method rather than as a comment.
+
+- **Correlation is never causation (13 rule 6), enforced three ways:** a causal claim with uncontrolled confounders is an attribution anomaly; a correlation pattern's derived confidence is capped *below* the 0.60 floor, so no combination of strong evidence and strong attribution can lift it into propagation; and every propagated package carries `is_causal_claim` and the null hypothesis so the target cannot mistake one for the other after the handoff.
+
+- **Issues Encountered:**
+  1. **Refutation resolved more slowly than confirmation.** As first written, a confirmed entry resolved at the window minimum while a refuted one ran to the ceiling, which would have left a change the evidence already contradicted adopted for twice as long. Both directions now resolve at the same point, with an exact tie running to the ceiling and then refuting. This is the direction 13.34.3's asymmetry argues for: being slow to stop a harm costs more than being slow to confirm a benefit.
+  2. **The consolidation stage was invisible to a per-entry journal query.** It was journalled against the package id only, so `query_journal(entry_id)` returned a trail with a hole in it. 21B §21.5 asks the Learning Journal Query for forensic reconstruction of an entry, so consolidation is now journalled per entry as well as per package.
+  3. Four test expectations were wrong rather than the code: two confidence fixtures fell below the 0.60 floor before reaching the class threshold they were meant to test, and two measurement loops assumed a window that ran to its ceiling.
+
+- **Resolution:** Both defects fixed in-branch with regression tests; the test expectations corrected.
+
+- **Open Items (deferred, not silently absorbed):**
+  - **Measurement windows for Business and Portfolio learning run one to three business cycles**, which 21B §21.8 calls the longest-lived progressive state in the system and requires to survive restarts, version changes and staff transitions. In-process storage does not, and this is the largest gap in this stage.
+  - The Extraction Engine is a caller responsibility: evidence is cited rather than retrieved. Wiring it to pull directly from Memory, Decision, Knowledge and Tool records is deferred.
+  - Contradiction detection compares proposals on the same subject and does no semantic comparison, so a differently-worded contradiction can pass.
+  - Seven-year journal retention (13 rule 18) is a declared constant, not a storage guarantee.
+  - `event_bus` is not wired in, so observation triggers arrive by direct call rather than by reacting to the event stream as 13.7.6 describes.
+  - 13 rule 20 requires the Panic Protocol to halt all active learning cycles within five seconds. The Learning Gateway does not yet register a panic participant with the Human Interface; this is the concrete instance of the S8 open item about unregistered subsystems, and it belongs in the S10 conformance matrix.
+
+- **Commit Hash:** (pending)
+- **Notes:** Standing conformance guards added this stage: no adoption verb on the Learning Gateway, the non-violable screen at validation, correlation capped below the propagation floor, failure and success pattern minimums held apart (a test asserts the asymmetry directly so a later edit cannot quietly equalize them), the Recursion Guard's five attack shapes, and cross-subsystem imports confined to a single adapter file.
