@@ -1,13 +1,11 @@
-"""Observability Gateway — ingestion-only profile (realizes document 16, 21B §24).
+"""Observability Gateway — full interpretive profile (document 16, 21B §24).
 
-Built at Stage S3 because every subsequent module's Signal Emission — a
-mandatory Gateway mechanism (21A §5.2 item 7) — needs somewhere to land.
-
-The full interpretive profile is deferred to Stage S10: this module ingests,
-enriches, journals, serves read-only queries, and confirms Panic Protocol
-halts. It does not correlate, compose health models, interpret anomalies, or
-publish SLOs. Those are absent rather than stubbed, so nothing downstream can
-depend on a hollow implementation.
+This module appears twice in the dependency graph by design. At Stage S3 it
+was built ingestion-only, because every subsequent module's Signal Emission — a
+mandatory Gateway mechanism (21A §5.2 item 7) — needs somewhere to land. At
+Stage S10 the interpretive half completes it: Correlation Engine, SLI/SLO
+Registry, alerting and escalation routing, and 16.26's constitutional health
+composition.
 
 `16.4`: observability reads the system; it does not steer it. Every interface
 here is read-only or receive-only, by construction.
@@ -32,6 +30,20 @@ from observability_gateway.ingest import (
     SignalState,
     TelemetryIngest,
 )
+from observability_gateway.interpretive import (
+    SLO,
+    Alert,
+    AlertRouter,
+    ConstitutionalHealth,
+    CorrelationEngine,
+    IncidentTimeline,
+    Severity,
+    SLIReading,
+    SLORegistry,
+    TimelineEvent,
+    compose_constitutional_health,
+    default_slos,
+)
 from observability_gateway.security_adapter import SecurityGatewayQueryAuthorizer
 
 __all__ = [
@@ -51,4 +63,16 @@ __all__ = [
     "LOG_TRACE_VISIBILITY_P50",
     "LOG_TRACE_VISIBILITY_P99",
     "SecurityGatewayQueryAuthorizer",
+    "CorrelationEngine",
+    "IncidentTimeline",
+    "TimelineEvent",
+    "SLORegistry",
+    "SLO",
+    "SLIReading",
+    "AlertRouter",
+    "Alert",
+    "Severity",
+    "ConstitutionalHealth",
+    "compose_constitutional_health",
+    "default_slos",
 ]

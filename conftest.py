@@ -29,5 +29,6 @@ for lib in (
     "services/api_gateway",
     "services/human_interface",
     "services/learning_gateway",
+    "services/governance_gateway",
 ):
     sys.path.insert(0, str(ROOT / lib))

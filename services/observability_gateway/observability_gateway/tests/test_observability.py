@@ -1,4 +1,7 @@
-"""Observability Gateway, ingestion-only profile (16.7, 16.8, 21B §24).
+"""Observability Gateway, the ingestion half (16.7, 16.8, 21B §24).
+
+The interpretive half built at Stage S10 is covered by
+`test_interpretive_profile.py`; these tests remain the ingestion suite.
 
 Stage S3 test list: "Every signal type is ingested, enriched, and journaled."
 Plus the constraints that make this Gateway safe to depend on — it reads and
@@ -251,18 +254,24 @@ def test_the_gateway_has_no_mutation_path_into_any_subsystem() -> None:
     assert forbidden.isdisjoint(surface)
 
 
-def test_interpretive_profile_is_absent_not_stubbed() -> None:
-    """The build plan defers correlation, health composition and SLOs to S10."""
-    deferred = {"correlate", "incident_timeline", "compose_health", "publish_slo", "sli_registry"}
+def test_the_interpretive_profile_arrived_at_s10() -> None:
+    """This module appears twice in the dependency graph by design.
+
+    Until Stage S10 this test asserted the interpretive half was *absent* rather
+    than stubbed, so nothing could depend on a hollow implementation. S10 built
+    it, so the assertion inverts: the surface must now be present. Its own
+    conformance tests live in `test_interpretive_profile.py`.
+    """
+    expected = {"correlate", "publish_slo", "record_sli", "raise_alert", "constitutional_health"}
     surface = {name for name in dir(ObservabilityGateway) if not name.startswith("_")}
-    assert deferred.isdisjoint(surface)
+    assert expected <= surface
 
 
 def test_health_reports_ingestion_state_and_is_sovereign(observability: ObservabilityGateway) -> None:
     observability.ingest(make_signal(source="security_gateway"))
     observability.ingest(make_signal(source="event_bus", name="publication.latency_ms"))
     health = observability.health()
-    assert health["profile"] == "ingestion-only"
+    assert health["profile"] == "full-interpretive"
     assert health["sensitivity"] == Sensitivity.SOVEREIGN.value
     assert health["ingested"] == 2
     assert health["by_source"] == {"security_gateway": 1, "event_bus": 1}
@@ -288,10 +297,17 @@ def test_security_gateway_is_imported_in_exactly_one_module() -> None:
     import observability_gateway
 
     root = pathlib.Path(observability_gateway.__path__[0])
+    # Scan import lines rather than raw text: `interpretive.py` names
+    # `security_gateway` as the subject of a published SLO, which is data about
+    # another subsystem rather than a dependency on one.
     importers = [
         path.name
         for path in root.glob("*.py")
-        if "security_gateway" in path.read_text(encoding="utf-8") and path.name != "__init__.py"
+        if path.name != "__init__.py"
+        and any(
+            line.strip().startswith(("import ", "from ")) and "security_gateway" in line
+            for line in path.read_text(encoding="utf-8").splitlines()
+        )
     ]
     assert importers == ["security_adapter.py"]
 
