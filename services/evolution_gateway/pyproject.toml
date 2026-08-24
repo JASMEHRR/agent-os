@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "evolution-gateway"
+version = "0.1.0"
+description = "Agent OS evolution_gateway (Stage S12 - Transformation & Extension)."
+authors = ["Agent OS"]
+packages = [{ include = "evolution_gateway" }]
+
+[tool.poetry.dependencies]
+python = ">=3.11,<3.13"
+kernel = { path = "../../libs/kernel", develop = true }
+core = { path = "../../libs/core", develop = true }
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2"
+mypy = "^1.10"
+ruff = "^0.4.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

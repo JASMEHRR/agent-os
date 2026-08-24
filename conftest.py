@@ -30,5 +30,9 @@ for lib in (
     "services/human_interface",
     "services/learning_gateway",
     "services/governance_gateway",
+    "services/deployment_registry",
+    "services/deployment_gateway",
+    "services/evolution_gateway",
+    "services/plugin_manager",
 ):
     sys.path.insert(0, str(ROOT / lib))

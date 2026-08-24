@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "plugin-manager"
+version = "0.1.0"
+description = "Agent OS plugin_manager (Stage S12 - Transformation & Extension)."
+authors = ["Agent OS"]
+packages = [{ include = "plugin_manager" }]
+
+[tool.poetry.dependencies]
+python = ">=3.11,<3.13"
+kernel = { path = "../../libs/kernel", develop = true }
+core = { path = "../../libs/core", develop = true }
+security-gateway = { path = "../security_gateway", develop = true }
+event-bus = { path = "../event_bus", develop = true }
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2"
+mypy = "^1.10"
+ruff = "^0.4.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
