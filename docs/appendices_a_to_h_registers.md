@@ -20,7 +20,7 @@ refuse, fails the suite. A declaration nothing checks is a wish.
 |---|---|---|---|---|---|
 | `core` | libs | S0 | implemented to stage exit criteria | 3 | 3 |
 | `kernel` | libs | S0 | implemented to stage exit criteria | 9 | 46 |
-| `persistence` | libs | S0 | implemented to stage exit criteria | 2 | 3 |
+| `persistence` | libs | S0 | implemented to stage exit criteria | 4 | 16 |
 | `agent_runtime` | services | S7 | implemented to stage exit criteria | 3 | 45 |
 | `api_gateway` | services | S8 | implemented to stage exit criteria | 6 | 44 |
 | `cost_manager` | services | S3 | implemented to stage exit criteria | 3 | 28 |
