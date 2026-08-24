@@ -41,7 +41,13 @@ class Coverage(StrEnum):
     #: The rule belongs to a subsystem CIR-001 blocks. Distinct from uncovered:
     #: the remedy is a Governance ruling, not another test.
     BLOCKED = "blocked"
-    #: No automated test proves it yet. The honest default.
+    #: The rule is a real obligation that an automated test in this repository
+    #: cannot prove — an organizational commitment, a release-process rule, or
+    #: a property of infrastructure that does not exist here. Every entry
+    #: carries a reason, and a test asserts it does.
+    NOT_CODE_CHECKABLE = "not_code_checkable"
+    #: No automated test proves it yet, and one could. The honest default, and
+    #: the only bucket that represents work someone should do.
     UNCOVERED = "uncovered"
 
 
@@ -56,6 +62,149 @@ BLOCKED_DOCUMENTS = frozenset({"17", "18", "19"})
 #: moving a test between files does not falsely break the matrix while renaming
 #: or deleting one correctly does.
 MATRIX: dict[str, tuple[str, ...]] = {
+    # ------------------------------------------ 04 Business Operating Model
+    "04.34.5": ("test_the_boundaries_intersect_rather_than_union",),
+    "04.34.6": ("test_an_agent_cannot_commit_beyond_its_autonomy_level",),
+    "04.34.7": (
+        "test_an_unregistered_tool_cannot_be_invoked",
+        "test_registration_is_not_authorization",
+    ),
+    "04.34.8": ("test_egress_requires_a_sandbox",),
+    "04.34.9": ("test_a_standing_order_cannot_pre_authorize_class_d",),
+    "04.34.10": (
+        "test_a_class_c_timeout_defers_and_never_approves",
+        "test_a_class_d_timeout_rejects_and_never_approves",
+    ),
+    "04.34.12": ("test_every_decision_is_journalled",),
+    "04.34.14": ("test_cross_tenant_action_is_denied",),
+    "04.34.16": ("test_private_memory_is_invisible_to_another_agent",),
+    "04.34.17": ("test_a_linear_workflow_completes_and_releases_its_resources",),
+    "04.34.18": ("test_a_mutating_tool_needs_compensation",),
+    "04.34.20": ("test_a_definition_that_cannot_produce_a_valid_dag_is_not_registrable",),
+    "04.34.21": (
+        "test_sanitization_precedes_rendering",
+        "test_prompt_injection_is_redacted",
+    ),
+    "04.34.22": ("test_injection_grant_carries_a_reference_never_a_value",),
+    "04.34.24": ("test_the_boundaries_intersect_rather_than_union",),
+    "04.34.29": ("test_a_proposal_touching_a_non_violable_rule_is_rejected_at_validation",),
+    "04.34.32": ("test_failure_learning_needs_less_evidence_than_success_learning",),
+    "04.34.34": ("test_panic_completes_within_the_five_second_bound",),
+    "04.34.35": ("test_routine_notifications_are_batched_not_delivered_one_by_one",),
+    # ---------------------------------------------------------- 02 Architecture
+    "02.appendix.3": (
+        "test_an_unregistered_tool_cannot_be_invoked",
+        "test_registration_is_not_authorization",
+    ),
+    "02.appendix.5": ("test_gateway_exposes_no_method_returning_a_secret_value",),
+    "02.appendix.6": (
+        "test_class_d_decision_cannot_be_auto_approved_on_timeout",
+        "test_adversarial_no_timeout_path_can_approve_a_class_d_decision",
+    ),
+    "02.appendix.10": ("test_the_boundaries_intersect_rather_than_union",),
+    # ------------------------------------------------ 05 Agent Runtime Framework
+    "05.29.3": ("test_an_activity_beyond_the_declared_cost_budget_is_refused",),
+    "05.29.4": (
+        "test_a_class_c_timeout_defers_and_never_approves",
+        "test_a_class_d_timeout_rejects_and_never_approves",
+    ),
+    "05.29.8": ("test_an_irreversible_option_is_class_d_whatever_it_costs",),
+    "05.29.10": ("test_panic_completes_within_the_five_second_bound",),
+    # ------------------------------------------------- 06 Agent Operating Model
+    "06.23.1": (
+        "test_the_boundaries_intersect_rather_than_union",
+        "test_a_capability_prefix_is_permitted_but_a_sibling_is_not",
+    ),
+    "06.23.2": ("test_a_tool_outside_the_registered_inventory_is_refused",),
+    "06.23.3": (
+        "test_an_agent_cannot_commit_beyond_its_autonomy_level",
+        "test_insufficient_autonomy_is_denied",
+    ),
+    "06.23.5": ("test_a_standing_order_cannot_pre_authorize_class_d",),
+    "06.23.6": (
+        "test_a_class_c_timeout_defers_and_never_approves",
+        "test_a_class_d_timeout_rejects_and_never_approves",
+    ),
+    "06.23.8": ("test_private_memory_is_invisible_to_another_agent",),
+    "06.23.10": ("test_self_escalation_is_a_violation",),
+    "06.23.12": ("test_every_decision_is_journalled",),
+    "06.23.14": (
+        "test_a_hypothesis_is_invisible_to_reasoners",
+        "test_nothing_below_the_floor_is_presented_as_canonical",
+    ),
+    "06.23.15": ("test_an_activity_beyond_the_declared_cost_budget_is_refused",),
+    "06.23.18": ("test_a_proposal_touching_a_non_violable_rule_is_rejected_at_validation",),
+    # ---------------------------------------------- 07 Workflow Operating Model
+    "07.27.3": ("test_a_mutating_tool_needs_compensation",),
+    "07.27.4": ("test_planning_failure_goes_straight_to_failed_having_consumed_nothing",),
+    "07.27.6": ("test_the_pre_allocated_budget_is_the_worst_case_not_the_optimistic_one",),
+    "07.27.7": ("test_a_denied_gate_compensates_rather_than_proceeding",),
+    "07.27.10": ("test_a_failing_terminal_activity_does_not_leave_the_workflow_running",),
+    "07.27.11": ("test_a_definition_that_cannot_produce_a_valid_dag_is_not_registrable",),
+    "07.27.17": ("test_egress_requires_a_sandbox",),
+    "07.27.19": ("test_compensation_must_be_idempotent",),
+    "07.27.21": ("test_the_journal_chain_is_intact_across_a_compensating_run",),
+    "07.27.22": ("test_injection_hands_the_value_to_the_sandbox_and_nowhere_else",),
+    "07.27.23": ("test_planning_fails_when_no_agent_holds_the_required_capability",),
+    # ------------------------------------------------- 08 Event Operating Model
+    "08.25.1": ("test_authenticated_producer_emits_a_schema_validated_event",),
+    "08.25.2": ("test_published_events_are_immutable",),
+    "08.25.3": ("test_producer_may_not_emit_into_another_tenant",),
+    "08.25.4": ("test_producer_lacking_the_emission_permission_is_denied",),
+    "08.25.6": ("test_no_event_is_silently_lost",),
+    "08.25.7": ("test_non_critical_events_may_be_shed",),
+    "08.25.9": ("test_acknowledgment_follows_processing",),
+    "08.25.11": ("test_replay_never_reaches_a_live_consumer_group",),
+    "08.25.14": ("test_a_revoked_producer_cannot_emit",),
+    "08.25.15": ("test_audit_events_are_not_purgeable_before_seven_years",),
+    "08.25.17": ("test_events_in_different_streams_are_causally_independent",),
+    "08.25.18": ("test_dead_letters_are_queryable_for_human_review",),
+    # --------------------------------------------- 10 Knowledge Operating Model
+    "10.26.1": ("test_an_unregistered_belief_type_is_quarantined",),
+    "10.26.2": ("test_contradiction_records_are_immutable_and_resolution_appends",),
+    "10.26.3": ("test_a_promoted_belief_is_queryable",),
+    "10.26.4": ("test_detection_demotes_both_canonical_beliefs",),
+    "10.26.5": (
+        "test_an_unfalsifiable_belief_is_dogma_and_is_quarantined",
+        "test_falsifiability_must_be_bounded_in_the_future",
+    ),
+    "10.26.6": ("test_cross_tenant_formation_is_denied",),
+    "10.26.9": ("test_nothing_below_the_floor_is_presented_as_canonical",),
+    # ----------------------------------------------------- 11 Decision Operating Model
+    "11.31.1": ("test_every_decision_is_journalled",),
+    "11.31.3": ("test_adversarial_class_d_cannot_be_auto_approved",),
+    "11.31.4": ("test_an_irreversible_option_is_class_d_whatever_it_costs",),
+    "11.31.5": ("test_an_agent_cannot_commit_beyond_its_autonomy_level",),
+    "11.31.8": ("test_contradictory_evidence_escalates_and_never_commits",),
+    "11.31.9": ("test_class_b_rejects_a_single_option_proposal",),
+    "11.31.11": ("test_a_standing_order_may_not_exceed_thirty_days",),
+    "11.31.12": ("test_a_circuit_breaker_breach_stops_commitment_regardless_of_merit",),
+    "11.31.14": ("test_cross_tenant_formation_is_denied",),
+    "11.31.16": ("test_every_committed_decision_carries_an_expected_outcome",),
+    "11.31.17": ("test_a_reversible_option_without_compensation_is_treated_as_irreversible",),
+    "11.31.20": ("test_panic_defers_or_reverses_every_active_decision",),
+    # ----------------------------------------------------- 12 Tool Operating Model
+    "12.34.5": ("test_a_sandbox_is_destroyed_even_when_the_tool_explodes",),
+    "12.34.17": ("test_idempotency_key_deduplicates_a_replayed_request",),
+    # ------------------------------------------------ 14 Security Operating Model
+    "14.35.3": (
+        "test_self_escalation_is_a_violation",
+        "test_self_status_change_is_rejected_as_self_escalation",
+    ),
+    "14.35.5": ("test_egress_requires_a_sandbox",),
+    "14.35.9": ("test_private_memory_is_invisible_to_another_agent",),
+    "14.35.12": ("test_gateway_exposes_no_method_returning_a_secret_value",),
+    "14.35.14": ("test_anonymous_memory_is_inadmissible",),
+    "14.35.15": ("test_cross_tenant_grant_requires_two_distinct_humans",),
+    "14.35.16": ("test_cache_never_outlives_the_token",),
+    "14.35.17": ("test_revocation_cascades_to_tokens_delegations_and_credentials",),
+    "14.35.20": ("test_panic_completes_within_the_five_second_bound",),
+    # ---------------------------------------------- 15 Governance Operating Model
+    "15.36.4": ("test_only_a_human_may_invoke_panic",),
+    "15.36.6": ("test_no_principal_may_certify_a_scope_they_are_accountable_for",),
+    "15.36.7": ("test_the_journal_records_the_governance_trail",),
+    # -------------------------------------------- 16 Observability Operating Model
+    "16.35.3": ("test_halt_confirmations_are_reported_against_the_five_second_bound",),
     # ---------------------------------------------------------- 02 Architecture
     "02.appendix.4": ("test_the_gateway_holds_no_business_logic",),
     # ------------------------------------------------ 05 Agent Runtime Framework
@@ -121,6 +270,47 @@ MATRIX: dict[str, tuple[str, ...]] = {
     "16.35.2": ("test_a_timeline_query_is_authorized_like_every_other_read",),
 }
 
+#: rule_id -> why no automated test in this repository can prove it.
+#:
+#: This category exists to stop `UNCOVERED` conflating two different things:
+#: a rule nobody has tested yet, and a rule this repository is the wrong place
+#: to test. Both are real obligations; only the first is work someone here can
+#: do, and lumping them together makes the actionable number look larger than
+#: it is while making it feel less actionable.
+#:
+#: It is deliberately not a dumping ground. Every entry states a specific
+#: reason, a test asserts the reason is non-empty, and a rule may not appear
+#: both here and in MATRIX — a rule cannot be simultaneously proven and
+#: unprovable.
+NOT_CODE_CHECKABLE: dict[str, str] = {
+    # The Business Operating Model describes business, project, goal and task
+    # objects. No module in this system realizes them: 04 is an operating
+    # model for the organization the system serves, not for the system.
+    "04.34.1": "no business/project/goal/task object model exists in this system to check against",
+    "04.34.2": "an obligation on a business, not on this system; no business object exists here",
+    "04.34.3": "a chartering process obligation; no project object exists here",
+    "04.34.4": "a goal-setting process obligation; no goal object exists here",
+    # Resource-share rules need production resource measurement.
+    "04.34.31": "requires measurement of total production resource consumption, which does not exist",
+    "05.29.11": "requires measurement of total production resource consumption, which does not exist",
+    # Release-process obligations, enforced by how changes are shipped rather
+    # than by anything the shipped code can assert about itself.
+    "02.appendix.7": (
+        "a release-process obligation: migration paths are reviewed at change time, not asserted at runtime"
+    ),
+    "08.25.13": "a release-process obligation on schema changes, enforced at review rather than at runtime",
+    # Infrastructure this build does not have, for reasons recorded elsewhere.
+    "02.appendix.2": (
+        "names specific storage technologies; the substrate is CIR-001 blocked and no "
+        "service holds business state to externalize"
+    ),
+    "02.appendix.8": "CI has never executed (Section 39 criterion 2); the gate exists and is unproven",
+    "02.appendix.9": (
+        "requires an HTTP transport to expose endpoints on; the API Gateway is transport-free pending CIR-001"
+    ),
+    "08.25.12": "requires a storage substrate with retention policy, which CIR-001 blocks",
+}
+
 #: Rules whose remedy is a Governance ruling rather than a test, listed so the
 #: reason is attached to the rule rather than inferred from its document.
 BLOCKED_NOTE = (
@@ -145,6 +335,15 @@ def build() -> tuple[Row, ...]:
         tests = MATRIX.get(rule.rule_id, ())
         if tests:
             rows.append(Row(rule=rule, coverage=Coverage.PROVEN, tests=tests))
+        elif rule.rule_id in NOT_CODE_CHECKABLE:
+            rows.append(
+                Row(
+                    rule=rule,
+                    coverage=Coverage.NOT_CODE_CHECKABLE,
+                    tests=(),
+                    note=NOT_CODE_CHECKABLE[rule.rule_id],
+                )
+            )
         elif rule.document in BLOCKED_DOCUMENTS:
             rows.append(Row(rule=rule, coverage=Coverage.BLOCKED, tests=(), note=BLOCKED_NOTE))
         else:
@@ -181,11 +380,17 @@ def render() -> str:
         f"- Rules extracted from documents 01-19: **{stats['rules_extracted']}**",
         f"- Proven by an automated test: **{stats['proven']}**",
         f"- Blocked by CIR-001 (not provable yet): **{stats['blocked']}**",
+        f"- Not code-checkable here (each with a stated reason): **{stats['not_code_checkable']}**",
         f"- Uncovered: **{stats['uncovered']}**",
         f"- Coverage of currently testable rules: **{stats['coverage_of_testable']:.1%}**",
         "",
         "The uncovered count is the honest state of this matrix, not a rounding",
         "error. It is published so the gap is a number someone can act on.",
+        "",
+        "`not_code_checkable` is not a softer word for uncovered. Those rules are",
+        "real obligations that an automated test in *this repository* cannot prove:",
+        "organizational commitments, release-process rules, or properties of",
+        "infrastructure that does not exist here. Each carries a stated reason.",
         "",
         "| Rule | Coverage | Proven by | Statement |",
         "|---|---|---|---|",

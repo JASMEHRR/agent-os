@@ -26,6 +26,7 @@ import pytest
 from tests.conformance.matrix import (
     BLOCKED_DOCUMENTS,
     MATRIX,
+    NOT_CODE_CHECKABLE,
     Coverage,
     build,
     render,
@@ -132,6 +133,45 @@ def test_no_blocked_document_rule_is_claimed_as_proven() -> None:
             )
 
 
+@pytest.mark.parametrize("rule_id", sorted(NOT_CODE_CHECKABLE))
+def test_every_not_code_checkable_rule_states_a_specific_reason(rule_id: str) -> None:
+    """The category exists to be honest, not to be convenient.
+
+    Without a stated reason per entry, `not_code_checkable` becomes a place to
+    put anything inconvenient, and the coverage figure it improves stops
+    meaning anything. A reason a reader can disagree with is the point.
+    """
+    reason = NOT_CODE_CHECKABLE[rule_id]
+    assert len(reason) > 30, f"'{rule_id}' needs a specific reason, not a label"
+    assert rule_id in {rule.rule_id for rule in extract_rules()}
+
+
+def test_no_rule_is_both_proven_and_unprovable() -> None:
+    """A rule cannot be simultaneously proven and impossible to prove.
+
+    If one ever appears in both, the mapping is wrong in one of the two places
+    and the matrix is asserting a contradiction about itself.
+    """
+    overlap = sorted(set(MATRIX) & set(NOT_CODE_CHECKABLE))
+    assert not overlap, f"these rules are both mapped to a test and declared unprovable: {overlap}"
+
+
+def test_the_not_code_checkable_category_stays_small_against_uncovered() -> None:
+    """A structural brake on the easiest way to fake progress.
+
+    Coverage can be improved either by writing tests or by reclassifying rules
+    as unprovable. Only the first is real. This does not forbid the category
+    growing — some rules genuinely belong in it — but it fails if it ever
+    becomes the larger explanation for what is not proven, which is the point
+    at which someone should be asked why.
+    """
+    stats = summary()
+    assert stats["not_code_checkable"] < stats["uncovered"], (
+        "more rules are declared unprovable than are simply untested; "
+        "coverage is being improved by reclassification rather than by testing"
+    )
+
+
 def test_coverage_is_reported_honestly() -> None:
     """Uncovered rules are the majority, and the matrix says so.
 
@@ -140,7 +180,10 @@ def test_coverage_is_reported_honestly() -> None:
     traceability matrix exists to prevent.
     """
     stats = summary()
-    assert stats["proven"] + stats["blocked"] + stats["uncovered"] == stats["rules_extracted"]
+    assert (
+        stats["proven"] + stats["blocked"] + stats["not_code_checkable"] + stats["uncovered"]
+        == stats["rules_extracted"]
+    )
     assert stats["uncovered"] > 0, "if this ever reaches zero, celebrate and then verify it"
     assert 0.0 < stats["coverage_of_testable"] < 1.0
 
@@ -152,6 +195,8 @@ def test_every_row_has_a_coverage_state_and_proven_rows_name_tests() -> None:
             assert row.tests, f"'{row.rule.rule_id}' is proven by nothing named"
         else:
             assert not row.tests
+        if row.coverage in (Coverage.BLOCKED, Coverage.NOT_CODE_CHECKABLE):
+            assert row.note, f"'{row.rule.rule_id}' is excused without saying why"
 
 
 # -------------------------------------------------------- The published file
