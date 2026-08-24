@@ -120,7 +120,7 @@ class NonViolableViolation(ValidationError):
 
 
 class OrphanedPolicy(ValidationError):
-    """15.16.2 — "A policy without constitutional lineage is illegitimate.\" """
+    """15.16.2 — "A policy without constitutional lineage is illegitimate.\""""
 
 
 class PolicyContradiction(ValidationError):

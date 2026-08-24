@@ -127,9 +127,9 @@ def test_no_blocked_document_rule_is_claimed_as_proven() -> None:
     """
     for row in build():
         if row.rule.document in BLOCKED_DOCUMENTS:
-            assert (
-                row.coverage is not Coverage.PROVEN
-            ), f"'{row.rule.rule_id}' belongs to a CIR-001-blocked subsystem and cannot be proven"
+            assert row.coverage is not Coverage.PROVEN, (
+                f"'{row.rule.rule_id}' belongs to a CIR-001-blocked subsystem and cannot be proven"
+            )
 
 
 def test_coverage_is_reported_honestly() -> None:

@@ -224,7 +224,7 @@ def test_an_artifact_requires_evidence_or_a_declared_gap(gateway: GovernanceGate
 def test_an_artifact_requires_an_accountable_steward_covering_its_scope(
     gateway: GovernanceGateway,
 ) -> None:
-    """15.23.3 — "No governance artifact exists without an accountable steward.\" """
+    """15.23.3 — "No governance artifact exists without an accountable steward.\""""
     with pytest.raises(AgentOSError, match="holds no active stewardship"):
         gateway.form("tok-steward", artifact(steward_id=AUDITOR))
     with pytest.raises(AgentOSError, match="holds no active stewardship"):
@@ -377,7 +377,7 @@ def test_evidence_gaps_produce_an_uncertainty_rider(gateway: GovernanceGateway) 
 def test_a_non_compliant_ruling_records_remediation_rather_than_performing_it(
     gateway: GovernanceGateway, alerts: list[str]
 ) -> None:
-    """15.18.4 — "The Gateway monitors remediation execution but does not execute it.\" """
+    """15.18.4 — "The Gateway monitors remediation execution but does not execute it.\""""
     gateway.form("tok-steward", artifact())
     record = gateway.assess(
         "tok-auditor", "ga-1", ComplianceState.NON_COMPLIANT, 0.9, "two publications bypassed the gate"
@@ -453,9 +453,9 @@ def test_there_is_no_state_machine_edge_that_ratifies_on_timeout() -> None:
     """
     from governance_gateway import GOVERNANCE_TRANSITIONS
 
-    assert (
-        ArtifactState.RATIFIED in GOVERNANCE_TRANSITIONS[ArtifactState.UNDER_REVIEW]
-    ), "an explicit human grant must still be able to ratify"
+    assert ArtifactState.RATIFIED in GOVERNANCE_TRANSITIONS[ArtifactState.UNDER_REVIEW], (
+        "an explicit human grant must still be able to ratify"
+    )
     # And the only method that acts on an elapsed deadline cannot produce it.
     import inspect
 
@@ -586,7 +586,7 @@ def test_an_interpretation_is_retrievable_by_provision(gateway: GovernanceGatewa
 
 
 def test_a_policy_without_constitutional_lineage_is_rejected(gateway: GovernanceGateway) -> None:
-    """15.16.2 — "A policy without constitutional lineage is illegitimate.\" """
+    """15.16.2 — "A policy without constitutional lineage is illegitimate.\""""
     with pytest.raises(OrphanedPolicy, match="traces to no constitutional provision"):
         gateway.form_policy("tok-steward", policy(constitutional_lineage="  "))
 
@@ -682,7 +682,7 @@ def test_an_emergency_suspension_requires_g3_review_within_24_hours(
 
 
 def test_supersession_preserves_lineage_rather_than_erasing_it(gateway: GovernanceGateway) -> None:
-    """15.17.4 — "Supersession does not erase history.\" """
+    """15.17.4 — "Supersession does not erase history.\""""
     gateway.form_policy("tok-steward", policy())
     gateway.form_policy("tok-steward", policy(policy_id="pol-2"))
     superseded = gateway.supersede_policy("pol-1", "pol-2")
@@ -853,7 +853,7 @@ def test_a_g4_exception_requires_human_authority(gateway: GovernanceGateway, clo
 
 
 def test_an_exception_expires_automatically(gateway: GovernanceGateway, clock: Clock) -> None:
-    """15.29.3 — "Exceptions expire automatically and require explicit renewal.\" """
+    """15.29.3 — "Exceptions expire automatically and require explicit renewal.\""""
     gateway.grant_exception(
         "tok-human",
         GovernanceException(
@@ -995,6 +995,6 @@ def test_cross_subsystem_imports_are_confined_to_the_adapter() -> None:
             stripped = line.strip()
             if not stripped.startswith(("import ", "from ")):
                 continue
-            assert not any(
-                name in stripped for name in foreign
-            ), f"{source.name} imports another subsystem directly; route it through adapters.py"
+            assert not any(name in stripped for name in foreign), (
+                f"{source.name} imports another subsystem directly; route it through adapters.py"
+            )

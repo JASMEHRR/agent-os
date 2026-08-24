@@ -809,7 +809,7 @@ def test_planning_failure_consumes_nothing(
 
 
 def test_the_engine_performs_no_work() -> None:
-    """07.13.1 — "The orchestrator does not perform work; it governs work.\" """
+    """07.13.1 — "The orchestrator does not perform work; it governs work.\""""
     surface = {name for name in dir(WorkflowEngine) if not name.startswith("_")}
     assert {"infer", "call_tool", "render", "complete_prompt"}.isdisjoint(surface)
 

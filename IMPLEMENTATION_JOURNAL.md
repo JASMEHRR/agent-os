@@ -594,3 +594,25 @@
 
 - **Commit Hash:** (pending)
 - **Notes:** With Appendix F generated and self-verifying, the programme-level work named in the S7 through S12 journal entries is complete. What remains for Definition-of-Done is environmental — CI execution, Poetry builds, `docker compose up` — and none of it is blocked by anything in this repository.
+
+### 2026-08-24 — Gate alignment: CI, pre-commit, and the bilingual boundary
+
+- **Stage:** programme-level (Section 39 Definition-of-Done, criterion 2)
+- **Work Item:** Close the gaps between what the developer runs, what the pre-commit hook runs, and what CI runs.
+- **Files Modified:** `.github/workflows/ci.yml`, `.pre-commit-config.yaml`
+- **Validation Performed:** `ruff check` clean, `ruff format --check` clean (236 files), `mypy .` (`--strict`) clean in 237 files, `pytest -q` 1243 passed, `npm run build` and `npm test` clean in `workflow_definitions`.
+
+- **Three real gaps, all closed:**
+  1. **The pre-commit hook and the local toolchain ran different formatters.** The hook pinned ruff v0.4.10; the installed toolchain is 0.16.1, and the two disagreed on 12 files. Every commit reformatted them one way and the next local run reformatted them back. That is visible in this journal's own history as repeated "N files reformatted" lines on consecutive commit attempts. A gate that fights the developer is a gate that gets bypassed, so the hook is now pinned to 0.16.1 and CI installs the same version.
+  2. **CI did not check formatting at all.** The hook formatted and CI never verified, so a commit made with `--no-verify` could merge unformatted. CI now runs `ruff format --check`.
+  3. **CI did not run the TypeScript half of the bilingual boundary.** 21B §14.4 calls that seam "the engine's highest-risk internal seam" precisely because neither language's type system observes both sides — and CI was gating only the Python side, leaving the half that catches a truncated or stale generation ungated. A `workflow-definitions` job now runs `tsc --noEmit` under `strict` and `node --test`.
+
+- **On the mypy pin:** CI is pinned to 1.10.0, the version `.pre-commit-config.yaml` resolves, so the hook and the gate agree. The local development toolchain runs mypy 2.3.0 and passes `--strict` there too, so the type check is verified under both versions; the pin is the one the gate and the hook share. Recorded rather than smoothed over, because a reader comparing the CI file to the toolchain would otherwise find an unexplained discrepancy.
+
+- **Open Items:**
+  - **The CI pipeline still has not executed.** Section 39 criterion 2 requires it to run, and nothing in this repository can make that happen; it needs a push to a remote with Actions enabled. Every gate CI declares has been run locally and passes, which is evidence the pipeline would succeed, and is not the same as the pipeline having succeeded.
+  - **Poetry-managed reproducible builds do not exist.** Poetry is not installed in the development environment and no lockfile has been generated, which is why `pip-audit` in CI is non-blocking: auditing an absent lockfile would report a clean result that means nothing.
+  - **`docker compose up` does not exist, and building it now would be inappropriate rather than merely undone.** Composing a runnable environment is deployment construction, and the Deployment Platform is CIR-001 blocked. Writing infrastructure that selects substrate and provider would be exactly the unilateral interpretation Build Spec Section 6 rule 9 forbids, so this item stays open by the same ruling that blocks S11.
+
+- **Commit Hash:** (pending)
+- **Notes:** With these closed, every gate that can be run in this environment is aligned across the developer's command line, the pre-commit hook, and the CI declaration. What remains for Definition-of-Done is environmental (a CI execution, a Poetry lockfile) or constitutionally blocked (`docker compose`), and no module is claimed as Done.

@@ -466,7 +466,7 @@ def test_the_limit_is_capped_and_must_be_positive() -> None:
 
 
 def test_a_domain_not_found_becomes_the_registered_error_code(gateway: APIGateway) -> None:
-    """03 §32.3: "No ad-hoc error strings.\" """
+    """03 §32.3: "No ad-hoc error strings.\""""
 
     def missing(request: Request, principal_id: str, tenant_id: str) -> Response:
         raise NotFoundError("decision 'dec-nope' does not exist")
@@ -522,6 +522,6 @@ def test_cross_subsystem_imports_are_confined_to_the_adapter() -> None:
             stripped = line.strip()
             if not stripped.startswith(("import ", "from ")):
                 continue
-            assert not any(
-                name in stripped for name in foreign
-            ), f"{source.name} imports another subsystem directly; route it through security_adapter.py"
+            assert not any(name in stripped for name in foreign), (
+                f"{source.name} imports another subsystem directly; route it through security_adapter.py"
+            )
