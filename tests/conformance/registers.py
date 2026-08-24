@@ -87,16 +87,23 @@ MODULE_STAGES: dict[str, str] = {
     "plugin_manager": "S12",
 }
 
-#: Modules whose construction CIR-001 blocks. Verified against the code by
-#: `test_blocked_modules_actually_block`, so this cannot drift into a claim.
-CIR_001_BLOCKED = frozenset(
-    {
-        "integration_registry",
-        "integration_gateway",
-        "deployment_registry",
-        "deployment_gateway",
-        "evolution_gateway",
-    }
+#: Modules whose construction CIR-001 blocks.
+#:
+#: **Empty since 2026-08-24**, when the G4 human sovereign ruling
+#: (`docs/rulings/CIR-001.md`) authorized construction of all five. The set is
+#: kept rather than deleted because it is the thing the register checks against:
+#: `test_no_module_claims_to_be_blocked` asserts nothing reports itself blocked,
+#: and an empty set is what makes that assertion mean something.
+CIR_001_BLOCKED: frozenset[str] = frozenset()
+
+#: What the ruling released, recorded so the register can say what changed
+#: rather than merely showing a shorter list than it used to.
+CIR_001_RELEASED = (
+    "integration_registry",
+    "integration_gateway",
+    "deployment_registry",
+    "deployment_gateway",
+    "evolution_gateway",
 )
 
 
@@ -333,12 +340,15 @@ CIR_REGISTER: tuple[CIREntry, ...] = (
         identifier="CIR-001",
         severity="critical",
         title="Technology naming conflict between 03_TECH_STACK and 17, 18, 19",
-        status=CIRStatus.OPEN,
-        blocks=tuple(sorted(CIR_001_BLOCKED)),
+        status=CIRStatus.RESOLVED,
+        blocks=(),
         note=(
-            "Blocks construction of the Integration, Deployment and Evolution platforms, and leaves "
-            "35 of 03's own rules unsatisfiable, since satisfying them is the conflict. Requires a "
-            "G3 or G4 ruling; Build Spec Section 6 rule 9 forbids unilateral resolution."
+            "Resolved 2026-08-24 by G4 human sovereign ruling, not in construction: the naming "
+            "prohibition governs capability abstractions and governance artifacts, and 03's "
+            "classification as an Implementation Specification distinguishes it from the "
+            "constitutional documents the rule addresses. Released "
+            f"{', '.join(CIR_001_RELEASED)} for construction, all five now built. The abstraction-"
+            "level prohibition is untouched and still enforced. See docs/rulings/CIR-001.md."
         ),
     ),
     CIREntry(
@@ -434,7 +444,14 @@ class RiskEntry:
 #: 21_PLAN §6's risks, with this build's disposition. "Realized" means the risk
 #: happened; "mitigated" means construction addressed it; "open" means it stands.
 RISK_REGISTER: tuple[RiskEntry, ...] = (
-    RiskEntry("R1", "critical", "Technology naming conflict", "open", "CIR-001; blocks four modules"),
+    RiskEntry(
+        "R1",
+        "critical",
+        "Technology naming conflict",
+        "mitigated",
+        "CIR-001 resolved 2026-08-24 by G4 ruling; the five blocked modules are now built, and the "
+        "abstraction-level naming prohibition the ruling preserved remains enforced by test",
+    ),
     RiskEntry("R2", "high", "Direct service call prohibition", "open", "CIR-002; deferred by in-process build"),
     RiskEntry(
         "R3",

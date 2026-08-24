@@ -1,57 +1,59 @@
-"""Integration Registry — **CONSTRUCTION BLOCKED by CIR-001** (21B §20).
+"""Integration Registry — governs which integrations exist (17.8, per 21B §20).
 
-21B §20 opens with the block, verbatim:
+**Construction authorized 2026-08-24** by G4 human sovereign ruling on CIR-001
+(`docs/rulings/CIR-001.md`). The ruling scoped the naming prohibition of 17
+rule 21, 18 rule 18 and 19 rule 22 to **capability abstractions and governance
+artifacts**, distinguishing 03's Implementation Specification from the
+constitutional documents the rule addresses.
 
-> Construction blocked by CIR-001. `19` non-violable rule 22, `17` rule 21,
-> and `18` rule 18 prohibit constitutional documents from naming specific
-> technologies or providers, while `03_TECH_STACK` names approximately fifty.
-> The portability guarantees of `17.23` and the provider-neutrality
-> obligations of `17.23.6` depend on how that prohibition is scoped.
-> Construction of this platform does not begin until CIR-001 is resolved at
-> G3 or G4. **This section specifies the architecture; it does not authorize
-> its construction.**
+The consequence here is precise, and it is why the module's shape did not
+change when the block lifted: an **abstraction** still may not name a provider,
+because that is what makes 17.6.3's substitution guarantee real, and the test
+asserting it is untouched. A **manifest** may name one, because naming the
+provider is what a manifest is for.
 
-Build Specification Part V holds CIR-001-blocked modules "to specification-level
-tests (schema/contract validation) only, until construction unblocks", and
-Section 6 forbids marking them Done.
-
-**What this module therefore is.** The manifest schema, the capability
-abstraction model, the lifecycle states and the validation rules are all
-expressed and testable — that is the "specification-conformant" half. Every
-operation that would bring a live integration into existence raises
-`ConstructionBlocked` — that is the "construction-blocked" half.
-
-**What it deliberately is not.** There is no provider client, no credential
-exchange, no live health probe, no abstraction resolution against a running
-provider. Those are construction, and construction is not authorized.
-
-Resolving CIR-001 requires a Governance ruling at G3 or G4. Build Spec Section
-6 rule 9 forbids Claude Code from resolving it by choosing an interpretation
-unilaterally, so this module escalates rather than guessing.
+`17.8` splits existence from consumption. The Registry governs existence and
+holds no connection; the Gateway consumes. So there is no `consume` verb here,
+and provider health arrives as reports rather than as probes the Registry makes
+itself.
 """
 
 from integration_registry.manifests import (
     CIR_001,
+    CIR_001_RESOLVED,
+    HEALTH_MINIMUM_SAMPLE,
+    HEALTH_SUSPENSION_RATE,
+    MAX_CLASSIFICATION_BY_TIER,
+    ApprovalAuthorityInsufficient,
     CapabilityAbstraction,
     ConstructionBlocked,
     DataClassification,
     IntegrationManifest,
+    IntegrationRecord,
     IntegrationRegistry,
     IntegrationState,
     PortabilityDeclaration,
     RiskTier,
+    required_decision_class,
     validate_manifest,
 )
 
 __all__ = [
     "IntegrationRegistry",
+    "IntegrationRecord",
     "IntegrationManifest",
+    "IntegrationState",
     "CapabilityAbstraction",
     "PortabilityDeclaration",
-    "IntegrationState",
     "RiskTier",
     "DataClassification",
-    "ConstructionBlocked",
+    "MAX_CLASSIFICATION_BY_TIER",
+    "ApprovalAuthorityInsufficient",
+    "required_decision_class",
     "validate_manifest",
+    "HEALTH_SUSPENSION_RATE",
+    "HEALTH_MINIMUM_SAMPLE",
+    "ConstructionBlocked",
     "CIR_001",
+    "CIR_001_RESOLVED",
 ]

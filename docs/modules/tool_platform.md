@@ -91,10 +91,11 @@ autonomous trust threshold (0.5), and the per-tier resource limits.
   the egress allowlist and cleanup contract, but Docker, gVisor and
   Firecracker are not wired in. Sandbox *semantics* are implemented; sandbox
   *isolation* awaits the container runtime.
-- **Integration backing always fails** while CIR-001 blocks the Integration
-  Platform. `UnbackedIntegrationSource` reports every abstraction unbacked, so
-  a tool declaring one is refused. This is correct, not a workaround — see
-  `docs/modules/integration_platform.md`.
+- **Integration backing resolves against the real Registry** since the CIR-001
+  ruling. `RegistryIntegrationSource` authorizes a tool whose abstraction is
+  backed by an active approved integration. `UnbackedIntegrationSource` is
+  retained for the case it actually describes: a deployment with no registered
+  integrations. See `docs/modules/integration_platform.md`.
 - Timeout enforcement is checked after the tool returns rather than
   interrupting it mid-flight; real pre-emption needs the process isolation the
   runtime would provide.

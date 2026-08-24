@@ -4,20 +4,31 @@ Generated from the ratified corpus by `tests/conformance/matrix.py`.
 Do not edit by hand: `test_appendix_f.py` regenerates and compares.
 
 - Rules extracted from documents 01-19: **464**
-- Proven by an automated test: **237**
-- Blocked by CIR-001: **102** — 67 about subsystems CIR-001 blocks, 35 that *are* the CIR-001 question
+- Proven by an automated test: **269**
+- Blocked by CIR-001: **0** (was 102 before the ruling)
+- **Deviations** — binding and not satisfied: **35**
 - Not code-checkable here (each with a stated reason): **32**
-- Uncovered: **93**
-- Coverage of currently testable rules: **71.8%**
+- Uncovered: **128**
+- Coverage of currently testable rules: **67.8%**
 
 The uncovered count is the honest state of this matrix, not a rounding
 error. It is published so the gap is a number someone can act on.
 
-The two blocked causes are not the same. A rule about the Deployment
-Platform becomes provable once a G3/G4 ruling authorizes construction. A
-rule mandating FastAPI may be *struck* by the same ruling, since documents
-17, 18 and 19 forbid constitutional documents naming technologies and 03
-does. Satisfying those is the conflict, not work waiting behind it.
+**On the deviations.** CIR-001 was resolved on 2026-08-24 by G4 human
+sovereign ruling: 03 is an Implementation Specification, and the naming
+prohibition of 17/18/19 governs capability abstractions and governance
+artifacts rather than 03. That released five modules for construction —
+and it made 03's 35 technology mandates *binding*. This build does not
+satisfy them: it uses no FastAPI, no PostgreSQL, no Temporal, and is
+in-process throughout. Those rules are therefore recorded as deviations
+rather than blocks, which is a less comfortable status and the correct
+one: a block was someone else's decision to make, a deviation is ours.
+
+The ruling could have gone the other way and struck those 35 rules, since
+17, 18 and 19 do forbid constitutional documents naming technologies. It
+did not: it distinguished 03 as an Implementation Specification instead.
+Recorded here because a matrix that showed only the outcome would hide
+that the outcome was a choice.
 
 `not_code_checkable` is not a softer word for uncovered. Those rules are
 real obligations that an automated test in *this repository* cannot prove:
@@ -117,62 +128,62 @@ infrastructure that does not exist here. Each carries a stated reason.
 | `03.appendix.1` | not_code_checkable | a runtime-version obligation; the toolchain is 3.11.9 and a test asserting it would only restate its own interpreter | **Python Version:** All services run on Python 3.11.9+ or 3.12.x. |
 | `03.appendix.2` | not_code_checkable | enforced by the mypy --strict gate in CI and pre-commit, not by a test that re-runs it | **Type Safety:** `mypy --strict` passes with zero errors. |
 | `03.appendix.3` | not_code_checkable | enforced by the bandit gate and by code review; a test cannot prove the absence of a secret it was not shown | **No Secrets in Code:** Hardcoded secrets result in immediate rotation and incident res... |
-| `03.appendix.4` | blocked | mandates Poetry; satisfying this rule *is* the CIR-001 question, not work blocked behind it | **Poetry Only:** No `requirements.txt` in production services. |
-| `03.appendix.5` | blocked | mandates FastAPI; satisfying this rule *is* the CIR-001 question, not work blocked behind it | **FastAPI Only:** No Flask, Django, or raw ASGI for HTTP services. |
-| `03.appendix.6` | blocked | mandates async HTTP client selection; satisfying this rule *is* the CIR-001 question, not work blocked behind it | **Async I/O:** No blocking HTTP calls (`requests`) in async contexts. |
-| `03.appendix.7` | blocked | mandates SQLAlchemy 2.0; satisfying this rule *is* the CIR-001 question, not work blocked behind it | **SQLAlchemy 2.0:** No 1.x query API. No raw SQL in business logic. |
-| `03.appendix.8` | blocked | mandates Alembic; satisfying this rule *is* the CIR-001 question, not work blocked behind it | **Alembic Migrations:** No schema changes without migration. |
-| `03.appendix.9` | blocked | mandates Redis Streams; satisfying this rule *is* the CIR-001 question, not work blocked behind it | **Event Bus:** All inter-service events via Redis Streams. No direct HTTP for events. |
-| `03.appendix.10` | blocked | mandates Temporal; satisfying this rule *is* the CIR-001 question, not work blocked behind it | **Temporal Workflows:** All multi-step business processes are Temporal workflows. |
-| `03.appendix.11` | blocked | mandates LiteLLM Proxy; satisfying this rule *is* the CIR-001 question, not work blocked behind it | **LLM Router:** All LLM traffic through LiteLLM Proxy. No direct provider calls. |
-| `03.appendix.12` | blocked | mandates pgvector; satisfying this rule *is* the CIR-001 question, not work blocked behind it | **pgvector:** All vector storage in PostgreSQL. No separate vector DB in core. |
-| `03.appendix.13` | blocked | mandates Docker image tagging; satisfying this rule *is* the CIR-001 question, not work blocked behind it | **Docker Tags:** No `latest` tags in production. |
-| `03.appendix.14` | blocked | mandates container resource limits; satisfying this rule *is* the CIR-001 question, not work blocked behind it | **Resource Limits:** Every container has explicit CPU and memory limits. |
+| `03.appendix.4` | deviation | mandates Poetry; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | **Poetry Only:** No `requirements.txt` in production services. |
+| `03.appendix.5` | deviation | mandates FastAPI; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | **FastAPI Only:** No Flask, Django, or raw ASGI for HTTP services. |
+| `03.appendix.6` | deviation | mandates async HTTP client selection; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | **Async I/O:** No blocking HTTP calls (`requests`) in async contexts. |
+| `03.appendix.7` | deviation | mandates SQLAlchemy 2.0; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | **SQLAlchemy 2.0:** No 1.x query API. No raw SQL in business logic. |
+| `03.appendix.8` | deviation | mandates Alembic; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | **Alembic Migrations:** No schema changes without migration. |
+| `03.appendix.9` | deviation | mandates Redis Streams; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | **Event Bus:** All inter-service events via Redis Streams. No direct HTTP for events. |
+| `03.appendix.10` | deviation | mandates Temporal; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | **Temporal Workflows:** All multi-step business processes are Temporal workflows. |
+| `03.appendix.11` | deviation | mandates LiteLLM Proxy; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | **LLM Router:** All LLM traffic through LiteLLM Proxy. No direct provider calls. |
+| `03.appendix.12` | deviation | mandates pgvector; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | **pgvector:** All vector storage in PostgreSQL. No separate vector DB in core. |
+| `03.appendix.13` | deviation | mandates Docker image tagging; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | **Docker Tags:** No `latest` tags in production. |
+| `03.appendix.14` | deviation | mandates container resource limits; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | **Resource Limits:** Every container has explicit CPU and memory limits. |
 | `03.appendix.15` | not_code_checkable | enforced by pre-commit itself; a test cannot assert that a hook ran before it did | **Pre-Commit:** All commits pass pre-commit hooks. |
 | `03.appendix.16` | not_code_checkable | CI has never executed (Section 39 criterion 2); the gate exists and is unproven | **Tests Required:** No production deployment without tests. |
 | `03.appendix.17` | proven | `test_a_class_c_timeout_defers_and_never_approves`, `test_a_class_d_timeout_rejects_and_never_approves` | **Auto-Approval Prohibited:** Level 3+ actions never auto-approve on timeout. |
-| `03.appendix.18` | blocked | mandates a structured logging stack; satisfying this rule *is* the CIR-001 question, not work blocked behind it | **Structured Logs:** No unstructured plain-text logs in production. |
-| `03.appendix.19` | blocked | mandates OpenTelemetry; satisfying this rule *is* the CIR-001 question, not work blocked behind it | **OpenTelemetry:** All services export traces. |
-| `03.appendix.20` | blocked | mandates Prometheus; satisfying this rule *is* the CIR-001 question, not work blocked behind it | **Prometheus Metrics:** All services expose `/metrics`. |
-| `03.appendix.21` | blocked | mandates a prohibited-technology list; satisfying this rule *is* the CIR-001 question, not work blocked behind it | **No Prohibited Tech:** LangChain orchestration, LlamaIndex core, Celery workflows, Mon... |
+| `03.appendix.18` | deviation | mandates a structured logging stack; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | **Structured Logs:** No unstructured plain-text logs in production. |
+| `03.appendix.19` | deviation | mandates OpenTelemetry; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | **OpenTelemetry:** All services export traces. |
+| `03.appendix.20` | deviation | mandates Prometheus; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | **Prometheus Metrics:** All services expose `/metrics`. |
+| `03.appendix.21` | deviation | mandates a prohibited-technology list; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | **No Prohibited Tech:** LangChain orchestration, LlamaIndex core, Celery workflows, Mon... |
 | `03.appendix.22` | not_code_checkable | a licence-review obligation discharged by ADR, not by code | **License Compliance:** No GPL/AGPL/SSPL in core without ADR. |
 | `03.appendix.23` | proven | `test_offset_pagination_is_refused_not_ignored`, `test_every_offset_spelling_is_refused` | **Cursor Pagination:** No offset-based pagination in production APIs. |
 | `03.appendix.24` | proven | `test_a_mutating_request_without_a_key_is_refused` | **Idempotency:** All mutating endpoints accept `Idempotency-Key`. |
 | `03.appendix.25` | not_code_checkable | a release-process obligation: rollback is exercised against a deployment, and none exists | **Rollback Tested:** No deployment without tested rollback procedure. |
 | `03.inline.1` | not_code_checkable | a constitutional-amendment procedure, discharged by Governance rather than by code | No technology may be adopted that violates Priority 1 or 2 without a constitutional ame... |
-| `03.inline.2` | blocked | mandates Python for core services, Terraform for glue; satisfying this rule *is* the CIR-001 question, not work blocked behind it | All business logic in core services must be Python. Infrastructure glue (Terraform, she... |
+| `03.inline.2` | deviation | mandates Python for core services, Terraform for glue; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | All business logic in core services must be Python. Infrastructure glue (Terraform, she... |
 | `03.inline.3` | proven | `test_the_generated_file_matches_the_generator`, `test_the_python_first_light_mirrors_the_typescript_definition` | All Temporal workflow definitions must be TypeScript. Activity implementations may be P... |
-| `03.inline.4` | blocked | mandates Terraform / HCL; satisfying this rule *is* the CIR-001 question, not work blocked behind it | No manual cloud console changes. All infrastructure must be in version-controlled HCL. |
+| `03.inline.4` | deviation | mandates Terraform / HCL; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | No manual cloud console changes. All infrastructure must be in version-controlled HCL. |
 | `03.inline.5` | not_code_checkable | a runtime-version obligation; verified by the pinned toolchain rather than by a self-referential test | Services may not depend on runtime versions outside the specified ranges. Upgrades requ... |
-| `03.inline.6` | blocked | mandates Poetry lockfiles and Docker; satisfying this rule *is* the CIR-001 question, not work blocked behind it | No requirements.txt files in production services. No unpinned dependencies in Docker im... |
-| `03.inline.7` | blocked | mandates FastAPI; satisfying this rule *is* the CIR-001 question, not work blocked behind it | All HTTP services must use FastAPI. No Flask, Django, or raw ASGI frameworks in new ser... |
+| `03.inline.6` | deviation | mandates Poetry lockfiles and Docker; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | No requirements.txt files in production services. No unpinned dependencies in Docker im... |
+| `03.inline.7` | deviation | mandates FastAPI; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | All HTTP services must use FastAPI. No Flask, Django, or raw ASGI frameworks in new ser... |
 | `03.inline.8` | proven | `test_input_failing_its_contract_is_rejected_before_the_sandbox` | All external inputs must be validated by Pydantic before processing. No raw dict access... |
-| `03.inline.9` | blocked | mandates SQLAlchemy over raw SQL; satisfying this rule *is* the CIR-001 question, not work blocked behind it | No raw SQL strings in business logic. Raw SQL is permitted only in migrations and perfo... |
-| `03.inline.10` | blocked | mandates Alembic; satisfying this rule *is* the CIR-001 question, not work blocked behind it | No database schema change without a corresponding Alembic migration. No manual DDL in p... |
-| `03.inline.11` | blocked | mandates async HTTP client selection; satisfying this rule *is* the CIR-001 question, not work blocked behind it | No requests library in async services. No urllib3 direct usage. |
-| `03.inline.12` | blocked | mandates ASGI server selection; satisfying this rule *is* the CIR-001 question, not work blocked behind it | No synchronous WSGI servers (Gunicorn sync workers) for FastAPI services. |
+| `03.inline.9` | deviation | mandates SQLAlchemy over raw SQL; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | No raw SQL strings in business logic. Raw SQL is permitted only in migrations and perfo... |
+| `03.inline.10` | deviation | mandates Alembic; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | No database schema change without a corresponding Alembic migration. No manual DDL in p... |
+| `03.inline.11` | deviation | mandates async HTTP client selection; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | No requests library in async services. No urllib3 direct usage. |
+| `03.inline.12` | deviation | mandates ASGI server selection; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | No synchronous WSGI servers (Gunicorn sync workers) for FastAPI services. |
 | `03.inline.13` | not_code_checkable | an obligation on a frontend this build does not contain | The frontend is a dashboard, not a product. No business logic in the frontend. All calc... |
-| `03.inline.14` | blocked | mandates PostgreSQL; satisfying this rule *is* the CIR-001 question, not work blocked behind it | No raw SQL injection vulnerabilities. All queries parameterized. No database engine oth... |
-| `03.inline.15` | blocked | mandates pgvector; satisfying this rule *is* the CIR-001 question, not work blocked behind it | All vector storage must use pgvector. No separate vector databases without ADR justific... |
-| `03.inline.16` | blocked | mandates Apache AGE; satisfying this rule *is* the CIR-001 question, not work blocked behind it | Knowledge graphs must use Apache AGE. No dedicated graph databases in core infrastructure. |
-| `03.inline.17` | blocked | mandates Redis persistence; satisfying this rule *is* the CIR-001 question, not work blocked behind it | Redis must be configured with persistence enabled. No ephemeral-only Redis in production. |
-| `03.inline.18` | blocked | mandates the Event Bus transport; satisfying this rule *is* the CIR-001 question, not work blocked behind it | All inter-service events must flow through the Event Bus. No direct HTTP calls between ... |
-| `03.inline.19` | blocked | mandates Temporal; satisfying this rule *is* the CIR-001 question, not work blocked behind it | All multi-step business processes must be Temporal workflows. No Celery chains or custo... |
+| `03.inline.14` | deviation | mandates PostgreSQL; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | No raw SQL injection vulnerabilities. All queries parameterized. No database engine oth... |
+| `03.inline.15` | deviation | mandates pgvector; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | All vector storage must use pgvector. No separate vector databases without ADR justific... |
+| `03.inline.16` | deviation | mandates Apache AGE; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | Knowledge graphs must use Apache AGE. No dedicated graph databases in core infrastructure. |
+| `03.inline.17` | deviation | mandates Redis persistence; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | Redis must be configured with persistence enabled. No ephemeral-only Redis in production. |
+| `03.inline.18` | deviation | mandates the Event Bus transport; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | All inter-service events must flow through the Event Bus. No direct HTTP calls between ... |
+| `03.inline.19` | deviation | mandates Temporal; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | All multi-step business processes must be Temporal workflows. No Celery chains or custo... |
 | `03.inline.20` | proven | `test_an_abstraction_may_not_name_its_provider` | No agent or service may call an LLM provider directly. All LLM traffic flows through th... |
-| `03.inline.21` | blocked | mandates Docker image pinning; satisfying this rule *is* the CIR-001 question, not work blocked behind it | No latest tags in Dockerfiles. All base images pinned to digest or specific version. |
-| `03.inline.22` | blocked | mandates docker compose; satisfying this rule *is* the CIR-001 question, not work blocked behind it | docker compose up must produce a fully functional local environment from a clean clone. |
+| `03.inline.21` | deviation | mandates Docker image pinning; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | No latest tags in Dockerfiles. All base images pinned to digest or specific version. |
+| `03.inline.22` | deviation | mandates docker compose; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | docker compose up must produce a fully functional local environment from a clean clone. |
 | `03.inline.23` | not_code_checkable | enforced by pre-commit and CI configuration, not by anything the code can assert | pre-commit install is mandatory for all contributors. CI enforces the same checks. |
 | `03.inline.24` | not_code_checkable | enforced by the ruff check and ruff format --check gates, not by a test that re-runs them | All Python code must pass ruff check . and ruff format --check .. |
 | `03.inline.25` | not_code_checkable | enforced by the mypy --strict gate in CI and pre-commit, not by a test that re-runs it | mypy --strict must pass with zero errors. No # type: ignore without ticket reference. |
 | `03.inline.26` | not_code_checkable | enforced by the bandit gate and by review; absence of a secret is not a property a test can establish | No secrets in Git. No secrets in environment variables in production (files only). No s... |
 | `03.inline.27` | not_code_checkable | a branch-policy obligation enforced by repository settings, not by the code in the repository | No long-lived feature branches. No direct pushes to main. |
-| `03.inline.28` | blocked | mandates deployment version tagging; satisfying this rule *is* the CIR-001 question, not work blocked behind it | Production deployments use exact version tags, never latest. |
+| `03.inline.28` | deviation | mandates deployment version tagging; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | Production deployments use exact version tags, never latest. |
 | `03.inline.29` | not_code_checkable | a licence-review obligation discharged by legal review and ADR | No GPL or AGPL dependencies in core services without legal review and ADR. |
 | `03.inline.30` | proven | `test_offset_pagination_is_refused_not_ignored`, `test_every_offset_spelling_is_refused` | No offset-based pagination (`?page=2&limit=50`) in production APIs. |
-| `03.inline.31` | blocked | mandates gRPC internally, REST externally; satisfying this rule *is* the CIR-001 question, not work blocked behind it | gRPC is for internal services only. External clients interact via REST through the API ... |
-| `03.inline.32` | blocked | mandates OpenAPI-generated SDK models; satisfying this rule *is* the CIR-001 question, not work blocked behind it | SDK models must be auto-generated from the canonical OpenAPI spec. No hand-written mode... |
+| `03.inline.31` | deviation | mandates gRPC internally, REST externally; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | gRPC is for internal services only. External clients interact via REST through the API ... |
+| `03.inline.32` | deviation | mandates OpenAPI-generated SDK models; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | SDK models must be auto-generated from the canonical OpenAPI spec. No hand-written mode... |
 | `03.inline.33` | proven | `test_no_sandbox_tier_runs_a_plugin_in_core_process_space`, `test_the_manager_holds_no_verb_that_executes_plugin_code` | No plugin may run in the same process space as core services. No plugin may access core... |
-| `03.inline.34` | blocked | mandates container memory limits; satisfying this rule *is* the CIR-001 question, not work blocked behind it | No container may run without explicit memory limits. OOM kills are preferred over memor... |
+| `03.inline.34` | deviation | mandates container memory limits; binding on implementation work since the 2026-08-24 ruling, and this in-process build does not satisfy it — a recorded deviation, not a block | No container may run without explicit memory limits. OOM kills are preferred over memor... |
 | `03.inline.35` | not_code_checkable | a docstring-coverage gate; ruff's pydocstyle rules are not enabled in this configuration | No public API without complete docstrings. CI enforces via `ruff` pydocstyle rules. |
 | `03.inline.36` | not_code_checkable | a configuration-management obligation; no deployment configuration exists to check | No configuration values hardcoded in source code. No production secrets in environment ... |
 | `03.inline.37` | not_code_checkable | a release-process obligation: rollback is exercised against a deployment, and none exists | No deployment without a tested rollback procedure. |
@@ -423,73 +434,73 @@ infrastructure that does not exist here. Each carries a stated reason.
 | `16.35.13` | proven | `test_panic_discloses_what_each_subsystem_knows` | The Panic Protocol must trigger complete observability disclosure to human operators wi... |
 | `16.35.14` | proven | `test_only_human_intervention_resumes_after_panic` | No observability artifact may reduce human sovereignty below absolute terminal authority. |
 | `16.35.15` | proven | `test_the_gateway_still_exposes_no_mutating_verb` | No observability artifact may bypass the Observability Gateway for direct producer-to-c... |
-| `17.34.1` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No integration may be consumed without prior registration and validation in the Integra... |
-| `17.34.2` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No integration may be activated without a valid human-approved decision record with aut... |
-| `17.34.3` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No integration may provide external capabilities outside its declared capability abstra... |
-| `17.34.4` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No integration may process data beyond its declared classification limits or residency ... |
-| `17.34.5` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No integration may handle secrets directly; secrets are injected by the Security Gatewa... |
-| `17.34.6` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No integration may escalate its own permissions, risk tier, or scope without human re-a... |
-| `17.34.7` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No anonymous or pseudonymous integration registration is permitted. |
-| `17.34.8` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No integration may cross tenant boundaries without explicit bilateral human approval an... |
-| `17.34.9` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No mutating integration may be consumed without a tool declaring compensation logic. |
-| `17.34.10` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No integration consumption may exceed its cost ceiling or the consumer's remaining budget. |
-| `17.34.11` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No integration may bypass the Integration Gateway for direct consumer-to-provider inter... |
-| `17.34.12` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No integration audit record may be modified, overwritten, or deleted after formation. |
-| `17.34.13` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No integration may present unvalidated external data as internal knowledge without prov... |
-| `17.34.14` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No approval gate for I3 or I4 integration activation may auto-approve on timeout. |
-| `17.34.15` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No integration may suppress failure, cost overrun, or data handling violation informati... |
-| `17.34.16` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No deprecated integration may be bound to new workflow activities after its migration d... |
-| `17.34.17` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No integration may interact with another external system directly; all composition flow... |
-| `17.34.18` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No integration may store organizational data exclusively in external systems without ex... |
-| `17.34.19` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | The Panic Protocol must halt all in-flight integration consumptions within 5 seconds. |
-| `17.34.20` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No integration may embed provider-specific logic that prevents substitution by an alter... |
-| `17.34.21` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No constitutional document, policy, or governance artifact may reference a specific ext... |
-| `17.34.22` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No integration may reduce human sovereignty below absolute terminal authority over exte... |
-| `18.36.1` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No deployment may be activated without prior registration and validation in the Deploym... |
-| `18.36.2` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No deployment may host runtime instances without a valid human-approved decision record... |
-| `18.36.3` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No deployment may operate outside its declared sovereignty tier without human re-approval. |
-| `18.36.4` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No deployment may process data beyond its declared geographic locality or residency req... |
-| `18.36.5` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No deployment may share substrate with another tenant without explicit bilateral human ... |
-| `18.36.6` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No anonymous or pseudonymous deployment registration is permitted. |
-| `18.36.7` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No deployment may compromise tenant, business, or workspace isolation for capacity or e... |
-| `18.36.8` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No deployment may bypass the Deployment Gateway for direct runtime-to-substrate interac... |
-| `18.36.9` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No deployment audit record may be modified, overwritten, or deleted after formation. |
-| `18.36.10` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No deployment may exceed its declared capacity boundaries while continuing to accept ne... |
-| `18.36.11` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No D4 deployment may operate under S3 (shared sovereignty) without explicit human sover... |
-| `18.36.12` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No deployment may present unvalidated substrate state as constitutional environmental g... |
-| `18.36.13` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No approval gate for E3 or E4 deployment activation may auto-approve on timeout. |
-| `18.36.14` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No deployment may suppress health degradation, capacity exhaustion, or geographic drift... |
-| `18.36.15` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No deprecated deployment may host new runtime instances after its migration deadline. |
-| `18.36.16` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No deployment may reduce human sovereignty below absolute terminal authority over opera... |
-| `18.36.17` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No deployment may embed provider-specific logic that prevents substrate substitution. |
-| `18.36.18` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No constitutional document may reference a specific substrate operator, technology, or ... |
-| `18.36.19` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | The environmental panic protocol must halt all runtime instances in affected territory ... |
-| `18.36.20` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No deployment failure may remain unclassified or unalerted for more than 60 seconds. |
-| `19.38.1` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No evolutionary artifact may be formed without authenticated proposer identity and comp... |
-| `19.38.2` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No evolutionary artifact may bypass the Governance Gateway for ratification or direct s... |
-| `19.38.3` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No evolutionary artifact may modify, circumvent, or erode non-violable rules defined in... |
-| `19.38.4` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No evolutionary artifact may reduce human sovereignty below absolute terminal authority. |
-| `19.38.5` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No evolutionary artifact may target the Evolution subsystem itself without A4 human aut... |
-| `19.38.6` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No evolutionary artifact may be propagated with confidence below the threshold for its ... |
-| `19.38.7` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No evolutionary artifact may suppress uncertainty or present correlation as causation. |
-| `19.38.8` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No anonymous or pseudonymous evolutionary formation or propagation is permitted. |
-| `19.38.9` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No evolutionary artifact may cross tenant boundaries without explicit anonymization and... |
-| `19.38.10` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No evolutionary artifact may be adopted without measurement of its actual outcome. |
-| `19.38.11` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No evolutionary artifact may be modified, overwritten, or deleted after validation. |
-| `19.38.12` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No evolution cycle may consume resources that breach portfolio-level circuit breakers. |
-| `19.38.13` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No evolutionary artifact may override a human sovereign decision or standing order. |
-| `19.38.14` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No evolutionary artifact may proceed on unresolved contradictory evidence without human... |
-| `19.38.15` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No evolutionary artifact may be formed from quarantined memory, unvalidated knowledge, ... |
-| `19.38.16` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No evolutionary artifact may escalate the autonomy level of any agent or subsystem with... |
-| `19.38.17` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No evolutionary feedback loop may remain unclosed for more than its defined measurement... |
-| `19.38.18` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No evolutionary artifact may recursively trigger evolution cycles without explicit huma... |
-| `19.38.19` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No evolutionary audit record may be modified, overwritten, or deleted after formation. |
-| `19.38.20` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | Evolution governance anomalies must be escalated as Category 1 incidents. |
-| `19.38.21` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | Sovereign Override must halt all active evolutionary cycles, experiments, and transitio... |
-| `19.38.22` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No constitutional document, policy, or governance artifact may reference a specific imp... |
-| `19.38.23` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No evolutionary artifact may embed provider-specific logic that prevents substitution b... |
-| `19.38.24` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | No experiment may operate without defined time boundaries, scope limits, success criter... |
-| `19.38.25` | blocked | belongs to a subsystem CIR-001 blocks; provable only once construction is authorized by a G3 or G4 ruling (21C §38.6) | The constitution may not be experimentally suspended, modified, or bypassed for any pur... |
+| `17.34.1` | proven | `test_registration_is_not_approval_and_approval_is_not_activation` | No integration may be consumed without prior registration and validation in the Integra... |
+| `17.34.2` | proven | `test_insufficient_approval_authority_is_refused`, `test_class_d_approval_requires_a_human` | No integration may be activated without a valid human-approved decision record with aut... |
+| `17.34.3` | proven | `test_an_integration_must_fulfil_a_declared_abstraction` | No integration may provide external capabilities outside its declared capability abstra... |
+| `17.34.4` | proven | `test_data_above_the_ceiling_is_refused_before_egress`, `test_a_manifest_may_not_exceed_its_tiers_classification_ceiling` | No integration may process data beyond its declared classification limits or residency ... |
+| `17.34.5` | uncovered | — | No integration may handle secrets directly; secrets are injected by the Security Gatewa... |
+| `17.34.6` | proven | `test_approval_is_per_instance_not_per_class` | No integration may escalate its own permissions, risk tier, or scope without human re-a... |
+| `17.34.7` | proven | `test_anonymous_registration_is_prohibited` | No anonymous or pseudonymous integration registration is permitted. |
+| `17.34.8` | proven | `test_consumption_never_crosses_the_tenant_boundary` | No integration may cross tenant boundaries without explicit bilateral human approval an... |
+| `17.34.9` | uncovered | — | No mutating integration may be consumed without a tool declaring compensation logic. |
+| `17.34.10` | uncovered | — | No integration consumption may exceed its cost ceiling or the consumer's remaining budget. |
+| `17.34.11` | uncovered | — | No integration may bypass the Integration Gateway for direct consumer-to-provider inter... |
+| `17.34.12` | uncovered | — | No integration audit record may be modified, overwritten, or deleted after formation. |
+| `17.34.13` | uncovered | — | No integration may present unvalidated external data as internal knowledge without prov... |
+| `17.34.14` | uncovered | — | No approval gate for I3 or I4 integration activation may auto-approve on timeout. |
+| `17.34.15` | uncovered | — | No integration may suppress failure, cost overrun, or data handling violation informati... |
+| `17.34.16` | proven | `test_deprecation_names_a_successor_where_one_exists`, `test_a_successor_must_exist` | No deprecated integration may be bound to new workflow activities after its migration d... |
+| `17.34.17` | uncovered | — | No integration may interact with another external system directly; all composition flow... |
+| `17.34.18` | uncovered | — | No integration may store organizational data exclusively in external systems without ex... |
+| `17.34.19` | proven | `test_panic_suspends_every_active_integration` | The Panic Protocol must halt all in-flight integration consumptions within 5 seconds. |
+| `17.34.20` | proven | `test_substituting_the_provider_leaves_the_abstraction_constant` | No integration may embed provider-specific logic that prevents substitution by an alter... |
+| `17.34.21` | proven | `test_an_abstraction_may_not_name_its_provider` | No constitutional document, policy, or governance artifact may reference a specific ext... |
+| `17.34.22` | proven | `test_termination_is_a_human_act` | No integration may reduce human sovereignty below absolute terminal authority over exte... |
+| `18.36.1` | proven | `test_declaration_validation_approval_and_activation_are_four_gates` | No deployment may be activated without prior registration and validation in the Deploym... |
+| `18.36.2` | proven | `test_risk_tier_maps_to_authority`, `test_insufficient_authority_is_refused` | No deployment may host runtime instances without a valid human-approved decision record... |
+| `18.36.3` | proven | `test_promotion_advances_authority_and_a_non_advance_is_refused` | No deployment may operate outside its declared sovereignty tier without human re-approval. |
+| `18.36.4` | uncovered | — | No deployment may process data beyond its declared geographic locality or residency req... |
+| `18.36.5` | proven | `test_sovereign_infrastructure_may_not_sit_on_a_shared_substrate` | No deployment may share substrate with another tenant without explicit bilateral human ... |
+| `18.36.6` | proven | `test_anonymous_declaration_is_prohibited` | No anonymous or pseudonymous deployment registration is permitted. |
+| `18.36.7` | proven | `test_discovery_never_crosses_the_tenant_boundary` | No deployment may compromise tenant, business, or workspace isolation for capacity or e... |
+| `18.36.8` | proven | `test_no_runtime_exists_in_an_environment_without_mediation` | No deployment may bypass the Deployment Gateway for direct runtime-to-substrate interac... |
+| `18.36.9` | uncovered | — | No deployment audit record may be modified, overwritten, or deleted after formation. |
+| `18.36.10` | uncovered | — | No deployment may exceed its declared capacity boundaries while continuing to accept ne... |
+| `18.36.11` | proven | `test_sovereign_infrastructure_may_not_sit_on_a_shared_substrate` | No D4 deployment may operate under S3 (shared sovereignty) without explicit human sover... |
+| `18.36.12` | uncovered | — | No deployment may present unvalidated substrate state as constitutional environmental g... |
+| `18.36.13` | uncovered | — | No approval gate for E3 or E4 deployment activation may auto-approve on timeout. |
+| `18.36.14` | uncovered | — | No deployment may suppress health degradation, capacity exhaustion, or geographic drift... |
+| `18.36.15` | uncovered | — | No deprecated deployment may host new runtime instances after its migration deadline. |
+| `18.36.16` | proven | `test_termination_is_an_e4_human_act` | No deployment may reduce human sovereignty below absolute terminal authority over opera... |
+| `18.36.17` | uncovered | — | No deployment may embed provider-specific logic that prevents substrate substitution. |
+| `18.36.18` | uncovered | — | No constitutional document may reference a specific substrate operator, technology, or ... |
+| `18.36.19` | proven | `test_panic_quarantines_every_active_environment` | The environmental panic protocol must halt all runtime instances in affected territory ... |
+| `18.36.20` | uncovered | — | No deployment failure may remain unclassified or unalerted for more than 60 seconds. |
+| `19.38.1` | proven | `test_an_anonymous_proposal_is_refused`, `test_a_proposal_without_a_rationale_is_refused` | No evolutionary artifact may be formed without authenticated proposer identity and comp... |
+| `19.38.2` | proven | `test_handoff_delivers_to_governance_and_relinquishes`, `test_handoff_without_a_registered_governance_is_refused` | No evolutionary artifact may bypass the Governance Gateway for ratification or direct s... |
+| `19.38.3` | uncovered | — | No evolutionary artifact may modify, circumvent, or erode non-violable rules defined in... |
+| `19.38.4` | proven | `test_evolution_has_no_ratifying_verb`, `test_the_ruling_authorized_construction_and_not_authority` | No evolutionary artifact may reduce human sovereignty below absolute terminal authority. |
+| `19.38.5` | proven | `test_a_proposal_targeting_evolution_is_quarantined_and_escalated` | No evolutionary artifact may target the Evolution subsystem itself without A4 human aut... |
+| `19.38.6` | uncovered | — | No evolutionary artifact may be propagated with confidence below the threshold for its ... |
+| `19.38.7` | proven | `test_a_proposal_on_unconfirmed_evidence_is_refused` | No evolutionary artifact may suppress uncertainty or present correlation as causation. |
+| `19.38.8` | proven | `test_an_anonymous_proposal_is_refused` | No anonymous or pseudonymous evolutionary formation or propagation is permitted. |
+| `19.38.9` | uncovered | — | No evolutionary artifact may cross tenant boundaries without explicit anonymization and... |
+| `19.38.10` | proven | `test_governance_decides_and_evolution_records` | No evolutionary artifact may be adopted without measurement of its actual outcome. |
+| `19.38.11` | uncovered | — | No evolutionary artifact may be modified, overwritten, or deleted after validation. |
+| `19.38.12` | uncovered | — | No evolution cycle may consume resources that breach portfolio-level circuit breakers. |
+| `19.38.13` | proven | `test_no_state_transition_reaches_ratified_except_from_handed_off` | No evolutionary artifact may override a human sovereign decision or standing order. |
+| `19.38.14` | uncovered | — | No evolutionary artifact may proceed on unresolved contradictory evidence without human... |
+| `19.38.15` | proven | `test_only_confirmed_learning_is_consumable` | No evolutionary artifact may be formed from quarantined memory, unvalidated knowledge, ... |
+| `19.38.16` | uncovered | — | No evolutionary artifact may escalate the autonomy level of any agent or subsystem with... |
+| `19.38.17` | uncovered | — | No evolutionary feedback loop may remain unclosed for more than its defined measurement... |
+| `19.38.18` | proven | `test_the_recursion_guard_precedes_packaging` | No evolutionary artifact may recursively trigger evolution cycles without explicit huma... |
+| `19.38.19` | uncovered | — | No evolutionary audit record may be modified, overwritten, or deleted after formation. |
+| `19.38.20` | uncovered | — | Evolution governance anomalies must be escalated as Category 1 incidents. |
+| `19.38.21` | uncovered | — | Sovereign Override must halt all active evolutionary cycles, experiments, and transitio... |
+| `19.38.22` | uncovered | — | No constitutional document, policy, or governance artifact may reference a specific imp... |
+| `19.38.23` | uncovered | — | No evolutionary artifact may embed provider-specific logic that prevents substitution b... |
+| `19.38.24` | uncovered | — | No experiment may operate without defined time boundaries, scope limits, success criter... |
+| `19.38.25` | uncovered | — | The constitution may not be experimentally suspended, modified, or bypassed for any pur... |
 
 ## Corpus gaps
 

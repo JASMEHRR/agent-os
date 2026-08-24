@@ -11,6 +11,7 @@ share a process, which is the structural reason the Executor is separate.
 from tool_gateway.adapters import (
     CostManagerBudget,
     DecisionGatewayVerifier,
+    RegistryIntegrationSource,
     SecurityGatewayToolAuthorizer,
     UnbackedIntegrationSource,
 )
@@ -53,5 +54,6 @@ __all__ = [
     "SecurityGatewayToolAuthorizer",
     "DecisionGatewayVerifier",
     "CostManagerBudget",
+    "RegistryIntegrationSource",
     "UnbackedIntegrationSource",
 ]

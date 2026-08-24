@@ -726,3 +726,39 @@
 
 - **Commit Hash:** (pending)
 - **Notes:** With these, all eight appendices 21_PLAN §40 names exist, are generated from the system rather than beside it, and fail the suite when they drift. The programme-level deliverables of the planning package are complete.
+
+### 2026-08-24 — CIR-001 resolved at G4, and the five blocked modules built
+
+- **Stage:** S6, S11, S12 (the CIR-001 frontier), plus programme-level bookkeeping
+- **Work Item:** Resolve CIR-001 by the authority its own design requires, then build the five modules that had been specification-conformant and construction-blocked for eleven stages.
+- **Files Created:** `docs/rulings/CIR-001.md`; `services/integration_registry/.../tests/test_integration_platform.py` (33), `services/deployment_registry/.../tests/test_deployment_platform.py` (40), `services/evolution_gateway/.../tests/test_evolution_gateway.py` (31)
+- **Files Modified:** `integration_registry/manifests.py`, `integration_gateway/gateway.py`, `tool_gateway/adapters.py`, `deployment_registry/registry.py`, `deployment_gateway/gateway.py`, `evolution_gateway/gateway.py`, `tests/s11_s12_frontier/test_blocked_frontier.py`, `tests/conformance/registers.py`, `tests/conformance/matrix.py`, `tests/conformance/test_appendix_f.py`, five module docs, both generated appendices
+- **Tests Added:** 119 net. Repository total: 1760.
+- **Validation Performed:** `ruff check` and `ruff format --check` clean, `mypy --strict` clean in 241 source files, `bandit -r libs services --exclude "*/tests/*"` zero findings, `pytest -q` 1760 passed, coverage 97%.
+
+- **The ruling was made at G4 and recorded, not assumed.** Build Spec Section 6 rule 9 forbids resolving a CIR-series conflict by unilateral interpretation; it requires a G3 or G4 ruling. The human sovereign exercised that authority, and `docs/rulings/CIR-001.md` records which of 21A §3's four candidate readings was adopted and why: the prohibition governs capability abstractions and governance artifacts, and `03`'s classification as an Implementation Specification distinguishes it from the constitutional documents the rule addresses.
+
+- **The ruling was scoped, and the scope is enforced by test rather than described.** What it released is construction. What it preserved — abstraction-level naming neutrality, 17.6.3 substitution, the 15.6.3 governance screen — is still refused. `tests/s11_s12_frontier/test_blocked_frontier.py` was inverted rather than deleted: it now asserts what the ruling did **not** change. An abstraction still may not name its provider, Evolution still has no ratifying verb, and a D4 deployment still may not sit on a shared substrate. A ruling that authorizes construction is easy to mistake for one that relaxes constraints, and fifteen tests now stand between those two readings.
+
+- **The 35 technology mandates moved from `blocked` to a new `deviation` category, which is the less comfortable status.** They were blocked because nobody was permitted to act on them. Since the ruling they are binding on implementation work, and this build does not satisfy them — no Temporal server, no named web framework, no container runtime. A block is someone else's decision; a deviation is ours. Appendix F now says so in a category of its own rather than letting the difference disappear into `uncovered`, which would have read as "nobody checked" when in fact we checked and are not compliant.
+
+- **Two real defects surfaced in the Evolution transition table while building it.** `COMPENSATION_FRAMED` could not reach `QUARANTINED`, though the Recursion Guard runs at exactly that state — the guard could detect a self-referential proposal and have nowhere to put it. And `hand_off` accepted only `PACKAGED` while the table permitted `DEFERRED → HANDED_OFF`, which made deferral terminal in practice despite the table saying otherwise. Both were found by writing the tests, not by reading the code.
+
+- **`promote` creates a successor environment rather than mutating.** 18.8.3 freezes an Active environment's invariants, so a promotion that changed one in place would violate the rule it was implementing. The successor carries lineage, and lineage must resolve.
+
+- **`UnbackedIntegrationSource` was kept rather than deleted.** `RegistryIntegrationSource` now asks the real Registry, so the Tool Gateway can authorize a tool whose abstraction is genuinely backed. But a deployment with no registered integrations is in exactly the position the unbacked source describes, and the behaviour under that condition is worth keeping tested rather than discarding as an artefact of the block.
+
+- **Appendix F: 237 proven → 269, uncovered 160 → 128.** The 67 subsystem rules in documents 17, 18 and 19 stopped being blocked and became testable; 32 of them are now mapped to tests that genuinely prove them. The remaining 35 are mapped to nothing on purpose — mapping a rule to a test that does not really prove it is the failure a traceability matrix exists to prevent.
+
+- **Issues Encountered:** `is_blocked()` returned `True` in two integration modules while `health()` already reported construction authorized, caught by `test_the_released_modules_report_construction_authorized`. `RiskTier` members are `T1`–`T4` and I wrote `I1`–`I4`. The two platforms use different approval vocabularies (`decision_class` for integration, `e_class` for deployment) and the deployment test borrowed the wrong one. mypy caught two lambdas relying on `list.append` returning a value.
+
+- **Resolution:** All fixed. The `is_blocked`/`health` disagreement is the one worth noting: two ways of asking the same question that could answer differently is the shape of a bug that outlives the change that introduced it.
+
+- **Open Items:**
+  - **128 uncovered rules**, 67 of them in document 01 and genuinely principle-level.
+  - **35 recorded deviations from 03's now-binding technology mandates.** Closing them means adopting the named technologies, which is a construction programme rather than a bookkeeping pass.
+  - No experiment runtime in Evolution: bounds, scope and rollback plans are validated at framing, but nothing runs an experiment.
+  - Standing orders are still duplicated across `decision_gateway` and `human_interface`, unchanged from the previous entry.
+
+- **Commit Hash:** (pending)
+- **Notes:** Five modules had been correct-and-inert since S6. The honest part of this pass was not building them; it was refusing to let the ruling read as broader than it was, and refusing to let 35 unmet mandates quietly become `uncovered`.

@@ -118,7 +118,8 @@ particular the adapter, not the engine, constructs the Runtime's
 
 * **No real Temporal server.** Durability is in-process: the journal and the
   run records survive within the process, not across a restart. 03.3.1's
-  named engine cannot be adopted while CIR-001 is unresolved.
+  named engine is binding since the CIR-001 ruling and is not adopted here: a
+  recorded deviation.
 * The Event Bus is not yet wired into the engine; signals reach Observability
   directly through the emitter.
 * `holds_resources` is a flag the engine maintains rather than a quota the

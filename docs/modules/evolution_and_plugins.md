@@ -1,7 +1,8 @@
 # Evolution Gateway and Plugin Manager
 
 **Stage:** S12 — Transformation & Extension
-**Evolution Gateway:** **specification-conformant, construction-blocked** (CIR-001), per 21B §26
+**Evolution Gateway:** **built**, per 21B §26 — construction authorized by the G4
+ruling of 2026-08-24 recorded in `docs/rulings/CIR-001.md`
 **Plugin Manager:** built, not blocked (02.3.10, 01.18.2)
 
 The two modules are paired by the build plan and have different statuses. That
@@ -10,7 +11,7 @@ stage is uniformly one or the other.
 
 ---
 
-## Evolution Gateway — blocked
+## Evolution Gateway — built
 
 ### Why it exists
 
@@ -34,18 +35,26 @@ asserts `ratify`, `approve`, `amend`, `enact`, `adopt` and `commit_amendment`
 are all absent. The edge from Evolution back to ratification does not exist, so
 the handoff is unidirectional by construction rather than by agreement.
 
-### The block
+### The block, and how it ended
 
-21B §26's banner: Evolution packages proposals that may themselves include
-technology or provider changes, placing it inside the same naming-prohibition
-ambiguity. 21A §3 names it the third of the three subsystems CIR-001 blocks.
+21B §26's banner placed Evolution inside the same naming-prohibition ambiguity;
+21A §3 named it the third of the three subsystems CIR-001 blocked. The G4 ruling
+resolved it, and the full pipeline is built:
+`monitor_signals` → `draft` → `analyse_impact` → `frame_compensation` →
+`check_recursion` → `package` → `hand_off` → `record_outcome`.
 
-`monitor_signals`, `draft`, `analyse_impact`, `frame_compensation`, `package`,
-`hand_off`, `record_outcome` and `run_experiment` all raise. A no-op here would
-be the worst instance of the failure Section 24 names: a caller would believe an
-amendment proposal had reached Governance when nothing had been packaged.
+**The ruling authorized construction, not authority.** There is still no
+ratifying verb, and `ratification_verbs()` returns an empty tuple. A ruling that
+unblocks a subsystem is easy to mistake for one that widens its powers, so the
+distinction is asserted by test rather than described.
 
-### What is specified and tested
+Two defects surfaced while building the transition table and were fixed:
+`COMPENSATION_FRAMED` could not reach `QUARANTINED`, though the Recursion Guard
+runs at that state — the guard could detect and not act. And `hand_off` accepted
+only `PACKAGED` while the table permitted `DEFERRED → HANDED_OFF`, which made
+deferral terminal in practice.
+
+### What is enforced and tested
 
 * **The pipeline** of 21B §26.4, in order, ending at `packaging_and_handoff` —
   not at adoption.
@@ -150,15 +159,15 @@ reversible; plugins discovered, sandboxed, and lifecycle-managed."
 
 | Clause | Status |
 |---|---|
-| amendments packaged | blocked; packaging is construction |
+| amendments packaged | **satisfied**; `package` produces a complete package |
 | amendments ratified | never Evolution's to perform (19.3); Governance's authority |
-| experiments bounded and reversible | blocked; running one is construction |
+| experiments bounded and reversible | bounds enforced at framing; no experiment runtime exists to run one |
 | plugins discovered, sandboxed, lifecycle-managed | **satisfied in full** |
 
 ## Open items
 
-* Everything above Evolution's specification line, pending a G3/G4 ruling on
-  CIR-001.
+* No experiment runtime. Bounds, scope, success criteria and rollback plans are
+  validated at framing, but nothing executes an experiment.
 * The Plugin Manager validates a sandbox *contract* and does not enforce it:
   there is no container runtime, so resource limits and the egress allowlist are
   declared and unenforced. This is the same gap the Tool Executor carries from

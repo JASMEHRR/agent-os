@@ -4,16 +4,16 @@ Everything here is **specification**, not construction. The shapes, classes and
 validation rules are expressed so they can be tested against the ratified
 architecture; nothing here brings a live environment into being.
 
-21B §25 carries the banner explicitly: "Construction of this platform does not
-begin until CIR-001 is resolved at G3 or G4. This section specifies the
-architecture; it does not authorize its construction."
+21B §25 carried a banner: "Construction of this platform does not begin until
+CIR-001 is resolved at G3 or G4." **It was resolved on 2026-08-24** by G4 human
+sovereign ruling (`docs/rulings/CIR-001.md`), and construction is authorized.
 
-`18.2` frames what is being deferred: deployment is **"the last constitutional
-checkpoint before code becomes behavior"** — every guarantee specified for every
-other subsystem is only as real as the deployment path that puts it into
-production. That is precisely why the block is honoured rather than worked
-around: a Deployment Platform built on a guessed answer to CIR-001 would put
-every other guarantee onto a substrate chosen by inference.
+`18.2` frames what was being deferred, and why the deferral was right:
+deployment is **"the last constitutional checkpoint before code becomes
+behavior"** — every guarantee specified for every other subsystem is only as
+real as the deployment path that puts it into production. A Deployment Platform
+built on a guessed answer would have placed all of them onto a substrate chosen
+by inference. With the answer given, that objection is spent.
 
 `18.6.3` is the property the platform exists to provide, and it is stated in
 the types: "Runtime, Security, and other subsystems reference the abstraction,
@@ -26,7 +26,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import IntEnum, StrEnum
-from typing import NoReturn
 
 from core.exceptions import AgentOSError, ValidationError
 
@@ -43,25 +42,16 @@ CIR_001 = (
 
 
 class ConstructionBlocked(AgentOSError):
-    """Raised by any operation that would constitute construction.
+    """Retained for compatibility; nothing raises it since the CIR-001 ruling.
 
-    Deliberately not a warning and not a no-op. Build Spec Section 24 requires
-    construction-blocked debt to be "tracked explicitly as open items" and
-    "never silently converted to Done status", and an operation that quietly
-    did nothing would be exactly that silent conversion — worse here than
-    elsewhere, because a caller who believed an environment had been activated
-    would believe a runtime instance was somewhere it is not.
+    Kept rather than deleted so a caller that still catches it compiles, and so
+    the block that stood for eleven stages stays legible rather than vanishing
+    as though it had never applied.
     """
 
     def __init__(self, operation: str):
-        super().__init__(
-            f"'{operation}' is construction of the Deployment Platform, which is not authorized.\n{CIR_001}"
-        )
+        super().__init__(f"'{operation}' was construction-blocked until the CIR-001 ruling of 2026-08-24.")
         self.operation = operation
-
-
-def blocked(operation: str) -> NoReturn:
-    raise ConstructionBlocked(operation)
 
 
 class RiskTier(IntEnum):

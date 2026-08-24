@@ -3,10 +3,16 @@
 The only module in `tool_gateway` importing them, keeping the permitted edges
 of 21B 19.6 visible in one file.
 
-`UnbackedIntegrationSource` is the honest default while the Integration
-Platform is CIR-001 construction-blocked: it reports every abstraction
-unbacked, so a tool declaring one is refused rather than silently permitted to
-reach outside through a platform that does not exist.
+`RegistryIntegrationSource` answers 21B §19.6's question — is this tool's
+declared capability abstraction backed by an active, approved integration — by
+asking the Integration Registry.
+
+Until the CIR-001 ruling of 2026-08-24 that question had only one honest
+answer. `UnbackedIntegrationSource` gave it: every abstraction unbacked, so a
+tool declaring one was refused rather than silently permitted to reach outside
+through a platform that did not exist. It is kept below, because a deployment
+that has not yet registered its integrations is in exactly that position and
+should fail the same way.
 """
 
 from __future__ import annotations
@@ -15,6 +21,7 @@ from dataclasses import dataclass
 
 from cost_manager import BudgetScope, CostManager, ScopeKind
 from decision_gateway import DecisionClass, DecisionGateway
+from integration_registry import IntegrationRegistry
 from security_gateway import AuthorizationRequest, Decision, PrincipalType, SecurityGateway
 
 INVOKE_PREFIX = "tool.invoke"
@@ -89,14 +96,41 @@ class CostManagerBudget:
 
 
 @dataclass
-class UnbackedIntegrationSource:
-    """Implements `tool_gateway.gateway.IntegrationSource` while CIR-001 blocks.
+class RegistryIntegrationSource:
+    """Implements `tool_gateway.gateway.IntegrationSource` against the real Registry.
 
-    Reports every capability abstraction as unbacked. A tool that declares one
-    is therefore refused at the integration gate, which is the correct
-    behaviour: the Integration Platform cannot be constructed until CIR-001 is
-    resolved, so nothing can legitimately back an abstraction yet. Tools that
-    reach nothing external are unaffected.
+    21B §19.6 has the Tool Gateway verify that a tool's declared capability
+    abstraction is backed by an **active, approved** integration. That is a
+    question only the Integration Registry can answer, and this adapter asks it
+    rather than reimplementing the judgement.
+
+    Registered is not enough and approved is not enough: `resolve` returns only
+    Active integrations, so a tool whose provider is suspended for repeated
+    failure stops being invocable at the same moment the provider stops being
+    trusted. Coupling those two facts is the point — a tool that kept working
+    against a suspended provider would be reaching outside through a
+    relationship the Registry has already withdrawn.
+    """
+
+    registry: IntegrationRegistry
+
+    def is_backed(self, abstraction: str, tenant_id: str) -> bool:
+        return bool(self.registry.resolve(abstraction, tenant_id))
+
+
+@dataclass
+class UnbackedIntegrationSource:
+    """Reports every abstraction unbacked.
+
+    This was the only honest answer while CIR-001 blocked construction, and it
+    remains the correct one for a deployment that has registered no
+    integrations: in both cases nothing backs the abstraction, and a tool
+    declaring one should be refused rather than permitted to reach outside
+    through a relationship that does not exist.
+
+    Retained deliberately rather than deleted. The failure it produces is the
+    same failure, and a system that lost the ability to express it would have
+    to discover it at the provider instead.
     """
 
     def is_backed(self, abstraction: str, tenant_id: str) -> bool:
