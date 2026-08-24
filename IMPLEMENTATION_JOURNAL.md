@@ -4,7 +4,7 @@
 
 - **Current Stage:** All thirteen stages S0 through S12 addressed, plus Appendix F (21_PLAN §7). **The build is complete to the extent the Build Specification authorizes.**
 - **Current Module:** none in progress. The remaining Definition-of-Done work is environmental rather than architectural: the CI pipeline must actually execute (Section 39 criterion 2), Poetry-managed reproducible builds, and `docker compose up`. None of it is blocked by anything in this repository
-- **Repository Status:** All 26 modules addressed. 22 implemented to their stage exit criteria; 4 at specification-conformant, construction-blocked status, all blocked by the single unresolved CIR-001. Appendix F is generated from the ratified corpus and self-verifying: 464 non-violable rules extracted, 43 proven by named automated tests, 67 blocked by CIR-001, 354 uncovered and reported as such
+- **Repository Status:** All 26 modules addressed. 22 implemented to their stage exit criteria; 4 at specification-conformant, construction-blocked status, all blocked by the single unresolved CIR-001. Appendix F is generated from the ratified corpus and self-verifying: 464 non-violable rules extracted, 138 proven by named automated tests, 67 blocked by CIR-001, 12 declared not code-checkable with a stated reason each, and 247 uncovered and reported as such
 - **Overall Progress:** 26 / 26 modules addressed — 22 implemented to their stage exit criteria, 4 at specification-conformant, construction-blocked status. 0 / 26 at full Definition-of-Done, and none is claimed to be
 
 ---
@@ -616,3 +616,28 @@
 
 - **Commit Hash:** (pending)
 - **Notes:** With these closed, every gate that can be run in this environment is aligned across the developer's command line, the pre-commit hook, and the CI declaration. What remains for Definition-of-Done is environmental (a CI execution, a Poetry lockfile) or constitutionally blocked (`docker compose`), and no module is claimed as Done.
+
+### 2026-08-24 — Appendix F: raising coverage, and making "uncovered" mean one thing
+
+- **Stage:** programme-level (21_PLAN §7, Appendix F)
+- **Work Item:** Attack the largest measurable gap in the programme — the 354 uncovered non-violable rules the first Appendix F pass reported — and fix the fact that "uncovered" was conflating two different things.
+- **Files Modified:** `tests/conformance/matrix.py`, `tests/conformance/test_appendix_f.py`, `docs/appendix_f_traceability.md` (regenerated), `IMPLEMENTATION_JOURNAL.md`
+- **Tests Added:** 178 (mostly parametrized matrix-integrity cases). Repository total: 1421.
+- **Validation Performed:** `ruff check` and `ruff format --check` clean, `mypy .` (`--strict`) clean in 237 files, `bandit` zero findings, `pytest -q` 1421 passed, coverage 97.54%.
+
+- **Coverage more than tripled, entirely by mapping tests that already existed.** 96 additional rules across documents 02, 04, 05, 06, 07, 08, 10, 11, 12, 14, 15 and 16 now name the test that proves them. Not one new test was written to achieve this: the conformance work was already done stage by stage, and what was missing was the index tying it to the rules it satisfies. Proven rose from 43 to 138; coverage of currently-testable rules from 10.8% to 35.8%.
+
+- **"Uncovered" was measuring two unlike things, and now measures one.** A rule nobody has tested yet and a rule this repository is the wrong place to test are both real obligations, but only the first is work someone here can do. Lumping them together made the actionable number look larger than it was while making it feel less actionable. A fourth classification, `not_code_checkable`, now separates them — 12 rules, each carrying a **specific stated reason**: the Business Operating Model's business/project/goal objects have no counterpart in this system, resource-share rules need production measurement that does not exist, migration-path rules are release-process obligations reviewed at change time, and three rules need infrastructure CIR-001 blocks.
+
+- **The new category is braked against misuse, because it is the easiest way to fake progress.** Coverage can be improved by writing tests or by reclassifying rules as unprovable, and only the first is real. Three guards: every entry must carry a reason longer than a label (a reason a reader can disagree with is the point); no rule may appear in both the proven mapping and the unprovable list, since that would be the matrix asserting a contradiction about itself; and a test fails if `not_code_checkable` ever exceeds `uncovered`, which is the point at which someone should be asked why reclassification has become the larger explanation.
+
+- **Issues Encountered:** One mapped test name, `test_an_unregistered_tool_cannot_be_authorized`, did not exist — I wrote the name I expected rather than the name in the file. `test_every_named_test_exists` caught it on the first run, which is precisely the rot this matrix's own guard was written to prevent, catching it against the person who wrote the guard. Corrected to the two tests that do exist and do prove the rule.
+
+- **Resolution:** Fixed in-branch.
+
+- **Open Items:**
+  - **247 uncovered rules remain**, and this is now a clean number: every one of them is a rule an automated test in this repository could prove and does not. Documents 01 (78 rules, principle-level) and 04 (15 remaining) hold most of them.
+  - Mapping remains one rule to one or more test *names* rather than node ids, so two identically-named tests in different modules would both satisfy a mapping. Names are distinctive enough today that this has not bitten; worth tightening if that changes.
+
+- **Commit Hash:** (pending)
+- **Notes:** The value of this pass was not the coverage figure but what producing it revealed: the conformance work existed and the index did not, so the system could not answer "which rule does this test prove?" in either direction. It can now, for 138 rules, and it says exactly where it cannot for the other 326.

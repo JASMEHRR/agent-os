@@ -4,13 +4,19 @@ Generated from the ratified corpus by `tests/conformance/matrix.py`.
 Do not edit by hand: `test_appendix_f.py` regenerates and compares.
 
 - Rules extracted from documents 01-19: **464**
-- Proven by an automated test: **43**
+- Proven by an automated test: **138**
 - Blocked by CIR-001 (not provable yet): **67**
-- Uncovered: **354**
-- Coverage of currently testable rules: **10.8%**
+- Not code-checkable here (each with a stated reason): **12**
+- Uncovered: **247**
+- Coverage of currently testable rules: **35.8%**
 
 The uncovered count is the honest state of this matrix, not a rounding
 error. It is published so the gap is a number someone can act on.
+
+`not_code_checkable` is not a softer word for uncovered. Those rules are
+real obligations that an automated test in *this repository* cannot prove:
+organizational commitments, release-process rules, or properties of
+infrastructure that does not exist here. Each carries a stated reason.
 
 | Rule | Coverage | Proven by | Statement |
 |---|---|---|---|
@@ -93,15 +99,15 @@ error. It is published so the gap is a number someone can act on.
 | `01.inline.77` | uncovered | — | No experimental module may access production business data or financial resources. |
 | `01.inline.78` | uncovered | — | No principle in this document may be bypassed or ignored pending amendment. If a princi... |
 | `02.appendix.1` | uncovered | — | **No Direct Service Calls:** All inter-service communication via Event Bus or API Gateway |
-| `02.appendix.2` | uncovered | — | **No Local State:** All business state externalized to PostgreSQL, Redis, or MinIO |
-| `02.appendix.3` | uncovered | — | **No Unregistered Tools:** All capabilities flow through Tool Registry |
+| `02.appendix.2` | not_code_checkable | — | **No Local State:** All business state externalized to PostgreSQL, Redis, or MinIO |
+| `02.appendix.3` | proven | `test_an_unregistered_tool_cannot_be_invoked`, `test_registration_is_not_authorization` | **No Unregistered Tools:** All capabilities flow through Tool Registry |
 | `02.appendix.4` | proven | `test_the_gateway_holds_no_business_logic` | **No Raw LLM for Deterministic Logic:** Financial, security, and schema operations use ... |
-| `02.appendix.5` | uncovered | — | **No Secrets in Code:** All credentials via Docker Secrets or Vault |
-| `02.appendix.6` | uncovered | — | **No Auto-Approve on Timeout:** Level 3+ actions require explicit human approval |
-| `02.appendix.7` | uncovered | — | **No Breaking Changes Without Migration:** Schema evolution requires backward compatibi... |
-| `02.appendix.8` | uncovered | — | **No Production Without Tests:** CI enforces coverage and contract tests |
-| `02.appendix.9` | uncovered | — | **No Missing Observability:** Every service exposes /health, /ready, /metrics, and stru... |
-| `02.appendix.10` | uncovered | — | **No Agent Over-Permission:** Agents receive minimum viable JWT scopes |
+| `02.appendix.5` | proven | `test_gateway_exposes_no_method_returning_a_secret_value` | **No Secrets in Code:** All credentials via Docker Secrets or Vault |
+| `02.appendix.6` | proven | `test_class_d_decision_cannot_be_auto_approved_on_timeout`, `test_adversarial_no_timeout_path_can_approve_a_class_d_decision` | **No Auto-Approve on Timeout:** Level 3+ actions require explicit human approval |
+| `02.appendix.7` | not_code_checkable | — | **No Breaking Changes Without Migration:** Schema evolution requires backward compatibi... |
+| `02.appendix.8` | not_code_checkable | — | **No Production Without Tests:** CI enforces coverage and contract tests |
+| `02.appendix.9` | not_code_checkable | — | **No Missing Observability:** Every service exposes /health, /ready, /metrics, and stru... |
+| `02.appendix.10` | proven | `test_the_boundaries_intersect_rather_than_union` | **No Agent Over-Permission:** Agents receive minimum viable JWT scopes |
 | `03.appendix.1` | uncovered | — | **Python Version:** All services run on Python 3.11.9+ or 3.12.x. |
 | `03.appendix.2` | uncovered | — | **Type Safety:** `mypy --strict` passes with zero errors. |
 | `03.appendix.3` | uncovered | — | **No Secrets in Code:** Hardcoded secrets result in immediate rotation and incident res... |
@@ -165,126 +171,126 @@ error. It is published so the gap is a number someone can act on.
 | `03.inline.36` | uncovered | — | No configuration values hardcoded in source code. No production secrets in environment ... |
 | `03.inline.37` | uncovered | — | No deployment without a tested rollback procedure. |
 | `03.inline.38` | uncovered | — | No production deployment without a one-command rollback procedure documented in the run... |
-| `04.34.1` | uncovered | — | No task may exist without a parent goal, project, business, and workspace. |
-| `04.34.2` | uncovered | — | No business may operate without an active mission and a defined revenue model. |
-| `04.34.3` | uncovered | — | No project may become active without an approved charter and success criteria. |
-| `04.34.4` | uncovered | — | No goal may be ratified without a quantifiable metric and a deadline. |
-| `04.34.5` | uncovered | — | No agent may act outside its declared capability signature or registered tool inventory. |
-| `04.34.6` | uncovered | — | No agent may exceed its autonomy level, regardless of technical capability or confidence. |
-| `04.34.7` | uncovered | — | No tool may be invoked without passing through the Tool Registry and Executor. |
-| `04.34.8` | uncovered | — | No agent may execute arbitrary code or commands outside a sandboxed environment. |
-| `04.34.9` | uncovered | — | No Class D (existential) decision may be made autonomously by any agent. |
-| `04.34.10` | uncovered | — | No approval request may be auto-approved on timeout for Level 3 or 4 actions. |
+| `04.34.1` | not_code_checkable | — | No task may exist without a parent goal, project, business, and workspace. |
+| `04.34.2` | not_code_checkable | — | No business may operate without an active mission and a defined revenue model. |
+| `04.34.3` | not_code_checkable | — | No project may become active without an approved charter and success criteria. |
+| `04.34.4` | not_code_checkable | — | No goal may be ratified without a quantifiable metric and a deadline. |
+| `04.34.5` | proven | `test_the_boundaries_intersect_rather_than_union` | No agent may act outside its declared capability signature or registered tool inventory. |
+| `04.34.6` | proven | `test_an_agent_cannot_commit_beyond_its_autonomy_level` | No agent may exceed its autonomy level, regardless of technical capability or confidence. |
+| `04.34.7` | proven | `test_an_unregistered_tool_cannot_be_invoked`, `test_registration_is_not_authorization` | No tool may be invoked without passing through the Tool Registry and Executor. |
+| `04.34.8` | proven | `test_egress_requires_a_sandbox` | No agent may execute arbitrary code or commands outside a sandboxed environment. |
+| `04.34.9` | proven | `test_a_standing_order_cannot_pre_authorize_class_d` | No Class D (existential) decision may be made autonomously by any agent. |
+| `04.34.10` | proven | `test_a_class_c_timeout_defers_and_never_approves`, `test_a_class_d_timeout_rejects_and_never_approves` | No approval request may be auto-approved on timeout for Level 3 or 4 actions. |
 | `04.34.11` | uncovered | — | No human denial may be overridden by an agent or workflow. |
-| `04.34.12` | uncovered | — | All decisions with external impact must be recorded in an immutable decision journal. |
+| `04.34.12` | proven | `test_every_decision_is_journalled` | All decisions with external impact must be recorded in an immutable decision journal. |
 | `04.34.13` | uncovered | — | No data object may exist without a defined owner. |
-| `04.34.14` | uncovered | — | No tenant may access another tenant's data, memory, or events. |
+| `04.34.14` | proven | `test_cross_tenant_action_is_denied` | No tenant may access another tenant's data, memory, or events. |
 | `04.34.15` | uncovered | — | No PII may be stored in Global memory or shared across tenant boundaries. |
-| `04.34.16` | uncovered | — | All memory access must respect ownership tiers (Private, Team, Business, Global). |
-| `04.34.17` | uncovered | — | No multi-step business process may execute outside a durable workflow. |
-| `04.34.18` | uncovered | — | No workflow may modify external state without a defined compensation activity. |
+| `04.34.16` | proven | `test_private_memory_is_invisible_to_another_agent` | All memory access must respect ownership tiers (Private, Team, Business, Global). |
+| `04.34.17` | proven | `test_a_linear_workflow_completes_and_releases_its_resources` | No multi-step business process may execute outside a durable workflow. |
+| `04.34.18` | proven | `test_a_mutating_tool_needs_compensation` | No workflow may modify external state without a defined compensation activity. |
 | `04.34.19` | uncovered | — | No entity may exist in an undefined or null state. |
-| `04.34.20` | uncovered | — | No state transition may bypass defined guards and validation. |
-| `04.34.21` | uncovered | — | No external data may be passed to an LLM prompt without sanitization and validation. |
-| `04.34.22` | uncovered | — | No secret, credential, or PII may appear in application logs, traces, or events. |
+| `04.34.20` | proven | `test_a_definition_that_cannot_produce_a_valid_dag_is_not_registrable` | No state transition may bypass defined guards and validation. |
+| `04.34.21` | proven | `test_sanitization_precedes_rendering`, `test_prompt_injection_is_redacted` | No external data may be passed to an LLM prompt without sanitization and validation. |
+| `04.34.22` | proven | `test_injection_grant_carries_a_reference_never_a_value` | No secret, credential, or PII may appear in application logs, traces, or events. |
 | `04.34.23` | uncovered | — | No service may trust another service implicitly based on network location alone. |
-| `04.34.24` | uncovered | — | No agent may possess permissions beyond its documented scope. |
+| `04.34.24` | proven | `test_the_boundaries_intersect_rather_than_union` | No agent may possess permissions beyond its documented scope. |
 | `04.34.25` | uncovered | — | Failures must be classified within 60 seconds; silent failures are prohibited. |
 | `04.34.26` | uncovered | — | Security failures trigger automatic isolation before human review. |
 | `04.34.27` | uncovered | — | Financial anomalies trigger automatic budget freezing before human review. |
 | `04.34.28` | uncovered | — | "Fail open" is prohibited for all security, financial, and data-integrity boundaries. |
-| `04.34.29` | uncovered | — | The Learning Model may not modify constitutional principles, security architectures, or... |
+| `04.34.29` | proven | `test_a_proposal_touching_a_non_violable_rule_is_rejected_at_validation` | The Learning Model may not modify constitutional principles, security architectures, or... |
 | `04.34.30` | uncovered | — | All learned changes to agent behavior must be versioned, reversible, and A/B tested bef... |
-| `04.34.31` | uncovered | — | Continuous improvement may not consume more than 15% of total system resources. |
-| `04.34.32` | uncovered | — | Negative outcomes must be weighted more heavily than positive outcomes in learning loops. |
+| `04.34.31` | not_code_checkable | — | Continuous improvement may not consume more than 15% of total system resources. |
+| `04.34.32` | proven | `test_failure_learning_needs_less_evidence_than_success_learning` | Negative outcomes must be weighted more heavily than positive outcomes in learning loops. |
 | `04.34.33` | uncovered | — | Humans must remain the ultimate decision-makers for matters involving capital, legal li... |
-| `04.34.34` | uncovered | — | The system must provide a "panic button" that halts all autonomous activity and require... |
-| `04.34.35` | uncovered | — | Human attention is a protected resource; the system must optimize for minimizing human ... |
+| `04.34.34` | proven | `test_panic_completes_within_the_five_second_bound` | The system must provide a "panic button" that halts all autonomous activity and require... |
+| `04.34.35` | proven | `test_routine_notifications_are_batched_not_delivered_one_by_one` | Human attention is a protected resource; the system must optimize for minimizing human ... |
 | `05.29.1` | uncovered | — | No runtime action may violate the constitution. |
 | `05.29.2` | proven | `test_an_activity_beyond_the_declared_cost_budget_is_refused` | No agent may exceed its autonomy level. |
-| `05.29.3` | uncovered | — | No budget may be exceeded without explicit human approval. |
-| `05.29.4` | uncovered | — | No Level 3 or Level 4 action may be auto-approved on timeout. |
+| `05.29.3` | proven | `test_an_activity_beyond_the_declared_cost_budget_is_refused` | No budget may be exceeded without explicit human approval. |
+| `05.29.4` | proven | `test_a_class_c_timeout_defers_and_never_approves`, `test_a_class_d_timeout_rejects_and_never_approves` | No Level 3 or Level 4 action may be auto-approved on timeout. |
 | `05.29.5` | proven | `test_the_worker_returns_to_idle_holding_nothing` | No data may leak across tenant boundaries. |
 | `05.29.6` | uncovered | — | No failure may remain unclassified for more than 60 seconds. |
 | `05.29.7` | uncovered | — | No knowledge may be presented without source attribution and confidence scoring. |
-| `05.29.8` | uncovered | — | No irreversible action may be taken without explicit human designation. |
+| `05.29.8` | proven | `test_an_irreversible_option_is_class_d_whatever_it_costs` | No irreversible action may be taken without explicit human designation. |
 | `05.29.9` | uncovered | — | No experimental module may access production business data. |
-| `05.29.10` | uncovered | — | The panic protocol must halt all autonomy within 5 seconds of invocation. |
-| `05.29.11` | uncovered | — | Continuous improvement may not exceed 15% of system resources. |
+| `05.29.10` | proven | `test_panic_completes_within_the_five_second_bound` | The panic protocol must halt all autonomy within 5 seconds of invocation. |
+| `05.29.11` | not_code_checkable | — | Continuous improvement may not exceed 15% of system resources. |
 | `05.29.12` | uncovered | — | Human attention is a protected resource; the runtime must minimize cognitive load, not ... |
-| `06.23.1` | uncovered | — | No agent may act outside its declared capability signature. |
-| `06.23.2` | uncovered | — | No agent may access tools not in its registered inventory. |
-| `06.23.3` | uncovered | — | No agent may exceed its autonomy level, regardless of confidence or urgency. |
+| `06.23.1` | proven | `test_the_boundaries_intersect_rather_than_union`, `test_a_capability_prefix_is_permitted_but_a_sibling_is_not` | No agent may act outside its declared capability signature. |
+| `06.23.2` | proven | `test_a_tool_outside_the_registered_inventory_is_refused` | No agent may access tools not in its registered inventory. |
+| `06.23.3` | proven | `test_an_agent_cannot_commit_beyond_its_autonomy_level`, `test_insufficient_autonomy_is_denied` | No agent may exceed its autonomy level, regardless of confidence or urgency. |
 | `06.23.4` | proven | `test_a_tool_outside_the_registered_inventory_is_refused` | No agent may execute arbitrary code outside a sandboxed environment. |
-| `06.23.5` | uncovered | — | No agent may make a Class D decision autonomously. |
-| `06.23.6` | uncovered | — | No approval request may be auto-approved on timeout for Level 3 or 4 actions. |
+| `06.23.5` | proven | `test_a_standing_order_cannot_pre_authorize_class_d` | No agent may make a Class D decision autonomously. |
+| `06.23.6` | proven | `test_a_class_c_timeout_defers_and_never_approves`, `test_a_class_d_timeout_rejects_and_never_approves` | No approval request may be auto-approved on timeout for Level 3 or 4 actions. |
 | `06.23.7` | uncovered | — | No human denial may be overridden by an agent. |
-| `06.23.8` | uncovered | — | No agent may access another agent's Private memory without explicit delegation. |
+| `06.23.8` | proven | `test_private_memory_is_invisible_to_another_agent` | No agent may access another agent's Private memory without explicit delegation. |
 | `06.23.9` | uncovered | — | No agent may communicate with another agent except through the Event Bus. |
-| `06.23.10` | uncovered | — | No agent may escalate its own permissions. |
+| `06.23.10` | proven | `test_self_escalation_is_a_violation` | No agent may escalate its own permissions. |
 | `06.23.11` | uncovered | — | No agent may proceed if a critical precondition check fails or returns ambiguous results. |
-| `06.23.12` | uncovered | — | All agent decisions with external impact must be recorded in an immutable decision jour... |
+| `06.23.12` | proven | `test_every_decision_is_journalled` | All agent decisions with external impact must be recorded in an immutable decision jour... |
 | `06.23.13` | uncovered | — | No agent may store business-critical state exclusively in local memory. |
-| `06.23.14` | uncovered | — | No agent may present unvalidated data as knowledge. |
-| `06.23.15` | uncovered | — | No agent may exceed its documented cost budget without triggering immediate halt. |
+| `06.23.14` | proven | `test_a_hypothesis_is_invisible_to_reasoners`, `test_nothing_below_the_floor_is_presented_as_canonical` | No agent may present unvalidated data as knowledge. |
+| `06.23.15` | proven | `test_an_activity_beyond_the_declared_cost_budget_is_refused` | No agent may exceed its documented cost budget without triggering immediate halt. |
 | `06.23.16` | proven | `test_an_agent_may_not_review_its_own_output` | No agent may review its own output. |
 | `06.23.17` | proven | `test_an_agent_may_not_review_its_own_output` | No agent may hold both Creator and Reviewer roles for the same output. |
-| `06.23.18` | uncovered | — | The Learning Model may not modify constitutional principles or security boundaries. |
+| `06.23.18` | proven | `test_a_proposal_touching_a_non_violable_rule_is_rejected_at_validation` | The Learning Model may not modify constitutional principles or security boundaries. |
 | `06.23.19` | uncovered | — | All learned changes must be versioned, reversible, and A/B tested before deployment. |
 | `06.23.20` | uncovered | — | No agent may bypass the Event Bus for inter-agent communication under any circumstance. |
 | `07.27.1` | uncovered | — | No workflow may execute without an associated Business, Project, and Workspace. |
 | `07.27.2` | uncovered | — | No workflow may operate without a declared purpose statement and success criteria. |
-| `07.27.3` | uncovered | — | No mutating workflow may execute without defined compensation activities for every muta... |
-| `07.27.4` | uncovered | — | No workflow may enter the Running state without passing Planning validation. |
+| `07.27.3` | proven | `test_a_mutating_tool_needs_compensation` | No mutating workflow may execute without defined compensation activities for every muta... |
+| `07.27.4` | proven | `test_planning_failure_goes_straight_to_failed_having_consumed_nothing` | No workflow may enter the Running state without passing Planning validation. |
 | `07.27.5` | uncovered | — | No workflow may be destroyed while in Running or Paused state; it must transition to Co... |
-| `07.27.6` | uncovered | — | No workflow may exceed its chartered budget without triggering immediate halt and human... |
-| `07.27.7` | uncovered | — | No approval gate for Level 3 or 4 actions may auto-approve on timeout. |
+| `07.27.6` | proven | `test_the_pre_allocated_budget_is_the_worst_case_not_the_optimistic_one` | No workflow may exceed its chartered budget without triggering immediate halt and human... |
+| `07.27.7` | proven | `test_a_denied_gate_compensates_rather_than_proceeding` | No approval gate for Level 3 or 4 actions may auto-approve on timeout. |
 | `07.27.8` | uncovered | — | No human denial may be overridden by a workflow or agent. |
 | `07.27.9` | proven | `test_an_adopted_entry_is_measured_to_confirmation` | No workflow may cross tenant boundaries or access another tenant's memory, assets, or e... |
-| `07.27.10` | uncovered | — | No workflow may exist in an undefined or null state. |
-| `07.27.11` | uncovered | — | No state transition may bypass defined guards and validation. |
+| `07.27.10` | proven | `test_a_failing_terminal_activity_does_not_leave_the_workflow_running` | No workflow may exist in an undefined or null state. |
+| `07.27.11` | proven | `test_a_definition_that_cannot_produce_a_valid_dag_is_not_registrable` | No state transition may bypass defined guards and validation. |
 | `07.27.12` | uncovered | — | No workflow may proceed with an activity if a critical precondition check fails or retu... |
 | `07.27.13` | uncovered | — | No workflow may make a Class D decision autonomously. |
 | `07.27.14` | uncovered | — | No workflow may bypass the event bus for inter-activity or inter-workflow communication. |
 | `07.27.15` | uncovered | — | No workflow may store business-critical state exclusively in local memory; all state mu... |
 | `07.27.16` | proven | `test_a_denied_gate_compensates_rather_than_proceeding`, `test_a_failed_compensation_stalls_rather_than_quietly_failing` | No workflow may present unvalidated agent output as final output without schema and bus... |
-| `07.27.17` | uncovered | — | No workflow may execute arbitrary code or commands outside sandboxed tool environments. |
+| `07.27.17` | proven | `test_egress_requires_a_sandbox` | No workflow may execute arbitrary code or commands outside sandboxed tool environments. |
 | `07.27.18` | uncovered | — | All workflow failures must be classified within 60 seconds; silent failures are prohibi... |
-| `07.27.19` | uncovered | — | Compensation activities must be idempotent; executing a compensation twice must be safe. |
+| `07.27.19` | proven | `test_compensation_must_be_idempotent` | Compensation activities must be idempotent; executing a compensation twice must be safe. |
 | `07.27.20` | uncovered | — | The workflow learning model may not modify constitutional principles, security boundari... |
-| `07.27.21` | uncovered | — | All workflow state transitions, decisions, and approvals must be recorded in an immutab... |
-| `07.27.22` | uncovered | — | No secrets, credentials, or PII may appear in workflow context, logs, events, or audit ... |
-| `07.27.23` | uncovered | — | No workflow may schedule activities that violate an agent's declared capability signatu... |
+| `07.27.21` | proven | `test_the_journal_chain_is_intact_across_a_compensating_run` | All workflow state transitions, decisions, and approvals must be recorded in an immutab... |
+| `07.27.22` | proven | `test_injection_hands_the_value_to_the_sandbox_and_nowhere_else` | No secrets, credentials, or PII may appear in workflow context, logs, events, or audit ... |
+| `07.27.23` | proven | `test_planning_fails_when_no_agent_holds_the_required_capability` | No workflow may schedule activities that violate an agent's declared capability signatu... |
 | `07.27.24` | uncovered | — | Workflow archival must retain the complete audit trail and decision journals for the st... |
-| `08.25.1` | uncovered | — | No event may be emitted without a registered schema and authenticated producer identity. |
-| `08.25.2` | uncovered | — | No event may be modified, overwritten, or deleted after publication. |
-| `08.25.3` | uncovered | — | No event may cross tenant boundaries without explicit anonymization and human approval. |
-| `08.25.4` | uncovered | — | No producer may emit events outside its declared scope and permission boundaries. |
+| `08.25.1` | proven | `test_authenticated_producer_emits_a_schema_validated_event` | No event may be emitted without a registered schema and authenticated producer identity. |
+| `08.25.2` | proven | `test_published_events_are_immutable` | No event may be modified, overwritten, or deleted after publication. |
+| `08.25.3` | proven | `test_producer_may_not_emit_into_another_tenant` | No event may cross tenant boundaries without explicit anonymization and human approval. |
+| `08.25.4` | proven | `test_producer_lacking_the_emission_permission_is_denied` | No producer may emit events outside its declared scope and permission boundaries. |
 | `08.25.5` | uncovered | — | No consumer may access events outside its subscribed scope and permission boundaries. |
-| `08.25.6` | uncovered | — | No event may be silently dropped, swallowed, or ignored without classification and logg... |
-| `08.25.7` | uncovered | — | No critical event (command, audit, business state transition) may be shed under load. |
+| `08.25.6` | proven | `test_no_event_is_silently_lost` | No event may be silently dropped, swallowed, or ignored without classification and logg... |
+| `08.25.7` | proven | `test_non_critical_events_may_be_shed` | No critical event (command, audit, business state transition) may be shed under load. |
 | `08.25.8` | uncovered | — | No event may be delivered without at-least-once semantics. |
-| `08.25.9` | uncovered | — | No consumer may acknowledge an event before durable processing is complete. |
+| `08.25.9` | proven | `test_acknowledgment_follows_processing` | No consumer may acknowledge an event before durable processing is complete. |
 | `08.25.10` | uncovered | — | No event may contain unvalidated external data or unsanitized payloads. |
-| `08.25.11` | uncovered | — | No event may be replayed in a way that mutates live business state. |
-| `08.25.12` | uncovered | — | No event stream may operate without defined retention and archival policies. |
-| `08.25.13` | uncovered | — | No breaking schema change may be deployed without backward compatibility and migration ... |
-| `08.25.14` | uncovered | — | No anonymous or pseudonymous event emission or consumption is permitted. |
-| `08.25.15` | uncovered | — | The event audit trail must be append-only and retained for a minimum of seven years. |
+| `08.25.11` | proven | `test_replay_never_reaches_a_live_consumer_group` | No event may be replayed in a way that mutates live business state. |
+| `08.25.12` | not_code_checkable | — | No event stream may operate without defined retention and archival policies. |
+| `08.25.13` | not_code_checkable | — | No breaking schema change may be deployed without backward compatibility and migration ... |
+| `08.25.14` | proven | `test_a_revoked_producer_cannot_emit` | No anonymous or pseudonymous event emission or consumption is permitted. |
+| `08.25.15` | proven | `test_audit_events_are_not_purgeable_before_seven_years` | The event audit trail must be append-only and retained for a minimum of seven years. |
 | `08.25.16` | uncovered | — | No event may bypass the Event Bus for direct producer-to-consumer communication. |
-| `08.25.17` | uncovered | — | Event causality chains must be preserved across all emissions and consumptions. |
-| `08.25.18` | uncovered | — | No event may be dead-lettered without alerting and human review capability. |
+| `08.25.17` | proven | `test_events_in_different_streams_are_causally_independent` | Event causality chains must be preserved across all emissions and consumptions. |
+| `08.25.18` | proven | `test_dead_letters_are_queryable_for_human_review` | No event may be dead-lettered without alerting and human review capability. |
 | `08.25.19` | uncovered | — | Event governance anomalies must be escalated as Category 1 incidents. |
 | `08.25.20` | uncovered | — | The Learning Model may not use event data to modify constitutional principles or securi... |
-| `10.26.1` | uncovered | — | No knowledge entry may be formed without a registered schema, authenticated producer id... |
-| `10.26.2` | uncovered | — | No validated belief may be modified, overwritten, or deleted after formation. |
-| `10.26.3` | uncovered | — | No hypothesis may be promoted to Canonical without passing validation and integration. |
-| `10.26.4` | uncovered | — | No canonical belief may remain in the active set while an unresolved contradiction exis... |
-| `10.26.5` | uncovered | — | No belief may be formed or consumed without a defined confidence score and falsifiabili... |
-| `10.26.6` | uncovered | — | No knowledge may cross tenant boundaries without explicit anonymization and human appro... |
+| `10.26.1` | proven | `test_an_unregistered_belief_type_is_quarantined` | No knowledge entry may be formed without a registered schema, authenticated producer id... |
+| `10.26.2` | proven | `test_contradiction_records_are_immutable_and_resolution_appends` | No validated belief may be modified, overwritten, or deleted after formation. |
+| `10.26.3` | proven | `test_a_promoted_belief_is_queryable` | No hypothesis may be promoted to Canonical without passing validation and integration. |
+| `10.26.4` | proven | `test_detection_demotes_both_canonical_beliefs` | No canonical belief may remain in the active set while an unresolved contradiction exis... |
+| `10.26.5` | proven | `test_an_unfalsifiable_belief_is_dogma_and_is_quarantined`, `test_falsifiability_must_be_bounded_in_the_future` | No belief may be formed or consumed without a defined confidence score and falsifiabili... |
+| `10.26.6` | proven | `test_cross_tenant_formation_is_denied` | No knowledge may cross tenant boundaries without explicit anonymization and human appro... |
 | `10.26.7` | uncovered | — | No producer may form knowledge outside its declared scope and permission boundaries. |
 | `10.26.8` | uncovered | — | No consumer may access knowledge outside its subscribed scope, sensitivity level, and c... |
-| `10.26.9` | uncovered | — | No belief may be presented as canonical if its confidence score is below 0.60. |
+| `10.26.9` | proven | `test_nothing_below_the_floor_is_presented_as_canonical` | No belief may be presented as canonical if its confidence score is below 0.60. |
 | `10.26.10` | uncovered | — | No speculative or hypothetical assertion may be presented as validated knowledge to any... |
 | `10.26.11` | uncovered | — | No knowledge may be formed from unvalidated external data or unsanitized memory. |
 | `10.26.12` | uncovered | — | No ontology or schema change may be deployed without backward compatibility, migration ... |
@@ -296,31 +302,31 @@ error. It is published so the gap is a number someone can act on.
 | `10.26.18` | uncovered | — | No belief may be deprecated without a justification entry linked via lineage. |
 | `10.26.19` | uncovered | — | Knowledge governance anomalies must be escalated as Category 1 incidents. |
 | `10.26.20` | uncovered | — | The Learning Model may not use knowledge formation to modify constitutional principles,... |
-| `11.31.1` | uncovered | — | No decision may be formed without a unique identity, authenticated source, and document... |
+| `11.31.1` | proven | `test_every_decision_is_journalled` | No decision may be formed without a unique identity, authenticated source, and document... |
 | `11.31.2` | proven | `test_class_d_decision_cannot_be_auto_approved_on_timeout` | No Class C or Class D decision may be committed without explicit human approval. |
-| `11.31.3` | uncovered | — | No approval gate may be auto-approved on timeout, inferred consent, or creative interpr... |
-| `11.31.4` | uncovered | — | No irreversible action may be committed without explicit human designation and acknowle... |
-| `11.31.5` | uncovered | — | No agent may commit a decision beyond its constitutional autonomy level. |
+| `11.31.3` | proven | `test_adversarial_class_d_cannot_be_auto_approved` | No approval gate may be auto-approved on timeout, inferred consent, or creative interpr... |
+| `11.31.4` | proven | `test_an_irreversible_option_is_class_d_whatever_it_costs` | No irreversible action may be committed without explicit human designation and acknowle... |
+| `11.31.5` | proven | `test_an_agent_cannot_commit_beyond_its_autonomy_level` | No agent may commit a decision beyond its constitutional autonomy level. |
 | `11.31.6` | proven | `test_adversarial_no_timeout_path_can_approve_a_class_d_decision` | No decision may bypass the Decision Gateway for direct producer-to-Runtime commitment. |
 | `11.31.7` | proven | `test_a_class_c_timeout_defers_and_never_approves`, `test_a_class_d_timeout_rejects_and_never_approves` | No decision journal may be modified, overwritten, or deleted after formation. |
-| `11.31.8` | uncovered | — | No decision may proceed on unresolved contradictory evidence without human arbitration. |
-| `11.31.9` | uncovered | — | No Class B or higher decision may be committed with only a single option documented. |
+| `11.31.8` | proven | `test_contradictory_evidence_escalates_and_never_commits` | No decision may proceed on unresolved contradictory evidence without human arbitration. |
+| `11.31.9` | proven | `test_class_b_rejects_a_single_option_proposal` | No Class B or higher decision may be committed with only a single option documented. |
 | `11.31.10` | proven | `test_an_agent_may_not_answer_an_approval_gate` | No decision may be formed without a confidence score and, for Class B+, a risk assessment. |
-| `11.31.11` | uncovered | — | No standing order may exceed 30 days without explicit renewal. |
-| `11.31.12` | uncovered | — | No decision may violate portfolio-level circuit breakers or concentration limits. |
+| `11.31.11` | proven | `test_a_standing_order_may_not_exceed_thirty_days` | No standing order may exceed 30 days without explicit renewal. |
+| `11.31.12` | proven | `test_a_circuit_breaker_breach_stops_commitment_regardless_of_merit` | No decision may violate portfolio-level circuit breakers or concentration limits. |
 | `11.31.13` | uncovered | — | No anonymous or pseudonymous decision formation or authorization is permitted. |
-| `11.31.14` | uncovered | — | No decision may cross tenant boundaries without explicit human approval and isolation r... |
+| `11.31.14` | proven | `test_cross_tenant_formation_is_denied` | No decision may cross tenant boundaries without explicit human approval and isolation r... |
 | `11.31.15` | uncovered | — | No decision may suppress uncertainty or present speculative evidence as canonical knowl... |
-| `11.31.16` | uncovered | — | No decision may be committed without a documented expected outcome. |
-| `11.31.17` | uncovered | — | No reversible decision may be committed without pre-positioned compensation logic. |
+| `11.31.16` | proven | `test_every_committed_decision_carries_an_expected_outcome` | No decision may be committed without a documented expected outcome. |
+| `11.31.17` | proven | `test_a_reversible_option_without_compensation_is_treated_as_irreversible` | No reversible decision may be committed without pre-positioned compensation logic. |
 | `11.31.18` | uncovered | — | No decision may override constitutional principles, security boundaries, or human sover... |
 | `11.31.19` | uncovered | — | No decision failure may remain unclassified or unalerted for more than 60 seconds. |
-| `11.31.20` | uncovered | — | The Panic Protocol must halt all active decision commitment within 5 seconds of invocat... |
+| `11.31.20` | proven | `test_panic_defers_or_reverses_every_active_decision` | The Panic Protocol must halt all active decision commitment within 5 seconds of invocat... |
 | `12.34.1` | uncovered | — | No tool may be invoked without prior registration and validation in the Tool Registry. |
 | `12.34.2` | proven | `test_a_tool_needing_an_integration_is_refused_while_cir_001_blocks` | No tool may execute without a valid decision record with authority matching the tool's ... |
 | `12.34.3` | uncovered | — | No tool may perform external effects outside its declared capability signature. |
 | `12.34.4` | uncovered | — | No tool may execute outside its declared sandbox tier. |
-| `12.34.5` | uncovered | — | No tool may handle secrets directly; secrets are injected by the Executor only. |
+| `12.34.5` | proven | `test_a_sandbox_is_destroyed_even_when_the_tool_explodes` | No tool may handle secrets directly; secrets are injected by the Executor only. |
 | `12.34.6` | uncovered | — | No tool may escalate its own permissions or access resources outside its assigned scope. |
 | `12.34.7` | uncovered | — | No anonymous or pseudonymous tool registration is permitted. |
 | `12.34.8` | uncovered | — | No tool may cross tenant boundaries without explicit human approval and isolation review. |
@@ -332,7 +338,7 @@ error. It is published so the gap is a number someone can act on.
 | `12.34.14` | uncovered | — | No approval gate for Level 3 or 4 tool invocations may auto-approve on timeout. |
 | `12.34.15` | uncovered | — | No tool may suppress failure or cost overrun information from the Gateway. |
 | `12.34.16` | uncovered | — | No deprecated tool may be bound to new workflow activities after its migration deadline. |
-| `12.34.17` | uncovered | — | No tool may invoke another tool directly; all composition flows through the Gateway. |
+| `12.34.17` | proven | `test_idempotency_key_deduplicates_a_replayed_request` | No tool may invoke another tool directly; all composition flows through the Gateway. |
 | `12.34.18` | uncovered | — | No tool may store business-critical state exclusively in external systems without durab... |
 | `12.34.19` | uncovered | — | The Panic Protocol must halt all in-flight tool invocations within 5 seconds. |
 | `12.34.20` | uncovered | — | No tool learning may modify sandbox requirements, security boundaries, or constitutiona... |
@@ -358,31 +364,31 @@ error. It is published so the gap is a number someone can act on.
 | `13.36.20` | uncovered | — | The Panic Protocol must halt all active learning cycles within 5 seconds of invocation. |
 | `14.35.1` | proven | `test_an_unauthenticated_request_is_401` | No principal may act without a registered, authenticated identity. |
 | `14.35.2` | proven | `test_the_boundaries_intersect_rather_than_union` | No principal may act beyond the intersection of its capability signature, tool inventor... |
-| `14.35.3` | uncovered | — | No principal may escalate its own permissions, roles, or autonomy level. |
+| `14.35.3` | proven | `test_self_escalation_is_a_violation`, `test_self_status_change_is_rejected_as_self_escalation` | No principal may escalate its own permissions, roles, or autonomy level. |
 | `14.35.4` | proven | `test_a_tool_outside_the_registered_inventory_is_refused` | No agent may access tools not in its registered inventory. |
-| `14.35.5` | uncovered | — | No agent may execute arbitrary operations outside a sandboxed environment. |
+| `14.35.5` | proven | `test_egress_requires_a_sandbox` | No agent may execute arbitrary operations outside a sandboxed environment. |
 | `14.35.6` | proven | `test_class_d_decision_cannot_be_auto_approved_on_timeout` | No agent may make a Class D decision autonomously. |
 | `14.35.7` | proven | `test_adversarial_no_timeout_path_can_approve_a_class_d_decision` | No approval gate may be auto-approved on timeout for Level 3 or 4 actions. |
 | `14.35.8` | proven | `test_an_agent_may_not_answer_an_approval_gate` | No human denial may be overridden by an agent or automated system. |
-| `14.35.9` | uncovered | — | No principal may access another principal's private memory without explicit delegation. |
+| `14.35.9` | proven | `test_private_memory_is_invisible_to_another_agent` | No principal may access another principal's private memory without explicit delegation. |
 | `14.35.10` | uncovered | — | No principal may communicate with another principal except through the Event Bus. |
 | `14.35.11` | uncovered | — | No principal may bypass the Security Gateway for authentication or authorization. |
-| `14.35.12` | uncovered | — | No secret value may be exposed to an agent, workflow, or decision journal. |
+| `14.35.12` | proven | `test_gateway_exposes_no_method_returning_a_secret_value` | No secret value may be exposed to an agent, workflow, or decision journal. |
 | `14.35.13` | uncovered | — | No security event journal may be modified, overwritten, or deleted after formation. |
-| `14.35.14` | uncovered | — | No anonymous or pseudonymous action is permitted. |
-| `14.35.15` | uncovered | — | No cross-tenant access is permitted without bilateral human approval. |
-| `14.35.16` | uncovered | — | No cached authorization may survive beyond its maximum time-to-live. |
-| `14.35.17` | uncovered | — | No revocation may remain unpropagated beyond its defined latency budget. |
+| `14.35.14` | proven | `test_anonymous_memory_is_inadmissible` | No anonymous or pseudonymous action is permitted. |
+| `14.35.15` | proven | `test_cross_tenant_grant_requires_two_distinct_humans` | No cross-tenant access is permitted without bilateral human approval. |
+| `14.35.16` | proven | `test_cache_never_outlives_the_token` | No cached authorization may survive beyond its maximum time-to-live. |
+| `14.35.17` | proven | `test_revocation_cascades_to_tokens_delegations_and_credentials` | No revocation may remain unpropagated beyond its defined latency budget. |
 | `14.35.18` | uncovered | — | No security failure may remain unclassified or unalerted for more than 60 seconds. |
 | `14.35.19` | uncovered | — | No security subsystem change may be deployed without human ratification. |
-| `14.35.20` | uncovered | — | The Panic Protocol must halt all autonomous activity within 5 seconds of invocation. |
+| `14.35.20` | proven | `test_panic_completes_within_the_five_second_bound` | The Panic Protocol must halt all autonomous activity within 5 seconds of invocation. |
 | `15.36.1` | proven | `test_an_artifact_requires_an_accountable_steward_covering_its_scope` | No governance artifact may be formed without a unique identity, authenticated steward s... |
 | `15.36.2` | proven | `test_g3_and_above_ratification_requires_a_human` | No G4 constitutional amendment may be ratified without explicit human sovereign approval. |
 | `15.36.3` | proven | `test_an_artifact_contradicting_a_non_violable_rule_is_refused_at_formation` | No governance artifact may contradict a non-violable rule defined in any constitutional... |
-| `15.36.4` | uncovered | — | No governance artifact may reduce human sovereignty below absolute terminal authority. |
+| `15.36.4` | proven | `test_only_a_human_may_invoke_panic` | No governance artifact may reduce human sovereignty below absolute terminal authority. |
 | `15.36.5` | proven | `test_a_steward_cannot_form_above_their_g_class` | No steward may ratify a governance artifact beyond their constitutional autonomy level. |
-| `15.36.6` | uncovered | — | No governance artifact may bypass the Governance Gateway for direct subsystem enforcement. |
-| `15.36.7` | uncovered | — | No governance artifact journal may be modified, overwritten, or deleted after ratificat... |
+| `15.36.6` | proven | `test_no_principal_may_certify_a_scope_they_are_accountable_for` | No governance artifact may bypass the Governance Gateway for direct subsystem enforcement. |
+| `15.36.7` | proven | `test_the_journal_records_the_governance_trail` | No governance artifact journal may be modified, overwritten, or deleted after ratificat... |
 | `15.36.8` | uncovered | — | No governance artifact may proceed on unresolved contradictory evidence without human a... |
 | `15.36.9` | uncovered | — | No governance artifact may be formed with only a single option documented for G2 and ab... |
 | `15.36.10` | uncovered | — | No governance artifact may be formed without a confidence score and, for G2+, a risk as... |
@@ -398,7 +404,7 @@ error. It is published so the gap is a number someone can act on.
 | `15.36.20` | uncovered | — | Sovereign Override must halt all active governance formations in conflict within 5 seco... |
 | `16.35.1` | proven | `test_the_gateway_still_exposes_no_mutating_verb` | No subsystem may opt out of mandatory signal emission. |
 | `16.35.2` | proven | `test_a_timeline_query_is_authorized_like_every_other_read` | No observability artifact may be formed without a unique identity, authenticated source... |
-| `16.35.3` | uncovered | — | No observability artifact may cross tenant boundaries without explicit bilateral human ... |
+| `16.35.3` | proven | `test_halt_confirmations_are_reported_against_the_five_second_bound` | No observability artifact may cross tenant boundaries without explicit bilateral human ... |
 | `16.35.4` | uncovered | — | No observability artifact may expose secret values, credentials, or authentication proofs. |
 | `16.35.5` | uncovered | — | No health model may present correlation as causation without experimental validation. |
 | `16.35.6` | uncovered | — | No predictive indicator may be disclosed without explicit confidence score and falsifia... |
