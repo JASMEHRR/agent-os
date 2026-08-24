@@ -129,6 +129,26 @@ button:focus-visible { outline: 2px solid rgb(34 211 238 / 0.6); outline-offset:
 
 .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 16px; }
 
+/* Whole label is the target, not just the 13px box. This gets used on a phone
+   and a checkbox alone is well under the 44px minimum. */
+.chan {
+  display: inline-flex; align-items: center; gap: 9px;
+  min-height: 44px; padding: 0 16px 0 13px;
+  border: 1px solid rgb(255 255 255 / 0.14);
+  border-radius: 12px; cursor: pointer;
+  background: rgb(255 255 255 / 0.03);
+  font-size: 15px; user-select: none;
+}
+.chan:has(input:checked) { border-color: var(--brand-400); background: rgb(34 211 238 / 0.1); }
+.chan input { width: 17px; height: 17px; accent-color: var(--brand-400); cursor: pointer; }
+.chan:focus-within { outline: 2px solid rgb(34 211 238 / 0.6); outline-offset: 2px; }
+
+.chan-badge {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 6px;
+  background: rgb(34 211 238 / 0.14); color: var(--brand-300);
+}
+
 .post {
   white-space: pre-wrap;
   background: rgb(0 0 0 / 0.28);
@@ -196,6 +216,11 @@ ul.rules { margin: 12px 0 0; padding-left: 20px; color: rgb(255 255 255 / 0.65);
   <p class="hint">Plain sentences are fine. Include real numbers if you have them. It will not invent any.</p>
   <textarea id="note" placeholder="This week I finished wiring Groq behind the model router. Took 3 attempts because the free tier rate limits at 429, so I built a cooldown that degrades instead of failing. The test suite is at 1803 passing."></textarea>
   <input type="text" id="angle" placeholder="Optional: an angle to take (leave blank and it picks one)">
+  <div class="row" id="channels">
+    <label class="chan"><input type="checkbox" value="linkedin" checked> LinkedIn post</label>
+    <label class="chan"><input type="checkbox" value="newsletter"> Newsletter</label>
+    <label class="chan"><input type="checkbox" value="devto"> Dev.to article</label>
+  </div>
   <div class="row">
     <button class="primary" id="go">Write my post</button>
     <span class="hint" style="margin:0" id="note-hint"></span>
@@ -254,9 +279,10 @@ function draftCard(d, actions) {
     : '';
   const redrafts = d.redraft_count > 0
     ? `<span class="hint" style="margin:0">fixed itself ${d.redraft_count}x</span>` : '';
+  const chan = `<span class="chan-badge">${escapeHtml(d.channel)}</span>`;
   return `
     <div style="margin-bottom:26px">
-      <div class="row" style="margin:0 0 4px">${tag}${redrafts}</div>
+      <div class="row" style="margin:0 0 4px">${chan}${tag}${redrafts}</div>
       ${d.full_text ? `<div class="post">${escapeHtml(d.full_text)}</div>` : ''}
       ${rules}
       ${actions ? `<div class="row">
@@ -315,15 +341,21 @@ $('go').onclick = async () => {
   if (!body) { message('note-msg', 'Write something first.', 'error'); return; }
 
   btn.disabled = true;
-  btn.innerHTML = '<span class="spin"></span>Writing, about 10 seconds';
+  btn.innerHTML = '<span class="spin"></span>Writing, this takes a moment';
   try {
+    const channels = [...document.querySelectorAll('#channels input:checked')].map(c => c.value);
+    if (!channels.length) { message('note-msg', 'Pick at least one channel.', 'error'); return; }
+
     const {note_id} = await api('/api/note', {body, angle: $('angle').value.trim()});
-    const {draft} = await api('/api/draft', {note_id});
+    const {drafts} = await api('/api/draft', {note_id, channels});
     $('note').value = '';
     $('angle').value = '';
+
+    const ok = drafts.filter(d => d.state === 'drafted').length;
     message('note-msg',
-      draft.state === 'drafted' ? 'Done. Your post is below.' : 'It could not get this one past the quality rules. See below.',
-      draft.state === 'drafted' ? 'good' : 'error');
+      ok === drafts.length ? `Done. ${ok} draft${ok === 1 ? '' : 's'} below.`
+        : `${ok} of ${drafts.length} passed the quality rules. The rest are further down.`,
+      ok > 0 ? 'good' : 'error');
     await refresh();
   } catch (e) {
     message('note-msg', e.message, 'error');

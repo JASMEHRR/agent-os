@@ -18,6 +18,8 @@ import dataclasses
 import enum
 from datetime import UTC, datetime
 
+from content_agent.formats import Channel
+
 
 class DraftState(enum.Enum):
     """Where a post is in its life."""
@@ -98,6 +100,16 @@ class PostDraft:
     close: str
     hashtags: tuple[str, ...]
     created_at: datetime
+    #: The three channels share the slots above rather than having their own
+    #: types, because they genuinely have the same shape: an attention line
+    #: (hook, subject, title), a body, a close, and tags. Only the rendering
+    #: and the gates differ, and both are the format's business.
+    #:
+    #: Defaulted to LinkedIn so rows written before this field existed still
+    #: load. That is not the codec's usual "invent a plausible value": every
+    #: draft written before this field was a LinkedIn draft, so the default
+    #: records a fact that was previously implicit rather than guessing one.
+    channel: Channel = Channel.LINKEDIN
     #: How many times the voice gates sent it back. Worth keeping: a rising
     #: average across weeks means the prompt and the gates have drifted apart.
     redraft_count: int = 0
@@ -110,7 +122,14 @@ class PostDraft:
     failure_reason: str = ""
 
     def full_text(self) -> str:
-        """What would actually be posted."""
+        """What would actually be published, rendered for its channel."""
+        if self.channel is Channel.NEWSLETTER:
+            # The subject is shown because that is how it will be read.
+            # Reviewing a newsletter without its subject line means reviewing
+            # the half that does not decide whether it gets opened.
+            return f"Subject: {self.hook}\n\n{self.body}\n\n{self.close}".strip()
+        if self.channel is Channel.DEVTO:
+            return f"# {self.hook}\n\n{self.body}\n\ntags: {', '.join(self.hashtags)}".strip()
         tags = " ".join(t if t.startswith("#") else f"#{t}" for t in self.hashtags)
         return f"{self.hook}\n\n{self.body}\n\n{self.close}\n\n{tags}".strip()
 

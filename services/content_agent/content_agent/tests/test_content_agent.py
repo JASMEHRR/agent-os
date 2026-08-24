@@ -21,6 +21,7 @@ from content_agent.drafts import (
     PostDraft,
     WeeklyNote,
 )
+from content_agent.formats import Channel
 from content_agent.studio import MAX_REDRAFTS, ContentStudio, DraftingFailed
 from content_agent.voice import check, redraft_instruction
 from persistence import InMemoryRepository
@@ -276,6 +277,7 @@ def test_full_text_assembles_what_would_actually_be_posted() -> None:
         draft_id="d1",
         note_id="n1",
         state=DraftState.DRAFTED,
+        channel=Channel.LINKEDIN,
         hook="Hook.",
         body="Body.",
         close="Close?",

@@ -93,14 +93,14 @@ def test_the_whole_flow_works_in_the_order_a_person_would_do_it(server) -> None:
     status, note = call(server, "/api/note", {"body": GOOD_NOTE})
     assert status == 200
 
-    status, drafted = call(server, "/api/draft", {"note_id": note["note_id"]})
+    status, drafted = call(server, "/api/draft", {"note_id": note["note_id"], "channels": ["linkedin"]})
     assert status == 200
-    assert drafted["draft"]["state"] == "drafted"
+    assert drafted["drafts"][0]["state"] == "drafted"
 
     status, state = call(server, "/api/state")
     assert len(state["waiting"]) == 1
 
-    status, approved = call(server, "/api/approve", {"draft_id": drafted["draft"]["draft_id"]})
+    status, approved = call(server, "/api/approve", {"draft_id": drafted["drafts"][0]["draft_id"]})
     assert status == 200
     assert approved["draft"]["state"] == "approved"
 
@@ -129,7 +129,7 @@ def test_discard_removes_a_draft_from_the_waiting_list(server) -> None:
     _, note = call(server, "/api/note", {"body": GOOD_NOTE})
     _, drafted = call(server, "/api/draft", {"note_id": note["note_id"]})
 
-    call(server, "/api/discard", {"draft_id": drafted["draft"]["draft_id"]})
+    call(server, "/api/discard", {"draft_id": drafted["drafts"][0]["draft_id"]})
 
     _, state = call(server, "/api/state")
     assert state["waiting"] == []
@@ -170,6 +170,21 @@ def test_an_unknown_draft_id_is_an_error_not_a_crash(server) -> None:
 
     assert status == 500
     assert "error" in body
+
+
+def test_every_channel_can_be_requested_in_one_call(server) -> None:
+    """One note, three drafts, one round trip. The canned model only satisfies
+    LinkedIn's gates, so the others come back rejected, and that is the point:
+    all three were attempted and none went missing."""
+    _, note = call(server, "/api/note", {"body": GOOD_NOTE})
+
+    _, result = call(
+        server,
+        "/api/draft",
+        {"note_id": note["note_id"], "channels": ["linkedin", "newsletter", "devto"]},
+    )
+
+    assert {d["channel"] for d in result["drafts"]} == {"linkedin", "newsletter", "devto"}
 
 
 def test_the_error_body_is_json_so_the_page_can_show_it(server) -> None:

@@ -25,6 +25,7 @@ import pathlib
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from typing import Any
 
+from content_agent.formats import Channel
 from content_agent.studio import ContentStudio
 
 PAGE = (pathlib.Path(__file__).parent / "page.html").read_text(encoding="utf-8")
@@ -38,6 +39,7 @@ def _draft_json(draft: Any) -> dict[str, Any]:
     return {
         "draft_id": draft.draft_id,
         "state": draft.state.value,
+        "channel": draft.channel.value,
         "hook": draft.hook,
         "body": draft.body,
         "close": draft.close,
@@ -86,12 +88,18 @@ class Handler(BaseHTTPRequestHandler):
     # ---------------------------------------------------------------- Routes
 
     def do_GET(self) -> None:  # noqa: N802 - BaseHTTPRequestHandler's naming
-        if self.path in ("/", "/index.html"):
-            self._send(200, PAGE.encode("utf-8"), "text/html; charset=utf-8")
-        elif self.path == "/api/state":
-            self._json(self._state())
-        else:
-            self._json({"error": "not found"}, 404)
+        try:
+            if self.path in ("/", "/index.html"):
+                self._send(200, PAGE.encode("utf-8"), "text/html; charset=utf-8")
+            elif self.path == "/api/state":
+                self._json(self._state())
+            else:
+                self._json({"error": "not found"}, 404)
+        except Exception as exc:  # noqa: BLE001
+            # Reads fail too. A stored row the current code cannot decode
+            # would otherwise take down the one screen that could tell you
+            # what went wrong.
+            self._json({"error": f"{type(exc).__name__}: {exc}"}, 500)
 
     def do_POST(self) -> None:  # noqa: N802
         # Drained before routing, including on the 404 path. Replying without
@@ -145,10 +153,19 @@ class Handler(BaseHTTPRequestHandler):
         self._json({"note_id": note.note_id})
 
     def _draft(self, payload: dict[str, Any]) -> None:
-        note_id = str(payload.get("note_id", ""))
-        note = self.studio._notes.get(note_id)
-        draft = self.studio.draft(note)
-        self._json({"draft": _draft_json(draft)})
+        note = self.studio.note(str(payload.get("note_id", "")))
+        requested = payload.get("channels") or [Channel.LINKEDIN.value]
+
+        produced = []
+        for name in requested:
+            # Each channel is independent work. One that will not converge
+            # must not cost the others, so failures come back in the list as
+            # rejected drafts rather than aborting the request.
+            try:
+                produced.append(self.studio.draft(note, Channel(name)))
+            except Exception as exc:  # noqa: BLE001
+                produced.append(self.studio._blank(note, Channel(name), (f"model failure: {exc}",)))
+        self._json({"drafts": [_draft_json(d) for d in produced]})
 
     def _approve(self, payload: dict[str, Any]) -> None:
         draft_id = str(payload.get("draft_id", ""))
