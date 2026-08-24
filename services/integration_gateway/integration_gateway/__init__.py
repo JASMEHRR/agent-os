@@ -1,30 +1,42 @@
-"""Integration Gateway - **CONSTRUCTION BLOCKED by CIR-001** (21B 20).
+"""Integration Gateway — the sole path to the external ecosystem (17, per 21B §20).
 
-Specification-conformant: data-classification boundary enforcement and the
-per-instance human approval rule are expressed and enforced against specified
-manifests. Construction-blocked: abstraction resolution, capability
-consumption, provider health and consumption recording all raise.
+**Construction authorized 2026-08-24** by G4 ruling on CIR-001
+(`docs/rulings/CIR-001.md`).
 
-See `integration_registry.CIR_001` for the blocker text and what resolving it
-requires.
+`17.8` splits the platform: the Registry governs which integrations exist, this
+Gateway governs whether one may be consumed and mediates the consumption.
+
+Three properties are structural. Data classification is enforced at the
+boundary rather than trusted to the provider (21B §20.4). Approval is
+per-instance, and a class-level standing order never satisfies it (17.14.1).
+And callers name a capability abstraction, never a provider, which is what
+makes 17.6.3's substitution guarantee real rather than aspirational.
 """
 
 from integration_gateway.gateway import (
     CIR_001,
+    CIR_001_RESOLVED,
     ApprovalRequired,
     ClassificationRefused,
     ConstructionBlocked,
+    ConsumptionRefused,
+    ConsumptionResult,
     IntegrationGateway,
+    ProviderCall,
     classification_permitted,
     required_decision_class,
 )
 
 __all__ = [
     "IntegrationGateway",
+    "ConsumptionResult",
+    "ProviderCall",
     "ClassificationRefused",
     "ApprovalRequired",
+    "ConsumptionRefused",
     "classification_permitted",
     "required_decision_class",
     "ConstructionBlocked",
     "CIR_001",
+    "CIR_001_RESOLVED",
 ]

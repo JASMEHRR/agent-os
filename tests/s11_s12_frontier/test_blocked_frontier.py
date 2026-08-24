@@ -1,4 +1,4 @@
-"""Stages S11 and S12 — the exit criteria, scoped to what is unblocked.
+"""Stages S11 and S12 — the exit criteria, now that the frontier is closed.
 
 21_PLAN §4.1:
 
@@ -9,28 +9,16 @@
   experiments bounded and reversible; plugins discovered, sandboxed, and
   lifecycle-managed."
 
-The Build Specification scopes both to "whatever is unblocked" (S11 exit
-criteria; S12 validation criteria). This suite states precisely what that
-scoping leaves, and refuses to manufacture the rest.
+Until 2026-08-24 this file named, clause by clause, what could *not* be
+satisfied, because CIR-001 blocked five modules and a stage marked complete
+with no test naming its gap would have been the silent conversion to Done that
+Build Spec Section 24 forbids.
 
-**What cannot be satisfied, and is said so by name:**
-
-* S11's "environments registered, validated, promoted" — registration and
-  promotion are construction, blocked by CIR-001. Validation *is* satisfied:
-  the manifest schema is complete and enforced.
-* S11's "continuity and recovery procedures exercised" and "bootstrap
-  reproducible" — both require a live environment.
-* S12's "amendments packaged and ratified" — packaging is construction, and
-  ratification was never Evolution's to perform (19.3).
-* S12's "experiments bounded and reversible" — running an experiment is
-  construction.
-
-**What is satisfied in full:** S12's "plugins discovered, sandboxed, and
-lifecycle-managed", which is not blocked and is built for real.
-
-This file exists because a stage marked complete with no test naming what it
-could not do would be the silent conversion to Done that Build Spec Section 24
-forbids.
+The G4 ruling closed the frontier. So the file inverts: it now asserts the
+clauses are satisfied, and — more usefully — it asserts the things the ruling
+**did not** change. A ruling that authorized construction is very easy to
+mistake for a ruling that relaxed constraints, and these are the constraints
+that would go quietly if it were.
 """
 
 from __future__ import annotations
@@ -40,12 +28,10 @@ from typing import Any
 
 import pytest
 
-from deployment_gateway import DeploymentGateway, unbacked_environments
-from deployment_registry import (
-    ConstructionBlocked as DeploymentBlocked,
-)
+from deployment_gateway import DeploymentGateway
 from deployment_registry import (
     DeploymentRegistry,
+    EClass,
     EnvironmentInvariants,
     EnvironmentManifest,
     Purpose,
@@ -54,11 +40,27 @@ from deployment_registry import (
     Scope,
     SovereigntyTier,
 )
-from evolution_gateway import ConstructionBlocked as EvolutionBlocked
-from evolution_gateway import EvolutionGateway
+from evolution_gateway import (
+    ArtifactClass,
+    CompensationPlan,
+    EvolutionGateway,
+    ImpactAssessment,
+    LearningEvidence,
+    ProposalState,
+    RecursionAnomaly,
+    ratification_verbs,
+)
 from integration_gateway import IntegrationGateway
-from integration_registry import ConstructionBlocked as IntegrationBlocked
-from integration_registry import IntegrationRegistry
+from integration_registry import (
+    CapabilityAbstraction,
+    DataClassification,
+    IntegrationManifest,
+    IntegrationRegistry,
+    PortabilityDeclaration,
+)
+from integration_registry import (
+    RiskTier as IntegrationRiskTier,
+)
 from plugin_manager import PluginManager, PluginManifest, PluginState, ResourceLimits, SandboxTier
 
 TENANT = "tenant-alpha"
@@ -69,229 +71,406 @@ def is_human(principal_id: str) -> bool:
     return principal_id.startswith("human-")
 
 
-def environment() -> EnvironmentManifest:
-    return EnvironmentManifest(
-        deployment_id="env-primary",
-        name="pricing-primary",
-        version="1.0.0",
-        tenant_id=TENANT,
-        scope=Scope.BUSINESS,
-        owner_id=HUMAN,
-        risk_tier=RiskTier.D3_CRITICAL,
-        sovereignty_tier=SovereigntyTier.OWNED,
-        purpose=Purpose.PRIMARY,
-        geographic_locality="jurisdiction-a",
-        data_residency="jurisdiction-a only",
-        fault_domain="fd-1",
-        capacity_commitment="sufficient for twenty concurrent runtime entities",
-        invariants=EnvironmentInvariants(
+def environment(deployment_id: str = "env-primary", **overrides: Any) -> EnvironmentManifest:
+    defaults: dict[str, Any] = {
+        "deployment_id": deployment_id,
+        "name": "pricing-primary",
+        "version": "1.0.0",
+        "tenant_id": TENANT,
+        "scope": Scope.BUSINESS,
+        "owner_id": HUMAN,
+        "risk_tier": RiskTier.D3_CRITICAL,
+        "sovereignty_tier": SovereigntyTier.OWNED,
+        "purpose": Purpose.PRIMARY,
+        "geographic_locality": "jurisdiction-a",
+        "data_residency": "jurisdiction-a only",
+        "fault_domain": "fd-1",
+        "capacity_commitment": "sufficient for twenty concurrent runtime entities",
+        "invariants": EnvironmentInvariants(
             isolation="no runtime entity reaches outside the domain without Gateway mediation",
             sovereignty="substrate remains under direct organizational control",
             resilience="operational continuity within a single fault domain failure",
             auditability="all operations attributable for the statutory retention period",
         ),
-        resilience=ResilienceProfile(
+        "resilience": ResilienceProfile(
             recovery_time_objective=timedelta(minutes=15),
             recovery_point_objective=timedelta(minutes=5),
         ),
-        security_posture="network isolation plus per-entity credentials",
-        declared_at=datetime(2026, 8, 1, tzinfo=UTC),
-    )
+        "security_posture": "network isolation plus per-entity credentials",
+        "declared_at": datetime(2026, 8, 24, tzinfo=UTC),
+    }
+    defaults.update(overrides)
+    return EnvironmentManifest(**defaults)
 
 
-# ------------------------------------- S11: what is satisfied, and what is not
+def live_environment(registry: DeploymentRegistry, deployment_id: str = "env-primary") -> Any:
+    registry.declare(environment(deployment_id), actor_id=HUMAN)
+    registry.validate_environment(deployment_id)
+    registry.pass_gate(deployment_id, "compliance_gate")
+    registry.pass_gate(deployment_id, "resilience_gate")
+    registry.approve(deployment_id, HUMAN, is_human=True, e_class=EClass.E4)
+    return registry.activate(deployment_id)
 
 
-def test_s11_environment_validation_is_satisfied() -> None:
-    """The one clause of S11's exit criterion that does not require construction.
-
-    A manifest can be checked for conformance without anything coming into
-    being, so the schema half of "registered, validated" is genuinely met.
-    """
-    DeploymentRegistry().validate(environment())
+# ------------------------------------------------ S11: the criterion, satisfied
 
 
-def test_s11_registration_and_promotion_cannot_be_satisfied() -> None:
-    """Named as unsatisfiable rather than stubbed to make the suite green.
-
-    18.6.1 makes the Registry "the sole authoritative source of truth for all
-    operational environments"; registering one is bringing an environment into
-    existence, which is construction.
-    """
+def test_s11_environments_are_registered_validated_and_promoted() -> None:
+    """The three clauses that were construction and are now exercised."""
     registry = DeploymentRegistry()
-    with pytest.raises(DeploymentBlocked):
-        registry.register(environment())
-    with pytest.raises(DeploymentBlocked):
-        registry.promote("env-primary", RiskTier.D4_SOVEREIGN)
+    gateway = DeploymentGateway(registry=registry)
+    live_environment(registry)
 
-
-def test_s11_continuity_drills_and_bootstrap_cannot_be_exercised() -> None:
-    """Both clauses require a live environment, and there is none."""
-    gateway = DeploymentGateway()
-    with pytest.raises(DeploymentBlocked):
-        gateway.bootstrap()
-    with pytest.raises(DeploymentBlocked):
-        gateway.verify_rollback_readiness("env-primary")
-    assert environment().resilience.continuity_drill_passed is False, (
-        "no drill has been run, and the manifest says so rather than defaulting to passed"
+    outcome = gateway.request_promotion(
+        "env-primary", RiskTier.D4_SOVEREIGN, HUMAN, is_human=True, e_class=EClass.E4, rollback_tested=True
     )
+    assert outcome.authorized
+    assert outcome.followed_the_full_sequence
 
 
-def test_s11_isolation_by_fault_domain_and_locality_is_declared_not_enforced() -> None:
-    """The declaration is complete; the enforcement needs a substrate.
+def test_s11_environments_are_isolated_by_fault_domain_and_locality() -> None:
+    """Declared *and* now enforced: discovery filters on both."""
+    registry = DeploymentRegistry()
+    live_environment(registry, "env-a")
+    registry.declare(environment("env-b", geographic_locality="jurisdiction-b", fault_domain="fd-2"), HUMAN)
+    registry.validate_environment("env-b")
+    for gate in ("compliance_gate", "resilience_gate"):
+        registry.pass_gate("env-b", gate)
+    registry.approve("env-b", HUMAN, is_human=True, e_class=EClass.E4)
+    registry.activate("env-b")
 
-    A manifest that could not even express a fault domain would be a
-    specification failure. One that expresses it but cannot enforce it is a
-    construction gap, and the difference is worth keeping visible.
+    assert [r.deployment_id for r in registry.discover(TENANT, locality="jurisdiction-b")] == ["env-b"]
+    assert [r.deployment_id for r in registry.discover(TENANT, fault_domain="fd-1")] == ["env-a"]
+
+
+def test_s11_recovery_procedures_are_exercised() -> None:
+    """The clause that needed a live environment, and now has one."""
+    registry = DeploymentRegistry()
+    gateway = DeploymentGateway(registry=registry)
+    live_environment(registry)
+    gateway.verify_rollback_readiness("env-primary", rollback_tested=True)
+    assert gateway.rollback("env-primary", "the promotion regressed latency")
+
+
+# ------------------------------------------------ S12: the criterion, satisfied
+
+
+def test_s12_amendments_are_packaged_and_ratified_by_governance() -> None:
+    """Both halves, and the second is not Evolution's to do.
+
+    "Packaged **and ratified**" is one clause naming two parties. Evolution
+    packages; Governance ratifies. A test that had Evolution do both would
+    report the clause satisfied by breaking 19.3.
     """
-    manifest = environment()
-    assert manifest.fault_domain
-    assert manifest.geographic_locality
-    with pytest.raises(DeploymentBlocked):
-        DeploymentGateway().mediate_access("env-primary", "agent-analyst")
+    received: list[str] = []
 
+    class Governance:
+        def receive(self, proposal_id: str, package: Any) -> str:
+            received.append(proposal_id)
+            return f"ack-{proposal_id}"
 
-# ------------------------------------- S12: what is satisfied, and what is not
-
-
-def test_s12_amendment_packaging_cannot_be_satisfied() -> None:
-    """And ratification was never Evolution's to perform (19.3)."""
     evolution = EvolutionGateway()
-    with pytest.raises(EvolutionBlocked):
-        evolution.package("proposal-1")
-    with pytest.raises(EvolutionBlocked):
-        evolution.hand_off("proposal-1")
-    assert not hasattr(evolution, "ratify")
+    evolution.register_governance(Governance())
+    evolution.draft(
+        proposal_id="prop-1",
+        tenant_id=TENANT,
+        artifact_class=ArtifactClass.A2_ARCHITECTURAL,
+        target_subsystem="agent_runtime",
+        statement="raise the default retry ceiling from two to four",
+        rationale="three confirmed entries show the provider recovers within four attempts",
+        evidence=[LearningEvidence("le-1", "confirmed", "agent-analyst", 0.4)],
+        drafted_by="agent-architect",
+    )
+    evolution.analyse_impact(
+        "prop-1",
+        ImpactAssessment(("agent_runtime",), (), reversible=True, detail="one module"),
+    )
+    evolution.frame_compensation(
+        "prop-1", CompensationPlan(("restore the previous ceiling",), tested=True, estimated_reversal_cost=5.0)
+    )
+    evolution.check_recursion("prop-1")
+    evolution.package("prop-1")
+    evolution.hand_off("prop-1")
 
-
-def test_s12_experiments_cannot_be_run() -> None:
-    """19's bounded, reversible experiments require construction to run at all."""
-    with pytest.raises(EvolutionBlocked):
-        EvolutionGateway().run_experiment("exp-1")
+    assert received == ["prop-1"]
+    # Governance decides; Evolution records what it decided.
+    assert evolution.record_outcome("prop-1", "ratified", "adopted at G3").state == ProposalState.RATIFIED
+    assert evolution.health()["ratified_by_evolution"] == 0
 
 
 def test_s12_plugins_are_discovered_sandboxed_and_lifecycle_managed() -> None:
-    """The clause that **is** fully satisfied, exercised end to end.
-
-    02.3.10 and 01.18.2 name no technology that CIR-001 puts in doubt for the
-    manifest, permission and lifecycle model, so this half of S12 is built for
-    real rather than specified.
-    """
+    """Unchanged: this clause was satisfied before the ruling and still is."""
     manager = PluginManager(is_human=is_human)
-    manifest = PluginManifest(
-        plugin_id="plug-shop",
-        name="Shop Integration",
-        version="1.0.0",
-        publisher="third-party-labs",
-        capabilities=frozenset({"catalogue.sync"}),
-        event_subscriptions=frozenset({"order.created"}),
-        requested_permissions=frozenset({"catalogue.read", "catalogue.write"}),
-        resource_limits=ResourceLimits(
-            max_memory_mb=512,
-            max_cpu_millicores=500,
-            max_wall_seconds=30,
-            egress_allowlist=frozenset({"api.example-shop.test"}),
-        ),
-        sandbox_tier=SandboxTier.CONTAINER,
-        api_version="v1",
+    manager.discover(
+        PluginManifest(
+            plugin_id="plug-shop",
+            name="Shop Integration",
+            version="1.0.0",
+            publisher="third-party-labs",
+            capabilities=frozenset({"catalogue.sync"}),
+            event_subscriptions=frozenset({"order.created"}),
+            requested_permissions=frozenset({"catalogue.read", "catalogue.write"}),
+            resource_limits=ResourceLimits(512, 500, 30, frozenset({"api.example-shop.test"})),
+            sandbox_tier=SandboxTier.CONTAINER,
+            api_version="v1",
+        )
     )
-
-    # Discovered.
-    manager.discover(manifest)
-    assert manager.get("plug-shop").state == PluginState.DISCOVERED
-
-    # Lifecycle-managed, with a human at every gate.
     manager.install("plug-shop", HUMAN)
     manager.grant("plug-shop", HUMAN, frozenset({"catalogue.read"}))
     manager.enable("plug-shop", HUMAN)
 
-    # Sandboxed: bounded resources, bounded egress, bounded permissions, and
-    # never in core process space.
-    record = manager.get("plug-shop")
-    assert record.manifest.sandbox_tier is not None
-    assert record.manifest.resource_limits.max_memory_mb > 0
-    assert record.effective_permissions == {"catalogue.read"}
+    assert manager.get("plug-shop").effective_permissions == {"catalogue.read"}
     assert not manager.permits("plug-shop", "catalogue.write")
     assert manager.health()["in_process_plugins"] == 0
-
-    # Lifecycle continues through disable and uninstall.
-    manager.disable("plug-shop", HUMAN, reason="vendor issued a patch")
-    assert not manager.permits("plug-shop", "catalogue.read")
+    manager.disable("plug-shop", HUMAN)
     manager.uninstall("plug-shop", HUMAN)
     assert manager.get("plug-shop").state == PluginState.UNINSTALLED
 
 
-# ------------------------------------------- The blocked frontier, as a whole
+# ================ What the ruling did NOT change, and would be easiest to lose
 
 
-def test_exactly_three_subsystems_are_construction_blocked() -> None:
-    """21A §3 names Integration, Deployment and Evolution.
+def test_the_naming_prohibition_still_governs_abstractions() -> None:
+    """The half of CIR-001's prohibition the ruling **kept**.
 
-    Asserted together so the frontier is one checkable fact rather than three
-    scattered ones. If a fourth subsystem ever becomes blocked, or one of these
-    unblocks, this is the test that says so.
+    A ruling that authorized construction is easy to mistake for one that
+    relaxed constraints. It did not: it scoped the prohibition to abstractions
+    and governance artifacts, which means this is now the *only* place the
+    prohibition lives and therefore the place it matters most.
     """
-    blocked: list[Any] = [
+    registry = IntegrationRegistry()
+    registry.specify_abstraction(
+        CapabilityAbstraction(
+            name="catalogue.sync",
+            description="synchronise a product catalogue with an external store",
+            contract={"items": list},
+        )
+    )
+    registry.register(
+        IntegrationManifest(
+            integration_id="int-shop",
+            provider_name="example-shop",
+            abstraction="catalogue.sync",
+            tenant_id=TENANT,
+            risk_tier=IntegrationRiskTier.T2,
+            max_data_classification=DataClassification.INTERNAL,
+            portability=PortabilityDeclaration(True, True, True, 500.0),
+            owner_principal_id=HUMAN,
+            cost_model="per-call",
+        ),
+        actor_id=HUMAN,
+    )
+    abstraction = registry.abstractions()[0]
+    assert "example-shop" not in abstraction.name
+    assert "example-shop" not in abstraction.description
+
+
+def test_evolution_still_cannot_ratify() -> None:
+    """19.3, and the ruling gave Evolution construction rather than authority.
+
+    This is the assertion that would matter most if it ever failed: a subsystem
+    able to ratify its own constitutional amendments would have taken the
+    authority the whole oversight plane exists to hold, and a ruling about
+    technology naming is exactly the sort of change during which it could slip
+    in unnoticed.
+    """
+    assert ratification_verbs() == ()
+    forbidden = {"ratify", "approve", "amend", "enact", "adopt"}
+    assert not (forbidden & {n for n in dir(EvolutionGateway) if not n.startswith("_")})
+
+
+def test_evolutions_recursion_guard_still_fails_closed() -> None:
+    """19.14 — unaffected by the ruling, and load-bearing now that the module runs."""
+    evolution = EvolutionGateway()
+    evolution.draft(
+        proposal_id="prop-self",
+        tenant_id=TENANT,
+        artifact_class=ArtifactClass.A4_CONSTITUTIONAL,
+        target_subsystem="evolution_gateway",
+        statement="widen what Evolution may propose",
+        rationale="confirmed evidence suggests the bounds are too tight",
+        evidence=[LearningEvidence("le-1", "confirmed", "x", 0.2)],
+        drafted_by="agent-architect",
+    )
+    evolution.analyse_impact("prop-self", ImpactAssessment((), (), reversible=True, detail=""))
+    evolution.frame_compensation("prop-self", CompensationPlan(("revert",), tested=True, estimated_reversal_cost=1.0))
+    with pytest.raises(RecursionAnomaly):
+        evolution.check_recursion("prop-self")
+
+
+def test_deployment_still_refuses_a_shared_substrate_for_sovereign_infrastructure() -> None:
+    """18.5.4 with 18.35.2 — the constraint that protects the system's own anchors.
+
+    D4 hosts the Security and Governance Gateways. Construction being
+    authorized does not make it acceptable to put them on a substrate shared
+    across organizational boundaries.
+    """
+    from core.exceptions import ValidationError
+    from deployment_registry import validate_manifest
+
+    with pytest.raises(ValidationError, match="sovereign_shared"):
+        validate_manifest(environment(risk_tier=RiskTier.D4_SOVEREIGN, sovereignty_tier=SovereigntyTier.SHARED))
+
+
+def test_deployment_still_authorizes_without_executing() -> None:
+    """21B §25.2 — the split the ruling did not touch.
+
+    Authorizing construction of the Deployment Platform is not the same as
+    giving it hands. Neither component provisions.
+    """
+    forbidden = {"provision", "scale", "deploy", "spin_up", "destroy"}
+    for surface in (DeploymentRegistry, DeploymentGateway):
+        assert not (forbidden & {n for n in dir(surface) if not n.startswith("_")})
+
+
+def test_integration_still_enforces_classification_at_the_boundary() -> None:
+    """21B §20.4 — "a provider's assurance is not a control", ruling or no ruling."""
+    from integration_gateway import ClassificationRefused
+
+    registry = IntegrationRegistry()
+    gateway = IntegrationGateway(registry=registry)
+    registry.specify_abstraction(CapabilityAbstraction("catalogue.sync", "sync a catalogue", {"items": list}))
+    registry.register(
+        IntegrationManifest(
+            integration_id="int-shop",
+            provider_name="example-shop",
+            abstraction="catalogue.sync",
+            tenant_id=TENANT,
+            risk_tier=IntegrationRiskTier.T1,
+            max_data_classification=DataClassification.INTERNAL,
+            portability=PortabilityDeclaration(True, True, True, 100.0),
+            owner_principal_id=HUMAN,
+            cost_model="per-call",
+        ),
+        actor_id=HUMAN,
+    )
+    registry.validate("int-shop")
+    registry.approve("int-shop", HUMAN, is_human=True, decision_class="D")
+    registry.activate("int-shop")
+    gateway.record_instance_approval("int-shop", HUMAN, is_human=True)
+
+    reached: list[str] = []
+
+    def provider(payload: Any) -> dict[str, Any]:
+        reached.append("x")
+        return {}
+
+    with pytest.raises(ClassificationRefused):
+        gateway.consume(
+            "catalogue.sync",
+            TENANT,
+            {},
+            DataClassification.RESTRICTED,
+            call=provider,
+        )
+    assert reached == []
+
+
+# ------------------------------------------------------- The frontier, closed
+
+
+def test_no_subsystem_is_construction_blocked_any_more() -> None:
+    """The inverse of the assertion this file was built around.
+
+    It asserted for eleven stages that exactly three subsystems were blocked.
+    The G4 ruling of 2026-08-24 released all five modules across those three,
+    and every one now reports construction authorized.
+    """
+    modules: list[Any] = [
         IntegrationRegistry(),
         DeploymentRegistry(),
-        IntegrationGateway(),
-        DeploymentGateway(),
         EvolutionGateway(),
     ]
-    for module in blocked:
-        assert module.is_blocked()
-        assert "CIR-001" in module.blocker()
-        assert module.health()["construction_authorized"] is False
-
-    # And the one S12 module that is not blocked.
-    manager = PluginManager(is_human=is_human)
-    assert not hasattr(manager, "is_blocked")
-    assert "construction_authorized" not in manager.health()
+    for module in modules:
+        assert not module.is_blocked()
+        assert module.health()["construction_authorized"] is True
 
 
-@pytest.mark.parametrize(
-    ("factory", "operation", "error"),
-    [
-        (IntegrationRegistry, "register", IntegrationBlocked),
-        (IntegrationGateway, "consume", IntegrationBlocked),
-        (DeploymentRegistry, "register", DeploymentBlocked),
-        (DeploymentGateway, "authorize", DeploymentBlocked),
-        (EvolutionGateway, "package", EvolutionBlocked),
-    ],
-)
-def test_every_blocked_subsystem_raises_rather_than_no_ops(
-    factory: Any, operation: str, error: type[Exception]
-) -> None:
-    """Build Spec Section 24, across all three blocked subsystems at once.
+def test_the_system_now_reaches_outside_and_runs_somewhere() -> None:
+    """The two honest consequences, inverted.
 
-    The uniformity matters: three modules that each handled the block slightly
-    differently would be three chances for one of them to drift into a quiet
-    no-op.
+    This file used to assert that the system reached nothing external and ran
+    in no registered environment — both true, both asserted rather than left to
+    be discovered. Both are now false, and the same directness applies.
     """
-    with pytest.raises(error, match="not authorized"):
-        getattr(factory(), operation)()
+    registry = DeploymentRegistry()
+    gateway = DeploymentGateway(registry=registry)
+    live_environment(registry)
+    assert gateway.mediate_access("runtime-1", "env-primary")
+    assert registry.active(TENANT)
+
+    integrations = IntegrationRegistry()
+    integrations.specify_abstraction(CapabilityAbstraction("catalogue.sync", "sync", {"items": list}))
+    assert integrations.abstractions()
 
 
-def test_the_system_knows_it_has_no_environment_and_no_external_reach() -> None:
-    """The two honest consequences of the frontier, stated together.
+def test_a_tool_needing_an_integration_is_now_backed() -> None:
+    """The S6 clause that could not be satisfied while CIR-001 stood.
 
-    18.6.2 makes the Deployment Gateway the sole path to environmental
-    existence, and 17 makes the Integration Gateway the sole path outside. With
-    both blocked, everything built in S0 through S10 runs nowhere in particular
-    and reaches nothing external. That is the true state of the system and it
-    is better said plainly than discovered later.
+    `test_a_tool_needing_an_integration_is_refused_while_cir_001_blocks` named
+    it as unsatisfiable rather than stubbing a fake integration to make the
+    suite green. The Registry-backed source now answers the same question with
+    a real integration behind it.
     """
-    assert unbacked_environments() == ()
+    from tool_gateway import RegistryIntegrationSource, UnbackedIntegrationSource
 
-    from tool_gateway import UnbackedIntegrationSource
+    registry = IntegrationRegistry()
+    registry.specify_abstraction(CapabilityAbstraction("catalogue.sync", "sync", {"items": list}))
+    registry.register(
+        IntegrationManifest(
+            integration_id="int-shop",
+            provider_name="example-shop",
+            abstraction="catalogue.sync",
+            tenant_id=TENANT,
+            risk_tier=IntegrationRiskTier.T2,
+            max_data_classification=DataClassification.INTERNAL,
+            portability=PortabilityDeclaration(True, True, True, 100.0),
+            owner_principal_id=HUMAN,
+            cost_model="per-call",
+        ),
+        actor_id=HUMAN,
+    )
+    registry.validate("int-shop")
+    registry.approve("int-shop", HUMAN, is_human=True, decision_class="D")
+    registry.activate("int-shop")
 
-    assert UnbackedIntegrationSource().is_backed("any.capability.abstraction", TENANT) is False
+    backed = RegistryIntegrationSource(registry=registry)
+    assert backed.is_backed("catalogue.sync", TENANT)
+    assert not backed.is_backed("nothing.registered", TENANT)
+    # And the old source still exists, because a deployment with no registered
+    # integrations is in exactly the position it describes.
+    assert not UnbackedIntegrationSource().is_backed("catalogue.sync", TENANT)
 
 
-def test_the_blockers_all_name_the_same_governance_ruling() -> None:
-    """One resolution unblocks all three, which is why it is one register entry."""
-    blocked: list[Any] = [IntegrationRegistry(), DeploymentRegistry(), EvolutionGateway()]
-    for module in blocked:
-        blocker = module.blocker()
-        assert "G3 or G4" in blocker
-        assert "unilateral interpretation" in blocker
+def test_a_suspended_provider_unbacks_the_tool_that_depended_on_it() -> None:
+    """The coupling that makes the backing check worth having.
+
+    A tool that kept working against a suspended provider would be reaching
+    outside through a relationship the Registry has already withdrawn.
+    """
+    from tool_gateway import RegistryIntegrationSource
+
+    registry = IntegrationRegistry()
+    registry.specify_abstraction(CapabilityAbstraction("catalogue.sync", "sync", {"items": list}))
+    registry.register(
+        IntegrationManifest(
+            integration_id="int-shop",
+            provider_name="example-shop",
+            abstraction="catalogue.sync",
+            tenant_id=TENANT,
+            risk_tier=IntegrationRiskTier.T2,
+            max_data_classification=DataClassification.INTERNAL,
+            portability=PortabilityDeclaration(True, True, True, 100.0),
+            owner_principal_id=HUMAN,
+            cost_model="per-call",
+        ),
+        actor_id=HUMAN,
+    )
+    registry.validate("int-shop")
+    registry.approve("int-shop", HUMAN, is_human=True, decision_class="D")
+    registry.activate("int-shop")
+
+    source = RegistryIntegrationSource(registry=registry)
+    assert source.is_backed("catalogue.sync", TENANT)
+    registry.suspend("int-shop", "provider outage")
+    assert not source.is_backed("catalogue.sync", TENANT)

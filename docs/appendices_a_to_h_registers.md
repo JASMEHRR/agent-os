@@ -14,7 +14,7 @@ refuse, fails the suite. A declaration nothing checks is a wish.
 
 ## Appendix A - Module Register
 
-27 modules, 5 construction-blocked by CIR-001.
+27 modules, 0 construction-blocked by CIR-001.
 
 | Module | Layer | Stage | Status | Source files | Tests |
 |---|---|---|---|---|---|
@@ -25,20 +25,20 @@ refuse, fails the suite. A declaration nothing checks is a wish.
 | `api_gateway` | services | S8 | implemented to stage exit criteria | 6 | 44 |
 | `cost_manager` | services | S3 | implemented to stage exit criteria | 3 | 28 |
 | `decision_gateway` | services | S5 | implemented to stage exit criteria | 4 | 62 |
-| `deployment_gateway` | services | S11 | specification-conformant, construction-blocked | 1 | 0 |
-| `deployment_registry` | services | S11 | specification-conformant, construction-blocked | 2 | 28 |
+| `deployment_gateway` | services | S11 | implemented to stage exit criteria | 1 | 0 |
+| `deployment_registry` | services | S11 | implemented to stage exit criteria | 2 | 34 |
 | `event_bus` | services | S2 | implemented to stage exit criteria | 11 | 61 |
-| `evolution_gateway` | services | S12 | specification-conformant, construction-blocked | 1 | 0 |
+| `evolution_gateway` | services | S12 | implemented to stage exit criteria | 1 | 31 |
 | `governance_gateway` | services | S10 | implemented to stage exit criteria | 3 | 57 |
 | `human_interface` | services | S8 | implemented to stage exit criteria | 5 | 50 |
-| `integration_gateway` | services | S6 | specification-conformant, construction-blocked | 1 | 0 |
-| `integration_registry` | services | S6 | specification-conformant, construction-blocked | 1 | 20 |
+| `integration_gateway` | services | S6 | implemented to stage exit criteria | 1 | 0 |
+| `integration_registry` | services | S6 | implemented to stage exit criteria | 1 | 30 |
 | `knowledge_gateway` | services | S4 | implemented to stage exit criteria | 5 | 48 |
 | `learning_gateway` | services | S9 | implemented to stage exit criteria | 4 | 68 |
 | `llm_router` | services | S6 | implemented to stage exit criteria | 3 | 28 |
 | `memory_gateway` | services | S4 | implemented to stage exit criteria | 4 | 44 |
 | `observability_gateway` | services | S3 (ingestion) + S10 (interpretive) | implemented to stage exit criteria | 4 | 54 |
-| `plugin_manager` | services | S12 | implemented to stage exit criteria | 1 | 36 |
+| `plugin_manager` | services | S12 | implemented to stage exit criteria | 1 | 34 |
 | `schema_registry` | services | S0 | implemented to stage exit criteria | 1 | 6 |
 | `security_gateway` | services | S1 | implemented to stage exit criteria | 15 | 109 |
 | `tool_executor` | services | S6 | implemented to stage exit criteria | 2 | 0 |
@@ -48,7 +48,7 @@ refuse, fails the suite. A declaration nothing checks is a wish.
 
 ## Appendix B - Interface Register
 
-328 public methods across 23 Gateway facades,
+349 public methods across 23 Gateway facades,
 read by introspection so a rename cannot go unrecorded.
 
 | Module | Facade | Method |
@@ -98,37 +98,41 @@ read by introspection so a rename cannot go unrecorded.
 | `decision_gateway` | `DecisionGateway` | `supersede(self, decision_id: 'str', successor_id: 'str', authorized_by: 'str') -> 'DecisionRecord'` |
 | `decision_gateway` | `DecisionGateway` | `sweep_timeouts(self) -> 'list[DecisionRecord]'` |
 | `decision_gateway` | `DecisionGateway` | `verify(self, decision_id: 'str', required_class: 'DecisionClass') -> 'DecisionRecord'` |
-| `deployment_gateway` | `DeploymentGateway` | `authorize(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
 | `deployment_gateway` | `DeploymentGateway` | `blocker(self) -> 'str'` |
-| `deployment_gateway` | `DeploymentGateway` | `bootstrap(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
-| `deployment_gateway` | `DeploymentGateway` | `deployment_status(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
+| `deployment_gateway` | `DeploymentGateway` | `deployment_status(self, deployment_id: 'str') -> 'Mapping[str, Any]'` |
 | `deployment_gateway` | `DeploymentGateway` | `gates_for(self, risk_tier: 'RiskTier') -> 'tuple[str, ...]'` |
+| `deployment_gateway` | `DeploymentGateway` | `halt(self) -> 'int'` |
 | `deployment_gateway` | `DeploymentGateway` | `health(self) -> 'Mapping[str, Any]'` |
 | `deployment_gateway` | `DeploymentGateway` | `is_blocked(self) -> 'bool'` |
-| `deployment_gateway` | `DeploymentGateway` | `mediate_access(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
-| `deployment_gateway` | `DeploymentGateway` | `migrate(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
-| `deployment_gateway` | `DeploymentGateway` | `probe_health(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
+| `deployment_gateway` | `DeploymentGateway` | `mediate_access(self, runtime_id: 'str', deployment_id: 'str') -> 'str'` |
+| `deployment_gateway` | `DeploymentGateway` | `mediated_runtimes(self) -> 'Mapping[str, str]'` |
+| `deployment_gateway` | `DeploymentGateway` | `migrate(self, runtime_id: 'str', to_deployment_id: 'str', is_human: 'bool') -> 'str'` |
+| `deployment_gateway` | `DeploymentGateway` | `now()` |
 | `deployment_gateway` | `DeploymentGateway` | `promotion_sequence(self) -> 'tuple[str, ...]'` |
-| `deployment_gateway` | `DeploymentGateway` | `request_promotion(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
+| `deployment_gateway` | `DeploymentGateway` | `request_promotion(self, deployment_id: 'str', to_tier: 'RiskTier', approver_id: 'str', is_human: 'bool', e_class: 'EClass', rollback_tested: 'bool') -> 'PromotionOutcome'` |
 | `deployment_gateway` | `DeploymentGateway` | `required_authority_for(self, risk_tier: 'RiskTier') -> 'EClass'` |
-| `deployment_gateway` | `DeploymentGateway` | `rollback(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
+| `deployment_gateway` | `DeploymentGateway` | `rollback(self, deployment_id: 'str', reason: 'str') -> 'EnvironmentRecord'` |
 | `deployment_gateway` | `DeploymentGateway` | `rollback_precedes_authorization(self) -> 'bool'` |
-| `deployment_gateway` | `DeploymentGateway` | `terminate(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
-| `deployment_gateway` | `DeploymentGateway` | `verify_rollback_readiness(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
-| `deployment_gateway` | `DeploymentGateway` | `would_be_permitted(self, manifest: 'EnvironmentManifest') -> 'NoReturn'` |
-| `deployment_registry` | `DeploymentRegistry` | `activate(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
-| `deployment_registry` | `DeploymentRegistry` | `approve(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
+| `deployment_gateway` | `DeploymentGateway` | `terminate(self, deployment_id: 'str', reason: 'str', is_human: 'bool') -> 'EnvironmentRecord'` |
+| `deployment_gateway` | `DeploymentGateway` | `verify_rollback_readiness(self, deployment_id: 'str', rollback_tested: 'bool') -> 'EnvironmentRecord'` |
+| `deployment_registry` | `DeploymentRegistry` | `activate(self, deployment_id: 'str') -> 'EnvironmentRecord'` |
+| `deployment_registry` | `DeploymentRegistry` | `active(self, tenant_id: 'str | None' = None) -> 'list[EnvironmentRecord]'` |
+| `deployment_registry` | `DeploymentRegistry` | `approve(self, deployment_id: 'str', approver_id: 'str', is_human: 'bool', e_class: 'EClass') -> 'EnvironmentRecord'` |
 | `deployment_registry` | `DeploymentRegistry` | `blocker(self) -> 'str'` |
 | `deployment_registry` | `DeploymentRegistry` | `class_policy(self, risk_tier: 'RiskTier') -> 'Any'` |
-| `deployment_registry` | `DeploymentRegistry` | `decommission(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
-| `deployment_registry` | `DeploymentRegistry` | `discover(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
+| `deployment_registry` | `DeploymentRegistry` | `declare(self, manifest: 'EnvironmentManifest', actor_id: 'str') -> 'EnvironmentRecord'` |
+| `deployment_registry` | `DeploymentRegistry` | `decommission(self, deployment_id: 'str', actor_id: 'str') -> 'EnvironmentRecord'` |
+| `deployment_registry` | `DeploymentRegistry` | `discover(self, tenant_id: 'str', min_tier: 'RiskTier | None' = None, locality: 'str | None' = None, fault_domain: 'str | None' = None) -> 'list[EnvironmentRecord]'` |
+| `deployment_registry` | `DeploymentRegistry` | `get(self, deployment_id: 'str') -> 'EnvironmentRecord'` |
 | `deployment_registry` | `DeploymentRegistry` | `health(self) -> 'Mapping[str, Any]'` |
 | `deployment_registry` | `DeploymentRegistry` | `is_blocked(self) -> 'bool'` |
-| `deployment_registry` | `DeploymentRegistry` | `promote(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
-| `deployment_registry` | `DeploymentRegistry` | `record_trust(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
-| `deployment_registry` | `DeploymentRegistry` | `register(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
-| `deployment_registry` | `DeploymentRegistry` | `resolve(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
+| `deployment_registry` | `DeploymentRegistry` | `now()` |
+| `deployment_registry` | `DeploymentRegistry` | `pass_gate(self, deployment_id: 'str', gate: 'str') -> 'EnvironmentRecord'` |
+| `deployment_registry` | `DeploymentRegistry` | `promote(self, deployment_id: 'str', to_tier: 'RiskTier', approver_id: 'str', is_human: 'bool', e_class: 'EClass') -> 'EnvironmentRecord'` |
+| `deployment_registry` | `DeploymentRegistry` | `quarantine(self, deployment_id: 'str', reason: 'str') -> 'EnvironmentRecord'` |
+| `deployment_registry` | `DeploymentRegistry` | `record_observation(self, deployment_id: 'str', incident: 'bool' = False) -> 'EnvironmentRecord'` |
 | `deployment_registry` | `DeploymentRegistry` | `validate(self, manifest: 'EnvironmentManifest') -> 'None'` |
+| `deployment_registry` | `DeploymentRegistry` | `validate_environment(self, deployment_id: 'str') -> 'EnvironmentRecord'` |
 | `event_bus` | `EventBus` | `acknowledge(self, group_id: 'str', event_id: 'str') -> 'DeliveryState'` |
 | `event_bus` | `EventBus` | `consume(self, group_id: 'str', limit: 'int | None' = None) -> 'list[DeliveryState]'` |
 | `event_bus` | `EventBus` | `emit(self, token: 'str', event_type: 'str', payload: 'dict[str, Any]', tenant_id: 'str', source: 'str', trace_id: 'str', causation_id: 'str | None' = None, schema_version: 'str' = '1.0.0', occurred_at: 'datetime | None' = None, business_context: 'dict[str, str] | None' = None) -> 'PublishedEvent'` |
@@ -140,21 +144,27 @@ read by introspection so a rename cannot go unrecorded.
 | `event_bus` | `EventBus` | `register_consumer_group(self, token: 'str', group_id: 'str', tenant_id: 'str', patterns: 'tuple[str, ...]', members: 'tuple[str, ...]', retry_policy: 'RetryPolicy | None' = None, critical: 'bool' = False) -> 'ConsumerGroup'` |
 | `event_bus` | `EventBus` | `request_replay(self, token: 'str', mode: 'ReplayMode', requested_by: 'str', tenant_id: 'str', stream: 'str | None' = None, correlation_id: 'str | None' = None, limit: 'int | None' = None) -> 'ReplaySandbox'` |
 | `event_bus` | `EventBus` | `signal_failure(self, group_id: 'str', event_id: 'str', reason: 'str') -> 'DeliveryState | DeadLetter'` |
-| `evolution_gateway` | `EvolutionGateway` | `analyse_impact(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
+| `evolution_gateway` | `EvolutionGateway` | `alert_human(detail)` |
+| `evolution_gateway` | `EvolutionGateway` | `analyse_impact(self, proposal_id: 'str', assessment: 'ImpactAssessment') -> 'Proposal'` |
 | `evolution_gateway` | `EvolutionGateway` | `blocker(self) -> 'str'` |
+| `evolution_gateway` | `EvolutionGateway` | `check_recursion(self, proposal_id: 'str') -> 'Proposal'` |
 | `evolution_gateway` | `EvolutionGateway` | `compensation_precedes_packaging(self) -> 'bool'` |
 | `evolution_gateway` | `EvolutionGateway` | `consumes_learning_state(self, state: 'str') -> 'bool'` |
-| `evolution_gateway` | `EvolutionGateway` | `draft(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
-| `evolution_gateway` | `EvolutionGateway` | `frame_compensation(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
-| `evolution_gateway` | `EvolutionGateway` | `hand_off(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
+| `evolution_gateway` | `EvolutionGateway` | `draft(self, proposal_id: 'str', tenant_id: 'str', artifact_class: 'ArtifactClass', target_subsystem: 'str', statement: 'str', rationale: 'str', evidence: 'Sequence[LearningEvidence]', drafted_by: 'str') -> 'Proposal'` |
+| `evolution_gateway` | `EvolutionGateway` | `escalate(trigger, detail)` |
+| `evolution_gateway` | `EvolutionGateway` | `frame_compensation(self, proposal_id: 'str', plan: 'CompensationPlan') -> 'Proposal'` |
+| `evolution_gateway` | `EvolutionGateway` | `get(self, proposal_id: 'str') -> 'Proposal'` |
+| `evolution_gateway` | `EvolutionGateway` | `hand_off(self, proposal_id: 'str') -> 'str'` |
 | `evolution_gateway` | `EvolutionGateway` | `health(self) -> 'Mapping[str, Any]'` |
 | `evolution_gateway` | `EvolutionGateway` | `is_blocked(self) -> 'bool'` |
-| `evolution_gateway` | `EvolutionGateway` | `monitor_signals(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
-| `evolution_gateway` | `EvolutionGateway` | `package(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
+| `evolution_gateway` | `EvolutionGateway` | `monitor_signals(self, entries: 'Sequence[LearningEvidence]') -> 'list[LearningEvidence]'` |
+| `evolution_gateway` | `EvolutionGateway` | `now()` |
+| `evolution_gateway` | `EvolutionGateway` | `package(self, proposal_id: 'str') -> 'Mapping[str, Any]'` |
 | `evolution_gateway` | `EvolutionGateway` | `pipeline(self) -> 'tuple[str, ...]'` |
-| `evolution_gateway` | `EvolutionGateway` | `record_outcome(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
+| `evolution_gateway` | `EvolutionGateway` | `proposals(self, state: 'ProposalState | None' = None) -> 'list[Proposal]'` |
+| `evolution_gateway` | `EvolutionGateway` | `record_outcome(self, proposal_id: 'str', outcome: 'str', justification: 'str' = '') -> 'Proposal'` |
 | `evolution_gateway` | `EvolutionGateway` | `recursion_guard_precedes_packaging(self) -> 'bool'` |
-| `evolution_gateway` | `EvolutionGateway` | `run_experiment(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
+| `evolution_gateway` | `EvolutionGateway` | `register_governance(self, intake: 'GovernanceIntake') -> 'None'` |
 | `governance_gateway` | `GovernanceGateway` | `accountability_chain(self, scope: 'str') -> 'list[Stewardship]'` |
 | `governance_gateway` | `GovernanceGateway` | `activate(self, artifact_id: 'str') -> 'ArtifactRecord'` |
 | `governance_gateway` | `GovernanceGateway` | `activate_policy(self, policy_id: 'str') -> 'Policy'` |
@@ -215,31 +225,42 @@ read by introspection so a rename cannot go unrecorded.
 | `human_interface` | `HumanInterface` | `reject(self, request_id: 'str', principal_id: 'str', note: 'str' = '') -> 'ApprovalRecord'` |
 | `human_interface` | `HumanInterface` | `resume(self, principal_id: 'str', note: 'str' = '') -> 'None'` |
 | `human_interface` | `HumanInterface` | `submit_approval(self, request: 'ApprovalRequest') -> 'ApprovalRecord'` |
+| `integration_gateway` | `IntegrationGateway` | `alternatives(self, abstraction: 'str', tenant_id: 'str') -> 'list[str]'` |
 | `integration_gateway` | `IntegrationGateway` | `blocker(self) -> 'str'` |
-| `integration_gateway` | `IntegrationGateway` | `check_approval(self, manifest: 'IntegrationManifest', approved_instances: 'set[str]') -> 'None'` |
+| `integration_gateway` | `IntegrationGateway` | `check_approval(self, manifest: 'IntegrationManifest', approved_instances: 'set[str] | None' = None) -> 'None'` |
 | `integration_gateway` | `IntegrationGateway` | `check_classification(self, manifest: 'IntegrationManifest', classification: 'DataClassification') -> 'None'` |
-| `integration_gateway` | `IntegrationGateway` | `consume(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
+| `integration_gateway` | `IntegrationGateway` | `consume(self, abstraction: 'str', tenant_id: 'str', payload: 'Mapping[str, Any]', classification: 'DataClassification', call: 'ProviderCall', cost: 'float' = 0.0) -> 'ConsumptionResult'` |
+| `integration_gateway` | `IntegrationGateway` | `halt(self) -> 'int'` |
 | `integration_gateway` | `IntegrationGateway` | `health(self) -> 'Mapping[str, Any]'` |
 | `integration_gateway` | `IntegrationGateway` | `is_blocked(self) -> 'bool'` |
-| `integration_gateway` | `IntegrationGateway` | `provider_health(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
-| `integration_gateway` | `IntegrationGateway` | `record_consumption(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
-| `integration_gateway` | `IntegrationGateway` | `resolve_abstraction(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
-| `integration_gateway` | `IntegrationGateway` | `retire(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
+| `integration_gateway` | `IntegrationGateway` | `now()` |
+| `integration_gateway` | `IntegrationGateway` | `provider_health(self, integration_id: 'str') -> 'Mapping[str, Any]'` |
+| `integration_gateway` | `IntegrationGateway` | `record_instance_approval(self, integration_id: 'str', approver_id: 'str', is_human: 'bool') -> 'None'` |
+| `integration_gateway` | `IntegrationGateway` | `resolve_abstraction(self, abstraction: 'str', tenant_id: 'str') -> 'IntegrationRecord'` |
+| `integration_gateway` | `IntegrationGateway` | `terminate(self, integration_id: 'str', reason: 'str', is_human: 'bool') -> 'IntegrationRecord'` |
 | `integration_registry` | `IntegrationRegistry` | `abstractions(self) -> 'list[CapabilityAbstraction]'` |
-| `integration_registry` | `IntegrationRegistry` | `activate(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
+| `integration_registry` | `IntegrationRegistry` | `activate(self, integration_id: 'str') -> 'IntegrationRecord'` |
+| `integration_registry` | `IntegrationRegistry` | `active(self, tenant_id: 'str | None' = None) -> 'list[IntegrationRecord]'` |
 | `integration_registry` | `IntegrationRegistry` | `alternatives_for(self, abstraction: 'str') -> 'list[str]'` |
-| `integration_registry` | `IntegrationRegistry` | `approve(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
+| `integration_registry` | `IntegrationRegistry` | `approve(self, integration_id: 'str', approver_id: 'str', is_human: 'bool', decision_class: 'str') -> 'IntegrationRecord'` |
 | `integration_registry` | `IntegrationRegistry` | `blocker(self) -> 'str'` |
 | `integration_registry` | `IntegrationRegistry` | `concentration(self) -> 'dict[str, float]'` |
-| `integration_registry` | `IntegrationRegistry` | `connect(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
+| `integration_registry` | `IntegrationRegistry` | `deprecate(self, integration_id: 'str', successor_id: 'str | None' = None) -> 'IntegrationRecord'` |
+| `integration_registry` | `IntegrationRegistry` | `get(self, integration_id: 'str') -> 'IntegrationRecord'` |
 | `integration_registry` | `IntegrationRegistry` | `health(self) -> 'Mapping[str, Any]'` |
 | `integration_registry` | `IntegrationRegistry` | `is_blocked(self) -> 'bool'` |
-| `integration_registry` | `IntegrationRegistry` | `probe_health(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
-| `integration_registry` | `IntegrationRegistry` | `register(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
-| `integration_registry` | `IntegrationRegistry` | `resolve(self, *_args: 'Any', **_kwargs: 'Any') -> 'NoReturn'` |
+| `integration_registry` | `IntegrationRegistry` | `journal_entries(self) -> 'list[Mapping[str, Any]]'` |
+| `integration_registry` | `IntegrationRegistry` | `now()` |
+| `integration_registry` | `IntegrationRegistry` | `record_health(self, integration_id: 'str', healthy: 'bool', latency_seconds: 'float' = 0.0) -> 'IntegrationRecord'` |
+| `integration_registry` | `IntegrationRegistry` | `register(self, manifest: 'IntegrationManifest', actor_id: 'str') -> 'IntegrationRecord'` |
+| `integration_registry` | `IntegrationRegistry` | `reinstate(self, integration_id: 'str', actor_id: 'str') -> 'IntegrationRecord'` |
+| `integration_registry` | `IntegrationRegistry` | `resolve(self, abstraction: 'str', tenant_id: 'str') -> 'list[IntegrationRecord]'` |
+| `integration_registry` | `IntegrationRegistry` | `retire(self, integration_id: 'str') -> 'IntegrationRecord'` |
 | `integration_registry` | `IntegrationRegistry` | `specified(self) -> 'list[IntegrationManifest]'` |
 | `integration_registry` | `IntegrationRegistry` | `specify(self, manifest: 'IntegrationManifest') -> 'IntegrationManifest'` |
 | `integration_registry` | `IntegrationRegistry` | `specify_abstraction(self, abstraction: 'CapabilityAbstraction') -> 'CapabilityAbstraction'` |
+| `integration_registry` | `IntegrationRegistry` | `suspend(self, integration_id: 'str', reason: 'str') -> 'IntegrationRecord'` |
+| `integration_registry` | `IntegrationRegistry` | `validate(self, integration_id: 'str') -> 'IntegrationRecord'` |
 | `knowledge_gateway` | `KnowledgeGateway` | `arbitrate(self, contradiction_id: 'str', arbiter_id: 'str', upheld_belief_id: 'str') -> 'Contradiction'` |
 | `knowledge_gateway` | `KnowledgeGateway` | `contradictions_for(self, belief_id: 'str') -> 'list[Contradiction]'` |
 | `knowledge_gateway` | `KnowledgeGateway` | `deprecate(self, belief_id: 'str', justification: 'str') -> 'BeliefRecord'` |
@@ -410,7 +431,7 @@ rather than restatements; both are explained in the source.
 
 ## Appendix D - Journal Register
 
-17 modules hold an `ImmutableJournal`, found by import rather than by claim.
+22 modules hold an `ImmutableJournal`, found by import rather than by claim.
 The Event Bus deliberately holds none: 08.25.2 makes an event immutable
 after publication, so the stream is already the append-only record and a
 journal beside it would be a second copy of the same history.
@@ -420,8 +441,13 @@ journal beside it would be a second copy of the same history.
 | `agent_runtime` |
 | `api_gateway` |
 | `decision_gateway` |
+| `deployment_gateway` |
+| `deployment_registry` |
+| `evolution_gateway` |
 | `governance_gateway` |
 | `human_interface` |
+| `integration_gateway` |
+| `integration_registry` |
 | `kernel` |
 | `knowledge_gateway` |
 | `learning_gateway` |
@@ -437,7 +463,7 @@ journal beside it would be a second copy of the same history.
 
 ## Appendix E - Signal Contract Register
 
-51 distinct signals, extracted from the emitting call sites.
+54 distinct signals, extracted from the emitting call sites.
 
 | Module | Signal | Type |
 |---|---|---|
@@ -458,6 +484,8 @@ journal beside it would be a second copy of the same history.
 | `decision_gateway` | `decision.outcome.diverged` | event |
 | `decision_gateway` | `decision.proposal.rejected` | event |
 | `decision_gateway` | `decision.standing_order.violation` | event |
+| `deployment_gateway` | `deployment.promotion.authorized` | event |
+| `evolution_gateway` | `evolution.proposal.handed_off` | event |
 | `governance_gateway` | `governance.policy.suspended` | event |
 | `governance_gateway` | `governance.ruling.issued` | event |
 | `human_interface` | `human.approval.answered` | event |
@@ -466,6 +494,7 @@ journal beside it would be a second copy of the same history.
 | `human_interface` | `human.override.issued` | event |
 | `human_interface` | `human.panic.invoked` | event |
 | `human_interface` | `human.panic.resumed` | event |
+| `integration_gateway` | `integration.consumed` | event |
 | `knowledge_gateway` | `knowledge.arbitration.required` | event |
 | `knowledge_gateway` | `knowledge.belief.confidence` | metric |
 | `knowledge_gateway` | `knowledge.contradiction.detected` | event |
@@ -495,13 +524,13 @@ journal beside it would be a second copy of the same history.
 
 ## Appendix G - Constitutional Interpretation Register (live)
 
-6 open, 3 resolved. Three were resolved **in
+5 open, 4 resolved. Three were resolved **in
 construction** rather than by ruling, which is a weaker thing and is said so:
 a choice made in code is reversible by a later ruling.
 
 | CIR | Severity | Status | Title | Disposition |
 |---|---|---|---|---|
-| CIR-001 | critical | **open** | Technology naming conflict between 03_TECH_STACK and 17, 18, 19 | Blocks construction of the Integration, Deployment and Evolution platforms, and leaves 35 of 03's own rules unsatisfiable, since satisfying them is the conflict. Requires a G3 or G4 ruling; Build Spec Section 6 rule 9 forbids unilateral resolution. |
+| CIR-001 | critical | **resolved** | Technology naming conflict between 03_TECH_STACK and 17, 18, 19 | Resolved 2026-08-24 by G4 human sovereign ruling, not in construction: the naming prohibition governs capability abstractions and governance artifacts, and 03's classification as an Implementation Specification distinguishes it from the constitutional documents the rule addresses. Released integration_registry, integration_gateway, deployment_registry, deployment_gateway, evolution_gateway for construction, all five now built. The abstraction-level prohibition is untouched and still enforced. See docs/rulings/CIR-001.md. |
 | CIR-002 | high | **open** | Direct service call prohibition versus specified synchronous interfaces | Unresolved but not blocking here: this build is in-process, so no transport decision has been taken. It becomes binding the moment a transport is chosen. |
 | CIR-003 | high | **open** | Data ownership allocation is incomplete | Appendix C below is this build's working allocation, not a ruling. |
 | CIR-004 | high | **open** | Composite latency budget is unallocated | No latency budget has been validated against the per-subsystem tables; the SLO registry publishes the targets and nothing measures against them in production. |
@@ -513,11 +542,11 @@ a choice made in code is reversible by a later ruling.
 
 ## Appendix H - Risk Register (live)
 
-8 open, 2 realized.
+7 open, 2 realized.
 
 | Risk | Severity | State | Title | Disposition |
 |---|---|---|---|---|
-| R1 | critical | **open** | Technology naming conflict | CIR-001; blocks four modules |
+| R1 | critical | **mitigated** | Technology naming conflict | CIR-001 resolved 2026-08-24 by G4 ruling; the five blocked modules are now built, and the abstraction-level naming prohibition the ruling preserved remains enforced by test |
 | R2 | high | **open** | Direct service call prohibition | CIR-002; deferred by in-process build |
 | R3 | high | **open** | Composite latency budget unallocated | CIR-004; the SLO registry publishes the per-subsystem targets and nothing measures against them |
 | R4 | high | **open** | Data ownership allocation incomplete | CIR-003; Appendix C is a working allocation |

@@ -25,7 +25,6 @@ from evolution_gateway import (
     CONSUMABLE_LEARNING_STATES,
     EVOLUTION_PIPELINE,
     ArtifactClass,
-    ConstructionBlocked,
     EvolutionGateway,
     ProposalState,
     ratification_verbs,
@@ -68,25 +67,6 @@ def is_human(principal_id: str) -> bool:
 @pytest.fixture
 def evolution() -> EvolutionGateway:
     return EvolutionGateway()
-
-
-@pytest.mark.parametrize(
-    "operation",
-    [
-        "monitor_signals",
-        "draft",
-        "analyse_impact",
-        "frame_compensation",
-        "package",
-        "hand_off",
-        "record_outcome",
-        "run_experiment",
-    ],
-)
-def test_every_evolution_construction_verb_raises(evolution: EvolutionGateway, operation: str) -> None:
-    """Build Spec Section 24 — never silently converted to Done."""
-    with pytest.raises(ConstructionBlocked, match="not authorized"):
-        getattr(evolution, operation)()
 
 
 def test_evolution_has_no_ratification_verb() -> None:
@@ -155,16 +135,19 @@ def test_a_rejected_proposal_has_a_terminal_state_that_preserves_history() -> No
     assert ProposalState.ABANDONED in set(ProposalState)
 
 
-def test_evolution_health_reports_the_block_rather_than_raising(evolution: EvolutionGateway) -> None:
+def test_evolution_health_reports_construction_and_not_authority(
+    evolution: EvolutionGateway,
+) -> None:
+    """The G4 ruling of 2026-08-24 authorized building it, and moved nothing else.
+
+    Both facts on one surface, deliberately: a reader checking whether Evolution
+    is built should see in the same glance that being built did not make it able
+    to ratify.
+    """
     health = evolution.health()
-    assert health["status"] == "specification-conformant, construction-blocked"
-    assert health["construction_authorized"] is False
+    assert health["construction_authorized"] is True
     assert health["ratification_authority"] == "governance_gateway"
-
-
-def test_the_evolution_blocker_is_quoted(evolution: EvolutionGateway) -> None:
-    assert "CIR-001" in evolution.blocker()
-    assert "third of the three subsystems" in evolution.blocker()
+    assert health["ratified_by_evolution"] == 0
 
 
 # ============================================ Plugin Manager (not blocked)

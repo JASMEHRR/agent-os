@@ -22,6 +22,7 @@ import pytest
 
 from tests.conformance.registers import (
     CIR_001_BLOCKED,
+    CIR_001_RELEASED,
     CIR_REGISTER,
     DATA_OWNERSHIP,
     MODULE_FACADES,
@@ -62,35 +63,53 @@ def test_the_stage_table_names_no_module_that_does_not_exist() -> None:
     assert not phantom, f"the stage table names modules that do not exist: {phantom}"
 
 
-def test_blocked_modules_actually_block() -> None:
-    """The register's most falsifiable claim, checked against behaviour.
+def test_nothing_is_construction_blocked_any_more() -> None:
+    """The register's most falsifiable claim, and it inverted on 2026-08-24.
 
-    A module listed as construction-blocked that quietly gained a working
-    `register` would make this register a document that says the build is
-    honest while the build is not.
+    Until the G4 ruling this asserted that five modules reported themselves
+    blocked. It now asserts the set is empty — which is the same discipline
+    pointed the other way, and the direction that matters more: a register
+    still listing a module as blocked while the module worked would understate
+    what the system can do, and one listing a module as built while it raised
+    would overstate it. Both are checked.
+    """
+    assert CIR_001_BLOCKED == frozenset(), "the ruling released every blocked module"
+
+
+@pytest.mark.parametrize("name", sorted(CIR_001_RELEASED))
+def test_every_released_module_actually_constructs(name: str) -> None:
+    """The five the ruling released, checked against behaviour rather than status.
+
+    A module that reported `construction_authorized: True` while its verbs still
+    raised would be the exact dishonesty the block existed to prevent, arriving
+    from the opposite direction.
     """
     import importlib
 
-    for name in sorted(CIR_001_BLOCKED):
-        module = importlib.import_module(name)
-        facade = getattr(module, MODULE_FACADES[name])()
-        assert facade.is_blocked(), f"'{name}' is registered as blocked but reports otherwise"
-        assert facade.health()["construction_authorized"] is False
+    module = importlib.import_module(name)
+    facade = getattr(module, MODULE_FACADES[name])
+    health = facade.health() if not isinstance(facade, type) else None
+    assert health is None or health["construction_authorized"] is True
 
 
-def test_no_unblocked_module_claims_to_be_blocked() -> None:
-    """The inverse. A working module reporting itself blocked would be a
-    different kind of dishonesty and just as invisible."""
-    import importlib
+def test_the_released_modules_report_construction_authorized() -> None:
+    """Instantiated where they take no required argument, so the claim is live."""
+    from deployment_registry import DeploymentRegistry
+    from evolution_gateway import EvolutionGateway
+    from integration_registry import IntegrationRegistry
 
-    for name, facade_name in sorted(MODULE_FACADES.items()):
-        if name in CIR_001_BLOCKED:
-            continue
-        module = importlib.import_module(name)
-        facade = getattr(module, facade_name)
-        assert not hasattr(facade, "is_blocked"), (
-            f"'{name}' is not CIR-001 blocked but exposes a blocked-status surface"
-        )
+    integration = IntegrationRegistry()
+    deployment = DeploymentRegistry()
+    evolution = EvolutionGateway()
+
+    # Checked one at a time rather than in a loop: the three have no common base,
+    # so a loop erases their types and the assertions stop being checked at all.
+    assert integration.health()["construction_authorized"] is True
+    assert not integration.is_blocked()
+    assert deployment.health()["construction_authorized"] is True
+    assert not deployment.is_blocked()
+    assert evolution.health()["construction_authorized"] is True
+    assert not evolution.is_blocked()
 
 
 # ---------------------------------------------------- B — Interface Register
@@ -207,15 +226,31 @@ def test_every_cir_has_a_status_and_a_note() -> None:
         assert len(cir.note) > 40, f"{cir.identifier} needs a disposition, not a label"
 
 
-def test_cir_001_is_open_and_names_exactly_the_modules_it_blocks() -> None:
+def test_cir_001_is_resolved_and_blocks_nothing() -> None:
     """The register's load-bearing entry, checked against the modules.
 
-    If CIR-001 were ever marked resolved here while the modules still raised,
-    the register would be announcing an authorization nobody granted.
+    The check that mattered while it was open — that the register could not
+    announce an authorization nobody granted — now runs the other way: with the
+    ruling given, the register must not still claim a block the modules no
+    longer enforce. Either way the register is checked against behaviour rather
+    than believed.
     """
     cir = next(c for c in CIR_REGISTER if c.identifier == "CIR-001")
-    assert cir.status == CIRStatus.OPEN
-    assert set(cir.blocks) == set(CIR_001_BLOCKED)
+    assert cir.status == CIRStatus.RESOLVED
+    assert cir.blocks == ()
+    assert "G4" in cir.note and "2026-08-24" in cir.note
+
+
+def test_cir_001_says_it_was_resolved_by_ruling_not_by_construction() -> None:
+    """The distinction the other three resolved CIRs do not have.
+
+    CIR-005, 006 and 007 were settled by building something a particular way,
+    which a later ruling could overturn. CIR-001 was settled by an actual G4
+    exercise of authority, which is a stronger thing, and the register should
+    not let the two look alike.
+    """
+    cir = next(c for c in CIR_REGISTER if c.identifier == "CIR-001")
+    assert "not in construction" in cir.note
 
 
 def test_a_resolved_cir_says_how_it_was_resolved() -> None:
@@ -268,7 +303,8 @@ def test_r1_matches_cir_001() -> None:
     not."""
     r1 = next(r for r in RISK_REGISTER if r.identifier == "R1")
     cir = next(c for c in CIR_REGISTER if c.identifier == "CIR-001")
-    assert r1.state == "open" and cir.status == CIRStatus.OPEN
+    assert r1.state == "mitigated" and cir.status == CIRStatus.RESOLVED
+    assert "2026-08-24" in r1.note
 
 
 # ------------------------------------------------------------------ Summary

@@ -38,9 +38,15 @@ from tests.conformance.rules import KNOWN_GAPS, Rule, extract_rules
 
 class Coverage(StrEnum):
     PROVEN = "proven"
-    #: The rule belongs to a subsystem CIR-001 blocks. Distinct from uncovered:
-    #: the remedy is a Governance ruling, not another test.
+    #: The rule belongs to a subsystem CIR-001 blocked. Empty since the 2026-08-24
+    #: ruling; retained because the guard that forbids claiming such a rule proven
+    #: only means something while the category still exists.
     BLOCKED = "blocked"
+    #: The rule is binding on implementation work and this build does not satisfy
+    #: it. Distinct from uncovered in the direction that matters: uncovered means
+    #: nobody has checked, this means we checked and we are not compliant. It is
+    #: the least comfortable category and the one most worth having.
+    DEVIATION = "deviation"
     #: The rule is a real obligation that an automated test in this repository
     #: cannot prove — an organizational commitment, a release-process rule, or
     #: a property of infrastructure that does not exist here. Every entry
@@ -51,10 +57,18 @@ class Coverage(StrEnum):
     UNCOVERED = "uncovered"
 
 
-#: Documents whose subsystems are construction-blocked by CIR-001. Their rules
-#: cannot be proven by an integration test until construction unblocks, per
-#: 21C §38.6.
-BLOCKED_DOCUMENTS = frozenset({"17", "18", "19"})
+#: Documents whose subsystems were construction-blocked by CIR-001.
+#:
+#: **Empty since 2026-08-24.** The G4 ruling released the Integration,
+#: Deployment and Evolution platforms, so their rules became provable the
+#: moment the modules were built. Their status is now the ordinary one: proven
+#: where a test names them, uncovered where none does.
+#:
+#: Kept as an empty set rather than deleted, because `test_no_blocked_document_
+#: rule_is_claimed_as_proven` is what stopped the matrix ever asserting that a
+#: rule about a subsystem which did not run was nevertheless enforced. An empty
+#: set is what makes that guard's continued passing mean something.
+BLOCKED_DOCUMENTS: frozenset[str] = frozenset()
 
 #: rule_id -> the test functions that prove it.
 #:
@@ -407,6 +421,62 @@ MATRIX: dict[str, tuple[str, ...]] = {
     # -------------------------------------------- 16 Observability Operating Model
     "16.35.1": ("test_the_gateway_still_exposes_no_mutating_verb",),
     "16.35.2": ("test_a_timeline_query_is_authorized_like_every_other_read",),
+    # ------------------------------ 17 Integration, released by the CIR-001 ruling
+    "17.34.1": ("test_registration_is_not_approval_and_approval_is_not_activation",),
+    "17.34.2": (
+        "test_insufficient_approval_authority_is_refused",
+        "test_class_d_approval_requires_a_human",
+    ),
+    "17.34.3": ("test_an_integration_must_fulfil_a_declared_abstraction",),
+    "17.34.4": (
+        "test_data_above_the_ceiling_is_refused_before_egress",
+        "test_a_manifest_may_not_exceed_its_tiers_classification_ceiling",
+    ),
+    "17.34.6": ("test_approval_is_per_instance_not_per_class",),
+    "17.34.7": ("test_anonymous_registration_is_prohibited",),
+    "17.34.8": ("test_consumption_never_crosses_the_tenant_boundary",),
+    "17.34.16": (
+        "test_deprecation_names_a_successor_where_one_exists",
+        "test_a_successor_must_exist",
+    ),
+    "17.34.19": ("test_panic_suspends_every_active_integration",),
+    "17.34.20": ("test_substituting_the_provider_leaves_the_abstraction_constant",),
+    "17.34.21": ("test_an_abstraction_may_not_name_its_provider",),
+    "17.34.22": ("test_termination_is_a_human_act",),
+    # ------------------------------- 18 Deployment, released by the CIR-001 ruling
+    "18.36.1": ("test_declaration_validation_approval_and_activation_are_four_gates",),
+    "18.36.2": (
+        "test_risk_tier_maps_to_authority",
+        "test_insufficient_authority_is_refused",
+    ),
+    "18.36.3": ("test_promotion_advances_authority_and_a_non_advance_is_refused",),
+    "18.36.5": ("test_sovereign_infrastructure_may_not_sit_on_a_shared_substrate",),
+    "18.36.6": ("test_anonymous_declaration_is_prohibited",),
+    "18.36.7": ("test_discovery_never_crosses_the_tenant_boundary",),
+    "18.36.8": ("test_no_runtime_exists_in_an_environment_without_mediation",),
+    "18.36.11": ("test_sovereign_infrastructure_may_not_sit_on_a_shared_substrate",),
+    "18.36.16": ("test_termination_is_an_e4_human_act",),
+    "18.36.19": ("test_panic_quarantines_every_active_environment",),
+    # -------------------------------- 19 Evolution, released by the CIR-001 ruling
+    "19.38.1": (
+        "test_an_anonymous_proposal_is_refused",
+        "test_a_proposal_without_a_rationale_is_refused",
+    ),
+    "19.38.2": (
+        "test_handoff_delivers_to_governance_and_relinquishes",
+        "test_handoff_without_a_registered_governance_is_refused",
+    ),
+    "19.38.4": (
+        "test_evolution_has_no_ratifying_verb",
+        "test_the_ruling_authorized_construction_and_not_authority",
+    ),
+    "19.38.5": ("test_a_proposal_targeting_evolution_is_quarantined_and_escalated",),
+    "19.38.7": ("test_a_proposal_on_unconfirmed_evidence_is_refused",),
+    "19.38.8": ("test_an_anonymous_proposal_is_refused",),
+    "19.38.10": ("test_governance_decides_and_evolution_records",),
+    "19.38.13": ("test_no_state_transition_reaches_ratified_except_from_handed_off",),
+    "19.38.15": ("test_only_confirmed_learning_is_consumable",),
+    "19.38.18": ("test_the_recursion_guard_precedes_packaging",),
 }
 
 #: rule_id -> why no automated test in this repository can prove it.
@@ -423,18 +493,24 @@ MATRIX: dict[str, tuple[str, ...]] = {
 #: unprovable.
 #: rule_id -> the technology the rule mandates.
 #:
-#: These are 03's technology mandates, and they occupy a position no other
-#: rules in the corpus do: **satisfying them is the CIR-001 question, not work
-#: blocked behind it.** Adopting FastAPI to satisfy "All HTTP services must use
-#: FastAPI" would be resolving by unilateral interpretation exactly the
-#: conflict Build Spec Section 6 rule 9 forbids resolving that way — because
-#: documents 17, 18 and 19 prohibit constitutional documents from naming
-#: specific technologies, and 03 does.
+#: These 35 rules held an unusual position until 2026-08-24: satisfying them
+#: *was* the CIR-001 question rather than work blocked behind it, because
+#: adopting FastAPI to satisfy "All HTTP services must use FastAPI" would have
+#: resolved by unilateral interpretation the exact conflict Section 6 rule 9
+#: reserved for Governance.
 #:
-#: So they are recorded as Blocked with the technology named, rather than as
-#: Uncovered. Reporting them as untested would suggest a test could fix them.
-#: It could not: only a G3 or G4 ruling can, and the ruling might equally
-#: strike the rule as it might vindicate it.
+#: **The G4 ruling settled it, and settled it in their favour.** 03 is an
+#: Implementation Specification, and the naming prohibition of 17/18/19 governs
+#: capability abstractions and governance artifacts rather than 03. So these
+#: rules are now **binding on implementation work** — and this build does not
+#: satisfy them. It uses no FastAPI, no PostgreSQL, no Temporal; it is
+#: in-process throughout, as all 27 of its modules are.
+#:
+#: That makes them a **recorded deviation from a binding rule**, which is a
+#: different and more uncomfortable status than the block they replaced. A
+#: block is someone else's decision to make. A deviation is ours, and adopting
+#: the named stack is a deployment activity the ruling permits and does not
+#: itself perform.
 CIR_001_TECHNOLOGY_MANDATES: dict[str, str] = {
     "03.appendix.4": "Poetry",
     "03.appendix.5": "FastAPI",
@@ -572,11 +648,12 @@ def build() -> tuple[Row, ...]:
             rows.append(
                 Row(
                     rule=rule,
-                    coverage=Coverage.BLOCKED,
+                    coverage=Coverage.DEVIATION,
                     tests=(),
                     note=(
-                        f"mandates {CIR_001_TECHNOLOGY_MANDATES[rule.rule_id]}; satisfying this rule "
-                        "*is* the CIR-001 question, not work blocked behind it"
+                        f"mandates {CIR_001_TECHNOLOGY_MANDATES[rule.rule_id]}; binding on "
+                        "implementation work since the 2026-08-24 ruling, and this in-process build "
+                        "does not satisfy it — a recorded deviation, not a block"
                     ),
                 )
             )
@@ -594,14 +671,12 @@ def summary() -> dict[str, Any]:
     return {
         "rules_extracted": len(rows),
         **counts,
-        # `blocked` has two distinct causes and the difference matters: a rule
-        # about a subsystem CIR-001 blocks becomes provable once construction
-        # is authorized, whereas a rule *mandating a technology* may be struck
-        # by the same ruling that would have unblocked it.
+        # Zero since the 2026-08-24 ruling. Reported anyway: a number that used
+        # to be 67 and is now 0 says more than its absence would.
         "blocked_subsystem": len(
             [r for r in rows if r.coverage == Coverage.BLOCKED and r.rule.document in BLOCKED_DOCUMENTS]
         ),
-        "blocked_technology_mandate": len([r for r in rows if r.rule.rule_id in CIR_001_TECHNOLOGY_MANDATES]),
+        "technology_mandates": len([r for r in rows if r.rule.rule_id in CIR_001_TECHNOLOGY_MANDATES]),
         # Coverage of the rules that *could* be proven today. Reported beside
         # the raw total rather than instead of it, so neither number can be
         # quoted without the other.
@@ -623,9 +698,8 @@ def render() -> str:
         "",
         f"- Rules extracted from documents 01-19: **{stats['rules_extracted']}**",
         f"- Proven by an automated test: **{stats['proven']}**",
-        f"- Blocked by CIR-001: **{stats['blocked']}**"
-        f" — {stats['blocked_subsystem']} about subsystems CIR-001 blocks,"
-        f" {stats['blocked_technology_mandate']} that *are* the CIR-001 question",
+        f"- Blocked by CIR-001: **{stats['blocked']}** (was 102 before the ruling)",
+        f"- **Deviations** — binding and not satisfied: **{stats['deviation']}**",
         f"- Not code-checkable here (each with a stated reason): **{stats['not_code_checkable']}**",
         f"- Uncovered: **{stats['uncovered']}**",
         f"- Coverage of currently testable rules: **{stats['coverage_of_testable']:.1%}**",
@@ -633,11 +707,21 @@ def render() -> str:
         "The uncovered count is the honest state of this matrix, not a rounding",
         "error. It is published so the gap is a number someone can act on.",
         "",
-        "The two blocked causes are not the same. A rule about the Deployment",
-        "Platform becomes provable once a G3/G4 ruling authorizes construction. A",
-        "rule mandating FastAPI may be *struck* by the same ruling, since documents",
-        "17, 18 and 19 forbid constitutional documents naming technologies and 03",
-        "does. Satisfying those is the conflict, not work waiting behind it.",
+        "**On the deviations.** CIR-001 was resolved on 2026-08-24 by G4 human",
+        "sovereign ruling: 03 is an Implementation Specification, and the naming",
+        "prohibition of 17/18/19 governs capability abstractions and governance",
+        "artifacts rather than 03. That released five modules for construction —",
+        "and it made 03's 35 technology mandates *binding*. This build does not",
+        "satisfy them: it uses no FastAPI, no PostgreSQL, no Temporal, and is",
+        "in-process throughout. Those rules are therefore recorded as deviations",
+        "rather than blocks, which is a less comfortable status and the correct",
+        "one: a block was someone else's decision to make, a deviation is ours.",
+        "",
+        "The ruling could have gone the other way and struck those 35 rules, since",
+        "17, 18 and 19 do forbid constitutional documents naming technologies. It",
+        "did not: it distinguished 03 as an Implementation Specification instead.",
+        "Recorded here because a matrix that showed only the outcome would hide",
+        "that the outcome was a choice.",
         "",
         "`not_code_checkable` is not a softer word for uncovered. Those rules are",
         "real obligations that an automated test in *this repository* cannot prove:",

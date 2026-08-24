@@ -18,9 +18,10 @@ in fourteen ways, and the differences would be the vulnerabilities.
 
 Every ingress **semantic** the constitution requires is implemented and
 enforced. The HTTP server is not. `Request` and `Response` are plain records
-rather than a web framework's types, because 03's named framework cannot be
-adopted while CIR-001 is unresolved and Build Spec Section 6 rule 9 forbids
-resolving it by unilateral interpretation.
+rather than a web framework's types. Since the CIR-001 ruling of 2026-08-24 the
+technology mandates in 03 are binding on implementation work, and this build
+does not satisfy them: a recorded deviation, not a block. It is listed in
+Appendix F under `deviation` rather than being described as unresolved.
 
 This is a deliberate scoping, not a stub: the pipeline runs, refuses, throttles,
 replays and paginates for real. What is missing is the socket.
@@ -108,7 +109,8 @@ the set of things the API can say stays enumerable.
 ## Open items
 
 * No HTTP/WebSocket transport, no OpenAPI document served, no JWKS validation
-  or token rotation — all blocked behind CIR-001's technology question.
+  or token rotation. Not blocked any more, and not built: a recorded deviation
+  from 03's now-binding mandates.
 * Rate-limit buckets are in-process, so horizontal scaling would need the
   shared store 03 §32.5 describes.
 * The idempotency store is in-process and therefore does not survive a restart.

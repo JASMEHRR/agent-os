@@ -181,7 +181,7 @@ def test_coverage_is_reported_honestly() -> None:
     """
     stats = summary()
     assert (
-        stats["proven"] + stats["blocked"] + stats["not_code_checkable"] + stats["uncovered"]
+        stats["proven"] + stats["blocked"] + stats["deviation"] + stats["not_code_checkable"] + stats["uncovered"]
         == stats["rules_extracted"]
     )
     assert stats["uncovered"] > 0, "if this ever reaches zero, celebrate and then verify it"
