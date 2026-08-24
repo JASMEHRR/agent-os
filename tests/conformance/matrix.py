@@ -62,6 +62,32 @@ BLOCKED_DOCUMENTS = frozenset({"17", "18", "19"})
 #: moving a test between files does not falsely break the matrix while renaming
 #: or deleting one correctly does.
 MATRIX: dict[str, tuple[str, ...]] = {
+    # ------------------------------------------------------- 03 Tech Stack
+    # The rules 03 states that this build satisfies without touching the
+    # technology question CIR-001 turns on.
+    "03.appendix.17": (
+        "test_a_class_c_timeout_defers_and_never_approves",
+        "test_a_class_d_timeout_rejects_and_never_approves",
+    ),
+    "03.appendix.23": (
+        "test_offset_pagination_is_refused_not_ignored",
+        "test_every_offset_spelling_is_refused",
+    ),
+    "03.appendix.24": ("test_a_mutating_request_without_a_key_is_refused",),
+    "03.inline.3": (
+        "test_the_generated_file_matches_the_generator",
+        "test_the_python_first_light_mirrors_the_typescript_definition",
+    ),
+    "03.inline.8": ("test_input_failing_its_contract_is_rejected_before_the_sandbox",),
+    "03.inline.20": ("test_an_abstraction_may_not_name_its_provider",),
+    "03.inline.30": (
+        "test_offset_pagination_is_refused_not_ignored",
+        "test_every_offset_spelling_is_refused",
+    ),
+    "03.inline.33": (
+        "test_no_sandbox_tier_runs_a_plugin_in_core_process_space",
+        "test_the_manager_holds_no_verb_that_executes_plugin_code",
+    ),
     # ------------------------------------------ 04 Business Operating Model
     "04.34.5": ("test_the_boundaries_intersect_rather_than_union",),
     "04.34.6": ("test_an_agent_cannot_commit_beyond_its_autonomy_level",),
@@ -282,7 +308,92 @@ MATRIX: dict[str, tuple[str, ...]] = {
 #: reason, a test asserts the reason is non-empty, and a rule may not appear
 #: both here and in MATRIX — a rule cannot be simultaneously proven and
 #: unprovable.
+#: rule_id -> the technology the rule mandates.
+#:
+#: These are 03's technology mandates, and they occupy a position no other
+#: rules in the corpus do: **satisfying them is the CIR-001 question, not work
+#: blocked behind it.** Adopting FastAPI to satisfy "All HTTP services must use
+#: FastAPI" would be resolving by unilateral interpretation exactly the
+#: conflict Build Spec Section 6 rule 9 forbids resolving that way — because
+#: documents 17, 18 and 19 prohibit constitutional documents from naming
+#: specific technologies, and 03 does.
+#:
+#: So they are recorded as Blocked with the technology named, rather than as
+#: Uncovered. Reporting them as untested would suggest a test could fix them.
+#: It could not: only a G3 or G4 ruling can, and the ruling might equally
+#: strike the rule as it might vindicate it.
+CIR_001_TECHNOLOGY_MANDATES: dict[str, str] = {
+    "03.appendix.4": "Poetry",
+    "03.appendix.5": "FastAPI",
+    "03.appendix.6": "async HTTP client selection",
+    "03.appendix.7": "SQLAlchemy 2.0",
+    "03.appendix.8": "Alembic",
+    "03.appendix.9": "Redis Streams",
+    "03.appendix.10": "Temporal",
+    "03.appendix.11": "LiteLLM Proxy",
+    "03.appendix.12": "pgvector",
+    "03.appendix.13": "Docker image tagging",
+    "03.appendix.14": "container resource limits",
+    "03.appendix.18": "a structured logging stack",
+    "03.appendix.19": "OpenTelemetry",
+    "03.appendix.20": "Prometheus",
+    "03.appendix.21": "a prohibited-technology list",
+    "03.inline.2": "Python for core services, Terraform for glue",
+    "03.inline.4": "Terraform / HCL",
+    "03.inline.6": "Poetry lockfiles and Docker",
+    "03.inline.7": "FastAPI",
+    "03.inline.9": "SQLAlchemy over raw SQL",
+    "03.inline.10": "Alembic",
+    "03.inline.11": "async HTTP client selection",
+    "03.inline.12": "ASGI server selection",
+    "03.inline.14": "PostgreSQL",
+    "03.inline.15": "pgvector",
+    "03.inline.16": "Apache AGE",
+    "03.inline.17": "Redis persistence",
+    "03.inline.18": "the Event Bus transport",
+    "03.inline.19": "Temporal",
+    "03.inline.21": "Docker image pinning",
+    "03.inline.22": "docker compose",
+    "03.inline.28": "deployment version tagging",
+    "03.inline.31": "gRPC internally, REST externally",
+    "03.inline.32": "OpenAPI-generated SDK models",
+    "03.inline.34": "container memory limits",
+}
+
 NOT_CODE_CHECKABLE: dict[str, str] = {
+    # 03's gate-enforced rules. Each is real and each is enforced, but by the
+    # toolchain rather than by a test — and a test that shelled out to re-run
+    # the type checker or the linter would be asserting that the gate it just
+    # ran is the gate CI runs, which it cannot know.
+    "03.appendix.2": "enforced by the mypy --strict gate in CI and pre-commit, not by a test that re-runs it",
+    "03.inline.25": "enforced by the mypy --strict gate in CI and pre-commit, not by a test that re-runs it",
+    "03.inline.24": "enforced by the ruff check and ruff format --check gates, not by a test that re-runs them",
+    "03.appendix.15": "enforced by pre-commit itself; a test cannot assert that a hook ran before it did",
+    "03.inline.23": "enforced by pre-commit and CI configuration, not by anything the code can assert",
+    "03.appendix.3": (
+        "enforced by the bandit gate and by code review; a test cannot prove the absence of a secret it was not shown"
+    ),
+    "03.inline.26": (
+        "enforced by the bandit gate and by review; absence of a secret is not a property a test can establish"
+    ),
+    "03.appendix.16": "CI has never executed (Section 39 criterion 2); the gate exists and is unproven",
+    "03.appendix.22": "a licence-review obligation discharged by ADR, not by code",
+    "03.inline.29": "a licence-review obligation discharged by legal review and ADR",
+    "03.appendix.25": "a release-process obligation: rollback is exercised against a deployment, and none exists",
+    "03.inline.37": "a release-process obligation: rollback is exercised against a deployment, and none exists",
+    "03.inline.38": "a runbook obligation, discharged by documentation rather than by code",
+    "03.inline.27": "a branch-policy obligation enforced by repository settings, not by the code in the repository",
+    "03.inline.13": "an obligation on a frontend this build does not contain",
+    "03.inline.35": "a docstring-coverage gate; ruff's pydocstyle rules are not enabled in this configuration",
+    "03.inline.36": "a configuration-management obligation; no deployment configuration exists to check",
+    "03.appendix.1": (
+        "a runtime-version obligation; the toolchain is 3.11.9 and a test asserting it would "
+        "only restate its own interpreter"
+    ),
+    "03.inline.5": (
+        "a runtime-version obligation; verified by the pinned toolchain rather than by a self-referential test"
+    ),
+    "03.inline.1": "a constitutional-amendment procedure, discharged by Governance rather than by code",
     # The Business Operating Model describes business, project, goal and task
     # objects. No module in this system realizes them: 04 is an operating
     # model for the organization the system serves, not for the system.
@@ -344,6 +455,18 @@ def build() -> tuple[Row, ...]:
                     note=NOT_CODE_CHECKABLE[rule.rule_id],
                 )
             )
+        elif rule.rule_id in CIR_001_TECHNOLOGY_MANDATES:
+            rows.append(
+                Row(
+                    rule=rule,
+                    coverage=Coverage.BLOCKED,
+                    tests=(),
+                    note=(
+                        f"mandates {CIR_001_TECHNOLOGY_MANDATES[rule.rule_id]}; satisfying this rule "
+                        "*is* the CIR-001 question, not work blocked behind it"
+                    ),
+                )
+            )
         elif rule.document in BLOCKED_DOCUMENTS:
             rows.append(Row(rule=rule, coverage=Coverage.BLOCKED, tests=(), note=BLOCKED_NOTE))
         else:
@@ -358,6 +481,14 @@ def summary() -> dict[str, Any]:
     return {
         "rules_extracted": len(rows),
         **counts,
+        # `blocked` has two distinct causes and the difference matters: a rule
+        # about a subsystem CIR-001 blocks becomes provable once construction
+        # is authorized, whereas a rule *mandating a technology* may be struck
+        # by the same ruling that would have unblocked it.
+        "blocked_subsystem": len(
+            [r for r in rows if r.coverage == Coverage.BLOCKED and r.rule.document in BLOCKED_DOCUMENTS]
+        ),
+        "blocked_technology_mandate": len([r for r in rows if r.rule.rule_id in CIR_001_TECHNOLOGY_MANDATES]),
         # Coverage of the rules that *could* be proven today. Reported beside
         # the raw total rather than instead of it, so neither number can be
         # quoted without the other.
@@ -379,13 +510,21 @@ def render() -> str:
         "",
         f"- Rules extracted from documents 01-19: **{stats['rules_extracted']}**",
         f"- Proven by an automated test: **{stats['proven']}**",
-        f"- Blocked by CIR-001 (not provable yet): **{stats['blocked']}**",
+        f"- Blocked by CIR-001: **{stats['blocked']}**"
+        f" — {stats['blocked_subsystem']} about subsystems CIR-001 blocks,"
+        f" {stats['blocked_technology_mandate']} that *are* the CIR-001 question",
         f"- Not code-checkable here (each with a stated reason): **{stats['not_code_checkable']}**",
         f"- Uncovered: **{stats['uncovered']}**",
         f"- Coverage of currently testable rules: **{stats['coverage_of_testable']:.1%}**",
         "",
         "The uncovered count is the honest state of this matrix, not a rounding",
         "error. It is published so the gap is a number someone can act on.",
+        "",
+        "The two blocked causes are not the same. A rule about the Deployment",
+        "Platform becomes provable once a G3/G4 ruling authorizes construction. A",
+        "rule mandating FastAPI may be *struck* by the same ruling, since documents",
+        "17, 18 and 19 forbid constitutional documents naming technologies and 03",
+        "does. Satisfying those is the conflict, not work waiting behind it.",
         "",
         "`not_code_checkable` is not a softer word for uncovered. Those rules are",
         "real obligations that an automated test in *this repository* cannot prove:",
@@ -396,7 +535,9 @@ def render() -> str:
         "|---|---|---|---|",
     ]
     for row in rows:
-        tests = ", ".join(f"`{name}`" for name in row.tests) or "—"
+        # A row that is not proven still owes the reader a reason. Falling
+        # back to a dash would publish 318 rows saying nothing.
+        tests = ", ".join(f"`{name}`" for name in row.tests) or (row.note or "—")
         lines.append(f"| `{row.rule.rule_id}` | {row.coverage.value} | {tests} | {row.rule.short} |")
     if stats["corpus_gaps"]:
         lines += ["", "## Corpus gaps", ""]
