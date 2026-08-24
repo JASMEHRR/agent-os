@@ -3,7 +3,7 @@
 ## Project Status
 
 - **Current Stage:** All thirteen stages S0 through S12 addressed, plus Appendix F (21_PLAN §7). **The build is complete to the extent the Build Specification authorizes.**
-- **Current Module:** none in progress. The remaining Definition-of-Done work is environmental rather than architectural: the CI pipeline must actually execute (Section 39 criterion 2), Poetry-managed reproducible builds, and `docker compose up`. None of it is blocked by anything in this repository
+- **Current Module:** none in progress. **All eight appendices of 21_PLAN §40 are built, generated and self-verifying.** The remaining Definition-of-Done work is environmental rather than architectural: the CI pipeline must actually execute (Section 39 criterion 2), Poetry-managed reproducible builds, and `docker compose up`. None of it is blocked by anything in this repository
 - **Repository Status:** All 26 modules addressed. 22 implemented to their stage exit criteria; 4 at specification-conformant, construction-blocked status, all blocked by the single unresolved CIR-001. Appendix F is generated from the ratified corpus and self-verifying: 464 non-violable rules extracted, 237 proven by named automated tests, 102 blocked by CIR-001 (67 about subsystems it blocks, 35 that *are* the CIR-001 question), 32 declared not code-checkable with a stated reason each, and 93 uncovered and reported as such. 71.8% of currently-testable rules are proven
 - **Overall Progress:** 26 / 26 modules addressed — 22 implemented to their stage exit criteria, 4 at specification-conformant, construction-blocked status. 0 / 26 at full Definition-of-Done, and none is claimed to be
 
@@ -694,3 +694,35 @@
 
 - **Commit Hash:** (pending)
 - **Notes:** The module graph test is the first conformance test in this repository that asserts a property of the architecture rather than of a module. It found no violation, which is the outcome worth having: the layering held across thirteen stages without anything checking it, and now something does.
+
+### 2026-08-24 — Appendices A–E, G and H: the live registers
+
+- **Stage:** programme-level (21_PLAN §40)
+- **Work Item:** Build the seven appendices 21_PLAN names beside Appendix F: Module Register, Interface Register, Data Ownership Matrix, Journal Register, Signal Contract Register, Constitutional Interpretation Register (live), Risk Register (live).
+- **Files Created:** `tests/conformance/registers.py`, `tests/conformance/test_registers.py` (49 tests), `docs/appendices_a_to_h_registers.md` (generated, 477 rows)
+- **Files Modified:** `tests/conformance/generate.py`, `IMPLEMENTATION_JOURNAL.md`
+- **Tests Added:** 49. Repository total: 1671.
+- **Validation Performed:** `ruff check` and `ruff format --check` clean, `mypy .` (`--strict`) clean in 240 files, `bandit` zero findings, `pytest -q` 1671 passed, coverage 97.54%.
+
+- **Four registers are derived and three are declared, and the split is the design.** A, B, D and E read the filesystem, the Gateway facades by introspection, the journal holders by import, and the signal names from the emitting call sites — so they cannot be wrong about the code, only incomplete if the derivation is. C, G and H are judgements that no derivation can produce: ownership allocation, constitutional interpretation, and risk are decisions, not facts. Those three are **checked against the code**, because a declaration nothing checks is a wish.
+
+- **The checks found three things in my own declarations, which is what they are for:**
+  1. **The Event Bus claimed a journal it does not hold — and correctly does not hold.** 08.25.2 makes an event immutable after publication, so the stream *is* the append-only record. A journal beside it would be a second copy of the same history with nothing keeping the two in step. The declaration was wrong, not the code.
+  2. **Standing orders are implemented twice.** `decision_gateway` owns 11.19's pre-authorization of Class C decisions; `human_interface` owns 05.18.5's delegation of routine authority. Same constitutional concept, two `StandingOrder` classes, two expiries, two revocation paths. The exclusive-ownership check surfaced it as a clash. Recorded as an open item rather than resolved by renaming: 11.19 makes them Decision's data, so the fix is for the Human Interface's copy to delegate, and that is a change to a Done module that needs its own pass.
+  3. Two risk entries carried labels rather than dispositions; the guard requiring a disposition longer than a label caught both.
+
+- **The most falsifiable claim in the registers is checked against behaviour.** `test_blocked_modules_actually_block` instantiates each of the five CIR-001-blocked modules and asserts they report blocked; the inverse test asserts no working module exposes a blocked-status surface. A register that said the build was honest while the build was not is the specific failure a register invites, and both directions now fail loudly.
+
+- **Three CIRs are marked resolved, and each says it was resolved *in construction* rather than by ruling.** A test enforces that wording. The distinction matters: a choice made in code is reversible by a later Governance ruling, and a reader who mistook one for a ruling would treat it as settled. CIR-005 (Gateways are not libraries), CIR-006 (panic halt scope), CIR-007 (confidence derivation) were all settled by building, not by authority.
+
+- **Issues Encountered:** The generator rendered zero interfaces on first run, because it did not load `conftest.py` and the modules were therefore unimportable. It printed a clean "0 interfaces" rather than failing — a register that is empty and a register that is broken look identical, which is why `test_the_published_registers_are_not_empty_tables` now exists.
+
+- **Resolution:** Generator imports the path setup; the emptiness guard added.
+
+- **Open Items:**
+  - **Standing orders are duplicated across two modules** (finding 2 above). The remedy is for `human_interface` to delegate to `decision_gateway` rather than maintain its own registry.
+  - Appendix C remains a working allocation rather than a ruling: CIR-003 (data ownership incomplete) is open, and the matrix says so.
+  - The interface register lists 328 public methods without distinguishing the constitutional interfaces from ordinary helpers. 21B names the interfaces per subsystem; cross-referencing them would make the register sharper.
+
+- **Commit Hash:** (pending)
+- **Notes:** With these, all eight appendices 21_PLAN §40 names exist, are generated from the system rather than beside it, and fail the suite when they drift. The programme-level deliverables of the planning package are complete.
