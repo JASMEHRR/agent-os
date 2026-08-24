@@ -28,5 +28,6 @@ for lib in (
     "services/workflow_engine",
     "services/api_gateway",
     "services/human_interface",
+    "services/learning_gateway",
 ):
     sys.path.insert(0, str(ROOT / lib))
