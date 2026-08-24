@@ -762,3 +762,40 @@
 
 - **Commit Hash:** (pending)
 - **Notes:** Five modules had been correct-and-inert since S6. The honest part of this pass was not building them; it was refusing to let the ruling read as broader than it was, and refusing to let 35 unmet mandates quietly become `uncovered`.
+
+### 2026-08-25 — Post Studio: the first thing that does something a person notices
+
+- **Stage:** A1, which the Build Specification does not contain
+- **Work Item:** Turn the platform into something usable. Model behind the Router, durable storage, a content agent, and a web page a non-technical person can operate.
+- **Files Created:** `llm_router/backends.py`, `persistence/codec.py`, `persistence/sqlite_store.py`, `content_agent/` (voice, formats, drafts, studio, web, page.html), `scripts/` (serve, serve_demo, linkedin, smoke_llm, diagnose_keys, env_file), `PostStudio.bat`, `START_HERE.md`, `.env.example`
+- **Tests Added:** 67 net. Repository total: 1837.
+- **Validation Performed:** `ruff` clean, `mypy --strict` clean in 250 source files, `bandit` zero findings, `pytest -q` 1837 passed. The web interface was driven in a real browser: note captured, three channels drafted, one approved, state confirmed persisted.
+
+- **The thirteen stages built a control plane, and a control plane governs nothing until something needs governing.** This entry is the first module built *on* the platform rather than as part of it, which is why it carries stage A1 and why the register's stage check refused it until that was declared. A register showing a stage the build plan does not name is the honest way to record work done outside the plan; inventing an S13 would have implied the plan had asked for this.
+
+- **Free tiers fail by rate limit, not by bill, and that turned out to be a design input rather than a detail.** Groq returns 429 with no warning and no charge. The Router already had a failover chain built for a paid Premium tier going dark, so a 429 that opens a sixty-second cooldown drops straight into it: Premium degrades to Standard, Standard to Nano, and `01.3.1` Local First holds for a reason it was not originally written for. A rejected key darkens permanently instead, because a bad key does not heal in a minute and treating it as transient would hide a configuration error behind ordinary unavailability.
+
+- **Cost is reported as 0.0 rather than estimated.** An invented per-token price in the Cost Manager's ledger would read as authoritative, and a budget built on invented numbers is worse than no budget.
+
+- **The durable adapter does not use pickle, and a test enforces that.** Pickle would have round-tripped every dataclass here with no code at all, and would have made every stored row something the process executes on read. That is a strange foundation for a system whose entire design is structural refusal. The codec walks type hints instead, so the type comes from the reader and a tampered row cannot name the class it becomes.
+
+- **A field added since a row was written raises rather than being filled in with a plausible value.** This fired for real within hours: adding `channel` to `PostDraft` broke every existing row and took the page down. The fix was a default of LinkedIn, and that default is correct for a specific reason worth recording, because it looks like exactly the thing the guard exists to prevent: every draft written before the field existed genuinely *was* a LinkedIn draft. The default records a fact that was previously implicit rather than inventing one. A regression test now covers the shape.
+
+- **The voice rules moved from prose in a skill to gates in code, and that is the load-bearing decision for a two-year unattended run.** Prose in a prompt is advice. A model follows it most of the time, drifts on a bad generation, and drifts further as models are swapped underneath. Everything checkable is now checked: no em dashes, hook under the truncation point, one real number, three to five niche hashtags, no "humbled to announce". A failing draft is redrafted with the specific rule named, bounded at three attempts, and kept in REJECTED afterwards because a repeated failure is information about the notes rather than bad luck.
+
+- **Three channels, three gate sets, and the separation is the point.** The rule that makes a LinkedIn hook work, surviving the 140-character truncation, actively harms a newsletter where the subject is the hook and the body should breathe. One shared gate set would have to be the loosest of the three, which leaves the strictest channel ungated. Dev.to gained a check for an unclosed code fence, which is invisible in a draft and swallows the rest of the article on publish.
+
+- **Nothing publishes.** `ContentStudio` holds no publishing verb, `PUBLISHED` is reachable only from `APPROVED`, approval requires a named principal, and the web server has no publish route. Each of those is asserted separately, and the route test runs from outside the studio because an endpoint added later would not fail a test that only inspects the class.
+
+- **Issues Encountered:** The 404 path replied without draining the request body, which Windows turns into a connection abort rather than the status that was sent. `do_GET` had no error handling, so an undecodable row killed the one screen that could have explained why. Two hours were lost to a stale server process serving old code while the fixed code passed every test. The security pass found a real cross-origin write: a page the reader happened to visit could approve or discard drafts, since a cross-site form POST needs no preflight.
+
+- **Resolution:** All fixed. The stale-process episode is the one worth remembering: every in-process reproduction succeeded while the running server failed, and the gap between those two facts was the whole answer.
+
+- **Open Items:**
+  - **It does not run unattended.** It runs when opened. GitHub Actions on a cron is the free, no-KYC way to close this and is the next thing worth building.
+  - **No publishing integration.** LinkedIn's API permits posting and reading your own analytics under `w_member_social`; connection requests and DMs are not available and automating them violates their terms, so the outreach half stays manual by design rather than by omission.
+  - No notifier, so nothing tells you drafts are waiting.
+  - `http.server` handles one request at a time. Correct for one person on loopback, wrong the moment it is not.
+
+- **Commit Hash:** (pending)
+- **Notes:** Eleven stages of platform, then one module on top, and the module is what made the platform legible. The Permission Intersection Rule and the absent-verb discipline both earned their keep here in a way no conformance test could demonstrate: the reason nothing can post to a real profile is not a setting, it is that no such function was ever written.
