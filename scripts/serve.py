@@ -63,5 +63,26 @@ def build_studio() -> ContentStudio:
     )
 
 
+def preflight() -> int:
+    """Checks configuration without starting anything.
+
+    Used by the launcher so the browser is not opened at a server that is
+    about to exit. A window that opens on a connection error and a window that
+    opens on a real problem look identical to the person watching.
+    """
+    load_env()
+    backends = backends_from_environment()
+    if any(b.available() for b in backends.values()):
+        return 0
+    print("")
+    print("  No model configured.")
+    print("  Copy .env.example to .env and put your free Groq key in it.")
+    print("  Get a free one at https://console.groq.com/keys")
+    print("")
+    return 1
+
+
 if __name__ == "__main__":
+    if "--check" in sys.argv:
+        raise SystemExit(preflight())
     serve(build_studio(), port=PORT)
