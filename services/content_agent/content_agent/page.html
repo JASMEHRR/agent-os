@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Post Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Ascend design language, as used in VentureAdda: near-black ground, liquid
+   glass panels, cyan as the only accent, Plus Jakarta Sans.
+
+   Motion note: every transition here is decorative and nothing is revealed by
+   one. Reduced-motion users see the finished state immediately rather than a
+   panel that never arrives, which is the failure mode of animating things
+   into existence. */
+:root {
+  --app: #02040a;
+  --surface: #0b0d13;
+  --ink: #ffffff;
+  --brand-300: #67e8f9;
+  --brand-400: #22d3ee;
+  --brand-600: #0891b2;
+  --ok: #4ade80;
+  --warn: #fbbf24;
+  --bad: #f87171;
+  --glass-blur: 20px;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--app);
+  color: rgb(255 255 255 / 0.95);
+  font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  font-size: 17px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* One soft cyan bloom behind everything, the Ascend backdrop reduced to its
+   cheapest form: no photograph to ship, no request to make. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(900px 600px at 15% -10%, rgb(34 211 238 / 0.10), transparent 60%),
+    radial-gradient(700px 500px at 100% 0%, rgb(8 145 178 / 0.08), transparent 55%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap { position: relative; z-index: 1; max-width: 780px; margin: 0 auto; padding: 40px 20px 80px; }
+
+header { margin-bottom: 28px; }
+h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; margin: 0 0 6px; }
+.sub { color: rgb(255 255 255 / 0.55); font-size: 15px; margin: 0; }
+
+.panel {
+  background: linear-gradient(135deg, rgb(255 255 255 / 0.04) 0%, rgb(255 255 255 / 0.01) 100%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(135%);
+  border: 1px solid rgb(255 255 255 / 0.12);
+  box-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 0.14),
+    inset 0 -1px 0 0 rgb(0 0 0 / 0.15),
+    0 12px 36px -8px rgb(0 0 0 / 0.65);
+  border-radius: 18px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.panel.highlight {
+  background: linear-gradient(135deg, rgb(255 255 255 / 0.07) 0%, rgb(255 255 255 / 0.02) 100%);
+  border-color: rgb(255 255 255 / 0.18);
+}
+
+h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.09em;
+     color: var(--brand-300); margin: 0 0 4px; font-weight: 700; }
+.hint { color: rgb(255 255 255 / 0.5); font-size: 14px; margin: 0 0 16px; }
+
+textarea, input[type=text] {
+  width: 100%;
+  background: rgb(255 255 255 / 0.02);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgb(255 255 255 / 0.08);
+  box-shadow: inset 0 1.5px 3px rgb(0 0 0 / 0.25);
+  border-radius: 12px;
+  color: inherit;
+  font: inherit;
+  font-size: 16px;
+  padding: 14px 16px;
+  resize: vertical;
+}
+textarea { min-height: 150px; line-height: 1.6; }
+textarea:focus, input[type=text]:focus {
+  outline: none;
+  border-color: rgb(255 255 255 / 0.18);
+  background: rgb(255 255 255 / 0.04);
+}
+input[type=text] { margin-top: 12px; }
+
+/* 44px minimum target: this gets used on a phone as often as a laptop. */
+button {
+  font: inherit;
+  font-weight: 600;
+  font-size: 16px;
+  min-height: 46px;
+  padding: 0 22px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+button:disabled { opacity: 0.45; cursor: not-allowed; }
+button:focus-visible { outline: 2px solid rgb(34 211 238 / 0.6); outline-offset: 2px; }
+
+.primary { background: var(--brand-600); color: #fff; border-color: var(--brand-400); }
+.primary:hover:not(:disabled) { filter: brightness(1.15); }
+.ghost { background: rgb(255 255 255 / 0.06); color: rgb(255 255 255 / 0.85);
+         border-color: rgb(255 255 255 / 0.14); }
+.ghost:hover:not(:disabled) { background: rgb(255 255 255 / 0.11); }
+.danger { background: transparent; color: var(--bad); border-color: rgb(248 113 113 / 0.35); }
+.danger:hover:not(:disabled) { background: rgb(248 113 113 / 0.1); }
+
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 16px; }
+
+.post {
+  white-space: pre-wrap;
+  background: rgb(0 0 0 / 0.28);
+  border: 1px solid rgb(255 255 255 / 0.07);
+  border-radius: 12px;
+  padding: 18px;
+  font-size: 16px;
+  line-height: 1.65;
+  margin: 14px 0 0;
+}
+
+.tag {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+}
+.tag.ok { color: var(--ok); }
+.tag.warn { color: var(--warn); }
+.tag.bad { color: var(--bad); }
+
+.msg { border-radius: 12px; padding: 13px 16px; margin-top: 16px; font-size: 15px; }
+.msg.error { background: rgb(248 113 113 / 0.12); border: 1px solid rgb(248 113 113 / 0.3); color: #fecaca; }
+.msg.good  { background: rgb(74 222 128 / 0.10); border: 1px solid rgb(74 222 128 / 0.28); color: #bbf7d0; }
+
+.stats { display: flex; gap: 24px; flex-wrap: wrap; color: rgb(255 255 255 / 0.55); font-size: 14px; }
+.stats b { color: rgb(255 255 255 / 0.9); font-weight: 700; }
+
+.empty { color: rgb(255 255 255 / 0.45); font-size: 15px; margin: 0; }
+ul.rules { margin: 12px 0 0; padding-left: 20px; color: rgb(255 255 255 / 0.65); font-size: 14px; }
+
+/* Spinner is the one animation, and it is purely indicative: the button text
+   also changes, so nothing is communicated by motion alone. */
+.spin {
+  display: inline-block; width: 15px; height: 15px; vertical-align: -2px;
+  border: 2px solid rgb(255 255 255 / 0.3); border-top-color: #fff;
+  border-radius: 50%; animation: spin 0.7s linear infinite; margin-right: 8px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .spin { border-top-color: rgb(255 255 255 / 0.3); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Post Studio</h1>
+  <p class="sub">Write what you did. It drafts. You decide what goes out.</p>
+</header>
+
+<section class="panel highlight">
+  <h2>Step 1 &middot; What happened this week</h2>
+  <p class="hint">Plain sentences are fine. Include real numbers if you have them. It will not invent any.</p>
+  <textarea id="note" placeholder="This week I finished wiring Groq behind the model router. Took 3 attempts because the free tier rate limits at 429, so I built a cooldown that degrades instead of failing. The test suite is at 1803 passing."></textarea>
+  <input type="text" id="angle" placeholder="Optional: an angle to take (leave blank and it picks one)">
+  <div class="row">
+    <button class="primary" id="go">Write my post</button>
+    <span class="hint" style="margin:0" id="note-hint"></span>
+  </div>
+  <div id="note-msg"></div>
+</section>
+
+<section class="panel" id="waiting-panel">
+  <h2>Step 2 &middot; Waiting for you</h2>
+  <div id="waiting"><p class="empty">Nothing yet. Write a note above.</p></div>
+</section>
+
+<section class="panel" id="attention-panel" hidden>
+  <h2>Did not work</h2>
+  <p class="hint">These failed the quality rules. The reasons are worth reading, they usually mean the note was thin.</p>
+  <div id="attention"></div>
+</section>
+
+<section class="panel">
+  <h2>Pipeline</h2>
+  <div class="stats" id="stats"></div>
+</section>
+
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+
+async function api(path, body) {
+  const res = await fetch(path, {
+    method: body ? 'POST' : 'GET',
+    headers: body ? {'Content-Type': 'application/json'} : {},
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Something went wrong.');
+  return data;
+}
+
+function message(target, text, kind) {
+  $(target).innerHTML = text ? `<div class="msg ${kind}">${escapeHtml(text)}</div>` : '';
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => (
+    {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]
+  ));
+}
+
+function draftCard(d, actions) {
+  const tag = d.state === 'drafted'
+    ? '<span class="tag ok">ready to review</span>'
+    : `<span class="tag bad">${escapeHtml(d.state)}</span>`;
+  const rules = d.outstanding.length
+    ? `<ul class="rules">${d.outstanding.map(r => `<li>${escapeHtml(r)}</li>`).join('')}</ul>`
+    : '';
+  const redrafts = d.redraft_count > 0
+    ? `<span class="hint" style="margin:0">fixed itself ${d.redraft_count}x</span>` : '';
+  return `
+    <div style="margin-bottom:26px">
+      <div class="row" style="margin:0 0 4px">${tag}${redrafts}</div>
+      ${d.full_text ? `<div class="post">${escapeHtml(d.full_text)}</div>` : ''}
+      ${rules}
+      ${actions ? `<div class="row">
+        <button class="primary" data-approve="${d.draft_id}">Approve &amp; copy</button>
+        <button class="danger" data-discard="${d.draft_id}">Discard</button>
+      </div>` : ''}
+      <div id="msg-${d.draft_id}"></div>
+    </div>`;
+}
+
+async function refresh() {
+  const s = await api('/api/state');
+
+  $('waiting').innerHTML = s.waiting.length
+    ? s.waiting.map(d => draftCard(d, true)).join('')
+    : '<p class="empty">Nothing waiting. Write a note above.</p>';
+
+  $('attention-panel').hidden = s.attention.length === 0;
+  $('attention').innerHTML = s.attention.map(d => draftCard(d, false)).join('');
+
+  const h = s.health;
+  $('stats').innerHTML = `
+    <span><b>${h.drafts}</b> drafts</span>
+    <span><b>${h.awaiting_approval}</b> waiting</span>
+    <span><b>${h.needs_attention}</b> failed</span>
+    <span><b>${h.mean_redrafts}</b> avg fixes</span>`;
+
+  document.querySelectorAll('[data-approve]').forEach(b => {
+    b.onclick = () => approve(b.dataset.approve);
+  });
+  document.querySelectorAll('[data-discard]').forEach(b => {
+    b.onclick = () => discard(b.dataset.discard);
+  });
+}
+
+async function approve(id) {
+  try {
+    const {draft} = await api('/api/approve', {draft_id: id});
+    // Copied automatically because the next thing anyone does is copy it, and
+    // a "copy" button you have to find is a step that adds nothing.
+    await navigator.clipboard.writeText(draft.full_text).catch(() => {});
+    message(`msg-${id}`, 'Approved and copied. Paste it into LinkedIn.', 'good');
+    setTimeout(refresh, 1400);
+  } catch (e) { message(`msg-${id}`, e.message, 'error'); }
+}
+
+async function discard(id) {
+  try { await api('/api/discard', {draft_id: id}); await refresh(); }
+  catch (e) { message(`msg-${id}`, e.message, 'error'); }
+}
+
+$('go').onclick = async () => {
+  const body = $('note').value.trim();
+  const btn = $('go');
+  message('note-msg', '', '');
+  if (!body) { message('note-msg', 'Write something first.', 'error'); return; }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span>Writing, about 10 seconds';
+  try {
+    const {note_id} = await api('/api/note', {body, angle: $('angle').value.trim()});
+    const {draft} = await api('/api/draft', {note_id});
+    $('note').value = '';
+    $('angle').value = '';
+    message('note-msg',
+      draft.state === 'drafted' ? 'Done. Your post is below.' : 'It could not get this one past the quality rules. See below.',
+      draft.state === 'drafted' ? 'good' : 'error');
+    await refresh();
+  } catch (e) {
+    message('note-msg', e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Write my post';
+  }
+};
+
+refresh();
+</script>
+</body>
+</html>
