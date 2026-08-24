@@ -2,10 +2,10 @@
 
 ## Project Status
 
-- **Current Stage:** S7 — FIRST LIGHT (complete; the organizing milestone of 21A §2.2.4 is met)
-- **Current Module:** none in progress — next executable work item is Stage S8, the Human Plane (`api_gateway`, `human_interface`)
-- **Repository Status:** Layer 0 complete, plus the Trust, Truth, Instrumentation, Economic, Cognition, Authority, Effect, Execution and Orchestration planes. One registered agent executes one task inside one durable workflow, invoking one tool through the full mediation chain, with one human approval gate, one saga compensation path, and complete lineage from human authority to external effect. The system still cannot reach the external ecosystem while CIR-001 blocks the Integration Platform, and has no human-facing surface until S8
-- **Overall Progress:** 19 / 26 modules addressed — 17 implemented to their stage exit criteria (`kernel`, `core`, `persistence`, `schema_registry`, `security_gateway`, `event_bus`, `observability_gateway` at its ingestion-only profile, `cost_manager`, `memory_gateway`, `knowledge_gateway`, `decision_gateway`, `tool_registry`, `tool_gateway`, `tool_executor`, `llm_router`, `agent_runtime`, `workflow_engine`) and 2 at specification-conformant, construction-blocked status (`integration_registry`, `integration_gateway`, both CIR-001). 0 / 26 at full Definition-of-Done — Section 39 criterion 2 still requires the CI pipeline to actually execute, and Poetry-managed reproducible builds and `docker compose up` do not exist yet
+- **Current Stage:** S8 — Human Plane (complete to its exit criterion)
+- **Current Module:** none in progress — next executable work item is Stage S9, Adaptation (`learning_gateway`)
+- **Repository Status:** Layer 0 complete, plus the Trust, Truth, Instrumentation, Economic, Cognition, Authority, Effect, Execution, Orchestration and Human planes. Operators approve, override, receive batched digests, and halt all autonomous activity within the constitutional 5-second bound. The system still cannot reach the external ecosystem while CIR-001 blocks the Integration Platform, and cannot yet learn from its own outcomes until S9
+- **Overall Progress:** 21 / 26 modules addressed — 19 implemented to their stage exit criteria (`kernel`, `core`, `persistence`, `schema_registry`, `security_gateway`, `event_bus`, `observability_gateway` at its ingestion-only profile, `cost_manager`, `memory_gateway`, `knowledge_gateway`, `decision_gateway`, `tool_registry`, `tool_gateway`, `tool_executor`, `llm_router`, `agent_runtime`, `workflow_engine`, `api_gateway`, `human_interface`) and 2 at specification-conformant, construction-blocked status (`integration_registry`, `integration_gateway`, both CIR-001). 0 / 26 at full Definition-of-Done — Section 39 criterion 2 still requires the CI pipeline to actually execute, and Poetry-managed reproducible builds and `docker compose up` do not exist yet
 
 ---
 
@@ -359,3 +359,49 @@
 
 - **Commit Hash:** (pending)
 - **Notes:** Standing conformance guards added this stage: the Runtime exposes no scheduling verb (02.3.2), the Engine exposes no execution verb (07.13.1), an agent may not review its own output (06 rules 16, 17), the six authority boundaries intersect rather than union (06.9.6 with 14.12.4), a paused workflow never appears as holding resources (07.14.5), a failed compensation Stalls rather than Failing, and each module's cross-subsystem imports are confined to a single adapter file. `tests/s7_first_light/` is retained permanently as the standing regression surface, exactly as 21B and the Build Specification intend.
+
+### 2026-08-24 — Stage S8: Human Plane
+
+- **Stage:** S8 — Human Plane
+- **Modules:** `api_gateway`, `human_interface`
+- **Work Item:** Realize 02.3.1 and the API standards of 03 §32, and consolidate the human-sovereignty requirements scattered across 05.18, 11.18, 13.33, 16.25, 17.31, 18.35 and 19.36 into a single interface layer. Exit criterion (21_PLAN §4.1): "Operators approve, override, receive batched digests, and invoke the Panic Protocol within the 5-second bound."
+- **Files Created:**
+  - `services/api_gateway/` — `ingress.py` (request/response records, closed error-code registry, the error envelope of 03 §32.3), `ratelimit.py` (token buckets across tenant/user/API key), `idempotency.py` (24-hour keyed store), `pagination.py` (cursor-only), `gateway.py` (the ordered ingress pipeline), `security_adapter.py`, `tests/test_api_gateway.py` (47 tests)
+  - `services/human_interface/` — `approvals.py` (11.18.1 completeness, batching, timeout handling), `overrides.py` (append-only override ledger, standing orders), `digests.py` (severity-routed batching), `panic.py` (the human-facing Panic Protocol), `interface.py` (the consolidated surface), `tests/test_human_interface.py` (57 tests)
+  - `tests/s8_human_plane/test_s8_exit_criterion.py` — 11 tests wiring the real Security Gateway, Agent Runtime and Workflow Engine
+  - `docs/modules/api_gateway.md`, `docs/modules/human_interface.md`
+- **Files Modified:** `conftest.py`, `pyproject.toml`, `IMPLEMENTATION_JOURNAL.md`
+- **Tests Added:** 115. Repository total: 818.
+- **Validation Performed:**
+  - `python -m pytest -q` -> 818 passed
+  - `python -m ruff check libs services tests` -> clean; `ruff format` applied
+  - `python -m mypy .` (`--strict`) -> no issues in 195 source files
+  - `python -m bandit -r libs services --exclude "*/tests/*"` -> zero findings
+  - Coverage 97.42% against the 90% CI gate
+  - The timed Panic Protocol assertion the Build Specification requires runs against 25 real participants plus, in the S8 exit test, a real Agent Runtime holding an idle agent and a real Workflow Engine holding a running workflow. Elapsed time is measured against `PANIC_BOUND_SECONDS`, not stipulated.
+
+- **The transport is deliberately absent.** Every ingress *semantic* of 02.3.1 and 03 §32 is implemented and enforced — authentication and authorization delegated to the Trust Plane, three-dimensional rate limiting, URI-path versioning, mandatory idempotency keys, cursor-only pagination, request identity and trace context, one error envelope. The HTTP server is not, because 03 names a specific framework and CIR-001 is unresolved; Section 6 rule 9 forbids resolving it by unilateral interpretation. `Request` and `Response` are plain records. This is a scoping, not a stub: the pipeline refuses, throttles, replays and paginates for real.
+
+- **What is enforced structurally rather than documented:**
+  - **No path from a timeout to an approval.** `ApprovalRegistry.expire` can produce only Deferred (Class C) or Rejected (Class D); the approved state is unreachable from an elapsed deadline. `health()` reports `auto_approved`, which is structurally always zero. This is 11.18.2 expressed in the type system rather than in a runbook.
+  - **No verb answers a whole batch.** 11.18.4 permits batching and forbids group approval, so `Batch` holds identifiers and `approve_batch` deliberately does not exist.
+  - **The override ledger is irreversible by the system.** `Override` is frozen and a test asserts no `revoke`/`delete`/`reverse`/`undo` verb has appeared on the ledger. The only way to change an override's effect is a new human action recorded beside the first.
+  - **No automatic path out of a halt.** No timeout, no auto-resume verb; a test advances the clock thirty days and confirms the system is still halted.
+  - **A failing participant cannot veto panic.** Halt hooks are called defensively, failures recorded and escalated, and the halt proceeds. A subsystem able to veto panic by raising would be a subsystem able to veto human sovereignty.
+  - **The API Gateway holds no business logic**, asserted against a forbidden verb set. A Gateway that starts deciding is a second place where authority lives.
+
+- **Issues Encountered:**
+  1. **The exit-criterion fixture tried to have the sovereign assign itself the operator role.** The Security Gateway refused it correctly — 14 rule 3 forbids self-escalation. The fixture now registers a second human principal to make the assignment, which is what the rule intends. The original would have quietly depended on a self-grant the constitution prohibits.
+  2. A panic halt hook returned the cancelled `WorkflowRun` rather than `None`, which `--strict` caught. Wrapped, so the hook's contract stays "returns nothing" and the run is read back afterwards.
+
+- **Resolution:** Both resolved in-branch.
+
+- **Open Items (deferred, not silently absorbed):**
+  - No HTTP or WebSocket transport, no served OpenAPI document, no JWKS validation or token rotation. All blocked behind CIR-001's technology question.
+  - Rate-limit buckets and the idempotency store are in-process, so neither survives a restart and horizontal scaling would need the shared store 03 §32.5 describes.
+  - **Panic halts the participants that have registered, and nothing forces a subsystem to register.** A Gateway added later could be omitted from the halt without any test failing. This is the largest gap in this stage and belongs in the Governance conformance matrix at S10.
+  - No notification transport: `notify` is a callable; email, chat and pager delivery are outside the process.
+  - `event_bus` is not wired into either S8 module; signals reach Observability directly through the emitter.
+
+- **Commit Hash:** (pending)
+- **Notes:** The five-second bound is now verified end to end, which closes the deferral `kernel/panic.py` recorded at S0 ("verified end-to-end at Stage S8, exercised here only at the single-process participation-hook level"). Standing conformance guards added this stage: offset pagination refused rather than ignored (03 Rule 23), idempotency mandatory on mutating methods (03 Rule 24), rate limits intersecting rather than unioning across dimensions, approvals answerable only by a human principal, and the panic bound measured on every invocation.
