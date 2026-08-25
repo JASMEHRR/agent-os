@@ -25,7 +25,9 @@ import pathlib
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from typing import Any
 
+from content_agent.capabilities import survey, totals
 from content_agent.formats import Channel
+from content_agent.outreach import OutreachChannel, prospect_from
 from content_agent.studio import ContentStudio
 
 PAGE = (pathlib.Path(__file__).parent / "page.html").read_text(encoding="utf-8")
@@ -57,6 +59,20 @@ def _draft_json(draft: Any) -> dict[str, Any]:
         "redraft_count": draft.redraft_count,
         "outstanding": list(draft.outstanding),
         "created_at": draft.created_at.isoformat(),
+    }
+
+
+def _note_json(note: Any) -> dict[str, Any]:
+    return {
+        "draft_id": note.draft_id,
+        "prospect_id": note.prospect_id,
+        "channel": note.channel.value,
+        "subject": note.subject,
+        "body": note.body,
+        "full_text": note.full_text(),
+        "approved": note.approved,
+        "redraft_count": note.redraft_count,
+        "outstanding": list(note.outstanding),
     }
 
 
@@ -133,6 +149,8 @@ class Handler(BaseHTTPRequestHandler):
                 self._send(200, PAGE.encode("utf-8"), "text/html; charset=utf-8")
             elif self.path == "/api/state":
                 self._json(self._state())
+            elif self.path == "/api/capabilities":
+                self._json({"capabilities": survey(), "totals": totals()})
             else:
                 self._json({"error": "not found"}, 404)
         except Exception as exc:  # noqa: BLE001
@@ -158,6 +176,12 @@ class Handler(BaseHTTPRequestHandler):
                 self._approve(payload)
             elif self.path == "/api/discard":
                 self._discard(payload)
+            elif self.path == "/api/prospect":
+                self._prospect(payload)
+            elif self.path == "/api/outreach":
+                self._outreach(payload)
+            elif self.path == "/api/approve-note":
+                self._approve_note(payload)
             else:
                 self._json({"error": "not found"}, 404)
         except Exception as exc:  # noqa: BLE001
@@ -173,6 +197,16 @@ class Handler(BaseHTTPRequestHandler):
             "waiting": [_draft_json(d) for d in self.studio.awaiting_approval()],
             "attention": [_draft_json(d) for d in self.studio.needs_attention()],
             "health": self.studio.health(),
+            "prospects": [
+                {
+                    "prospect_id": p.prospect_id,
+                    "name": p.name,
+                    "headline": p.headline,
+                    "reason": p.reason,
+                }
+                for p in self.studio.prospects()
+            ],
+            "outreach": [_note_json(n) for n in self.studio.outreach_drafts()],
         }
 
     def _note(self, payload: dict[str, Any]) -> None:
@@ -218,6 +252,42 @@ class Handler(BaseHTTPRequestHandler):
     def _discard(self, payload: dict[str, Any]) -> None:
         draft_id = str(payload.get("draft_id", ""))
         self._json({"draft": _draft_json(self.studio.discard(draft_id))})
+
+    # -------------------------------------------------------------- Outreach
+
+    def _prospect(self, payload: dict[str, Any]) -> None:
+        person = prospect_from(
+            str(payload.get("name", "")),
+            str(payload.get("headline", "")),
+            str(payload.get("reason", "")),
+            str(payload.get("source", "")),
+        )
+        if not person.name:
+            self._json({"error": "Who is it? A name is the minimum."}, 400)
+            return
+        if not person.is_specific():
+            # Refused before a model call, same as a thin weekly note. A vague
+            # reason produces "I see you work in AI", which is exactly the note
+            # this module exists to not send.
+            self._json(
+                {
+                    "error": "The reason is too vague. Name the specific thing: a talk they "
+                    "gave, a project they shipped, a post they wrote."
+                },
+                400,
+            )
+            return
+        self.studio.add_prospect(person)
+        self._json({"prospect_id": person.prospect_id})
+
+    def _outreach(self, payload: dict[str, Any]) -> None:
+        person = self.studio._prospects.get(str(payload.get("prospect_id", "")))
+        channel = OutreachChannel(str(payload.get("channel", "linkedin_note")))
+        self._json({"note": _note_json(self.studio.draft_note(person, channel))})
+
+    def _approve_note(self, payload: dict[str, Any]) -> None:
+        draft_id = str(payload.get("draft_id", ""))
+        self._json({"note": _note_json(self.studio.approve_note(draft_id, self.principal))})
 
 
 def serve(studio: ContentStudio, port: int = 8765, forever: bool = True) -> HTTPServer:

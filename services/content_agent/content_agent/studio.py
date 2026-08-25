@@ -40,6 +40,15 @@ from content_agent.formats import (
     check_devto,
     check_newsletter,
 )
+from content_agent.outreach import (
+    BRIEF as OUTREACH_BRIEF,
+)
+from content_agent.outreach import (
+    OutreachChannel,
+    OutreachDraft,
+    Prospect,
+    check_note,
+)
 from content_agent.voice import VOICE_BRIEF, VoiceViolation, check, redraft_instruction
 
 #: Attempts before a draft is kept as REJECTED. Three because the first fix
@@ -102,6 +111,26 @@ Return ONLY a JSON object, no prose around it, with exactly these keys:
 {{{keys}}}"""
 
 
+def _note_prompt(prospect: Prospect, channel: OutreachChannel, correction: str = "") -> str:
+    correction_block = ("\n\n" + correction) if correction else ""
+    fields = '{"subject": "...", "body": "..."}' if channel is OutreachChannel.EMAIL else '{"body": "..."}'
+    limit = (
+        "Keep the body under 300 characters. It is a LinkedIn invitation note."
+        if channel is OutreachChannel.LINKEDIN_NOTE
+        else "Keep it to four short sentences. It is a cold email."
+    )
+    return f"""{OUTREACH_BRIEF}
+
+{limit}
+
+Person: {prospect.name}
+They are: {prospect.headline}
+Why them, specifically: {prospect.reason}
+{f"Found via: {prospect.source}" if prospect.source else ""}{correction_block}
+
+Return ONLY a JSON object, no prose around it: {fields}"""
+
+
 def _parse(raw: str) -> dict[str, Any]:
     """Pulls the JSON object out of a model response.
 
@@ -151,6 +180,22 @@ def _gate(channel: Channel, hook: str, body: str, close: str, tags: tuple[str, .
     return check(hook, body, close, tags)
 
 
+class _Memory:
+    """Minimal in-process Store, for callers that did not supply one."""
+
+    def __init__(self) -> None:
+        self._items: dict[str, Any] = {}
+
+    def get(self, entity_id: str) -> Any:
+        return self._items[entity_id]
+
+    def save(self, entity_id: str, entity: Any) -> None:
+        self._items[entity_id] = entity
+
+    def list_all(self) -> list[Any]:
+        return list(self._items.values())
+
+
 class ContentStudio:
     """Drafts posts from weekly notes, gated and awaiting your approval."""
 
@@ -160,11 +205,19 @@ class ContentStudio:
         notes: Store,
         drafts: Store,
         clock: Callable[[], datetime] = lambda: datetime.now(UTC),
+        prospects: Store | None = None,
+        outreach: Store | None = None,
     ) -> None:
         self._complete = complete
         self._notes = notes
         self._drafts = drafts
         self._clock = clock
+        # Optional so every existing caller keeps working. An in-memory
+        # fallback is right here: an outreach list that vanishes on restart is
+        # a worse product but not a broken one, and forcing every caller to
+        # supply two more stores to use the part they already had is worse.
+        self._prospects: Store = prospects if prospects is not None else _Memory()
+        self._notes_out: Store = outreach if outreach is not None else _Memory()
 
     # -------------------------------------------------------------- Capture
 
@@ -301,6 +354,100 @@ class ContentStudio:
             (d for d in self._drafts.list_all() if d.state in (DraftState.REJECTED, DraftState.PUBLISH_FAILED)),
             key=lambda d: d.created_at,
         )
+
+    # -------------------------------------------------------------- Outreach
+
+    def add_prospect(self, prospect: Prospect) -> Prospect:
+        """Records someone worth writing to. Facts enter here, not in the model."""
+        self._prospects.save(prospect.prospect_id, prospect)
+        return prospect
+
+    def prospects(self) -> list[Prospect]:
+        people: list[Prospect] = self._prospects.list_all()
+        return sorted(people, key=lambda p: p.added_at)
+
+    def draft_note(
+        self,
+        prospect: Prospect,
+        channel: OutreachChannel = OutreachChannel.LINKEDIN_NOTE,
+    ) -> OutreachDraft:
+        """Writes one note for one person, gated harder than a post.
+
+        A generic post is a wasted post. A generic outreach note is worse than
+        sending nothing: it tells the reader you did not look at them, in a
+        message whose whole claim is that you did.
+        """
+        if not prospect.is_specific():
+            return self._store_note(
+                self._blank_note(
+                    prospect,
+                    channel,
+                    ("the reason is too vague to write from; name the specific thing about them",),
+                )
+            )
+
+        correction = ""
+        subject, body = "", ""
+        outstanding: tuple[str, ...] = ()
+
+        for attempt in range(MAX_REDRAFTS):
+            parsed = _parse(self._complete(_note_prompt(prospect, channel, correction), 600))
+            subject = str(parsed.get("subject", "")).strip()
+            body = str(parsed.get("body", "")).strip()
+
+            violations = check_note(prospect, body, channel)
+            if not violations:
+                return self._store_note(
+                    OutreachDraft(
+                        draft_id=f"note-{uuid.uuid4().hex[:12]}",
+                        prospect_id=prospect.prospect_id,
+                        channel=channel,
+                        subject=subject,
+                        body=body,
+                        created_at=self._clock(),
+                        redraft_count=attempt,
+                    )
+                )
+            outstanding = tuple(f"{v.rule}: {v.detail}" for v in violations)
+            correction = redraft_instruction(violations)
+
+        return self._store_note(
+            OutreachDraft(
+                draft_id=f"note-{uuid.uuid4().hex[:12]}",
+                prospect_id=prospect.prospect_id,
+                channel=channel,
+                subject=subject,
+                body=body,
+                created_at=self._clock(),
+                redraft_count=MAX_REDRAFTS,
+                outstanding=outstanding,
+            )
+        )
+
+    def approve_note(self, draft_id: str, principal_id: str) -> OutreachDraft:
+        draft: OutreachDraft = self._notes_out.get(draft_id)
+        approved = draft.approve(principal_id)
+        self._notes_out.save(draft_id, approved)
+        return approved
+
+    def outreach_drafts(self) -> list[OutreachDraft]:
+        drafts: list[OutreachDraft] = self._notes_out.list_all()
+        return sorted(drafts, key=lambda d: d.created_at)
+
+    def _blank_note(self, prospect: Prospect, channel: OutreachChannel, outstanding: tuple[str, ...]) -> OutreachDraft:
+        return OutreachDraft(
+            draft_id=f"note-{uuid.uuid4().hex[:12]}",
+            prospect_id=prospect.prospect_id,
+            channel=channel,
+            subject="",
+            body="",
+            created_at=self._clock(),
+            outstanding=outstanding,
+        )
+
+    def _store_note(self, draft: OutreachDraft) -> OutreachDraft:
+        self._notes_out.save(draft.draft_id, draft)
+        return draft
 
     def health(self) -> dict[str, Any]:
         """For the Observability Gateway, and for you at a glance."""

@@ -61,6 +61,16 @@ DEVTO = {
 }
 
 
+OUTREACH = {
+    "body": (
+        "Priya, your talk on cutting inference cost by moving the small stuff to a local "
+        "model is the thing I keep coming back to. I built a router that degrades the same "
+        "way and it changed how I think about failure. What made you draw the tier boundary "
+        "where you did?"
+    ),
+}
+
+
 def canned(prompt: str, max_tokens: int) -> str:
     """Answers in the shape the prompt asked for.
 
@@ -69,6 +79,8 @@ def canned(prompt: str, max_tokens: int) -> str:
     would only ever satisfy LinkedIn's gates, and the other two would look
     broken when they were in fact working correctly.
     """
+    if "outreach note" in prompt or "invitation note" in prompt or "cold email" in prompt:
+        return json.dumps(OUTREACH)
     if '"subject"' in prompt:
         return json.dumps(NEWSLETTER)
     if '"title"' in prompt:

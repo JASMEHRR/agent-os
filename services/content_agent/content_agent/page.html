@@ -143,6 +143,22 @@ button:focus-visible { outline: 2px solid rgb(34 211 238 / 0.6); outline-offset:
 .chan input { width: 17px; height: 17px; accent-color: var(--brand-400); cursor: pointer; }
 .chan:focus-within { outline: 2px solid rgb(34 211 238 / 0.6); outline-offset: 2px; }
 
+#mic.recording {
+  background: rgb(248 113 113 / 0.16);
+  border-color: rgb(248 113 113 / 0.5);
+  color: #fecaca;
+}
+
+/* The dot pulses, but the button label also changes to "Stop" and the hint
+   text says what is happening. Nothing here is communicated by motion alone,
+   so a reduced-motion reader loses nothing. */
+.rec-dot {
+  display: inline-block; width: 9px; height: 9px; border-radius: 50%;
+  background: #f87171; margin-right: 8px; vertical-align: 1px;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+@keyframes pulse { 50% { opacity: 0.25; } }
+
 .chan-badge {
   font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
   padding: 3px 9px; border-radius: 6px;
@@ -200,52 +216,174 @@ ul.rules { margin: 12px 0 0; padding-left: 20px; color: rgb(255 255 255 / 0.65);
     transition-duration: 0.01ms !important;
   }
   .spin { border-top-color: rgb(255 255 255 / 0.3); }
+  .rec-dot { opacity: 1; }
 }
 </style>
+<style>
+/* Console layout. Sections stack top to bottom, each one a thing the agent
+   does, so scrolling the page is a tour of the system rather than a hunt. */
+nav.tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 24px; }
+nav.tabs button {
+  min-height: 42px; padding: 0 16px; font-size: 15px;
+  background: rgb(255 255 255 / 0.05); color: rgb(255 255 255 / 0.72);
+  border: 1px solid rgb(255 255 255 / 0.12); border-radius: 11px;
+}
+nav.tabs button[aria-current="true"] {
+  background: rgb(34 211 238 / 0.14); color: var(--brand-300);
+  border-color: var(--brand-400);
+}
+section[data-view] { display: none; }
+section[data-view].active { display: block; }
+
+.cap { border-top: 1px solid rgb(255 255 255 / 0.08); padding: 18px 0; }
+.cap:first-of-type { border-top: 0; }
+.cap h3 { margin: 0 0 6px; font-size: 17px; font-weight: 700; display: flex;
+          align-items: center; gap: 10px; flex-wrap: wrap; }
+.cap p { margin: 0; color: rgb(255 255 255 / 0.66); font-size: 15px; }
+.cap .missing { margin-top: 8px; color: var(--warn); font-size: 14px; }
+.cap .ops { color: rgb(255 255 255 / 0.4); font-size: 13px; font-weight: 500; }
+
+.pill { font-size: 11px; font-weight: 700; letter-spacing: 0.05em;
+        text-transform: uppercase; padding: 3px 9px; border-radius: 6px; }
+.pill.on  { background: rgb(74 222 128 / 0.15); color: #86efac; }
+.pill.off { background: rgb(251 191 36 / 0.14); color: #fcd34d; }
+
+.big { display: flex; gap: 28px; flex-wrap: wrap; margin-bottom: 4px; }
+.big div { min-width: 92px; }
+.big b { display: block; font-size: 28px; font-weight: 800; letter-spacing: -0.02em; }
+.big span { color: rgb(255 255 255 / 0.5); font-size: 13px; }
+
+.person { border: 1px solid rgb(255 255 255 / 0.1); border-radius: 13px;
+          padding: 16px; margin-bottom: 14px; }
+.person .who { font-weight: 700; font-size: 16px; }
+.person .head { color: rgb(255 255 255 / 0.6); font-size: 14px; margin: 2px 0 8px; }
+.person .why { color: rgb(255 255 255 / 0.75); font-size: 14px; }
+
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 620px) { .grid2 { grid-template-columns: 1fr; } }
+</style>
+
 </head>
 <body>
 <div class="wrap">
 
 <header>
   <h1>Post Studio</h1>
-  <p class="sub">Write what you did. It drafts. You decide what goes out.</p>
+  <p class="sub">Write once. It drafts everywhere. You decide what goes out.</p>
 </header>
 
-<section class="panel highlight">
-  <h2>Step 1 &middot; What happened this week</h2>
-  <p class="hint">Plain sentences are fine. Include real numbers if you have them. It will not invent any.</p>
-  <textarea id="note" placeholder="This week I finished wiring Groq behind the model router. Took 3 attempts because the free tier rate limits at 429, so I built a cooldown that degrades instead of failing. The test suite is at 1803 passing."></textarea>
-  <input type="text" id="angle" placeholder="Optional: an angle to take (leave blank and it picks one)">
-  <div class="row" id="channels">
-    <label class="chan"><input type="checkbox" value="linkedin" checked> LinkedIn post</label>
-    <label class="chan"><input type="checkbox" value="newsletter"> Newsletter</label>
-    <label class="chan"><input type="checkbox" value="devto"> Dev.to article</label>
+<nav class="tabs" id="tabs">
+  <button data-go="write" aria-current="true">Write</button>
+  <button data-go="review">Review</button>
+  <button data-go="people">People</button>
+  <button data-go="can">What this can do</button>
+  <button data-go="health">Health</button>
+</nav>
+
+<!-- ------------------------------------------------------------- WRITE -->
+<section data-view="write" class="active">
+
+  <div class="panel highlight">
+    <h2>What happened this week</h2>
+    <p class="hint">Plain sentences. Include real numbers. It will not invent any.</p>
+    <textarea id="note" placeholder="This week I wired Groq behind the model router. Took 3 attempts because the free tier rate limits at 429, so I built a cooldown that degrades instead of failing. The suite is at 1837 passing tests."></textarea>
+    <div class="row" id="dictate-row">
+      <button class="ghost" id="mic" type="button">Speak it instead</button>
+      <span class="hint" style="margin:0" id="mic-state"></span>
+    </div>
+    <input type="text" id="angle" placeholder="Optional: an angle to take (leave blank and it picks one)">
+    <div class="row" id="channels">
+      <label class="chan"><input type="checkbox" value="linkedin" checked> LinkedIn post</label>
+      <label class="chan"><input type="checkbox" value="newsletter"> Newsletter</label>
+      <label class="chan"><input type="checkbox" value="devto"> Dev.to article</label>
+    </div>
+    <div class="row">
+      <button class="primary" id="go">Write my drafts</button>
+    </div>
+    <div id="note-msg"></div>
   </div>
-  <div class="row">
-    <button class="primary" id="go">Write my post</button>
-    <span class="hint" style="margin:0" id="note-hint"></span>
+
+</section>
+
+<!-- ------------------------------------------------------------ REVIEW -->
+<section data-view="review">
+
+  <div class="panel">
+    <h2>Waiting for you</h2>
+    <div id="waiting"><p class="empty">Nothing yet. Write a note first.</p></div>
   </div>
-  <div id="note-msg"></div>
+
+  <div class="panel" id="attention-panel" hidden>
+    <h2>Did not work</h2>
+    <p class="hint">These failed the quality rules. The reasons usually mean the note was thin.</p>
+    <div id="attention"></div>
+  </div>
+
 </section>
 
-<section class="panel" id="waiting-panel">
-  <h2>Step 2 &middot; Waiting for you</h2>
-  <div id="waiting"><p class="empty">Nothing yet. Write a note above.</p></div>
+<!-- ------------------------------------------------------------ PEOPLE -->
+<section data-view="people">
+
+  <div class="panel highlight">
+    <h2>Someone worth knowing</h2>
+    <p class="hint">
+      It drafts a note specific to them. It does not send: LinkedIn has no API for
+      invitations, and automating that gets accounts restricted. You click send.
+    </p>
+    <div class="grid2">
+      <input type="text" id="p-name" placeholder="Their name">
+      <input type="text" id="p-headline" placeholder="What they do, in one line">
+    </div>
+    <textarea id="p-reason" style="min-height:90px" placeholder="Why them specifically. A talk they gave, a thing they shipped, a post they wrote. This is the whole personalisation budget, so vague input gets refused."></textarea>
+    <div class="row">
+      <button class="primary" id="p-add">Add and draft a note</button>
+      <label class="chan"><input type="radio" name="och" value="linkedin_note" checked> LinkedIn note</label>
+      <label class="chan"><input type="radio" name="och" value="email"> Email</label>
+    </div>
+    <div id="p-msg"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Your list</h2>
+    <div id="people"><p class="empty">Nobody yet.</p></div>
+  </div>
+
 </section>
 
-<section class="panel" id="attention-panel" hidden>
-  <h2>Did not work</h2>
-  <p class="hint">These failed the quality rules. The reasons are worth reading, they usually mean the note was thin.</p>
-  <div id="attention"></div>
+<!-- --------------------------------------------------------------- CAN -->
+<section data-view="can">
+
+  <div class="panel highlight">
+    <h2>What this can do</h2>
+    <p class="hint">
+      Counted from the code, not written by hand. "Built" means the operations exist.
+      "Wired" means this interface can reach them. The gap is the honest part.
+    </p>
+    <div class="big" id="totals"></div>
+  </div>
+
+  <div class="panel">
+    <div id="caps"></div>
+  </div>
+
 </section>
 
-<section class="panel">
-  <h2>Pipeline</h2>
-  <div class="stats" id="stats"></div>
+<!-- ------------------------------------------------------------ HEALTH -->
+<section data-view="health">
+
+  <div class="panel">
+    <h2>Pipeline</h2>
+    <div class="stats" id="stats"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Where things are</h2>
+    <div id="bychannel" class="stats"></div>
+  </div>
+
 </section>
 
 </div>
-
 <script>
 const $ = (id) => document.getElementById(id);
 
@@ -298,7 +436,7 @@ async function refresh() {
 
   $('waiting').innerHTML = s.waiting.length
     ? s.waiting.map(d => draftCard(d, true)).join('')
-    : '<p class="empty">Nothing waiting. Write a note above.</p>';
+    : '<p class="empty">Nothing waiting. Write a note first.</p>';
 
   $('attention-panel').hidden = s.attention.length === 0;
   $('attention').innerHTML = s.attention.map(d => draftCard(d, false)).join('');
@@ -310,13 +448,122 @@ async function refresh() {
     <span><b>${h.needs_attention}</b> failed</span>
     <span><b>${h.mean_redrafts}</b> avg fixes</span>`;
 
-  document.querySelectorAll('[data-approve]').forEach(b => {
-    b.onclick = () => approve(b.dataset.approve);
-  });
-  document.querySelectorAll('[data-discard]').forEach(b => {
-    b.onclick = () => discard(b.dataset.discard);
-  });
+  $('bychannel').innerHTML = Object.entries(h.by_channel || {}).length
+    ? Object.entries(h.by_channel).map(([k, v]) => `<span><b>${v}</b> ${escapeHtml(k)}</span>`).join('')
+    : '<span class="empty">Nothing drafted yet.</span>';
+
+  renderPeople(s.prospects, s.outreach);
+  wire();
 }
+
+function renderPeople(people, notes) {
+  const byPerson = {};
+  (notes || []).forEach(n => { (byPerson[n.prospect_id] ||= []).push(n); });
+
+  $('people').innerHTML = (people || []).length
+    ? people.map(p => {
+        const theirs = byPerson[p.prospect_id] || [];
+        const drafted = theirs.map(n => `
+          <div class="post">${escapeHtml(n.full_text || '(nothing usable)')}</div>
+          ${n.outstanding.length
+            ? `<ul class="rules">${n.outstanding.map(r => `<li>${escapeHtml(r)}</li>`).join('')}</ul>`
+            : ''}
+          ${n.body && !n.approved
+            ? `<div class="row"><button class="primary" data-note="${n.draft_id}">Approve &amp; copy</button></div>`
+            : n.approved ? '<div class="row"><span class="pill on">approved</span></div>' : ''}
+        `).join('');
+        return `<div class="person">
+          <div class="who">${escapeHtml(p.name)}</div>
+          <div class="head">${escapeHtml(p.headline)}</div>
+          <div class="why">${escapeHtml(p.reason)}</div>
+          ${drafted}
+        </div>`;
+      }).join('')
+    : '<p class="empty">Nobody yet.</p>';
+}
+
+async function loadCapabilities() {
+  const { capabilities, totals } = await api('/api/capabilities');
+
+  $('totals').innerHTML = `
+    <div><b>${totals.wired}/${totals.capabilities}</b><span>wired up</span></div>
+    <div><b>${totals.modules}</b><span>modules</span></div>
+    <div><b>${totals.operations}</b><span>operations</span></div>`;
+
+  $('caps').innerHTML = capabilities.map(c => `
+    <div class="cap">
+      <h3>
+        ${escapeHtml(c.title)}
+        <span class="pill ${c.wired ? 'on' : 'off'}">${c.wired ? 'working now' : 'built, not wired'}</span>
+        <span class="ops">${c.operations} operations</span>
+      </h3>
+      <p>${escapeHtml(c.plain)}</p>
+      ${c.missing ? `<div class="missing">Missing: ${escapeHtml(c.missing)}</div>` : ''}
+    </div>`).join('');
+}
+
+function wire() {
+  document.querySelectorAll('[data-approve]').forEach(b => { b.onclick = () => approve(b.dataset.approve); });
+  document.querySelectorAll('[data-discard]').forEach(b => { b.onclick = () => discard(b.dataset.discard); });
+  document.querySelectorAll('[data-note]').forEach(b => { b.onclick = () => approveNote(b.dataset.note); });
+}
+
+async function approveNote(id) {
+  try {
+    const { note } = await api('/api/approve-note', { draft_id: id });
+    await navigator.clipboard.writeText(note.full_text).catch(() => {});
+    message('p-msg', 'Copied. Paste it into LinkedIn and press send.', 'good');
+    await refresh();
+  } catch (e) { message('p-msg', e.message, 'error'); }
+}
+
+// ------------------------------------------------------------------ Tabs
+
+function showView(name) {
+  document.querySelectorAll('#tabs button').forEach(t => {
+    t.setAttribute('aria-current', String(t.dataset.go === name));
+  });
+  document.querySelectorAll('section[data-view]').forEach(v => {
+    v.classList.toggle('active', v.dataset.view === name);
+  });
+  // Loaded on demand rather than up front: it introspects every module, and
+  // paying for that on first paint would delay the box people came here to
+  // type in.
+  if (name === 'can') loadCapabilities();
+}
+
+document.querySelectorAll('#tabs button').forEach(tab => {
+  tab.onclick = () => showView(tab.dataset.go);
+});
+
+// ---------------------------------------------------------------- People
+
+$('p-add').onclick = async () => {
+  const name = $('p-name').value.trim();
+  const headline = $('p-headline').value.trim();
+  const reason = $('p-reason').value.trim();
+  const channel = document.querySelector('input[name=och]:checked').value;
+  const btn = $('p-add');
+
+  message('p-msg', '', '');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span>Writing the note';
+  try {
+    const { prospect_id } = await api('/api/prospect', { name, headline, reason });
+    const { note } = await api('/api/outreach', { prospect_id, channel });
+    $('p-name').value = ''; $('p-headline').value = ''; $('p-reason').value = '';
+    message('p-msg',
+      note.body ? 'Drafted. It is under their name below.'
+                : 'Could not write a note that passed the rules. Reasons are below.',
+      note.body ? 'good' : 'error');
+    await refresh();
+  } catch (e) {
+    message('p-msg', e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Add and draft a note';
+  }
+};
 
 async function approve(id) {
   try {
@@ -352,6 +599,7 @@ $('go').onclick = async () => {
     $('angle').value = '';
 
     const ok = drafts.filter(d => d.state === 'drafted').length;
+    showView('review');
     message('note-msg',
       ok === drafts.length ? `Done. ${ok} draft${ok === 1 ? '' : 's'} below.`
         : `${ok} of ${drafts.length} passed the quality rules. The rest are further down.`,
@@ -364,6 +612,79 @@ $('go').onclick = async () => {
     btn.textContent = 'Write my post';
   }
 };
+
+// ------------------------------------------------------------- Dictation
+//
+// The browser's own speech recognition. No key, no dependency, no audio
+// leaving the machine except to the browser's own service, which is the same
+// path the OS dictation key uses.
+//
+// Chrome and Edge implement it. Firefox and Safari do not, so the button is
+// removed rather than shown broken: a control that does nothing when pressed
+// is worse than one that was never offered.
+
+const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+if (!Recognition) {
+  $('dictate-row').remove();
+} else {
+  const mic = $('mic');
+  const state = $('mic-state');
+  let rec = null;
+  // Text already in the box when recording started. Interim results replace
+  // everything after it, so a correction mid-sentence does not leave the
+  // earlier guess stranded in the textarea.
+  let base = '';
+
+  const stop = () => {
+    mic.classList.remove('recording');
+    mic.textContent = 'Speak it instead';
+    state.textContent = '';
+    rec = null;
+  };
+
+  mic.onclick = () => {
+    if (rec) { rec.stop(); return; }
+
+    rec = new Recognition();
+    rec.continuous = true;
+    rec.interimResults = true;
+    rec.lang = 'en-IN';
+
+    base = $('note').value.trim();
+    if (base) base += ' ';
+
+    rec.onstart = () => {
+      mic.classList.add('recording');
+      mic.innerHTML = '<span class="rec-dot"></span>Stop';
+      state.textContent = 'Listening. Speak normally, it punctuates as you go.';
+    };
+
+    rec.onresult = (event) => {
+      let settled = '';
+      let pending = '';
+      for (let i = 0; i < event.results.length; i++) {
+        const chunk = event.results[i][0].transcript;
+        if (event.results[i].isFinal) settled += chunk; else pending += chunk;
+      }
+      $('note').value = base + settled + pending;
+    };
+
+    rec.onerror = (event) => {
+      // "no-speech" fires on an ordinary pause and is not worth reporting.
+      if (event.error === 'no-speech') return;
+      state.textContent = event.error === 'not-allowed'
+        ? 'Microphone blocked. Allow it in the address bar, then try again.'
+        : `Could not listen: ${event.error}`;
+      stop();
+    };
+
+    rec.onend = stop;
+
+    try { rec.start(); }
+    catch (e) { state.textContent = 'Could not start the microphone.'; stop(); }
+  };
+}
 
 refresh();
 </script>

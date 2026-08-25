@@ -23,7 +23,7 @@ refuse, fails the suite. A declaration nothing checks is a wish.
 | `persistence` | libs | S0 | implemented to stage exit criteria | 4 | 16 |
 | `agent_runtime` | services | S7 | implemented to stage exit criteria | 3 | 45 |
 | `api_gateway` | services | S8 | implemented to stage exit criteria | 6 | 44 |
-| `content_agent` | services | A1 | implemented to stage exit criteria | 5 | 52 |
+| `content_agent` | services | A1 | implemented to stage exit criteria | 7 | 71 |
 | `cost_manager` | services | S3 | implemented to stage exit criteria | 3 | 28 |
 | `decision_gateway` | services | S5 | implemented to stage exit criteria | 4 | 62 |
 | `deployment_gateway` | services | S11 | implemented to stage exit criteria | 1 | 0 |
@@ -49,7 +49,7 @@ refuse, fails the suite. A declaration nothing checks is a wish.
 
 ## Appendix B - Interface Register
 
-359 public methods across 24 Gateway facades,
+364 public methods across 24 Gateway facades,
 read by introspection so a rename cannot go unrecorded.
 
 | Module | Facade | Method |
@@ -70,16 +70,21 @@ read by introspection so a rename cannot go unrecorded.
 | `api_gateway` | `APIGateway` | `now()` |
 | `api_gateway` | `APIGateway` | `register_route(self, route: 'Route') -> 'Route'` |
 | `api_gateway` | `APIGateway` | `request_ids()` |
+| `content_agent` | `ContentStudio` | `add_prospect(self, prospect: 'Prospect') -> 'Prospect'` |
 | `content_agent` | `ContentStudio` | `approve(self, draft_id: 'str', principal_id: 'str') -> 'PostDraft'` |
+| `content_agent` | `ContentStudio` | `approve_note(self, draft_id: 'str', principal_id: 'str') -> 'OutreachDraft'` |
 | `content_agent` | `ContentStudio` | `awaiting_approval(self) -> 'list[PostDraft]'` |
 | `content_agent` | `ContentStudio` | `capture(self, body: 'str', angle: 'str' = '') -> 'WeeklyNote'` |
 | `content_agent` | `ContentStudio` | `discard(self, draft_id: 'str') -> 'PostDraft'` |
 | `content_agent` | `ContentStudio` | `draft(self, note: 'WeeklyNote', channel: 'Channel' = <Channel.LINKEDIN: 'linkedin'>) -> 'PostDraft'` |
 | `content_agent` | `ContentStudio` | `draft_everywhere(self, note: 'WeeklyNote') -> 'list[PostDraft]'` |
+| `content_agent` | `ContentStudio` | `draft_note(self, prospect: 'Prospect', channel: 'OutreachChannel' = <OutreachChannel.LINKEDIN_NOTE: 'linkedin_note'>) -> 'OutreachDraft'` |
 | `content_agent` | `ContentStudio` | `health(self) -> 'dict[str, Any]'` |
 | `content_agent` | `ContentStudio` | `latest_note(self) -> 'WeeklyNote | None'` |
 | `content_agent` | `ContentStudio` | `needs_attention(self) -> 'list[PostDraft]'` |
 | `content_agent` | `ContentStudio` | `note(self, note_id: 'str') -> 'WeeklyNote'` |
+| `content_agent` | `ContentStudio` | `outreach_drafts(self) -> 'list[OutreachDraft]'` |
+| `content_agent` | `ContentStudio` | `prospects(self) -> 'list[Prospect]'` |
 | `cost_manager` | `CostManager` | `allocate(self, scope: 'BudgetScope', tenant_id: 'str', limit: 'float') -> 'None'` |
 | `cost_manager` | `CostManager` | `attribution(self, scope: 'BudgetScope | None' = None, principal_id: 'str | None' = None, tenant_id: 'str | None' = None) -> 'Mapping[str, Any]'` |
 | `cost_manager` | `CostManager` | `check(self, scope: 'BudgetScope', tenant_id: 'str', estimated_cost: 'float' = 0.0, dependency: 'str | None' = None) -> 'BudgetVerdict'` |
