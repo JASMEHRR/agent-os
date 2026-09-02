@@ -1,32 +1,31 @@
-# Post Studio, hosted. START_HERE.md, "Hosting it", walks through using this.
+# Post Studio, hosted.
 #
-# On a laptop nothing here is needed: double-click PostStudio.bat. This is for
-# a copy that lives at a URL, where the studio needs a password
-# (POST_STUDIO_PASSWORD) and reads your other repositories from clones
-# (REPO_URLS) rather than from the folders beside it.
+# Nothing to install: the repository has no runtime dependencies, so the
+# image is the Python base plus the source. The one thing a host must give
+# it is STUDIO_PASSWORD; without that the server binds loopback and the
+# platform's proxy cannot reach it, which is the correct failure for a
+# hosted copy with no login configured.
+#
+# Data lives in /data/agent.db. Mount a persistent volume there or the
+# host's restart wipes every note, draft, sample and fact. See docs/HOSTING.md.
+
 FROM python:3.11-slim
 
-# git: "pull this week from my git" reads commit history, and REPO_URLS is
-# cloned with it.
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends git ca-certificates \
+WORKDIR /app
+COPY . /app
+
+# git is needed for the "pull this week from my git" button. The repos it
+# reads are whatever REPOS points at inside the container; on a host with
+# nothing mounted the button reports "not a git repository" rather than
+# failing, which is the honest answer.
+RUN apt-get update && apt-get install -y --no-install-recommends git \
     && rm -rf /var/lib/apt/lists/*
 
-# The only third-party package on the studio's import path.
-RUN pip install --no-cache-dir pydantic
+ENV PYTHONUNBUFFERED=1 \
+    DB_PATH=/data/agent.db \
+    PORT=7860
 
-# Named after the repository, so a clone of it under REPO_URLS is recognised
-# as the same one and not read twice.
-WORKDIR /app/agent-os
-COPY . .
-
-ENV POST_STUDIO_HOST=0.0.0.0 \
-    POST_STUDIO_DATA=/data \
-    PORT=8765 \
-    PYTHONUNBUFFERED=1
-
-# agent.db and the clones. Mount a disk here to keep them across deploys.
 VOLUME ["/data"]
-EXPOSE 8765
+EXPOSE 7860
 
 CMD ["python", "scripts/serve.py"]

@@ -277,6 +277,7 @@ section[data-view].active { display: block; }
   <button data-go="review">Review</button>
   <button data-go="people">People</button>
   <button data-go="can">What this can do</button>
+  <button data-go="me">Me</button>
   <button data-go="voice">Voice</button>
   <button data-go="health">Health</button>
 </nav>
@@ -371,6 +372,47 @@ section[data-view].active { display: block; }
 
 </section>
 
+<!-- ---------------------------------------------------------------- ME -->
+<section data-view="me">
+
+  <div class="panel highlight">
+    <h2>Tell it about your week</h2>
+    <p class="hint">
+      Not what you shipped. What is going on: college, things you tried, what you
+      changed your mind about, what you want. Talk or type. It proposes what it
+      learned; you keep or discard each one. Only what you keep is remembered.
+    </p>
+    <textarea id="me-said" placeholder="This week I started a 5am gym routine and hated it by Thursday. Sat through two placement talks and realised I do not want any of those jobs. Started reading about how newsletters actually make money, which is not ads."></textarea>
+    <div class="row" id="me-dictate-row">
+      <button class="ghost" id="me-mic" type="button">Speak it instead</button>
+      <span class="hint" style="margin:0" id="me-mic-state"></span>
+    </div>
+    <div class="row">
+      <button class="primary" id="me-go">What did you learn about me?</button>
+    </div>
+    <div id="me-msg"></div>
+    <div id="me-proposed"></div>
+  </div>
+
+  <div class="panel">
+    <h2>What it knows</h2>
+    <div class="big" id="me-stats"></div>
+    <div id="me-facts" style="margin-top:14px"><p class="empty">Nothing yet. Tell it about your week.</p></div>
+  </div>
+
+</section>
+
+<!-- ------------------------------------------------------------- LOGIN -->
+<div id="login" hidden style="position:fixed;inset:0;z-index:50;background:rgb(2 4 10 / 0.92);display:flex;align-items:center;justify-content:center;padding:20px">
+  <div class="panel highlight" style="max-width:380px;width:100%">
+    <h2>Post Studio</h2>
+    <p class="hint">This copy is hosted. Enter the password to continue.</p>
+    <input type="password" id="login-pw" placeholder="Password" style="width:100%;margin-top:0">
+    <div class="row"><button class="primary" id="login-go">Enter</button></div>
+    <div id="login-msg"></div>
+  </div>
+</div>
+
 <!-- ------------------------------------------------------------- VOICE -->
 <section data-view="voice">
 
@@ -433,9 +475,25 @@ async function api(path, body) {
     body: body ? JSON.stringify(body) : undefined,
   });
   const data = await res.json();
+  if (res.status === 401 && data.login) {
+    // Hosted copy, no cookie yet. Show the door rather than an error.
+    $('login').hidden = false;
+    $('login-pw').focus();
+    throw new Error('Enter the password first.');
+  }
   if (!res.ok) throw new Error(data.error || 'Something went wrong.');
   return data;
 }
+
+$('login-go').onclick = async () => {
+  try {
+    await api('/api/login', { password: $('login-pw').value });
+    $('login').hidden = true;
+    $('login-pw').value = '';
+    await refresh();
+  } catch (e) { message('login-msg', e.message, 'error'); }
+};
+$('login-pw').onkeydown = (e) => { if (e.key === 'Enter') $('login-go').click(); };
 
 function message(target, text, kind) {
   $(target).innerHTML = text ? `<div class="msg ${kind}">${escapeHtml(text)}</div>` : '';
@@ -642,6 +700,98 @@ function showView(name) {
   // type in.
   if (name === 'can') loadCapabilities();
   if (name === 'voice') loadVoice();
+  if (name === 'me') loadMe();
+}
+
+// ------------------------------------------------------------------- Me
+
+const AREA_LABEL = { life: 'Life', college: 'College', trying: 'Trying', building: 'Building',
+  learning: 'Learning', goals: 'Goals', opinions: 'Opinions', audience: 'Audience' };
+
+async function loadMe() {
+  const { health, facts } = await api('/api/persona');
+  $('me-stats').innerHTML = `
+    <div><b>${health.facts}</b><span>things it knows</span></div>
+    <div><b>${health.checkins}</b><span>check-ins</span></div>`;
+  $('me-facts').innerHTML = facts.length
+    ? facts.map(f => `<div class="person" style="padding:12px 16px">
+        <div class="row" style="margin:0;justify-content:space-between">
+          <span><span class="chan-badge">${escapeHtml(AREA_LABEL[f.area] || f.area)}</span>
+            <span style="margin-left:10px">${escapeHtml(f.text)}</span></span>
+          <button class="danger" style="min-height:36px;padding:0 12px;font-size:13px" data-retire="${f.fact_id}">No longer true</button>
+        </div>
+      </div>`).join('')
+    : '<p class="empty">Nothing yet. Tell it about your week.</p>';
+  document.querySelectorAll('[data-retire]').forEach(b => {
+    b.onclick = async () => { await api('/api/retire-fact', { fact_id: b.dataset.retire }); await loadMe(); };
+  });
+}
+
+$('me-go').onclick = async () => {
+  const said = $('me-said').value.trim();
+  const btn = $('me-go');
+  message('me-msg', '', '');
+  $('me-proposed').innerHTML = '';
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span>Listening';
+  try {
+    const { checkin_id, proposed } = await api('/api/checkin', { said });
+    if (!proposed.length) {
+      message('me-msg', 'Nothing new in that, or it was already known. Say more, or something different.', 'error');
+      return;
+    }
+    // Each proposal is kept or discarded individually. A single "accept all"
+    // would turn confirmation into a rubber stamp, and the confirmation is
+    // the whole reason it can be trusted to know you.
+    $('me-proposed').innerHTML = `<p class="hint" style="margin:16px 0 8px">Keep the ones that are true:</p>` +
+      proposed.map((p, i) => `<div class="person" style="padding:12px 16px" id="prop-${i}">
+        <div class="row" style="margin:0;justify-content:space-between">
+          <span><span class="chan-badge">${escapeHtml(AREA_LABEL[p.area] || p.area)}</span>
+            <span style="margin-left:10px">${escapeHtml(p.text)}</span></span>
+          <span>
+            <button class="primary" style="min-height:36px;padding:0 14px;font-size:14px" data-keep="${i}">Keep</button>
+            <button class="ghost" style="min-height:36px;padding:0 12px;font-size:14px" data-drop="${i}">Discard</button>
+          </span>
+        </div>
+      </div>`).join('');
+    document.querySelectorAll('[data-keep]').forEach(b => {
+      b.onclick = async () => {
+        const p = proposed[+b.dataset.keep];
+        await api('/api/confirm-fact', { area: p.area, text: p.text, checkin_id });
+        $(`prop-${b.dataset.keep}`).remove();
+        await loadMe();
+      };
+    });
+    document.querySelectorAll('[data-drop]').forEach(b => {
+      b.onclick = () => $(`prop-${b.dataset.drop}`).remove();
+    });
+    $('me-said').value = '';
+    message('me-msg', `It noticed ${proposed.length} thing${proposed.length === 1 ? '' : 's'}.`, 'good');
+  } catch (e) {
+    message('me-msg', e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'What did you learn about me?';
+  }
+};
+
+// Second microphone, for the check-in box. Same browser API as the note box.
+if (!(window.SpeechRecognition || window.webkitSpeechRecognition)) {
+  $('me-dictate-row').remove();
+} else {
+  const R = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let rec2 = null, base2 = '';
+  const stop2 = () => { $('me-mic').classList.remove('recording'); $('me-mic').textContent = 'Speak it instead'; $('me-mic-state').textContent = ''; rec2 = null; };
+  $('me-mic').onclick = () => {
+    if (rec2) { rec2.stop(); return; }
+    rec2 = new R(); rec2.continuous = true; rec2.interimResults = true; rec2.lang = 'en-IN';
+    base2 = $('me-said').value.trim(); if (base2) base2 += ' ';
+    rec2.onstart = () => { $('me-mic').classList.add('recording'); $('me-mic').innerHTML = '<span class="rec-dot"></span>Stop'; $('me-mic-state').textContent = 'Listening.'; };
+    rec2.onresult = (ev) => { let s = ''; for (let i = 0; i < ev.results.length; i++) s += ev.results[i][0].transcript; $('me-said').value = base2 + s; };
+    rec2.onerror = (ev) => { if (ev.error !== 'no-speech') { $('me-mic-state').textContent = `Could not listen: ${ev.error}`; stop2(); } };
+    rec2.onend = stop2;
+    try { rec2.start(); } catch (e) { stop2(); }
+  };
 }
 
 document.querySelectorAll('#tabs button').forEach(tab => {

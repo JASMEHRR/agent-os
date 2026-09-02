@@ -71,6 +71,13 @@ OUTREACH = {
 }
 
 
+PROPOSED = [
+    {"area": "trying", "text": "Started a 5am gym routine and hated it by Thursday"},
+    {"area": "college", "text": "Sat through two placement talks and did not want either job"},
+    {"area": "learning", "text": "Reading about how newsletters make money, and it is not ads"},
+]
+
+
 def canned(prompt: str, max_tokens: int) -> str:
     """Answers in the shape the prompt asked for.
 
@@ -79,6 +86,8 @@ def canned(prompt: str, max_tokens: int) -> str:
     would only ever satisfy LinkedIn's gates, and the other two would look
     broken when they were in fact working correctly.
     """
+    if "What he said:" in prompt:
+        return json.dumps(PROPOSED)
     if "outreach note" in prompt or "invitation note" in prompt or "cold email" in prompt:
         return json.dumps(OUTREACH)
     if '"subject"' in prompt:

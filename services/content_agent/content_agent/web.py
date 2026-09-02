@@ -8,10 +8,9 @@ with four buttons.
 
 Design decisions that are actually about safety rather than taste:
 
-* **Loopback by default.** `127.0.0.1`, never `0.0.0.0`. There is no
-  authentication in that mode, so reachability *is* the authorization.
-  Binding wider is allowed for a hosted copy, and only with a password, which
-  `serve` enforces rather than documents: a wider bind without one is refused.
+* **Loopback only.** `127.0.0.1`, never `0.0.0.0`. There is no authentication
+  here, so reachability *is* the authorization. Binding wider would put an
+  unauthenticated approve-and-publish surface on the local network.
 * **The API has no publish endpoint**, because the studio has no publish verb.
   Approving marks a draft ready and shows you the text. Nothing here reaches
   LinkedIn.
@@ -21,11 +20,10 @@ Design decisions that are actually about safety rather than taste:
 
 from __future__ import annotations
 
-import base64
+import hashlib
 import hmac
 import json
 import pathlib
-import urllib.parse
 from collections.abc import Callable
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from typing import Any
@@ -34,6 +32,7 @@ from content_agent.capabilities import survey, totals
 from content_agent.capture import capture_week
 from content_agent.formats import Channel
 from content_agent.outreach import OutreachChannel, prospect_from
+from content_agent.persona import Area
 from content_agent.studio import ContentStudio
 
 PAGE = (pathlib.Path(__file__).parent / "page.html").read_text(encoding="utf-8")
@@ -50,21 +49,6 @@ HOST = "127.0.0.1"
 #: That is DNS rebinding, and the Host header is what distinguishes it, since
 #: the rebound request carries the attacker's hostname rather than ours.
 ALLOWED_HOSTS = frozenset({"127.0.0.1", "localhost", "[::1]"})
-
-#: Addresses a server may bind without a password. Anything else is reachable
-#: from another machine, and reachability stops being the authorization.
-LOOPBACK_BINDS = frozenset({"127.0.0.1", "localhost", "::1"})
-
-#: Sent with a 401 so the browser asks for the password once and then attaches
-#: it to every request the page makes, fetch() included.
-AUTH_CHALLENGE = 'Basic realm="Post Studio", charset="UTF-8"'
-
-
-def _without_port(netloc: str) -> str:
-    """`host:port` to `host`. A bracketed IPv6 literal with no port is left alone."""
-    if netloc.endswith("]"):
-        return netloc
-    return netloc.rsplit(":", 1)[0]
 
 
 def _draft_json(draft: Any) -> dict[str, Any]:
@@ -105,13 +89,12 @@ class Handler(BaseHTTPRequestHandler):
     #: Repositories capture reads, commit messages only. Set by `serve`.
     #: Empty means the button produces nothing, which the page reports.
     repos: tuple[str, ...] = ()
-    #: Host header values answered. Loopback names by default; a hosted copy
-    #: adds its public hostname. Set by `serve`.
-    allowed_hosts: frozenset[str] = ALLOWED_HOSTS
-    #: Empty means no password, which `serve` permits on loopback only.
+    #: Empty means "this laptop": loopback only, no login, reachability is the
+    #: authorisation. Set means "hosted": every /api route needs the cookie
+    #: that a correct password grants. One user, one password, no accounts.
     password: str = ""
     #: Run before each capture, so a hosted copy can refresh its clones and
-    #: read this week rather than the week it was deployed in.
+    #: read this week rather than the week it was deployed in. Set by `serve`.
     before_capture: Callable[[], None] | None = None
 
     # Silences the default one-line-per-request logging, which buries the
@@ -151,50 +134,56 @@ class Handler(BaseHTTPRequestHandler):
 
         Not a token scheme. A token would be stronger and would need session
         state and a way to seed it into the page; for a loopback server with
-        one user, these two headers close the paths that actually exist. The
-        password, when there is one, is a separate check (`_authorised`).
-
-        The Origin is matched on hostname, not on the full string, because a
-        hosted copy sits behind a TLS proxy: the browser sees `https://name`
-        with no port while this process listens on plain HTTP on whatever
-        port it was given, and the two never agree literally.
+        one user, these two headers close the paths that actually exist.
         """
-        host = _without_port(self.headers.get("Host", ""))
-        if host not in self.allowed_hosts:
-            return False
+        host_header = self.headers.get("Host", "")
         origin = self.headers.get("Origin")
+        if self.password:
+            # Hosted: the host is whatever the platform gave us, so the Host
+            # check cannot be a fixed list. The Origin check still holds: a
+            # cross-site write must carry a foreign Origin, and ours is the
+            # Host we were reached at, over either scheme the proxy may use.
+            if origin is None:
+                return True
+            return origin in {f"https://{host_header}", f"http://{host_header}"}
+        host = host_header.rsplit(":", 1)[0]
+        if host not in ALLOWED_HOSTS:
+            return False
         if origin is None:
             return True
-        parts = urllib.parse.urlsplit(origin)
-        return parts.scheme in ("http", "https") and _without_port(parts.netloc) in self.allowed_hosts
+        port = self.server.server_address[1] if isinstance(self.server.server_address, tuple) else 0
+        allowed = {f"http://{name}:{port}" for name in ALLOWED_HOSTS}
+        return origin in allowed
 
-    def _authorised(self) -> bool:
-        """The password, when one is set.
+    # ------------------------------------------------------------------ Auth
 
-        HTTP Basic rather than a login page: the browser asks once, remembers,
-        and attaches it to every request the page makes, so the page needs no
-        session code. Compared in constant time, so a wrong guess takes as
-        long as a near miss.
-        """
+    def _token(self) -> str:
+        """The cookie value a correct password earns. Derived, not stored, so a
+        password change invalidates every existing session."""
+        return hashlib.sha256(f"studio:{self.password}".encode()).hexdigest()
+
+    def _authorized(self) -> bool:
         if not self.password:
             return True
-        scheme, _, encoded = self.headers.get("Authorization", "").partition(" ")
-        if scheme.lower() != "basic" or not encoded.strip():
-            return False
-        try:
-            decoded = base64.b64decode(encoded.strip(), validate=True).decode("utf-8")
-        except (ValueError, UnicodeDecodeError):
-            return False
-        _, _, supplied = decoded.partition(":")
-        return hmac.compare_digest(supplied.encode("utf-8"), self.password.encode("utf-8"))
+        cookie = self.headers.get("Cookie", "")
+        for part in cookie.split(";"):
+            name, _, value = part.strip().partition("=")
+            if name == "studio" and hmac.compare_digest(value, self._token()):
+                return True
+        return False
 
-    def _challenge(self) -> None:
-        body = json.dumps({"error": "password required"}).encode("utf-8")
-        self.send_response(401)
-        self.send_header("WWW-Authenticate", AUTH_CHALLENGE)
+    def _login(self, payload: dict[str, Any]) -> None:
+        given = str(payload.get("password", ""))
+        if not self.password or not hmac.compare_digest(given, self.password):
+            self._json({"error": "Wrong password."}, 401)
+            return
+        body = json.dumps({"ok": True}).encode("utf-8")
+        self.send_response(200)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(body)))
-        self.send_header("X-Content-Type-Options", "nosniff")
+        # HttpOnly so the page's own scripts never see it; SameSite=Strict so
+        # no other site can ride it; Secure is added by the host's TLS proxy.
+        self.send_header("Set-Cookie", f"studio={self._token()}; HttpOnly; SameSite=Strict; Path=/; Max-Age=2592000")
         self.end_headers()
         self.wfile.write(body)
 
@@ -209,15 +198,17 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:  # noqa: N802 - BaseHTTPRequestHandler's naming
         if self.path == "/healthz":
-            # For a host's health check. No data and no checks: it says the
-            # process is up and nothing else.
+            # For a host's health checker, which has no cookie and may not
+            # send our Host. It is told the process is up, and nothing else.
             self._json({"ok": True})
             return
         if not self._request_is_ours():
             self._json({"error": "refused"}, 403)
             return
-        if not self._authorised():
-            self._challenge()
+        # The page itself is always served; it contains nothing private and it
+        # is where the login form lives. Everything under /api needs the cookie.
+        if self.path.startswith("/api/") and not self._authorized():
+            self._json({"error": "login required", "login": True}, 401)
             return
         try:
             if self.path in ("/", "/index.html"):
@@ -230,6 +221,8 @@ class Handler(BaseHTTPRequestHandler):
                 self._capture()
             elif self.path == "/api/voice":
                 self._voice()
+            elif self.path == "/api/persona":
+                self._persona()
             else:
                 self._json({"error": "not found"}, 404)
         except Exception as exc:  # noqa: BLE001
@@ -246,8 +239,11 @@ class Handler(BaseHTTPRequestHandler):
         if not self._request_is_ours():
             self._json({"error": "refused"}, 403)
             return
-        if not self._authorised():
-            self._challenge()
+        if self.path == "/api/login":
+            self._login(payload)
+            return
+        if not self._authorized():
+            self._json({"error": "login required", "login": True}, 401)
             return
         try:
             if self.path == "/api/note":
@@ -268,6 +264,12 @@ class Handler(BaseHTTPRequestHandler):
                 self._rate(payload)
             elif self.path == "/api/sample":
                 self._sample(payload)
+            elif self.path == "/api/checkin":
+                self._checkin(payload)
+            elif self.path == "/api/confirm-fact":
+                self._confirm_fact(payload)
+            elif self.path == "/api/retire-fact":
+                self._retire_fact(payload)
             else:
                 self._json({"error": "not found"}, 404)
         except Exception as exc:  # noqa: BLE001
@@ -284,6 +286,7 @@ class Handler(BaseHTTPRequestHandler):
             "attention": [_draft_json(d) for d in self.studio.needs_attention()],
             "health": self.studio.health(),
             "voice": self.studio.library.health(),
+            "persona": self.studio.persona.health(),
             "prospects": [
                 {
                     "prospect_id": p.prospect_id,
@@ -398,6 +401,46 @@ class Handler(BaseHTTPRequestHandler):
             }
         )
 
+    # --------------------------------------------------------------- Persona
+
+    def _checkin(self, payload: dict[str, Any]) -> None:
+        """You talk about your week; it proposes what it learned. Nothing is
+        kept until you confirm each fact."""
+        try:
+            checkin_id, proposed = self.studio.check_in(str(payload.get("said", "")))
+        except ValueError as exc:
+            self._json({"error": str(exc)}, 400)
+            return
+        self._json({"checkin_id": checkin_id, "proposed": proposed})
+
+    def _confirm_fact(self, payload: dict[str, Any]) -> None:
+        try:
+            fact = self.studio.persona.confirm(
+                Area(str(payload.get("area", "life"))),
+                str(payload.get("text", "")),
+                source_checkin=str(payload.get("checkin_id", "")),
+                supersedes=str(payload.get("supersedes", "")),
+            )
+        except ValueError as exc:
+            self._json({"error": str(exc)}, 400)
+            return
+        self._json({"fact_id": fact.fact_id, "persona": self.studio.persona.health()})
+
+    def _retire_fact(self, payload: dict[str, Any]) -> None:
+        self.studio.persona.retire(str(payload.get("fact_id", "")))
+        self._json({"persona": self.studio.persona.health()})
+
+    def _persona(self) -> None:
+        self._json(
+            {
+                "health": self.studio.persona.health(),
+                "facts": [
+                    {"fact_id": f.fact_id, "area": f.area.value, "text": f.text} for f in self.studio.persona.facts()
+                ],
+                "areas": [a.value for a in Area],
+            }
+        )
+
     # -------------------------------------------------------------- Outreach
 
     def _prospect(self, payload: dict[str, Any]) -> None:
@@ -440,31 +483,28 @@ def serve(
     port: int = 8765,
     forever: bool = True,
     repos: tuple[str, ...] = (),
-    host: str = HOST,
-    allowed_hosts: frozenset[str] = ALLOWED_HOSTS,
-    password: str | None = None,
+    password: str = "",  # nosec B107 - empty means "no login, loopback only", not a credential
     before_capture: Callable[[], None] | None = None,
 ) -> HTTPServer:
     """Starts the interface. Returns the server so tests can drive it.
 
-    Binding anywhere but loopback needs a password. Without one the only
-    thing keeping strangers out is that they cannot reach the socket, and a
-    wider bind is precisely what lets them.
+    A password is the switch between the two deployment shapes. Without one
+    the server binds loopback and asks nothing, because only this machine can
+    reach it. With one it binds every interface, because a host's proxy has to
+    reach it, and every /api route demands the cookie a login grants.
     """
-    if host not in LOOPBACK_BINDS and not password:
-        raise ValueError(f"refusing to listen on {host} without a password: set POST_STUDIO_PASSWORD")
     attrs: dict[str, object] = {
         "studio": studio,
         "repos": repos,
-        "allowed_hosts": frozenset(allowed_hosts),
-        "password": password or "",
+        "password": password,
         # Wrapped so the class does not turn it into a method of the handler.
         "before_capture": None if before_capture is None else staticmethod(before_capture),
     }
     handler: type[Handler] = type("BoundHandler", (Handler,), attrs)
-    server = HTTPServer((host, port), handler)
+    bind = "0.0.0.0" if password else HOST  # nosec B104 - deliberate, gated on a password being set
+    server = HTTPServer((bind, port), handler)
     if forever:
-        print(f"\n  Open http://{host}:{port} in your browser\n  Ctrl-C to stop\n")
+        print(f"\n  Open http://{HOST}:{port} in your browser\n  Ctrl-C to stop\n")
         try:
             server.serve_forever()
         except KeyboardInterrupt:
@@ -474,4 +514,4 @@ def serve(
     return server
 
 
-__all__ = ["serve", "Handler", "HOST", "ALLOWED_HOSTS", "LOOPBACK_BINDS"]
+__all__ = ["serve", "Handler", "HOST"]

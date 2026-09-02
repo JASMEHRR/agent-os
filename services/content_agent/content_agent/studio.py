@@ -49,6 +49,7 @@ from content_agent.outreach import (
     Prospect,
     check_note,
 )
+from content_agent.persona import Persona, extract_prompt, parse_proposed
 from content_agent.samples import VoiceLibrary, render_examples
 from content_agent.voice import VOICE_BRIEF, VoiceViolation, check, redraft_instruction
 
@@ -91,17 +92,24 @@ class DraftingFailed(RuntimeError):
     """The model returned nothing usable."""
 
 
-def _prompt(note: WeeklyNote, spec: FormatSpec, correction: str = "", examples: str = "") -> str:
+def _prompt(
+    note: WeeklyNote,
+    spec: FormatSpec,
+    correction: str = "",
+    examples: str = "",
+    persona: str = "",
+) -> str:
     angle = f"\nAngle to take: {note.angle}" if note.angle else ""
     correction_block = f"\n\n{correction}" if correction else ""
-    # Examples sit between the rules and the notes. Rules first so the
-    # examples are read as instances of them; notes last so the model's most
-    # recent context is the facts it must not stray from.
+    # Order matters. Rules, then who he is, then examples of how he writes,
+    # then the notes. The persona is context the post may draw on; the notes
+    # are the facts it must not stray from, so they come last and closest.
+    persona_block = f"\n\n{persona}" if persona else ""
     examples_block = f"\n\n{examples}" if examples else ""
     keys = ", ".join(f'"{field}": "..."' for field in spec.fields)
     return f"""{VOICE_BRIEF}
 
-{spec.brief}{examples_block}
+{spec.brief}{persona_block}{examples_block}
 
 Aim for roughly {spec.target_words} words.
 
@@ -213,6 +221,7 @@ class ContentStudio:
         prospects: Store | None = None,
         outreach: Store | None = None,
         library: VoiceLibrary | None = None,
+        persona: Persona | None = None,
     ) -> None:
         self._complete = complete
         self._notes = notes
@@ -222,6 +231,9 @@ class ContentStudio:
         # than like a model following rules about you. Optional so existing
         # callers keep working; with none supplied it drafts from rules alone.
         self.library: VoiceLibrary = library if library is not None else VoiceLibrary(_Memory(), _Memory())
+        # Who you are, confirmed by you. The commit log says what shipped; this
+        # says what is going on, which is what a post worth reading is made of.
+        self.persona: Persona = persona if persona is not None else Persona(_Memory(), _Memory())
         # Optional so every existing caller keeps working. An in-memory
         # fallback is right here: an outreach list that vanishes on restart is
         # a worse product but not a broken one, and forcing every caller to
@@ -270,7 +282,7 @@ class ContentStudio:
         outstanding: tuple[str, ...] = ()
 
         for attempt in range(MAX_REDRAFTS):
-            parsed = _parse(self._complete(_prompt(note, spec, correction, examples), budget))
+            parsed = _parse(self._complete(_prompt(note, spec, correction, examples, self.persona.render()), budget))
             hook, body, close, tags = _extract(parsed, channel)
             last = (hook, body, close, tags)
 
@@ -365,6 +377,25 @@ class ContentStudio:
             (d for d in self._drafts.list_all() if d.state in (DraftState.REJECTED, DraftState.PUBLISH_FAILED)),
             key=lambda d: d.created_at,
         )
+
+    # -------------------------------------------------------------- Check-in
+
+    def check_in(self, said: str) -> tuple[str, list[dict[str, str]]]:
+        """You talk about your week. It proposes what it learned about you.
+
+        Returns the check-in id and the proposed facts. Nothing is confirmed
+        here; that is `persona.confirm`, and it takes your explicit yes per
+        fact. A model that could write facts about you straight into the
+        record it then writes from would drift into a version of you it
+        invented.
+        """
+        cleaned = said.strip()
+        if len(cleaned.split()) < 20:
+            raise ValueError("say a little more; a sentence or two is not enough to learn from")
+        raw = self._complete(extract_prompt(cleaned, self.persona.render()), 700)
+        proposed = parse_proposed(raw)
+        checkin = self.persona.record_checkin(cleaned, proposed)
+        return checkin.checkin_id, proposed
 
     # -------------------------------------------------------------- Outreach
 
