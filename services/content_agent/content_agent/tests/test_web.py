@@ -7,17 +7,20 @@ show up when the handler is called directly.
 
 from __future__ import annotations
 
+import base64
 import json
 import threading
 import urllib.error
 import urllib.request
+from collections.abc import Iterator
 from datetime import UTC, datetime
+from http.server import HTTPServer
 from typing import Any
 
 import pytest
 
 from content_agent import ContentStudio
-from content_agent.web import HOST, serve
+from content_agent.web import ALLOWED_HOSTS, HOST, serve
 from persistence import InMemoryRepository
 
 GOOD_NOTE = (
@@ -36,17 +39,16 @@ CANNED = json.dumps(
 )
 
 
-@pytest.fixture
-def server():
-    studio = ContentStudio(
+def _studio() -> ContentStudio:
+    return ContentStudio(
         complete=lambda prompt, max_tokens: CANNED,
         notes=InMemoryRepository(),
         drafts=InMemoryRepository(),
         clock=lambda: datetime(2026, 8, 25, tzinfo=UTC),
     )
-    # Port 0 lets the OS choose, so a developer with something on 8765 does not
-    # get a confusing failure in an unrelated test run.
-    httpd = serve(studio, port=0, forever=False)
+
+
+def _run(httpd: HTTPServer) -> Iterator[str]:
     thread = threading.Thread(target=httpd.serve_forever, daemon=True)
     thread.start()
     yield f"http://{HOST}:{httpd.server_address[1]}"
@@ -54,12 +56,48 @@ def server():
     httpd.server_close()
 
 
-def call(base: str, path: str, payload: dict[str, Any] | None = None) -> tuple[int, Any]:
+@pytest.fixture
+def server() -> Iterator[str]:
+    # Port 0 lets the OS choose, so a developer with something on 8765 does not
+    # get a confusing failure in an unrelated test run.
+    yield from _run(serve(_studio(), port=0, forever=False))
+
+
+PASSWORD = "open-sesame-4471"
+PUBLIC_NAME = "studio.example"
+
+
+@pytest.fixture
+def guarded() -> Iterator[str]:
+    """The hosted shape: a password, and a public hostname it answers to."""
+    httpd = serve(
+        _studio(),
+        port=0,
+        forever=False,
+        password=PASSWORD,
+        allowed_hosts=ALLOWED_HOSTS | {PUBLIC_NAME},
+    )
+    yield from _run(httpd)
+
+
+def basic(password: str, user: str = "jasmehr") -> dict[str, str]:
+    token = base64.b64encode(f"{user}:{password}".encode()).decode()
+    return {"Authorization": f"Basic {token}"}
+
+
+def call(
+    base: str,
+    path: str,
+    payload: dict[str, Any] | None = None,
+    headers: dict[str, str] | None = None,
+) -> tuple[int, Any]:
     data = json.dumps(payload).encode() if payload is not None else None
+    sent = {"Content-Type": "application/json"} if data else {}
+    sent.update(headers or {})
     request = urllib.request.Request(
         f"{base}{path}",
         data=data,
-        headers={"Content-Type": "application/json"} if data else {},
+        headers=sent,
         method="POST" if data is not None else "GET",
     )
     try:
@@ -241,3 +279,111 @@ def test_a_same_origin_post_is_accepted(server) -> None:
     )
     with urllib.request.urlopen(request, timeout=10) as response:  # nosec B310
         assert response.status == 200
+
+
+# ------------------------------------------------------------------- Hosted
+
+
+def test_binding_beyond_loopback_without_a_password_is_refused() -> None:
+    """On loopback, reachability is the authorization. Anywhere else there is
+    no such thing, so the server will not start without a password rather
+    than start and hope."""
+    with pytest.raises(ValueError, match="password"):
+        serve(_studio(), port=0, forever=False, host="0.0.0.0")  # nosec B104 - refused before binding
+
+
+def test_loopback_needs_no_password(server) -> None:
+    status, _ = call(server, "/api/state")
+    assert status == 200
+
+
+def test_without_the_password_the_browser_is_asked_for_it(guarded) -> None:
+    request = urllib.request.Request(f"{guarded}/api/state")
+    try:
+        with urllib.request.urlopen(request, timeout=10) as response:  # nosec B310
+            raise AssertionError(f"served without a password: {response.status}")
+    except urllib.error.HTTPError as exc:
+        assert exc.code == 401
+        assert exc.headers.get("WWW-Authenticate", "").startswith("Basic ")
+
+
+def test_a_wrong_password_is_refused(guarded) -> None:
+    status, _ = call(guarded, "/api/state", headers=basic("open-sesame-4472"))
+    assert status == 401
+
+
+def test_a_malformed_authorization_header_is_refused_not_crashed(guarded) -> None:
+    for header in ("Basic", "Basic %%%not-base64%%%", "Bearer abc", "Basic " + base64.b64encode(b"\xff").decode()):
+        status, _ = call(guarded, "/api/state", headers={"Authorization": header})
+        assert status == 401, header
+
+
+def test_the_right_password_opens_every_route(guarded) -> None:
+    status, note = call(guarded, "/api/note", {"body": GOOD_NOTE}, headers=basic(PASSWORD))
+    assert status == 200
+    status, _ = call(guarded, "/api/draft", {"note_id": note["note_id"]}, headers=basic(PASSWORD))
+    assert status == 200
+
+
+def test_the_username_does_not_matter_only_the_password(guarded) -> None:
+    status, _ = call(guarded, "/api/state", headers=basic(PASSWORD, user="anyone"))
+    assert status == 200
+
+
+def test_a_wrong_password_is_also_refused_on_writes(guarded) -> None:
+    status, _ = call(guarded, "/api/note", {"body": GOOD_NOTE}, headers=basic("nope"))
+    assert status == 401
+
+
+def test_the_public_hostname_is_answered_with_or_without_a_port(guarded) -> None:
+    """Behind a TLS proxy the browser's Host and Origin carry the public name
+    and no port. The loopback names stay allowed alongside it."""
+    for host in (PUBLIC_NAME, f"{PUBLIC_NAME}:443"):
+        status, _ = call(
+            guarded,
+            "/api/note",
+            {"body": GOOD_NOTE},
+            headers={"Host": host, "Origin": f"https://{PUBLIC_NAME}", **basic(PASSWORD)},
+        )
+        assert status == 200, host
+    status, _ = call(guarded, "/api/state", headers=basic(PASSWORD))
+    assert status == 200
+
+
+def test_a_foreign_host_is_still_refused_when_hosted(guarded) -> None:
+    status, _ = call(guarded, "/api/state", headers={"Host": "evil.example", **basic(PASSWORD)})
+    assert status == 403
+
+
+def test_an_origin_with_an_unexpected_scheme_is_refused(guarded) -> None:
+    status, _ = call(
+        guarded,
+        "/api/note",
+        {"body": GOOD_NOTE},
+        headers={"Origin": f"ftp://{PUBLIC_NAME}", **basic(PASSWORD)},
+    )
+    assert status == 403
+
+
+def test_the_health_check_needs_neither_password_nor_our_hostname(guarded) -> None:
+    """A host's health checker has no password and may not send our Host.
+    It is told the process is up, and nothing else."""
+    status, body = call(guarded, "/healthz", headers={"Host": "10.0.0.7"})
+    assert status == 200
+    assert body == {"ok": True}
+
+
+def test_capture_runs_the_refresh_first() -> None:
+    """A hosted copy pulls its clones before reading them, so the week it
+    reports is this one and not the one it was deployed in."""
+    calls: list[str] = []
+    httpd = serve(_studio(), port=0, forever=False, before_capture=lambda: calls.append("refreshed"))
+    base = next(_run(httpd))
+    try:
+        status, body = call(base, "/api/capture")
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+    assert status == 200
+    assert calls == ["refreshed"]
+    assert body["repos"] == []

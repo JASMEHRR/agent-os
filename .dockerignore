@@ -1,0 +1,23 @@
+# .git is deliberately not listed: the studio reads this checkout's own
+# commit history, and that needs the repository, not just the files.
+.venv
+venv
+__pycache__
+*.pyc
+.pytest_cache
+.mypy_cache
+.ruff_cache
+htmlcov
+.coverage
+node_modules
+ARCHITECTURE_BASELINE
+files
+drafts
+# Never into an image. Secrets are given to the container, not baked into it.
+.env
+agent.db
+agent.db-wal
+agent.db-shm
+demo.db
+demo.db-wal
+demo.db-shm

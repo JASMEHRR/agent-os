@@ -1,0 +1,25 @@
+# One-click hosting on Render's free tier. START_HERE.md, "Hosting it", walks
+# through it: New, Blueprint, pick this repository, fill in the two secrets.
+services:
+  - type: web
+    name: post-studio
+    runtime: docker
+    plan: free
+    healthCheckPath: /healthz
+    envVars:
+      # Asked for in the dashboard at deploy time, never written here.
+      - key: GROQ_API_KEY
+        sync: false
+      - key: POST_STUDIO_PASSWORD
+        sync: false
+      # What "pull this week from my git" reads. Cloned on first use, pulled
+      # before every capture. A private repository needs a token in its URL.
+      - key: REPO_URLS
+        value: https://github.com/JASMEHRR/agent-os;https://github.com/JASMEHRR/ventureadda
+    # The free plan has no disk, so agent.db (drafts, ratings, voice samples)
+    # lives on the instance and is reset by every deploy. On a paid plan,
+    # uncomment this and everything survives.
+    # disk:
+    #   name: data
+    #   mountPath: /data
+    #   sizeGB: 1

@@ -8,9 +8,10 @@ with four buttons.
 
 Design decisions that are actually about safety rather than taste:
 
-* **Loopback only.** `127.0.0.1`, never `0.0.0.0`. There is no authentication
-  here, so reachability *is* the authorization. Binding wider would put an
-  unauthenticated approve-and-publish surface on the local network.
+* **Loopback by default.** `127.0.0.1`, never `0.0.0.0`. There is no
+  authentication in that mode, so reachability *is* the authorization.
+  Binding wider is allowed for a hosted copy, and only with a password, which
+  `serve` enforces rather than documents: a wider bind without one is refused.
 * **The API has no publish endpoint**, because the studio has no publish verb.
   Approving marks a draft ready and shows you the text. Nothing here reaches
   LinkedIn.
@@ -20,8 +21,12 @@ Design decisions that are actually about safety rather than taste:
 
 from __future__ import annotations
 
+import base64
+import hmac
 import json
 import pathlib
+import urllib.parse
+from collections.abc import Callable
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from typing import Any
 
@@ -45,6 +50,21 @@ HOST = "127.0.0.1"
 #: That is DNS rebinding, and the Host header is what distinguishes it, since
 #: the rebound request carries the attacker's hostname rather than ours.
 ALLOWED_HOSTS = frozenset({"127.0.0.1", "localhost", "[::1]"})
+
+#: Addresses a server may bind without a password. Anything else is reachable
+#: from another machine, and reachability stops being the authorization.
+LOOPBACK_BINDS = frozenset({"127.0.0.1", "localhost", "::1"})
+
+#: Sent with a 401 so the browser asks for the password once and then attaches
+#: it to every request the page makes, fetch() included.
+AUTH_CHALLENGE = 'Basic realm="Post Studio", charset="UTF-8"'
+
+
+def _without_port(netloc: str) -> str:
+    """`host:port` to `host`. A bracketed IPv6 literal with no port is left alone."""
+    if netloc.endswith("]"):
+        return netloc
+    return netloc.rsplit(":", 1)[0]
 
 
 def _draft_json(draft: Any) -> dict[str, Any]:
@@ -85,6 +105,14 @@ class Handler(BaseHTTPRequestHandler):
     #: Repositories capture reads, commit messages only. Set by `serve`.
     #: Empty means the button produces nothing, which the page reports.
     repos: tuple[str, ...] = ()
+    #: Host header values answered. Loopback names by default; a hosted copy
+    #: adds its public hostname. Set by `serve`.
+    allowed_hosts: frozenset[str] = ALLOWED_HOSTS
+    #: Empty means no password, which `serve` permits on loopback only.
+    password: str = ""
+    #: Run before each capture, so a hosted copy can refresh its clones and
+    #: read this week rather than the week it was deployed in.
+    before_capture: Callable[[], None] | None = None
 
     # Silences the default one-line-per-request logging, which buries the
     # single line that matters (the startup URL) within seconds.
@@ -123,17 +151,52 @@ class Handler(BaseHTTPRequestHandler):
 
         Not a token scheme. A token would be stronger and would need session
         state and a way to seed it into the page; for a loopback server with
-        one user, these two headers close the paths that actually exist.
+        one user, these two headers close the paths that actually exist. The
+        password, when there is one, is a separate check (`_authorised`).
+
+        The Origin is matched on hostname, not on the full string, because a
+        hosted copy sits behind a TLS proxy: the browser sees `https://name`
+        with no port while this process listens on plain HTTP on whatever
+        port it was given, and the two never agree literally.
         """
-        host = self.headers.get("Host", "").rsplit(":", 1)[0]
-        if host not in ALLOWED_HOSTS:
+        host = _without_port(self.headers.get("Host", ""))
+        if host not in self.allowed_hosts:
             return False
         origin = self.headers.get("Origin")
         if origin is None:
             return True
-        port = self.server.server_address[1] if isinstance(self.server.server_address, tuple) else 0
-        allowed = {f"http://{name}:{port}" for name in ALLOWED_HOSTS}
-        return origin in allowed
+        parts = urllib.parse.urlsplit(origin)
+        return parts.scheme in ("http", "https") and _without_port(parts.netloc) in self.allowed_hosts
+
+    def _authorised(self) -> bool:
+        """The password, when one is set.
+
+        HTTP Basic rather than a login page: the browser asks once, remembers,
+        and attaches it to every request the page makes, so the page needs no
+        session code. Compared in constant time, so a wrong guess takes as
+        long as a near miss.
+        """
+        if not self.password:
+            return True
+        scheme, _, encoded = self.headers.get("Authorization", "").partition(" ")
+        if scheme.lower() != "basic" or not encoded.strip():
+            return False
+        try:
+            decoded = base64.b64decode(encoded.strip(), validate=True).decode("utf-8")
+        except (ValueError, UnicodeDecodeError):
+            return False
+        _, _, supplied = decoded.partition(":")
+        return hmac.compare_digest(supplied.encode("utf-8"), self.password.encode("utf-8"))
+
+    def _challenge(self) -> None:
+        body = json.dumps({"error": "password required"}).encode("utf-8")
+        self.send_response(401)
+        self.send_header("WWW-Authenticate", AUTH_CHALLENGE)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.end_headers()
+        self.wfile.write(body)
 
     def _read_json(self) -> dict[str, Any]:
         length = int(self.headers.get("Content-Length", "0"))
@@ -145,8 +208,16 @@ class Handler(BaseHTTPRequestHandler):
     # ---------------------------------------------------------------- Routes
 
     def do_GET(self) -> None:  # noqa: N802 - BaseHTTPRequestHandler's naming
+        if self.path == "/healthz":
+            # For a host's health check. No data and no checks: it says the
+            # process is up and nothing else.
+            self._json({"ok": True})
+            return
         if not self._request_is_ours():
             self._json({"error": "refused"}, 403)
+            return
+        if not self._authorised():
+            self._challenge()
             return
         try:
             if self.path in ("/", "/index.html"):
@@ -174,6 +245,9 @@ class Handler(BaseHTTPRequestHandler):
         payload = self._read_json()
         if not self._request_is_ours():
             self._json({"error": "refused"}, 403)
+            return
+        if not self._authorised():
+            self._challenge()
             return
         try:
             if self.path == "/api/note":
@@ -313,6 +387,9 @@ class Handler(BaseHTTPRequestHandler):
 
     def _capture(self) -> None:
         """Your week from your commits. Reads git history only, never files."""
+        refresh = self.before_capture
+        if refresh is not None:
+            refresh()
         note, activity = capture_week([pathlib.Path(p) for p in self.repos], days=7)
         self._json(
             {
@@ -363,12 +440,31 @@ def serve(
     port: int = 8765,
     forever: bool = True,
     repos: tuple[str, ...] = (),
+    host: str = HOST,
+    allowed_hosts: frozenset[str] = ALLOWED_HOSTS,
+    password: str | None = None,
+    before_capture: Callable[[], None] | None = None,
 ) -> HTTPServer:
-    """Starts the interface. Returns the server so tests can drive it."""
-    handler: type[Handler] = type("BoundHandler", (Handler,), {"studio": studio, "repos": repos})
-    server = HTTPServer((HOST, port), handler)
+    """Starts the interface. Returns the server so tests can drive it.
+
+    Binding anywhere but loopback needs a password. Without one the only
+    thing keeping strangers out is that they cannot reach the socket, and a
+    wider bind is precisely what lets them.
+    """
+    if host not in LOOPBACK_BINDS and not password:
+        raise ValueError(f"refusing to listen on {host} without a password: set POST_STUDIO_PASSWORD")
+    attrs: dict[str, object] = {
+        "studio": studio,
+        "repos": repos,
+        "allowed_hosts": frozenset(allowed_hosts),
+        "password": password or "",
+        # Wrapped so the class does not turn it into a method of the handler.
+        "before_capture": None if before_capture is None else staticmethod(before_capture),
+    }
+    handler: type[Handler] = type("BoundHandler", (Handler,), attrs)
+    server = HTTPServer((host, port), handler)
     if forever:
-        print(f"\n  Open http://{HOST}:{port} in your browser\n  Ctrl-C to stop\n")
+        print(f"\n  Open http://{host}:{port} in your browser\n  Ctrl-C to stop\n")
         try:
             server.serve_forever()
         except KeyboardInterrupt:
@@ -378,4 +474,4 @@ def serve(
     return server
 
 
-__all__ = ["serve", "Handler", "HOST"]
+__all__ = ["serve", "Handler", "HOST", "ALLOWED_HOSTS", "LOOPBACK_BINDS"]

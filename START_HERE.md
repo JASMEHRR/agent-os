@@ -132,6 +132,40 @@ real drafts.
 
 ---
 
+## Hosting it (optional)
+
+The studio runs on your machine, and that is the default. If you want it at a
+URL you can open from your phone, the repo carries a `Dockerfile` and a
+`render.yaml`, which is enough for Render's free tier:
+
+1. At **https://dashboard.render.com**, sign in with GitHub, choose **New**,
+   then **Blueprint**, and pick this repository. Render reads `render.yaml`.
+2. It asks for two values: `GROQ_API_KEY`, the same key as step 1 above, and
+   `POST_STUDIO_PASSWORD`, which the browser will ask you for when you open
+   the page. Choose something you will remember; there is no reset flow.
+3. Deploy. The dashboard shows the address, something like
+   `https://post-studio-xxxx.onrender.com`.
+
+What is different when it is hosted:
+
+- **A password is required.** On your machine only your machine can reach
+  it. On the internet everything can, so the server refuses to start without
+  `POST_STUDIO_PASSWORD`. The browser asks once and remembers.
+- **"Pull this week from my git" reads clones, not neighbours.** `REPO_URLS`
+  in `render.yaml` lists the repositories. They are cloned on first use and
+  pulled before every capture. A private repository is reported on the page
+  as unreadable unless its URL carries a token.
+- **The free tier forgets.** It has no disk, so `agent.db` (drafts, ratings,
+  voice samples) is reset by every deploy, and the service sleeps after a
+  while without traffic and takes a moment to wake. A paid plan with a disk
+  at `/data` keeps everything; the block for it is in `render.yaml`.
+
+Anywhere else that runs a Docker image works the same way. Set
+`POST_STUDIO_PASSWORD`, `GROQ_API_KEY`, and `POST_STUDIO_ALLOWED_HOSTS` to the
+hostname people will type (Render fills that one in itself).
+
+---
+
 ## Where things live
 
 | What | Where |
