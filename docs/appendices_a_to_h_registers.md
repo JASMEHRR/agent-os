@@ -23,7 +23,7 @@ refuse, fails the suite. A declaration nothing checks is a wish.
 | `persistence` | libs | S0 | implemented to stage exit criteria | 4 | 16 |
 | `agent_runtime` | services | S7 | implemented to stage exit criteria | 3 | 45 |
 | `api_gateway` | services | S8 | implemented to stage exit criteria | 6 | 44 |
-| `content_agent` | services | A1 | implemented to stage exit criteria | 9 | 85 |
+| `content_agent` | services | A1 | implemented to stage exit criteria | 10 | 100 |
 | `cost_manager` | services | S3 | implemented to stage exit criteria | 3 | 28 |
 | `decision_gateway` | services | S5 | implemented to stage exit criteria | 4 | 62 |
 | `deployment_gateway` | services | S11 | implemented to stage exit criteria | 1 | 0 |
@@ -49,7 +49,7 @@ refuse, fails the suite. A declaration nothing checks is a wish.
 
 ## Appendix B - Interface Register
 
-364 public methods across 24 Gateway facades,
+365 public methods across 24 Gateway facades,
 read by introspection so a rename cannot go unrecorded.
 
 | Module | Facade | Method |
@@ -75,6 +75,7 @@ read by introspection so a rename cannot go unrecorded.
 | `content_agent` | `ContentStudio` | `approve_note(self, draft_id: 'str', principal_id: 'str') -> 'OutreachDraft'` |
 | `content_agent` | `ContentStudio` | `awaiting_approval(self) -> 'list[PostDraft]'` |
 | `content_agent` | `ContentStudio` | `capture(self, body: 'str', angle: 'str' = '') -> 'WeeklyNote'` |
+| `content_agent` | `ContentStudio` | `check_in(self, said: 'str') -> 'tuple[str, list[dict[str, str]]]'` |
 | `content_agent` | `ContentStudio` | `discard(self, draft_id: 'str') -> 'PostDraft'` |
 | `content_agent` | `ContentStudio` | `draft(self, note: 'WeeklyNote', channel: 'Channel' = <Channel.LINKEDIN: 'linkedin'>) -> 'PostDraft'` |
 | `content_agent` | `ContentStudio` | `draft_everywhere(self, note: 'WeeklyNote') -> 'list[PostDraft]'` |

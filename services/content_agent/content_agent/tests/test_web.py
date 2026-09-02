@@ -241,3 +241,67 @@ def test_a_same_origin_post_is_accepted(server) -> None:
     )
     with urllib.request.urlopen(request, timeout=10) as response:  # nosec B310
         assert response.status == 200
+
+
+# ---------------------------------------------------------------- Hosted
+
+
+@pytest.fixture
+def hosted():
+    """The hosted shape: a password set, every /api route gated."""
+    studio = ContentStudio(
+        complete=lambda prompt, max_tokens: CANNED,
+        notes=InMemoryRepository(),
+        drafts=InMemoryRepository(),
+    )
+    httpd = serve(studio, port=0, forever=False, password="correct-horse")
+    thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    thread.start()
+    yield f"http://127.0.0.1:{httpd.server_address[1]}"
+    httpd.shutdown()
+    httpd.server_close()
+
+
+def test_hosted_api_requires_login_but_the_page_does_not(hosted) -> None:
+    """The page carries nothing private and holds the login form, so it is
+    served; everything under /api needs the cookie."""
+    with urllib.request.urlopen(hosted, timeout=10) as response:  # nosec B310
+        assert response.status == 200
+    status, body = call(hosted, "/api/state")
+    assert status == 401 and body.get("login") is True
+
+
+def test_hosted_wrong_password_is_refused_and_right_one_grants_a_cookie(hosted) -> None:
+    status, _ = call(hosted, "/api/login", {"password": "nope"})
+    assert status == 401
+
+    request = urllib.request.Request(
+        f"{hosted}/api/login",
+        data=json.dumps({"password": "correct-horse"}).encode(),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    with urllib.request.urlopen(request, timeout=10) as response:  # nosec B310
+        cookie = response.headers.get("Set-Cookie", "")
+    assert cookie.startswith("studio=") and "HttpOnly" in cookie and "SameSite=Strict" in cookie
+
+    token = cookie.split(";")[0]
+    authed = urllib.request.Request(f"{hosted}/api/state", headers={"Cookie": token})
+    with urllib.request.urlopen(authed, timeout=10) as response:  # nosec B310
+        assert response.status == 200
+
+
+def test_hosted_still_refuses_cross_origin_writes(hosted) -> None:
+    """Login does not relax the Origin check; a foreign page with a stolen
+    cookie still cannot approve or discard drafts."""
+    request = urllib.request.Request(
+        f"{hosted}/api/discard",
+        data=json.dumps({"draft_id": "x"}).encode(),
+        headers={"Content-Type": "application/json", "Origin": "https://evil.example"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=10):  # nosec B310
+            raise AssertionError("accepted a cross-origin write on the hosted copy")
+    except urllib.error.HTTPError as exc:
+        assert exc.code == 403

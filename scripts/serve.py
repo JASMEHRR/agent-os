@@ -18,13 +18,16 @@ sys.path.insert(0, str(REPO))
 import conftest  # noqa: E402, F401 - imported for the sys.path setup it performs
 from content_agent import ContentStudio, PostDraft, WeeklyNote  # noqa: E402
 from content_agent.outreach import OutreachDraft, Prospect  # noqa: E402
+from content_agent.persona import CheckIn, Fact, Persona  # noqa: E402
 from content_agent.samples import Rating, VoiceLibrary, VoiceSample  # noqa: E402
 from content_agent.web import serve  # noqa: E402
 from llm_router.backends import backends_from_environment  # noqa: E402
 from persistence import SQLiteRepository, open_database  # noqa: E402
 from scripts.env_file import load as load_env  # noqa: E402
 
-DB_PATH = REPO / "agent.db"
+#: On this laptop, beside the repo. On a host, wherever the persistent volume
+#: is mounted, because a free host's default disk is wiped on every restart.
+DB_PATH = pathlib.Path(os.environ.get("DB_PATH", str(REPO / "agent.db")))
 PORT = 8765
 
 #: Repositories the "pull from git" button reads, commit messages only.
@@ -87,6 +90,10 @@ def build_studio() -> ContentStudio:
             SQLiteRepository(connection, "voice_samples", VoiceSample),
             SQLiteRepository(connection, "voice_ratings", Rating),
         ),
+        persona=Persona(
+            SQLiteRepository(connection, "persona_facts", Fact),
+            SQLiteRepository(connection, "persona_checkins", CheckIn),
+        ),
     )
 
 
@@ -112,4 +119,12 @@ def preflight() -> int:
 if __name__ == "__main__":
     if "--check" in sys.argv:
         raise SystemExit(preflight())
-    serve(build_studio(), port=PORT, repos=repos_from_environment())
+    # STUDIO_PASSWORD set means "hosted": bind every interface and require a
+    # login. Unset means "this laptop": loopback only, no login, because
+    # reachability is the authorisation there.
+    serve(
+        build_studio(),
+        port=int(os.environ.get("PORT", PORT)),
+        repos=repos_from_environment(),
+        password=os.environ.get("STUDIO_PASSWORD", ""),
+    )

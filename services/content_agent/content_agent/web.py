@@ -20,6 +20,8 @@ Design decisions that are actually about safety rather than taste:
 
 from __future__ import annotations
 
+import hashlib
+import hmac
 import json
 import pathlib
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -29,6 +31,7 @@ from content_agent.capabilities import survey, totals
 from content_agent.capture import capture_week
 from content_agent.formats import Channel
 from content_agent.outreach import OutreachChannel, prospect_from
+from content_agent.persona import Area
 from content_agent.studio import ContentStudio
 
 PAGE = (pathlib.Path(__file__).parent / "page.html").read_text(encoding="utf-8")
@@ -85,6 +88,10 @@ class Handler(BaseHTTPRequestHandler):
     #: Repositories capture reads, commit messages only. Set by `serve`.
     #: Empty means the button produces nothing, which the page reports.
     repos: tuple[str, ...] = ()
+    #: Empty means "this laptop": loopback only, no login, reachability is the
+    #: authorisation. Set means "hosted": every /api route needs the cookie
+    #: that a correct password grants. One user, one password, no accounts.
+    password: str = ""
 
     # Silences the default one-line-per-request logging, which buries the
     # single line that matters (the startup URL) within seconds.
@@ -125,15 +132,56 @@ class Handler(BaseHTTPRequestHandler):
         state and a way to seed it into the page; for a loopback server with
         one user, these two headers close the paths that actually exist.
         """
-        host = self.headers.get("Host", "").rsplit(":", 1)[0]
+        host_header = self.headers.get("Host", "")
+        origin = self.headers.get("Origin")
+        if self.password:
+            # Hosted: the host is whatever the platform gave us, so the Host
+            # check cannot be a fixed list. The Origin check still holds: a
+            # cross-site write must carry a foreign Origin, and ours is the
+            # Host we were reached at, over either scheme the proxy may use.
+            if origin is None:
+                return True
+            return origin in {f"https://{host_header}", f"http://{host_header}"}
+        host = host_header.rsplit(":", 1)[0]
         if host not in ALLOWED_HOSTS:
             return False
-        origin = self.headers.get("Origin")
         if origin is None:
             return True
         port = self.server.server_address[1] if isinstance(self.server.server_address, tuple) else 0
         allowed = {f"http://{name}:{port}" for name in ALLOWED_HOSTS}
         return origin in allowed
+
+    # ------------------------------------------------------------------ Auth
+
+    def _token(self) -> str:
+        """The cookie value a correct password earns. Derived, not stored, so a
+        password change invalidates every existing session."""
+        return hashlib.sha256(f"studio:{self.password}".encode()).hexdigest()
+
+    def _authorized(self) -> bool:
+        if not self.password:
+            return True
+        cookie = self.headers.get("Cookie", "")
+        for part in cookie.split(";"):
+            name, _, value = part.strip().partition("=")
+            if name == "studio" and hmac.compare_digest(value, self._token()):
+                return True
+        return False
+
+    def _login(self, payload: dict[str, Any]) -> None:
+        given = str(payload.get("password", ""))
+        if not self.password or not hmac.compare_digest(given, self.password):
+            self._json({"error": "Wrong password."}, 401)
+            return
+        body = json.dumps({"ok": True}).encode("utf-8")
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        # HttpOnly so the page's own scripts never see it; SameSite=Strict so
+        # no other site can ride it; Secure is added by the host's TLS proxy.
+        self.send_header("Set-Cookie", f"studio={self._token()}; HttpOnly; SameSite=Strict; Path=/; Max-Age=2592000")
+        self.end_headers()
+        self.wfile.write(body)
 
     def _read_json(self) -> dict[str, Any]:
         length = int(self.headers.get("Content-Length", "0"))
@@ -148,6 +196,11 @@ class Handler(BaseHTTPRequestHandler):
         if not self._request_is_ours():
             self._json({"error": "refused"}, 403)
             return
+        # The page itself is always served; it contains nothing private and it
+        # is where the login form lives. Everything under /api needs the cookie.
+        if self.path.startswith("/api/") and not self._authorized():
+            self._json({"error": "login required", "login": True}, 401)
+            return
         try:
             if self.path in ("/", "/index.html"):
                 self._send(200, PAGE.encode("utf-8"), "text/html; charset=utf-8")
@@ -159,6 +212,8 @@ class Handler(BaseHTTPRequestHandler):
                 self._capture()
             elif self.path == "/api/voice":
                 self._voice()
+            elif self.path == "/api/persona":
+                self._persona()
             else:
                 self._json({"error": "not found"}, 404)
         except Exception as exc:  # noqa: BLE001
@@ -174,6 +229,12 @@ class Handler(BaseHTTPRequestHandler):
         payload = self._read_json()
         if not self._request_is_ours():
             self._json({"error": "refused"}, 403)
+            return
+        if self.path == "/api/login":
+            self._login(payload)
+            return
+        if not self._authorized():
+            self._json({"error": "login required", "login": True}, 401)
             return
         try:
             if self.path == "/api/note":
@@ -194,6 +255,12 @@ class Handler(BaseHTTPRequestHandler):
                 self._rate(payload)
             elif self.path == "/api/sample":
                 self._sample(payload)
+            elif self.path == "/api/checkin":
+                self._checkin(payload)
+            elif self.path == "/api/confirm-fact":
+                self._confirm_fact(payload)
+            elif self.path == "/api/retire-fact":
+                self._retire_fact(payload)
             else:
                 self._json({"error": "not found"}, 404)
         except Exception as exc:  # noqa: BLE001
@@ -210,6 +277,7 @@ class Handler(BaseHTTPRequestHandler):
             "attention": [_draft_json(d) for d in self.studio.needs_attention()],
             "health": self.studio.health(),
             "voice": self.studio.library.health(),
+            "persona": self.studio.persona.health(),
             "prospects": [
                 {
                     "prospect_id": p.prospect_id,
@@ -321,6 +389,46 @@ class Handler(BaseHTTPRequestHandler):
             }
         )
 
+    # --------------------------------------------------------------- Persona
+
+    def _checkin(self, payload: dict[str, Any]) -> None:
+        """You talk about your week; it proposes what it learned. Nothing is
+        kept until you confirm each fact."""
+        try:
+            checkin_id, proposed = self.studio.check_in(str(payload.get("said", "")))
+        except ValueError as exc:
+            self._json({"error": str(exc)}, 400)
+            return
+        self._json({"checkin_id": checkin_id, "proposed": proposed})
+
+    def _confirm_fact(self, payload: dict[str, Any]) -> None:
+        try:
+            fact = self.studio.persona.confirm(
+                Area(str(payload.get("area", "life"))),
+                str(payload.get("text", "")),
+                source_checkin=str(payload.get("checkin_id", "")),
+                supersedes=str(payload.get("supersedes", "")),
+            )
+        except ValueError as exc:
+            self._json({"error": str(exc)}, 400)
+            return
+        self._json({"fact_id": fact.fact_id, "persona": self.studio.persona.health()})
+
+    def _retire_fact(self, payload: dict[str, Any]) -> None:
+        self.studio.persona.retire(str(payload.get("fact_id", "")))
+        self._json({"persona": self.studio.persona.health()})
+
+    def _persona(self) -> None:
+        self._json(
+            {
+                "health": self.studio.persona.health(),
+                "facts": [
+                    {"fact_id": f.fact_id, "area": f.area.value, "text": f.text} for f in self.studio.persona.facts()
+                ],
+                "areas": [a.value for a in Area],
+            }
+        )
+
     # -------------------------------------------------------------- Outreach
 
     def _prospect(self, payload: dict[str, Any]) -> None:
@@ -363,10 +471,18 @@ def serve(
     port: int = 8765,
     forever: bool = True,
     repos: tuple[str, ...] = (),
+    password: str = "",  # nosec B107 - empty means "no login, loopback only", not a credential
 ) -> HTTPServer:
-    """Starts the interface. Returns the server so tests can drive it."""
-    handler: type[Handler] = type("BoundHandler", (Handler,), {"studio": studio, "repos": repos})
-    server = HTTPServer((HOST, port), handler)
+    """Starts the interface. Returns the server so tests can drive it.
+
+    A password is the switch between the two deployment shapes. Without one
+    the server binds loopback and asks nothing, because only this machine can
+    reach it. With one it binds every interface, because a host's proxy has to
+    reach it, and every /api route demands the cookie a login grants.
+    """
+    handler: type[Handler] = type("BoundHandler", (Handler,), {"studio": studio, "repos": repos, "password": password})
+    bind = "0.0.0.0" if password else HOST  # nosec B104 - deliberate, gated on a password being set
+    server = HTTPServer((bind, port), handler)
     if forever:
         print(f"\n  Open http://{HOST}:{port} in your browser\n  Ctrl-C to stop\n")
         try:
