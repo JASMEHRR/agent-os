@@ -95,7 +95,7 @@ def main() -> None:
         notes=SQLiteRepository(connection, "demo_notes", WeeklyNote),
         drafts=SQLiteRepository(connection, "demo_drafts", PostDraft),
     )
-    serve(studio, port=8766)
+    serve(studio, port=8766, repos=(str(REPO), str(REPO.parent / "ventureadda")))
 
 
 if __name__ == "__main__":

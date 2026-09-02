@@ -26,6 +26,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from typing import Any
 
 from content_agent.capabilities import survey, totals
+from content_agent.capture import capture_week
 from content_agent.formats import Channel
 from content_agent.outreach import OutreachChannel, prospect_from
 from content_agent.studio import ContentStudio
@@ -81,6 +82,9 @@ class Handler(BaseHTTPRequestHandler):
 
     studio: ContentStudio
     principal: str = "jasmehr"
+    #: Repositories capture reads, commit messages only. Set by `serve`.
+    #: Empty means the button produces nothing, which the page reports.
+    repos: tuple[str, ...] = ()
 
     # Silences the default one-line-per-request logging, which buries the
     # single line that matters (the startup URL) within seconds.
@@ -151,6 +155,10 @@ class Handler(BaseHTTPRequestHandler):
                 self._json(self._state())
             elif self.path == "/api/capabilities":
                 self._json({"capabilities": survey(), "totals": totals()})
+            elif self.path == "/api/capture":
+                self._capture()
+            elif self.path == "/api/voice":
+                self._voice()
             else:
                 self._json({"error": "not found"}, 404)
         except Exception as exc:  # noqa: BLE001
@@ -182,6 +190,10 @@ class Handler(BaseHTTPRequestHandler):
                 self._outreach(payload)
             elif self.path == "/api/approve-note":
                 self._approve_note(payload)
+            elif self.path == "/api/rate":
+                self._rate(payload)
+            elif self.path == "/api/sample":
+                self._sample(payload)
             else:
                 self._json({"error": "not found"}, 404)
         except Exception as exc:  # noqa: BLE001
@@ -197,6 +209,7 @@ class Handler(BaseHTTPRequestHandler):
             "waiting": [_draft_json(d) for d in self.studio.awaiting_approval()],
             "attention": [_draft_json(d) for d in self.studio.needs_attention()],
             "health": self.studio.health(),
+            "voice": self.studio.library.health(),
             "prospects": [
                 {
                     "prospect_id": p.prospect_id,
@@ -253,6 +266,61 @@ class Handler(BaseHTTPRequestHandler):
         draft_id = str(payload.get("draft_id", ""))
         self._json({"draft": _draft_json(self.studio.discard(draft_id))})
 
+    # ----------------------------------------------------------------- Voice
+
+    def _rate(self, payload: dict[str, Any]) -> None:
+        """Your verdict on a draft.
+
+        "Sounds like me", with the text you approved, becomes an example the
+        next draft learns from. Edited text is marked, because the diff between
+        the draft and your edit is exactly where the model was wrong about you.
+        """
+        draft_id = str(payload.get("draft_id", ""))
+        sounds = bool(payload.get("sounds_like_me", False))
+        self.studio.library.rate(draft_id, sounds, str(payload.get("note", "")))
+        if sounds:
+            draft = self.studio._drafts.get(draft_id)
+            final = str(payload.get("text", "")).strip() or draft.full_text()
+            try:
+                self.studio.library.add_sample(
+                    draft.channel, final, from_draft_id=draft_id, edited=final != draft.full_text()
+                )
+            except ValueError as exc:
+                self._json({"error": str(exc)}, 400)
+                return
+        self._json({"voice": self.studio.library.health()})
+
+    def _sample(self, payload: dict[str, Any]) -> None:
+        """Text you supply directly as an example of you: the refined posts."""
+        channel = Channel(str(payload.get("channel", "linkedin")))
+        try:
+            sample = self.studio.library.add_sample(channel, str(payload.get("text", "")), edited=True)
+        except ValueError as exc:
+            self._json({"error": str(exc)}, 400)
+            return
+        self._json({"sample_id": sample.sample_id, "voice": self.studio.library.health()})
+
+    def _voice(self) -> None:
+        self._json(
+            {
+                "health": self.studio.library.health(),
+                "samples": [
+                    {"sample_id": s.sample_id, "channel": s.channel.value, "text": s.text, "edited": s.edited}
+                    for s in self.studio.library.samples()
+                ],
+            }
+        )
+
+    def _capture(self) -> None:
+        """Your week from your commits. Reads git history only, never files."""
+        note, activity = capture_week([pathlib.Path(p) for p in self.repos], days=7)
+        self._json(
+            {
+                "note": note,
+                "repos": [{"name": a.name, "commits": len(a.commits), "error": a.error} for a in activity],
+            }
+        )
+
     # -------------------------------------------------------------- Outreach
 
     def _prospect(self, payload: dict[str, Any]) -> None:
@@ -290,9 +358,14 @@ class Handler(BaseHTTPRequestHandler):
         self._json({"note": _note_json(self.studio.approve_note(draft_id, self.principal))})
 
 
-def serve(studio: ContentStudio, port: int = 8765, forever: bool = True) -> HTTPServer:
+def serve(
+    studio: ContentStudio,
+    port: int = 8765,
+    forever: bool = True,
+    repos: tuple[str, ...] = (),
+) -> HTTPServer:
     """Starts the interface. Returns the server so tests can drive it."""
-    handler: type[Handler] = type("BoundHandler", (Handler,), {"studio": studio})
+    handler: type[Handler] = type("BoundHandler", (Handler,), {"studio": studio, "repos": repos})
     server = HTTPServer((HOST, port), handler)
     if forever:
         print(f"\n  Open http://{HOST}:{port} in your browser\n  Ctrl-C to stop\n")

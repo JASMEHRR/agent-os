@@ -40,14 +40,34 @@ second to start.
 
 ## Using it
 
-1. **Type what you did this week** in the big box. Plain sentences. Include
-   real numbers if you have them.
+1. **Press "Pull this week from my git."** The box fills itself from your
+   commit messages. Or type what you did, or press "Speak it instead" and talk.
 2. **Tick the channels** you want. LinkedIn is on by default.
-3. **Press "Write my post."** Takes 10 to 30 seconds.
-4. **Read what comes back.** Approve the ones you like, discard the rest.
-   Approving copies the text to your clipboard so you can paste it straight in.
+3. **Press "Write my drafts."** Takes 10 to 30 seconds.
+4. **Read what comes back** on the Review tab. Approve the ones you like,
+   discard the rest. Approving copies the text so you can paste it straight in.
+5. **Press "Sounds like me"** on any draft that does. That draft becomes an
+   example every future draft is written against. Press "Not me" on the
+   ones that do not, and it will not learn from them.
 
-That is the whole thing.
+That is the whole thing. The more you rate, the less you have to edit.
+
+### Teaching it your voice faster
+
+The **Voice** tab takes posts you have written or refined. Paste one, pick
+the channel, add it. Five good examples changes the output more than any
+amount of rules, and it keeps working after the model underneath changes,
+because the examples travel with every prompt.
+
+Only text you approve ever gets in. It cannot learn from its own unrated
+drafts, so it learns you rather than itself.
+
+### People
+
+The **People** tab drafts a personalised note to someone worth knowing. You
+give the name and the specific reason (a talk, a project, a post). It writes
+the note; you send it. There is no send button, because LinkedIn has no API
+for invitations and automating that gets accounts restricted.
 
 ### What makes a good note
 

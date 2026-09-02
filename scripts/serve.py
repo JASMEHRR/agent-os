@@ -8,6 +8,7 @@ nothing. Bound to loopback, so nothing outside this machine can reach it.
 
 from __future__ import annotations
 
+import os
 import pathlib
 import sys
 
@@ -16,6 +17,8 @@ sys.path.insert(0, str(REPO))
 
 import conftest  # noqa: E402, F401 - imported for the sys.path setup it performs
 from content_agent import ContentStudio, PostDraft, WeeklyNote  # noqa: E402
+from content_agent.outreach import OutreachDraft, Prospect  # noqa: E402
+from content_agent.samples import Rating, VoiceLibrary, VoiceSample  # noqa: E402
 from content_agent.web import serve  # noqa: E402
 from llm_router.backends import backends_from_environment  # noqa: E402
 from persistence import SQLiteRepository, open_database  # noqa: E402
@@ -23,6 +26,22 @@ from scripts.env_file import load as load_env  # noqa: E402
 
 DB_PATH = REPO / "agent.db"
 PORT = 8765
+
+#: Repositories the "pull from git" button reads, commit messages only.
+#: Override with REPOS in .env as a semicolon-separated list of paths.
+DEFAULT_REPOS = (
+    str(REPO),
+    str(REPO.parent / "ventureadda"),
+    str(REPO.parent / "ASCEND"),
+    str(REPO.parent / "clipforge"),
+)
+
+
+def repos_from_environment() -> tuple[str, ...]:
+    raw = os.environ.get("REPOS", "")
+    if raw.strip():
+        return tuple(part.strip() for part in raw.split(";") if part.strip())
+    return tuple(p for p in DEFAULT_REPOS if pathlib.Path(p).exists())
 
 
 def build_studio() -> ContentStudio:
@@ -60,6 +79,14 @@ def build_studio() -> ContentStudio:
         complete=complete,
         notes=SQLiteRepository(connection, "linkedin_notes", WeeklyNote),
         drafts=SQLiteRepository(connection, "linkedin_drafts", PostDraft),
+        prospects=SQLiteRepository(connection, "prospects", Prospect),
+        outreach=SQLiteRepository(connection, "outreach_drafts", OutreachDraft),
+        # Durable on purpose. Samples are the accumulated record of what
+        # sounds like you; losing them on restart would reset the voice.
+        library=VoiceLibrary(
+            SQLiteRepository(connection, "voice_samples", VoiceSample),
+            SQLiteRepository(connection, "voice_ratings", Rating),
+        ),
     )
 
 
@@ -85,4 +112,4 @@ def preflight() -> int:
 if __name__ == "__main__":
     if "--check" in sys.argv:
         raise SystemExit(preflight())
-    serve(build_studio(), port=PORT)
+    serve(build_studio(), port=PORT, repos=repos_from_environment())

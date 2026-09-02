@@ -86,6 +86,29 @@ CATALOGUE: tuple[Capability, ...] = (
         wired=True,
     ),
     Capability(
+        key="voice",
+        title="Write like you, and keep getting closer",
+        plain=(
+            "Every draft is written against examples of your own writing. Rate a draft "
+            "'sounds like me' and it becomes one. Only text you approve ever gets in, so it "
+            "learns you rather than its own habits, and a run of 'not me' shows up in the "
+            "numbers before anyone would notice by reading."
+        ),
+        modules=("content_agent", "learning_gateway"),
+        wired=True,
+    ),
+    Capability(
+        key="capture",
+        title="Read your week from your commits",
+        plain=(
+            "One button fills the note from your commit messages across your projects, so "
+            "you do not write the week twice. Reads git history only, never file contents, "
+            "and a test plants a secret in a file to prove it."
+        ),
+        modules=("content_agent",),
+        wired=True,
+    ),
+    Capability(
         key="approve",
         title="Hold everything for your approval",
         plain=(
@@ -128,8 +151,7 @@ CATALOGUE: tuple[Capability, ...] = (
             "gets accounts restricted."
         ),
         modules=("content_agent", "knowledge_gateway"),
-        wired=False,
-        missing="the drafting side is next; sending stays manual by design",
+        wired=True,
     ),
     Capability(
         key="learn",

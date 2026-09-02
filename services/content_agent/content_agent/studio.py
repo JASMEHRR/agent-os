@@ -49,6 +49,7 @@ from content_agent.outreach import (
     Prospect,
     check_note,
 )
+from content_agent.samples import VoiceLibrary, render_examples
 from content_agent.voice import VOICE_BRIEF, VoiceViolation, check, redraft_instruction
 
 #: Attempts before a draft is kept as REJECTED. Three because the first fix
@@ -90,13 +91,17 @@ class DraftingFailed(RuntimeError):
     """The model returned nothing usable."""
 
 
-def _prompt(note: WeeklyNote, spec: FormatSpec, correction: str = "") -> str:
+def _prompt(note: WeeklyNote, spec: FormatSpec, correction: str = "", examples: str = "") -> str:
     angle = f"\nAngle to take: {note.angle}" if note.angle else ""
     correction_block = f"\n\n{correction}" if correction else ""
+    # Examples sit between the rules and the notes. Rules first so the
+    # examples are read as instances of them; notes last so the model's most
+    # recent context is the facts it must not stray from.
+    examples_block = f"\n\n{examples}" if examples else ""
     keys = ", ".join(f'"{field}": "..."' for field in spec.fields)
     return f"""{VOICE_BRIEF}
 
-{spec.brief}
+{spec.brief}{examples_block}
 
 Aim for roughly {spec.target_words} words.
 
@@ -207,11 +212,16 @@ class ContentStudio:
         clock: Callable[[], datetime] = lambda: datetime.now(UTC),
         prospects: Store | None = None,
         outreach: Store | None = None,
+        library: VoiceLibrary | None = None,
     ) -> None:
         self._complete = complete
         self._notes = notes
         self._drafts = drafts
         self._clock = clock
+        # The voice library is what makes the output sound like you rather
+        # than like a model following rules about you. Optional so existing
+        # callers keep working; with none supplied it drafts from rules alone.
+        self.library: VoiceLibrary = library if library is not None else VoiceLibrary(_Memory(), _Memory())
         # Optional so every existing caller keeps working. An in-memory
         # fallback is right here: an outreach list that vanishes on restart is
         # a worse product but not a broken one, and forcing every caller to
@@ -254,12 +264,13 @@ class ContentStudio:
 
         spec = SPECS[channel]
         budget = TOKEN_BUDGET[channel]
+        examples = render_examples(self.library.for_prompt(channel), channel)
         correction = ""
         last: tuple[str, str, str, tuple[str, ...]] = ("", "", "", ())
         outstanding: tuple[str, ...] = ()
 
         for attempt in range(MAX_REDRAFTS):
-            parsed = _parse(self._complete(_prompt(note, spec, correction), budget))
+            parsed = _parse(self._complete(_prompt(note, spec, correction, examples), budget))
             hook, body, close, tags = _extract(parsed, channel)
             last = (hook, body, close, tags)
 
