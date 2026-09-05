@@ -1,6 +1,6 @@
-# Seven candidates, 2026-09-05
+# Eight candidates, 2026-09-05
 
-All seven pass `voice.py` `check()` with zero violations, and both newsletters
+All eight pass `voice.py` `check()` with zero violations, and both newsletters
 pass `check_newsletter()`. That is the floor, not the point. Each one carries a
 note on who it reaches and what it costs you.
 
@@ -233,6 +233,38 @@ I spent weeks writing a page that explained the product well. Explaining it well
 
 ---
 
+## H. The save that changed nothing
+
+**Hook**
+Three of my save buttons reported success and changed nothing. The form said done. The database disagreed.
+
+**Body**
+Removing a photo from a listing did nothing at all.
+
+The update payload only included the photo field when there was a photo. And a Firestore update that leaves a field out does not clear that field. It keeps whatever was already there.
+
+So the form showed the picture gone. The save reported success. The listing still had it.
+
+Clearing a price back to ask had the same shape and the same bug. So did taking an item out of a section. 3 features, one wrong assumption about what an absent field means.
+
+All three write null now, which is the idiom this file already used for stock and for a venture's logo, and which every reader here already turns back into absent.
+
+The lesson is not really about Firestore. Leaving a field out and setting it to empty are two different instructions, and only one of them was the one I meant.
+
+**Close**
+A save that succeeds and changes nothing is worse than one that fails. The failing one tells you.
+
+**Hashtags**
+#firestore #databases #debugging #productengineering
+
+> **Why it works.** Found only because capture started reading commit bodies,
+> which is a nice proof the fix worked. Same family as E and B, a bug that
+> reports success, but this one needs no specialist knowledge to follow: a
+> button that says done and does nothing is a thing anybody has met. The close
+> is the most reusable line of the three.
+
+---
+
 # Newsletter versions
 
 ## Newsletter A: the Amazon photos refusal
@@ -296,7 +328,11 @@ then craft.
 | **Week 1, Fri** | E. The check that never ran | craft |
 | **Week 2, Mon** | G. A door, not a brochure | your discipline |
 | **Week 2, Wed** | D. Who should never get the nudge | product |
-| **Week 2, Fri** | B. The rocket emoji | craft |
+| **Week 2, Fri** | H. The save that changed nothing | craft |
+
+B, the rocket emoji, is the reserve. It is the same family as E and H, a bug
+that reports success, so it goes in whichever of those you decide not to post
+rather than following one of them.
 
 C, the security one, sits outside the schedule on purpose. Post it when you
 have decided you want it public, not because a slot came up.
