@@ -64,3 +64,6 @@ agent.db-shm
 demo.db
 demo.db-wal
 demo.db-shm
+
+# LinkedIn token from scripts/linkedin_post.py. Posts as you; never commit it.
+.linkedin.json
