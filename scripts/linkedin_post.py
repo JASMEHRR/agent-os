@@ -62,19 +62,24 @@ PUBLORA_URL = "https://api.publora.com/api/v1/create-post"
 #: its author. Both come from self-serve products in the developer console.
 SCOPES = "openid profile w_member_social"
 
-#: The versioned APIs require this header, and LinkedIn retires versions on a
-#: rolling schedule. Overridable precisely because a pinned date in a source
-#: file ages: a 426 response means bump it, and the error message says so.
-DEFAULT_API_VERSION = "202508"
+#: The versioned APIs require this header, in YYYYMM. LinkedIn supports a
+#: version for at least a year and then sunsets it, so a date pinned in a
+#: source file is a thing that expires: 202508 was sunset on 2026-08-17, which
+#: is the kind of failure this constant exists to make one line to fix.
+#: Current versions are listed at
+#: https://learn.microsoft.com/en-us/linkedin/marketing/versioning
+DEFAULT_API_VERSION = "202608"
 
 #: LinkedIn truncates a post past this. Checked here so the failure is a
 #: sentence rather than a 422 from an API.
 MAX_POST_CHARS = 3000
 
 #: The versioned Posts API parses `commentary` as "Little Text", where these
-#: are markup rather than punctuation and have to be escaped to survive as
-#: themselves. A post full of stray backslashes means this list is wrong for
-#: the current version: set LINKEDIN_ESCAPE=0 and tell me.
+#: are markup rather than punctuation. LinkedIn's rule is that every reserved
+#: character is escaped whether or not it is being used as markup, and an
+#: unescaped one does not merely render oddly: an unescaped bracket truncates
+#: the post at that point, which is the worst possible way to find out.
+#: https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/little-text-format
 RESERVED_CHARS = "\\|{}@[]()<>#*_~"
 
 DEFAULT_REDIRECT = "http://localhost:8770/callback"
@@ -198,13 +203,17 @@ def _explain(status: int, detail: str) -> str:
             "add 'Share on LinkedIn' and 'Sign In with LinkedIn using OpenID Connect', "
             "then re-run auth so the new scopes are on the token."
         )
-    if status == 426:
-        return (
-            f"The API version is too old. Set LINKEDIN_API_VERSION to a newer YYYYMM "
-            f"(currently {api_version()}) and try again."
-        )
     if status == 429:
         return "LinkedIn is rate limiting. Wait and try again."
+    # A retired version comes back as 426, but not always: a 400 naming the
+    # version is the same problem wearing a different number, and the fix is
+    # identical, so both are reported as the fix rather than as the status.
+    if status == 426 or (status == 400 and "version" in detail.lower()):
+        return (
+            f"The API version {api_version()} is not accepted. LinkedIn sunsets versions "
+            f"about a year after release. Set LINKEDIN_API_VERSION to a current YYYYMM, "
+            f"listed at https://learn.microsoft.com/en-us/linkedin/marketing/versioning"
+        )
     return f"LinkedIn returned {status}: {detail[:400]}"
 
 
@@ -212,13 +221,22 @@ def api_version() -> str:
     return os.environ.get("LINKEDIN_API_VERSION", "").strip() or DEFAULT_API_VERSION
 
 
-def _api_headers(token: str) -> dict[str, str]:
-    return {
+def _api_headers(token: str, *, versioned: bool = True) -> dict[str, str]:
+    """Headers for one call.
+
+    `versioned` because the two endpoints used here are not the same age.
+    /rest/posts is a versioned API and refuses a request without the header.
+    /v2/socialActions is the older unversioned one, and sending it a version
+    it does not know about is a way to be refused for no reason.
+    """
+    headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json",
         "X-Restli-Protocol-Version": "2.0.0",
-        "LinkedIn-Version": api_version(),
     }
+    if versioned:
+        headers["LinkedIn-Version"] = api_version()
+    return headers
 
 
 # --------------------------------------------------------------------- OAuth
@@ -350,9 +368,13 @@ def fetch_member_urn(token: str) -> str:
 def escape_commentary(text: str) -> str:
     """Escapes what the Posts API treats as markup rather than punctuation.
 
-    A bracket or an underscore left raw can be read as formatting and either
-    vanish or take the rest of the line with it. Disable with LINKEDIN_ESCAPE=0
-    if a published post ever comes out wearing backslashes.
+    LinkedIn's rule is that every reserved character is escaped whether or not
+    it is being used as markup, and the failure is not cosmetic: an unescaped
+    bracket truncates the post at that point, so half a post publishes and
+    looks deliberate.
+
+    LINKEDIN_ESCAPE=0 turns it off, and is here for a format change rather
+    than for taste. Turning it off is how you get the truncation.
     """
     if os.environ.get("LINKEDIN_ESCAPE", "1").strip() == "0":
         return text
@@ -422,7 +444,7 @@ def publish_comment(creds: Credentials, post_urn: str, text: str, parent: str = 
     payload = _call(
         f"{SOCIAL_ACTIONS_URL}/{quoted}/comments",
         method="POST",
-        headers=_api_headers(creds.access_token),
+        headers=_api_headers(creds.access_token, versioned=False),
         body=json.dumps(body).encode("utf-8"),
     )
     return {"backend": "linkedin", "urn": str(payload.get("$URN", payload.get("id", "")))}

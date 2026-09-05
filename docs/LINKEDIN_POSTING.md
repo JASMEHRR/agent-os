@@ -104,14 +104,32 @@ fallback. When a post goes out this way it says so.
 |---|---|
 | `401` | The token expired or was revoked. Run `auth` again. |
 | `403` | A product is missing from the app. Add both from step 2, then re-run `auth` so the new permissions are on the token. |
-| `426` | The API version is retired. Set `LINKEDIN_API_VERSION` to a newer `YYYYMM` and try again. |
+| `426`, or a `400` mentioning the version | The API version is retired. Set `LINKEDIN_API_VERSION` to a current `YYYYMM` from [the versioning page](https://learn.microsoft.com/en-us/linkedin/marketing/versioning). |
 | `429` | Rate limited. Wait. |
-| Backslashes in a published post | The escaping list is wrong for the current API version. Set `LINKEDIN_ESCAPE=0` and say so, so it can be fixed properly. |
 
-That last one deserves a word. The versioned Posts API reads the post body as
-"Little Text", where characters like `(` and `_` are markup. The tool escapes
-them so they come out as themselves. If LinkedIn changes that list, escaping
-becomes visible, and the switch is there to turn it off in the meantime.
+## The two dates that expire
+
+**The API version.** LinkedIn supports each `YYYYMM` version for about a year
+and then sunsets it. The default here is `202608`. When it stops being
+accepted, one environment variable fixes it, and the error says exactly that.
+This is not hypothetical: the first version shipped in this file was `202508`,
+which LinkedIn sunset on 17 August 2026, so it was already dead on arrival.
+
+**Your token.** About two months. `check` counts down.
+
+## Why the post body gets backslashes added to it
+
+The versioned Posts API reads the body as
+[little text](https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/little-text-format),
+where `_ | ( ) [ ] { } @ # * ~ < > \` are markup. LinkedIn's rule is that every
+one of them is escaped whether or not you meant it as markup.
+
+This matters more than it sounds. An unescaped bracket does not render oddly,
+it **truncates the post at that point**, so half your post publishes and looks
+like you meant it. The tool escapes them for you.
+
+`LINKEDIN_ESCAPE=0` exists for a future format change, not as a preference.
+Turning it off is how you get the truncation.
 
 ## What this deliberately does not do
 

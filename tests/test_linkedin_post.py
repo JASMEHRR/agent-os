@@ -51,9 +51,13 @@ def test_reserved_characters_are_escaped_so_they_survive_as_themselves() -> None
     assert lp.escape_commentary("api/verify-thapar") == "api/verify-thapar"
 
 
-def test_escaping_can_be_switched_off_when_it_is_wrong(monkeypatch: pytest.MonkeyPatch) -> None:
-    """The escape list belongs to an API version that will move. If a post
-    ever publishes wearing backslashes, this is the way out."""
+def test_escaping_can_be_switched_off_but_should_almost_never_be(monkeypatch: pytest.MonkeyPatch) -> None:
+    """An escape hatch for a rule that could change, not a preference.
+
+    LinkedIn's little-text format requires the escaping, so switching it off
+    is how you get a post truncated at its first bracket. It exists so a
+    future format change is one variable rather than a code release.
+    """
     monkeypatch.setenv("LINKEDIN_ESCAPE", "0")
     assert lp.escape_commentary("a (b)") == "a (b)"
 
@@ -428,3 +432,43 @@ def test_credentials_round_trip_through_dataclass_asdict() -> None:
     """save_credentials writes asdict(), so a field added without a default
     would silently stop being saved."""
     assert set(dataclasses.asdict(LIVE)) == {"access_token", "member_urn", "expires_at"}
+
+
+# ------------------------------------------------------ Version and headers
+
+
+def test_the_default_version_is_not_one_linkedin_has_sunset() -> None:
+    """202508 was sunset on 2026-08-17 and shipped here as the default, which
+    would have failed the first real post. Versions last about a year, so the
+    default has to be recent enough to still be alive."""
+    assert lp.DEFAULT_API_VERSION >= "202608", "bump the default, see the versioning docs"
+
+
+def test_a_400_naming_the_version_is_reported_as_the_version_problem() -> None:
+    """A retired version is not always a 426. The fix is the same either way,
+    so the message is the fix rather than the status."""
+    message = lp._explain(400, "Requested version 202508 is not supported")
+
+    assert "LINKEDIN_API_VERSION" in message or "version" in message.lower()
+    assert "learn.microsoft.com" in message
+
+
+def test_an_ordinary_400_is_not_mistaken_for_a_version_problem() -> None:
+    assert "not accepted" not in lp._explain(400, "malformed request body")
+
+
+def test_the_versioned_api_gets_a_version_header_and_the_old_one_does_not() -> None:
+    """/rest/posts refuses a request without it; /v2/socialActions is the older
+    unversioned endpoint and does not want it."""
+    assert "LinkedIn-Version" in lp._api_headers("t")
+    assert "LinkedIn-Version" not in lp._api_headers("t", versioned=False)
+    assert lp._api_headers("t", versioned=False)["Authorization"] == "Bearer t"
+
+
+def test_every_reserved_character_linkedin_lists_is_escaped() -> None:
+    """LinkedIn's little-text rule: escape every reserved character, whether or
+    not it is being used as markup. An unescaped bracket truncates the post at
+    that point, so a missing one here is a silently cut-off post.
+    """
+    for char in "_|()[]{}@#*~<>\\":
+        assert lp.escape_commentary(f"a{char}b") == f"a\\{char}b", f"{char!r} is not escaped"
