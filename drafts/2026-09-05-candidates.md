@@ -1,6 +1,6 @@
 # Eight candidates, 2026-09-05
 
-All eight pass `voice.py` `check()` with zero violations, and both newsletters
+All eight pass `voice.py` `check()` with zero violations, and all four newsletters
 pass `check_newsletter()`. That is the floor, not the point. Each one carries a
 note on who it reaches and what it costs you.
 
@@ -312,6 +312,50 @@ The rule I took from it: a check I have never watched fail is not a check. It is
 
 **Close**
 What is the bug that took you longest to see because your tools kept agreeing with you?
+
+---
+
+## Newsletter D: who should never get the reminder
+
+**Subject**
+Deciding who should never get the reminder
+
+**Body**
+A shop on ventureadda that stops trading is exactly the shop that never comes back to mark anything sold out. Its menu keeps offering things that are not there, and until this week nothing on the site could tell that listing apart from one edited yesterday, because nothing recorded when anything was last touched.
+
+The fix is small. Every venture now carries an updatedAt, stamped on every save. Your Ventures shows it, and after 6 weeks the seller gets one question with a one tap answer: is this still right.
+
+The interesting part was not building the reminder. It was choosing 6 weeks, and what that number is really doing. A seller who is still trading edits something well inside that window, so the nudge never reaches them. That is the entire point. A reminder that fires on the people doing fine is a reminder everybody learns to ignore, and then it is worse than not having one, because you have spent the attention and got nothing.
+
+Two smaller decisions I would defend in a review. Still right writes a single field, rather than making somebody open a form of thirty items, change nothing, and press Save to prove they read it. And a listing written before the field existed says nothing at all rather than being accused of being old, because absent is not stale and the difference matters to the person being asked.
+
+The wording lives in its own file with a test, because "1 weeks ago" is the kind of bug nobody notices until it is a screenshot in the group chat.
+
+**Close**
+What is the notification you would most like to stop receiving, and what is it actually failing to know about you?
+
+---
+
+## Newsletter F: the message goes from you
+
+**Subject**
+The message goes from you, not from us
+
+**Body**
+Placing an order on ventureadda opens WhatsApp and puts a message in the buyer's own chat with the seller. From their number. Under their real name.
+
+Until this week, the first they knew of that was WhatsApp appearing.
+
+I want to be precise about why that bothered me. Somebody who assumed the site delivered the order for them, and who did not expect to turn up in a stranger's chat under their real name, has a right to know that before they press the button. Not while it is happening. The information is the same either way; the difference is whether it arrives in time to be a choice.
+
+There is a second thing people miss, and it is the opposite failure. The chat opens with the text already written and nothing is sent until they press send. On a screen that says Order placed and looks finished, that is very easy to walk away from, and then the seller never hears about an order the buyer believes they made.
+
+So both the form and the confirmation now say it plainly. WhatsApp opens, the message goes from you to them, and you press send. Only the buyer making contact gets told; the one who asked to be contacted is hearing what they already agreed to.
+
+It is 3 extra lines of copy, and it makes the funnel slightly scarier at exactly the moment somebody is deciding. I think that is correct. A marketplace where the scary part is hidden until after the click is one that gets its numbers by surprising people.
+
+**Close**
+Have you ever shipped something that made your own conversion worse on purpose? I would like to know what it cost.
 
 ---
 
