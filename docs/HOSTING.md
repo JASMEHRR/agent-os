@@ -43,12 +43,33 @@ Accept that the database resets. Run `scripts/publish_voice.py` from your
 laptop so the persona and samples live in the repo, and treat the hosted copy
 as a phone-friendly front end rather than the system of record.
 
+## Render, no card, one click
+
+`render.yaml` in the repository is a Render Blueprint. At
+**https://dashboard.render.com** choose **New**, then **Blueprint**, pick this
+repository, and it asks for `GROQ_API_KEY` and `STUDIO_PASSWORD`. The free
+plan sleeps after 15 minutes idle and has no disk, so the same "accept that
+the database resets" applies; a paid plan plus the commented `disk` block in
+the file keeps `/data`.
+
+## Pulling from git on the hosted copy
+
+The container has no checkouts beside it, so `REPO_URLS` names the
+repositories to clone instead, semicolon-separated:
+
+```
+REPO_URLS=https://github.com/JASMEHRR/ventureadda
+```
+
+Each is cloned on first use under `/data/repos` and pulled before every
+capture, so the button reads this week rather than deploy week. The copy of
+this repository inside the image is read as well, so it need not be listed.
+A private repository needs a token in its URL, which is more surface than a
+drafting tool should carry; list public ones, and use the button on your
+laptop for the rest. Commit messages only, never file contents, same as local.
+
 ## What the hosted copy cannot do
 
-- **Pull from git.** The container has no checkout of your other repos.
-  `REPOS` would have to point at paths inside the container, which means
-  cloning them in the Dockerfile with a token, which is more surface than a
-  drafting tool should carry. Use the button on your laptop.
 - **Survive a restart** without a paid volume. See above.
 
 ## Security notes for the hosted copy

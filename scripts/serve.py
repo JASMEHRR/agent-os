@@ -4,6 +4,11 @@
 
 Everything is stored in agent.db beside the repo, so closing the window loses
 nothing. Bound to loopback, so nothing outside this machine can reach it.
+
+Hosted (docs/HOSTING.md), STUDIO_PASSWORD switches on the login, DB_PATH says
+where the database lives, and REPO_URLS lists repositories to clone for the
+"pull this week from my git" button, since a container has no checkouts beside
+it. None of these are needed on a laptop.
 """
 
 from __future__ import annotations
@@ -20,6 +25,7 @@ from content_agent import ContentStudio, PostDraft, WeeklyNote  # noqa: E402
 from content_agent.outreach import OutreachDraft, Prospect  # noqa: E402
 from content_agent.persona import CheckIn, Fact, Persona  # noqa: E402
 from content_agent.samples import Rating, VoiceLibrary, VoiceSample  # noqa: E402
+from content_agent.sync import repo_name, sync_repos  # noqa: E402
 from content_agent.web import serve  # noqa: E402
 from llm_router.backends import backends_from_environment  # noqa: E402
 from persistence import SQLiteRepository, open_database  # noqa: E402
@@ -40,11 +46,44 @@ DEFAULT_REPOS = (
 )
 
 
-def repos_from_environment() -> tuple[str, ...]:
+#: Clones made from REPO_URLS live beside the database, which on a host is
+#: the one place that may be a persistent volume.
+CLONES = DB_PATH.parent / "repos"
+
+
+def checkouts() -> tuple[str, ...]:
+    """Repositories on this machine's disk, given or found beside this one."""
     raw = os.environ.get("REPOS", "")
     if raw.strip():
         return tuple(part.strip() for part in raw.split(";") if part.strip())
     return tuple(p for p in DEFAULT_REPOS if pathlib.Path(p).exists())
+
+
+def clone_urls() -> tuple[str, ...]:
+    """REPO_URLS, minus any repository already checked out here.
+
+    A clone of a repository that is also checked out beside this one would be
+    the same week read twice, and fetching it would cost a request for nothing.
+    """
+    present = {pathlib.Path(p).name for p in checkouts()}
+    kept: list[str] = []
+    for url in (part.strip() for part in os.environ.get("REPO_URLS", "").split(";")):
+        name = repo_name(url)
+        if url and name and name not in present:
+            kept.append(url)
+            present.add(name)
+    return tuple(kept)
+
+
+def repos_from_environment() -> tuple[str, ...]:
+    return checkouts() + tuple(str(CLONES / repo_name(url)) for url in clone_urls())
+
+
+def refresh_clones() -> None:
+    """Before each capture: clone what is missing, pull what is there."""
+    for result in sync_repos(clone_urls(), CLONES):
+        if result.error:
+            print(f"  {result.url}: {result.error}")
 
 
 def build_studio() -> ContentStudio:
@@ -127,4 +166,5 @@ if __name__ == "__main__":
         port=int(os.environ.get("PORT", PORT)),
         repos=repos_from_environment(),
         password=os.environ.get("STUDIO_PASSWORD", ""),
+        before_capture=refresh_clones if clone_urls() else None,
     )

@@ -305,3 +305,33 @@ def test_hosted_still_refuses_cross_origin_writes(hosted) -> None:
             raise AssertionError("accepted a cross-origin write on the hosted copy")
     except urllib.error.HTTPError as exc:
         assert exc.code == 403
+
+
+def test_the_health_check_needs_no_login(hosted) -> None:
+    """A host's health checker has no cookie. It is told the process is up,
+    and nothing else."""
+    status, body = call(hosted, "/healthz")
+    assert status == 200
+    assert body == {"ok": True}
+
+
+def test_capture_runs_the_refresh_first() -> None:
+    """A hosted copy pulls its clones before reading them, so the week it
+    reports is this one and not the one it was deployed in."""
+    calls: list[str] = []
+    studio = ContentStudio(
+        complete=lambda prompt, max_tokens: CANNED,
+        notes=InMemoryRepository(),
+        drafts=InMemoryRepository(),
+    )
+    httpd = serve(studio, port=0, forever=False, before_capture=lambda: calls.append("refreshed"))
+    thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    thread.start()
+    try:
+        status, body = call(f"http://{HOST}:{httpd.server_address[1]}", "/api/capture")
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+    assert status == 200
+    assert calls == ["refreshed"]
+    assert body["repos"] == []

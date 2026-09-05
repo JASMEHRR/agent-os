@@ -24,6 +24,7 @@ import hashlib
 import hmac
 import json
 import pathlib
+from collections.abc import Callable
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from typing import Any
 
@@ -92,6 +93,9 @@ class Handler(BaseHTTPRequestHandler):
     #: authorisation. Set means "hosted": every /api route needs the cookie
     #: that a correct password grants. One user, one password, no accounts.
     password: str = ""
+    #: Run before each capture, so a hosted copy can refresh its clones and
+    #: read this week rather than the week it was deployed in. Set by `serve`.
+    before_capture: Callable[[], None] | None = None
 
     # Silences the default one-line-per-request logging, which buries the
     # single line that matters (the startup URL) within seconds.
@@ -193,6 +197,11 @@ class Handler(BaseHTTPRequestHandler):
     # ---------------------------------------------------------------- Routes
 
     def do_GET(self) -> None:  # noqa: N802 - BaseHTTPRequestHandler's naming
+        if self.path == "/healthz":
+            # For a host's health checker, which has no cookie and may not
+            # send our Host. It is told the process is up, and nothing else.
+            self._json({"ok": True})
+            return
         if not self._request_is_ours():
             self._json({"error": "refused"}, 403)
             return
@@ -381,6 +390,9 @@ class Handler(BaseHTTPRequestHandler):
 
     def _capture(self) -> None:
         """Your week from your commits. Reads git history only, never files."""
+        refresh = self.before_capture
+        if refresh is not None:
+            refresh()
         note, activity = capture_week([pathlib.Path(p) for p in self.repos], days=7)
         self._json(
             {
@@ -472,6 +484,7 @@ def serve(
     forever: bool = True,
     repos: tuple[str, ...] = (),
     password: str = "",  # nosec B107 - empty means "no login, loopback only", not a credential
+    before_capture: Callable[[], None] | None = None,
 ) -> HTTPServer:
     """Starts the interface. Returns the server so tests can drive it.
 
@@ -480,7 +493,14 @@ def serve(
     reach it. With one it binds every interface, because a host's proxy has to
     reach it, and every /api route demands the cookie a login grants.
     """
-    handler: type[Handler] = type("BoundHandler", (Handler,), {"studio": studio, "repos": repos, "password": password})
+    attrs: dict[str, object] = {
+        "studio": studio,
+        "repos": repos,
+        "password": password,
+        # Wrapped so the class does not turn it into a method of the handler.
+        "before_capture": None if before_capture is None else staticmethod(before_capture),
+    }
+    handler: type[Handler] = type("BoundHandler", (Handler,), attrs)
     bind = "0.0.0.0" if password else HOST  # nosec B104 - deliberate, gated on a password being set
     server = HTTPServer((bind, port), handler)
     if forever:

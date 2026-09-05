@@ -1,0 +1,25 @@
+# One-click hosting on Render's free tier. docs/HOSTING.md walks through it:
+# New, Blueprint, pick this repository, fill in the two secrets.
+services:
+  - type: web
+    name: post-studio
+    runtime: docker
+    plan: free
+    healthCheckPath: /healthz
+    envVars:
+      # Asked for in the dashboard at deploy time, never written here.
+      - key: GROQ_API_KEY
+        sync: false
+      - key: STUDIO_PASSWORD
+        sync: false
+      # What "pull this week from my git" clones. This repository is inside
+      # the image already. Public repositories only; see docs/HOSTING.md.
+      - key: REPO_URLS
+        value: https://github.com/JASMEHRR/ventureadda
+    # The free plan has no disk, so agent.db (notes, drafts, ratings, samples,
+    # persona) lives on the instance and is reset by every deploy. On a paid
+    # plan, uncomment this and everything survives.
+    # disk:
+    #   name: data
+    #   mountPath: /data
+    #   sizeGB: 1
