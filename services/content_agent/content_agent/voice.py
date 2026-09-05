@@ -52,6 +52,36 @@ CLICHES = (
     "at the end of the day",
     "in today's fast-paced world",
     "little did i know",
+    # The vocabulary half, taken from the humanizer skill's blacklist, which
+    # is prose a model can drift past. Here it is a gate that rejects.
+    #
+    # Chosen for precision rather than coverage: every entry is one he would
+    # not reach for on his own, so a hit is a model reverting to its own
+    # register rather than a false alarm. The blacklist's riskier entries are
+    # deliberately left out, because they are words he really does use.
+    # "robust" is in his own commit log ("made robust within this PR's
+    # scope"), "navigate" and "journey" are ordinary in marketing writing,
+    # and a gate that fires on a legitimate sentence teaches you to ignore it.
+    "delve",
+    "leverage",
+    "utilize",
+    "facilitate",
+    "streamline",
+    "harness",
+    "foster",
+    "tapestry",
+    "paradigm",
+    "ecosystem",
+    "seamless",
+    "holistic",
+    "deep dive",
+    "move the needle",
+    "in the age of ai",
+    "when it comes to",
+    "it's not just",
+    "most people don't realize",
+    "here's a hard truth",
+    "what do you think?",
 )
 
 #: A post carrying no concrete detail is the failure the skill names first.

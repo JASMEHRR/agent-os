@@ -251,3 +251,38 @@ def test_a_draft_stored_before_channel_existed_still_loads() -> None:
     }
 
     assert decode_dataclass(PostDraft, row).channel is Channel.LINKEDIN
+
+
+# ------------------------------------------------- AI vocabulary as a gate
+
+
+def test_the_ai_vocabulary_is_rejected_not_merely_discouraged() -> None:
+    """The humanizer skill lists these as prose. Prose in a prompt is advice a
+    model drifts past on a bad generation, which is the whole reason these
+    rules live in code."""
+    from content_agent.voice import check
+
+    for word in ("delve", "leverage", "seamless", "paradigm", "deep dive"):
+        violations = check(
+            "A hook with 1 real number in it.",
+            f"This is where I {word} into the thing.",
+            "A close.",
+            ("#a", "#b", "#c"),
+        )
+        assert any(v.rule == "cliche" for v in violations), f"{word!r} should be caught"
+
+
+def test_words_he_actually_uses_are_not_caught() -> None:
+    """A gate that fires on a legitimate sentence teaches you to ignore it.
+    "robust" is in his own commit log; "navigate" and "journey" are ordinary
+    in marketing writing."""
+    from content_agent.voice import check
+
+    violations = check(
+        "I made the flaky test robust, which took 2 attempts.",
+        "Buyers navigate to the shop. The customer journey starts at the root URL.",
+        "That is the whole change.",
+        ("#a", "#b", "#c"),
+    )
+
+    assert [v.rule for v in violations if v.rule == "cliche"] == []
