@@ -217,10 +217,10 @@ def test_a_quiet_repository_is_left_out_and_a_broken_one_is_reported(tmp_path: p
 
 
 def test_to_note_omits_repositories_below_the_mention_threshold() -> None:
-    from content_agent.capture import RepoActivity
+    from content_agent.capture import Commit, RepoActivity
 
-    quiet = RepoActivity("quiet", "/q", ("one commit",))
-    busy = RepoActivity("busy", "/b", tuple(f"c{i}" for i in range(MIN_COMMITS_TO_MENTION)))
+    quiet = RepoActivity("quiet", "/q", (Commit("one commit"),))
+    busy = RepoActivity("busy", "/b", tuple(Commit(f"c{i}") for i in range(MIN_COMMITS_TO_MENTION)))
 
     note = to_note([quiet, busy], days=7)
 
@@ -237,3 +237,94 @@ def test_a_captured_note_is_substantive_enough_to_draft_from(repo: pathlib.Path)
     )
 
     assert studio.capture(note).is_substantive()
+
+
+# ------------------------------------------------------------ Commit bodies
+
+
+@pytest.fixture
+def explained(tmp_path: pathlib.Path) -> pathlib.Path:
+    """A repository whose commits explain themselves, like his actually do."""
+    path = tmp_path / "explained"
+    path.mkdir()
+
+    def git(*args: str) -> None:
+        subprocess.run(  # nosec B603 B607 - test fixture, fixed argv
+            ["git", "-C", str(path), *args],
+            check=True,
+            capture_output=True,
+            env={
+                "GIT_AUTHOR_NAME": "t",
+                "GIT_AUTHOR_EMAIL": "t@t",
+                "GIT_COMMITTER_NAME": "t",
+                "GIT_COMMITTER_EMAIL": "t@t",
+                "PATH": __import__("os").environ["PATH"],
+            },
+        )
+
+    git("init", "-q")
+    messages = [
+        (
+            "Find a photo for an item nobody photographed",
+            "Most sellers here photograph nothing. They are running a shop out of a hostel\n"
+            "room between classes, and forty items with forty blank tiles is the normal\n"
+            "outcome.\n\nNOT A WEB IMAGE SEARCH, and that is the whole design rather than a\n"
+            "limitation of it.\n\nCo-Authored-By: Somebody <nobody@example.com>",
+        ),
+        ("Tidy the imports", ""),
+        ("Rename a variable", "One line."),
+    ]
+    for i, (subject, body) in enumerate(messages):
+        (path / f"f{i}.txt").write_text("x", encoding="utf-8")
+        git("add", ".")
+        git("commit", "-q", "-m", subject, "-m", body) if body else git("commit", "-q", "-m", subject)
+    return path
+
+
+def test_the_body_is_captured_not_only_the_subject(explained: pathlib.Path) -> None:
+    """The subject says what changed. The body says what was tried and why,
+    and that is what a post is made of."""
+    activity = read_repo(explained, days=7)
+
+    photo = next(e for e in activity.entries if e.subject.startswith("Find a photo"))
+    assert "hostel" in photo.body
+    assert "NOT A WEB IMAGE SEARCH" in photo.body
+
+
+def test_trailers_are_stripped_from_the_body(explained: pathlib.Path) -> None:
+    """Who co-authored it is not part of the week."""
+    activity = read_repo(explained, days=7)
+
+    assert all("Co-Authored-By" not in entry.body for entry in activity.entries)
+
+
+def test_commits_still_reads_as_subjects_for_everything_that_counts(explained: pathlib.Path) -> None:
+    """Callers that only wanted to count commits should not have to learn that
+    a body exists."""
+    activity = read_repo(explained, days=7)
+
+    assert "Tidy the imports" in activity.commits
+    assert len(activity.commits) == 3
+
+
+def test_only_explained_commits_reach_the_note(explained: pathlib.Path) -> None:
+    """A one-line body is a tidy commit, not an explained one, and fifty of
+    those would crowd out the ones worth reading."""
+    note, _ = capture_week([explained], days=7)
+
+    assert "hostel" in note, "the explained commit's reasoning must reach the note"
+    assert "In my own words" in note
+    assert note.count("## ") == 1, "only the substantial body is expanded"
+    assert "Tidy the imports" in note, "every subject is still listed"
+
+
+def test_a_long_body_is_truncated_on_a_thought(tmp_path: pathlib.Path) -> None:
+    from content_agent.capture import BODY_CHARS, _clean_body
+
+    body = ("First paragraph, which is the reason.\n\n" + "padding sentence. " * 200).strip()
+
+    cleaned = _clean_body(body)
+
+    assert len(cleaned) <= BODY_CHARS + len(" [...]")
+    assert cleaned.endswith("[...]")
+    assert cleaned.startswith("First paragraph")

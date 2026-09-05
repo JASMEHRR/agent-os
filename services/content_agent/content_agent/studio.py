@@ -116,6 +116,13 @@ Aim for roughly {spec.target_words} words.
 Here are this week's notes, in Jasmehr's own words. Every factual claim and
 every number must come from these notes. Invent nothing.
 
+Write from the sharpest thing in the notes rather than about all of it. One
+story, the most specific one, told with the detail that is already there: the
+thing that broke, the number, the decision that was argued over. Where a note
+has said something well, keep his words. A summary of his sentence is always
+flatter than his sentence, and a post that surveys the week says nothing about
+any of it.
+
 ---
 {note.body}
 ---{angle}{correction_block}

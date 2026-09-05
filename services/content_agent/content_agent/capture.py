@@ -30,20 +30,73 @@ SKIP_PREFIXES = ("Merge ", "merge ", "Bump ", "bump ", "chore(release)", "Auto-"
 #: A repository with fewer commits than this in the window is not a story.
 MIN_COMMITS_TO_MENTION = 2
 
+#: Trailers say who helped and which session did it. Neither is the week.
+TRAILER_PREFIXES = ("Co-Authored-By:", "Claude-Session:", "Signed-off-by:", "Co-authored-by:")
+
+#: How much of one commit body reaches the note. Long enough for the reason
+#: and the specific detail, which is usually the first two paragraphs, short
+#: enough that twelve of them do not crowd out the prompt around them.
+BODY_CHARS = 700
+
+#: How many commits get their body included. The rest are listed as subjects.
+#: A week of fifty commits with every body attached would be most of a prompt
+#: and would bury the interesting ones among the typo fixes.
+DETAILED_COMMITS = 12
+
+#: A subject with a one-line body is a tidy commit, not an explained one. The
+#: bodies worth reading are the ones where somebody argued with themselves.
+SUBSTANTIAL_BODY_CHARS = 120
+
+
+@dataclasses.dataclass(frozen=True)
+class Commit:
+    """One commit, as the note will use it.
+
+    The body is here because it is where the writing is. A subject says what
+    changed; the body says what was tried, what broke, and why it was done
+    that way, and a post is made of the second one.
+    """
+
+    subject: str
+    body: str = ""
+
+    def is_explained(self) -> bool:
+        return len(self.body) >= SUBSTANTIAL_BODY_CHARS
+
 
 @dataclasses.dataclass(frozen=True)
 class RepoActivity:
     name: str
     path: str
-    commits: tuple[str, ...]
+    entries: tuple[Commit, ...] = ()
     #: When git could not be read, why. Reported rather than swallowed, so a
     #: repository that silently dropped out of the note is not mistaken for
     #: one where nothing happened.
     error: str = ""
 
+    @property
+    def commits(self) -> tuple[str, ...]:
+        """Subjects only. Kept because counting commits is what most callers
+        came for, and they should not have to know a body exists."""
+        return tuple(entry.subject for entry in self.entries)
+
+
+def _clean_body(raw: str) -> str:
+    """A commit body with the trailers and the blank runs taken out."""
+    lines = [line.rstrip() for line in raw.strip().splitlines()]
+    kept = [line for line in lines if not line.strip().startswith(TRAILER_PREFIXES)]
+    body = "\n".join(kept).strip()
+    if len(body) > BODY_CHARS:
+        # Cut at a paragraph if there is one nearby, so the excerpt ends on a
+        # thought rather than in the middle of a word.
+        window = body[:BODY_CHARS]
+        cut = window.rfind("\n\n")
+        body = (window[:cut] if cut > BODY_CHARS // 2 else window).rstrip() + " [...]"
+    return body
+
 
 def read_repo(path: pathlib.Path, days: int) -> RepoActivity:
-    """Commit subjects from one repository over the window."""
+    """Commits from one repository over the window, subjects and bodies."""
     name = path.name
     if not (path / ".git").exists():
         return RepoActivity(name, str(path), (), "not a git repository")
@@ -63,7 +116,11 @@ def read_repo(path: pathlib.Path, days: int) -> RepoActivity:
                 "log",
                 f"--since={days} days ago",
                 "--no-merges",
-                "--format=%s",
+                # Unit separator between subject and body, record separator
+                # between commits. Both are control characters no commit
+                # message contains, so the split cannot be confused by a body
+                # that happens to have a blank line or a stray delimiter in it.
+                "--format=%s%x1f%b%x1e",
             ],
             capture_output=True,
             text=True,
@@ -75,12 +132,14 @@ def read_repo(path: pathlib.Path, days: int) -> RepoActivity:
     if completed.returncode != 0:
         return RepoActivity(name, str(path), (), completed.stderr.strip()[:200] or "git returned an error")
 
-    subjects = tuple(
-        line.strip()
-        for line in completed.stdout.splitlines()
-        if line.strip() and not line.strip().startswith(SKIP_PREFIXES)
-    )
-    return RepoActivity(name, str(path), subjects)
+    entries = []
+    for record in completed.stdout.split("\x1e"):
+        subject, _, body = record.strip().partition("\x1f")
+        subject = subject.strip()
+        if not subject or subject.startswith(SKIP_PREFIXES):
+            continue
+        entries.append(Commit(subject, _clean_body(body)))
+    return RepoActivity(name, str(path), tuple(entries))
 
 
 def read_repos(paths: list[pathlib.Path], days: int = 7) -> list[RepoActivity]:
@@ -97,6 +156,14 @@ def to_note(activity: list[RepoActivity], days: int = 7) -> str:
 
     Counts are included because the voice gates demand a real number, and the
     number of commits is one the note can honestly supply.
+
+    THE BODIES ARE THE POINT, and for a long time they were missing. A list of
+    subjects tells the model what changed and leaves it to invent the texture,
+    which produces a post that reads like a changelog with adjectives. The
+    body is where the reason is: what was tried, what broke, what was refused
+    and why. Only the explained ones are included, most recent first, because
+    a body worth reading is one where somebody argued with themselves, and
+    fifty of them would crowd out everything else in the prompt.
     """
     lines: list[str] = [f"What I did in the last {days} days, from my commit history."]
     total = 0
@@ -112,6 +179,15 @@ def to_note(activity: list[RepoActivity], days: int = 7) -> str:
         # first, because that is the order the work happened in.
         for subject in reversed(repo.commits[:25]):
             lines.append(f"- {subject}")
+
+        detailed = [entry for entry in repo.entries if entry.is_explained()][:DETAILED_COMMITS]
+        if detailed:
+            lines.append("")
+            lines.append(f"In my own words, on {len(detailed)} of those:")
+            for entry in reversed(detailed):
+                lines.append("")
+                lines.append(f"## {entry.subject}")
+                lines.append(entry.body)
     if total == 0:
         return ""
     lines.append("")
