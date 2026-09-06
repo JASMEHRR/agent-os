@@ -1,61 +1,67 @@
-# The launch series: 6 posts, in order
+# The launch series: 9 posts, in order
 
-**Post these first.** Everything in `2026-09-05-candidates.md` assumes a reader
-who already knows you build things. Nobody does. Those were week-47 posts
-written for someone who has never posted week 1.
+Three weeks, three posts a week. LinkedIn only, no newsletter.
 
-This is week 1. It is written for a stranger scrolling past, and each post
-stands alone, but read in order they tell one story: a marketer got tired of
-waiting for somebody else to build things and learned to build them.
+Written for a stranger who has never heard of you. Read in order they tell one
+story: a marketer got tired of waiting for somebody else to build his ideas,
+opened an AI studio in June, and by September had 7 projects and a marketplace
+his campus uses.
 
-Newsletter is off. All six are LinkedIn only.
+Everything here comes from what you told me plus the two repositories I can
+see. **The checks at the bottom matter.** Several details came from a voice
+note and I could not verify them, and one of them is a real editorial problem
+you should decide on before posting.
 
-## The order, and why
+## The order
 
 | | Post | What it does |
 |---|---|---|
-| **Week 1, Mon** | 1. The decision | Establishes who you are and what changed |
-| **Week 1, Wed** | 2. What I did not know | The relatable one. Most likely to travel |
-| **Week 1, Fri** | 3. How I actually build | Answers the "how, though" that post 2 provokes |
-| **Week 2, Mon** | 4. What ventureadda is | Now they know you, show them the thing |
-| **Week 2, Wed** | 5. The week it got real | Proves it is not a demo |
-| **Week 2, Fri** | 6. Everything I have built | The full list, and the invitation |
+| **W1 Mon** | 1. The decision | Who you are, and what changed in June |
+| **W1 Wed** | 2. What I did not know | The relatable one. Most likely to travel |
+| **W1 Fri** | 3. Ascend, and a sentence from a friend | The emotional turn. Proof it was real |
+| **W2 Mon** | 4. How I actually build | Answers the "how, though" the first week provokes |
+| **W2 Wed** | 5. The GitHub realisation | The most original idea you have |
+| **W2 Fri** | 6. The tools I built for myself | Range, without needing any of them to be a startup |
+| **W3 Mon** | 7. ClipForge | First of the two real products |
+| **W3 Wed** | 8. What ventureadda is | The one with users |
+| **W3 Fri** | 9. Everything I have built | The full list, and the invitation |
 
-Post 1 before post 4 on purpose. A product post from an unknown account is an
-advert. The same post from someone whose story you read on Monday is a payoff.
+Week 4 picks up "The week it got real" from `2026-09-05-candidates.md`, which is
+the outage and the security hole. It lands properly only after three weeks have
+established that you are honest about what you do not know.
 
 ---
 
 ## 1. The decision
 
 **Hook**
-I used to write briefs for developers. Then I got tired of waiting and described the app to a machine instead.
+In June I stopped writing briefs for developers and opened an AI studio instead. I had no coding background.
 
 **Body**
 For a long time the pattern was the same. I would see a problem, imagine the product that fixes it, write it up properly, and then wait for somebody with the skills to care about it as much as I did.
 
-Nobody ever did. Not because they were lazy. Because it was my problem, not theirs.
+Nobody ever did. Not because they were lazy. It was my problem, not theirs.
 
-So this year I stopped briefing and started building. Not by learning to code. By learning to describe a system precisely enough that AI could build it, then reading everything that came back until I understood why it worked.
+So at the start of June I opened Google AI Studio and started building something called Ascend. A personal system with habit tracking at the centre of it, the app I had wanted to exist for a long time.
 
-The first thing I shipped is a marketplace for my campus. It is live, and students sell out of hostel rooms on it.
+I was not learning to code. I was learning to describe what I wanted precisely enough that something else could build it, and then reading everything that came back until I understood why it worked.
 
-The second is the platform that writes these posts from my commit history. 28 modules, 1,947 tests, first commit 14 days ago.
+3 months later there are 7 of them, and one is a marketplace my campus actually uses.
 
 I still could not write Python from memory. I can tell you what every file in those projects does and why it is there.
 
 **Close**
-I am not a developer, and I shipped two products. Both of those are true at the same time.
+I am not a developer, and I have shipped software that people use. Both of those are true at once.
 
 **Hashtags**
-#buildinpublic #promptengineering #campusmarketplace #aitools
+#buildinpublic #promptengineering #aitools #learninginpublic
 
 ---
 
 ## 2. What I did not know
 
 **Hook**
-4 things I had never heard of at the start of this year: GitHub. Firebase. Deployment. What a database rule is.
+4 things I had never heard of in June: GitHub. Firebase. Deployment. What a database rule is.
 
 **Body**
 I am tech savvy. I was not a coder. Those are further apart than they sound, and I found out how far by trying to build something real.
@@ -80,13 +86,44 @@ You do not need the vocabulary before you start. You pick it up on the way, one 
 **Hashtags**
 #learninginpublic #github #firebase #buildinpublic
 
-> **This is the one I would bet on.** Everybody who has ever felt locked out of
-> building recognises this list. It is specific, it is checkable, and it costs
-> you nothing to admit because you shipped anyway.
+> **The one I would bet on.** Everybody who has felt locked out of building
+> recognises this list. Specific, checkable, and it costs you nothing to admit
+> because you shipped anyway.
 
 ---
 
-## 3. How I actually build
+## 3. Ascend, and a sentence from a friend
+
+**Hook**
+A friend who codes for a living looked at what I had built and said I had done more than most CS students do.
+
+**Body**
+Ascend was the first thing I made. A personal system with habit tracking at the centre, started in Google AI Studio at the beginning of June.
+
+Then I stopped. I went to Kashmir, trekked with a friend, spent time with family. After a long stretch of sitting still in front of screens it was the first thing I had done that used my body, and I came back better for it. The project was late because of it, and I would make that trade again.
+
+On 28 June I paid for Claude. That is the date the pace changed.
+
+I finished Ascend and handed it to friends. They used it. Then one of them, who comes from an actual coding background, told me I had built more than most CS students manage.
+
+I did not know what to do with that sentence. I am a marketer. Four weeks earlier I could not have told you what a repository was.
+
+That is the moment this stopped being a hobby.
+
+**Close**
+Everybody remembers the first time somebody who knows better takes the work seriously. Mine was one sentence from a friend.
+
+**Hashtags**
+#buildinpublic #learninginpublic #promptengineering #studentfounder
+
+> **This is the best post in the series.** It has a date, a real person, a
+> holiday that cost you time and was worth it, and a compliment you did not
+> ask for. The Kashmir paragraph is what makes it human rather than a
+> productivity story, so please do not cut it for length.
+
+---
+
+## 4. How I actually build
 
 **Hook**
 I do not write the code. I write the instructions, then read everything that comes back until I understand it.
@@ -114,14 +151,95 @@ Prompting well is not a way around understanding the system. It is the thing tha
 **Hashtags**
 #promptengineering #vibecoding #buildinpublic #aitools
 
-> **Why this one matters most for hiring.** Post 2 makes people like you. This
-> one makes them take you seriously, because it shows judgement: you can name
-> which decisions you keep and which you delegate. That distinction is the
-> actual skill, and most people posting about AI cannot articulate it.
+> **The one that makes people take you seriously.** Post 2 makes them like you.
+> This shows judgement: you can name which decisions you keep and which you
+> delegate, and most people posting about AI cannot.
 
 ---
 
-## 4. What ventureadda is
+## 5. The GitHub realisation
+
+**Hook**
+Finding out GitHub existed should have discouraged me. Everything I wanted to build was already built.
+
+**Body**
+I was introduced to GitHub a few weeks into this, and the first thing I found there was that both of the things I had made already existed. Somebody had done them. Often better.
+
+For about a day that was demoralising.
+
+Then it became the most useful thing I learned all year, for two reasons.
+
+The first is that a tool which already exists is a tool built for its author. Their habit tracker fits their habits. Their clipper fits their channel. Mine fits me, and being specialised to one person is not a lesser reason to build something. It is the one thing a general product cannot do.
+
+The second is practical. I stopped starting from nothing. Now, before building anything, I go and find who has already solved it, read how they did it, and begin from there.
+
+That single change is why the count went from 2 projects to 7. Not because I got faster at building. Because I stopped starting at zero.
+
+**Close**
+Everything you want to build already exists somewhere. That is the good news rather than the bad.
+
+**Hashtags**
+#github #opensource #buildinpublic #learninginpublic
+
+> **Your most original idea.** "Already built" reading as permission rather
+> than defeat is a genuinely good argument, and it is yours. This is the one
+> most likely to get quoted back at you.
+
+---
+
+## 6. The tools I built for myself
+
+**Hook**
+3 of the things I have built were never meant for anybody else. That is exactly why they got finished.
+
+**Body**
+Jarvis. It runs on my laptop, transcribes whatever I say, and gives me an interface to talk to my own AI. I built it because I wanted the dictation tool I was already using, except mine. It runs on Gemini or Groq depending on what I point it at.
+
+Atlas. Give it a screenshot of any website and it writes the prompt that would let another AI build that site. It came from a problem I had constantly, which is that I could see what I wanted and could not describe it well enough.
+
+Habit Arena. A habit tracker that became a competitive one. It ended up folded into Ascend rather than living on its own, which is the right fate for a lot of side projects.
+
+None of these have users. None of them are startups. Some will never leave my laptop.
+
+They are also the reason I can build anything else. Each one taught me a piece I did not have: audio streams, screenshots as an input, what happens when two features want the same data.
+
+**Close**
+The tools you build for yourself are the ones you finish, because the person who needs them is checking every day.
+
+**Hashtags**
+#buildinpublic #sideprojects #aitools #promptengineering
+
+---
+
+## 7. ClipForge
+
+**Hook**
+ClipForge takes long videos, cuts the moments worth keeping, and posts them to 2 platforms without me.
+
+**Body**
+It finds the parts of a long video that work on their own, cuts them, formats them vertically, and publishes to YouTube and TikTok on a schedule.
+
+The interesting problem was never the cutting. It was deciding what counts as a moment worth keeping, which is a judgement, and judgement is the part you cannot hand over completely.
+
+I have built more than one version of it. Each is tuned to a different channel, because what works as a clip on one is not what works on another, and a general setting for that would be wrong everywhere at once.
+
+It is also the project that taught me what a pipeline is. Not one program doing a job, but several steps that each have to survive the one before them failing. Downloads time out. Uploads get rejected. A queue that assumes everything works is a queue that stops on the first bad day.
+
+Before this I had never written anything that ran without me watching it.
+
+**Close**
+Automating something forces you to be precise about a decision you had been making on instinct.
+
+**Hashtags**
+#buildinpublic #automation #contentcreation #aitools
+
+> **Read the ClipForge note at the bottom before posting this one.** There is a
+> rights question in it that I could not resolve for you, and it interacts
+> badly with another post you are planning.
+
+---
+
+## 8. What ventureadda is
 
 **Hook**
 My campus is full of students running shops out of their hostel rooms. None of them had a storefront.
@@ -149,61 +267,33 @@ It is not a startup. It is a fix for something that annoyed me daily, and now ot
 **Hashtags**
 #campusmarketplace #buildinpublic #studentfounder #firebase
 
-> **Name the college here if you want to.** You said you have never posted that
-> you got in. Swapping "my college" for "Thapar" in the line about who can sell
-> does that quietly, inside a post about something you built, which is a much
-> better way to say it than an announcement post. Your call, both versions work.
+> **Name the college here if you want to.** You have never posted that you got
+> in. Swapping "my college" for "Thapar" does it inside a post about something
+> you built, which beats an announcement post.
 
 ---
 
-## 5. The week it got real
+## 9. Everything I have built
 
 **Hook**
-My side project stopped being a side project the week a free tier ran out and took sign-in down with it.
+7 projects since June, and I could not have told you what a repository was when I started.
 
 **Body**
-Firebase caps how much email it will send on the free plan. My sign-in was an emailed link. So when the cap was reached, nobody could get in, and it did not look like a quota. It looked like the site being broken.
+Ascend. A personal system built around habit tracking. The first one, and the one that proved this was possible.
 
-That is the moment a project becomes real. Not launching it. The first time it fails somebody who was counting on it.
+Habit Arena. A competitive habit tracker, now folded into Ascend, because two apps wanting the same data is one app.
 
-Fixing it meant going back to security rules I had written earlier, and finding something worse than the outage. Any address from my college's domain on an account granted selling rights, and it turned out anybody could put any address there from a browser console, proving nothing at all.
+Jarvis. Runs on my laptop, transcribes what I say, and lets me talk to my own AI.
 
-I had written that. It had been live.
+Atlas. Give it a screenshot of a website and it writes the prompt to rebuild it.
 
-The fix moved the decision to a server that asks Google which provider each address genuinely came from. 6 commits in one day, all of them because a quota ran out and made me look.
+ClipForge. Cuts long videos into short ones and posts them across platforms on a schedule.
 
-I would like to claim I designed my way to that. An outage did.
+ventureadda. A marketplace for my campus. Live, with real sellers, students running shops from hostel rooms.
 
-**Close**
-Nobody warns you that the frightening part of shipping is the part where people start depending on it.
+Agent OS. The platform underneath my writing. It reads my commit history, drafts posts from it, and rejects any draft with a number it cannot trace back to something I did. 28 modules, 1,947 tests, and no publish button on purpose.
 
-**Hashtags**
-#buildinpublic #appsecurity #firebase #studentfounder
-
-> **Same caveat as before.** This says publicly that your live site had a hole.
-> After posts 1 to 3 have established that you are honest about what you do not
-> know, it reads as maturity rather than incompetence, which is exactly why it
-> sits at number 5 and not number 1.
-
----
-
-## 6. Everything I have built
-
-**Hook**
-Everything I have built this year, having not known what a repository was when I started.
-
-**Body**
-ventureadda. A marketplace for my campus. Students selling out of hostel rooms get a real storefront, a menu they can paste straight from WhatsApp, and photographs for items they never photographed. Live, with real sellers on it.
-
-Agent OS. The platform underneath my writing. It reads my commit history, drafts posts from it in my own voice, and rejects any draft containing a number it cannot trace back to something I did. 28 modules, 1,947 tests, and deliberately no publish button, because approving is my job and not the machine's.
-
-ClipForge. A video tool, still in progress.
-
-None of these existed at the start of this year. I had a marketing background, a habit of writing briefs for other people to build, and no idea what a repository was.
-
-What changed was not talent. I got specific about problems, and I got good at describing them to something that could build.
-
-That is a learnable skill, and it takes months rather than years. I am the evidence for the low end of it.
+None of these existed in May. What changed was not talent. I got specific about problems, and I got good at describing them to something that could build.
 
 **Close**
 If you have been waiting for somebody to build the thing you keep describing, that wait is optional now.
@@ -215,42 +305,67 @@ If you have been waiting for somebody to build the thing you keep describing, th
 
 # Check these before you post
 
-All six pass `check()`. What they cannot check is whether the claims are true,
-so read this list.
+All nine pass `check()`. What a gate cannot check is whether a claim is true,
+and a lot of this came from a voice note, so read this properly.
 
-**Numbers I verified myself.** 28 modules and 1,947 tests in Agent OS, and its
-first commit 14 days ago, are real as of today. 50 commits in one week on
-ventureadda is real for 28 August to 2 September.
+## The one real problem: ClipForge
 
-**The one number I could not verify.** How long you have been at this. The copy
-of ventureadda I can see is a shallow clone, so its history starts partway
-through and I cannot tell when you began. Every post says "this year", which is
-safe if you started in 2026. If it was late 2025, change those lines.
+You described it as clipping **other people's** YouTube videos and posting them
+to your own channels. If that is right, post 7 has a rights question in it that
+is the same shape as the one you already answered well elsewhere: you refused
+to take product photos off Amazon because reselling a thing and owning the
+photograph of it are different questions.
 
-**Things I took from your own words, not from the repositories.** ClipForge
-being a video tool in progress. Your marketing background. That you wrote
-briefs for developers before this. If any of that is off, it is off in several
-posts at once.
+Somebody will notice that. Posting "I automated cutting up other people's
+videos" three weeks after "I refused to use photos I did not own" is the kind
+of inconsistency that gets picked up in the comments, and the comment will be
+fair.
 
-**What I deliberately did not write.** You said you are not good at coding
-languages and that you did not want to emphasise it. So no post leads with it,
-and no post pretends otherwise either. Post 1 says you could not write Python
-from memory and follows it immediately with what you can do, which is the
-version of that sentence that helps you. Post 3 makes the method the point
-rather than the gap.
+Three honest ways out, and I do not know which is true for you:
 
-**On the word vibe coding.** Post 3 carries `#vibecoding`. It is the accurate
-tag and it finds the right audience, but it is also a term some engineers use
-dismissively. Drop it if you would rather not hand anyone that framing.
+1. **It is your own footage,** or a channel you own. Then say so in the post
+   and the problem disappears entirely.
+2. **It is licensed or permitted** by whoever made it. Say that.
+3. **It is other people's, without permission.** Then either do not post 7, or
+   post something better: the version where you explain what you learned about
+   the rights question while building it, and what you changed. That is a
+   stronger post than the automation one, and it is consistent with who the
+   rest of the series says you are.
 
-# What happens to the other eight posts
+I wrote post 7 without saying whose videos, so it is safe as drafted. But you
+know the answer and the comments will ask.
 
-`2026-09-05-candidates.md` stays exactly where it is. Those posts are good and
-they are the natural week 3 onwards, once this series has told people who you
-are. The four newsletter versions in that file are parked, not deleted.
+## Things I could not verify
 
-One thing I cannot switch off from here: the stored prompt for your weekly
-scheduled routine still asks for a newsletter issue alongside the LinkedIn
-post. That prompt lives in your scheduled task settings rather than in this
-repository, so you have to edit it. Post Studio itself already defaults to
-LinkedIn only, so nothing to do there.
+**Google AI Studio.** Your note sounded like "Google's AI studios" and you had
+separately mentioned Antigravity, which is a different Google product. Posts 1
+and 3 say Google AI Studio. Fix it if it was Antigravity or something else.
+
+**Groq or Grok.** Post 6 says Jarvis runs on "Gemini or Groq". Groq is the fast
+inference service your Agent OS already uses, Grok is xAI's model. I guessed
+Groq. They are different companies.
+
+**The dictation tool Jarvis is modelled on.** You named one and I could not
+make it out, so post 6 just says "the dictation tool I was already using"
+rather than naming it. Add the name if you want it.
+
+**The friend's exact words.** Post 3 paraphrases. If you remember what was
+actually said, use that instead. It will sound better than my version.
+
+**The ClipForge variants.** You mentioned one for GTA and I could not follow
+the rest, so post 7 says "more than one version, each tuned to a different
+channel". Make it specific if you can, it is more interesting specific.
+
+**What else was in Ascend.** You said it had habit tracking "and everything
+incorporated into it". I could only write the habit tracking. Tell me the rest
+and post 3 gets better, because right now Ascend sounds smaller than it is.
+
+**7 projects.** I counted Ascend, Habit Arena, Jarvis, Atlas, ClipForge,
+ventureadda, Agent OS. Habit Arena is folded into Ascend, so you could
+reasonably call it 6. Posts 1, 5 and 9 all use 7, so change all three together.
+
+## Numbers I did verify
+
+28 modules and 1,947 tests in Agent OS are real as of today. 50 commits on
+ventureadda in one week is real for 28 August to 2 September. Everything else
+is your account of your own year, which is yours to state.
