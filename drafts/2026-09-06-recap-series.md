@@ -4,15 +4,24 @@ Three and a half weeks, three posts a week. LinkedIn only, no newsletter.
 
 **Read and copy these from the Posting Desk rather than here:** https://claude.ai/code/artifact/44ad1a83-6967-4346-aba2-613c2025d6d3
 
-Written for a stranger who has never heard of you. Read in order they tell one
-story: a marketer got tired of waiting for somebody else to build his ideas,
-opened an AI studio in June, and by September had 7 projects and a marketplace
-his campus uses.
+Written for people who know you post about marketing and have no idea you
+build software. Read in order they tell one story: somebody who kept having
+ideas and letting them go, because there was no route from an idea to a thing
+that exists, opened an AI studio in June and by September had 8 of them.
+
+**Post 1 is the only one finished to your notes.** The rest still carry
+assumptions you have not checked yet. Do them one at a time.
 
 Everything here comes from what you told me plus the two repositories I can
 see. **The checks at the bottom matter.** Several details came from a voice
-note and I could not verify them, and one of them is a real editorial problem
-you should decide on before posting.
+note and I could not verify them.
+
+Two things I was told to leave out and will not put back. The Pinterest
+figures, because that reach came from reposting other people's content, and
+you have already said so publicly. And the follower count, because those
+connections came from 10 to 15 weeks of sending requests. Neither is a
+credential to stand on, and a hook built on either would collapse the first
+time somebody looked.
 
 ## The order
 
@@ -33,31 +42,35 @@ Week 4 continues with "The week it got real" from `2026-09-05-candidates.md`,
 the outage and the security hole. It lands properly only once three weeks have
 established that you are honest about what you do not know.
 
+Nothing here refers to the two Higgsfield posts. They were an application for
+a grant you did not get, you are removing them, and a series that leaned on
+them would be pointing at a deleted page.
+
 ---
 
 ## 1. The decision
 
 **Hook**
-7.35 million Pinterest impressions, and until June I still could not build any of the products I kept imagining.
+I used to have ideas for products and let them go, because I had no way to build them. In June that changed.
 
 **Body**
 For a long time the pattern was the same. I would see a problem. I would work out exactly what would fix it, often in detail. And then I would let it go, because there was no route from the idea to a thing that exists.
 
-The ideas were never the bottleneck. Marketing I could already do. Building was the part I had no way into.
+The ideas were never the bottleneck. I had plenty of those. What I did not have was any way to build one.
 
-So at the start of June I opened Google AI Studio and built Ascend, and it became the first idea I ever carried all the way to something I could open and use.
+So at the start of June I opened Google AI Studio and built Ascend, a productivity suite with automation and analytics in it. It was the first idea I ever carried all the way to something I could open and use.
 
 I was not learning to code. I was learning to describe what I wanted precisely enough that something else could build it, and then reading everything that came back until I understood why it worked.
 
-3 months later there are 7 of them. One is a marketplace my campus actually uses.
+3 months later there are 8 of them. One is a marketplace my campus uses, with real sellers on it.
 
-Most of you have followed me for the marketing. This is what I have been doing since June.
+Most of what I have posted here has been about marketing. This is what I have been doing since June.
 
 **Close**
-Every one of those started as the kind of idea I would once have let go.
+What is the one you keep describing and have not built yet?
 
 **Hashtags**
-#buildinpublic #promptengineering #digitalmarketing #learninginpublic
+#buildinpublic #promptengineering #aitools #learninginpublic
 
 ---
 
