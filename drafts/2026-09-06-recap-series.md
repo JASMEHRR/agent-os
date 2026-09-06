@@ -38,23 +38,21 @@ established that you are honest about what you do not know.
 ## 1. The decision
 
 **Hook**
-In June I stopped writing briefs for developers and opened an AI studio instead. I had no coding background.
+I used to have ideas for products and let them go, because I had no way to build them. In June that changed.
 
 **Body**
-For a long time the pattern was the same. I would see a problem, imagine the product that fixes it, write it up properly, and then wait for somebody with the skills to care about it as much as I did.
+For a long time the pattern was the same. I would see a problem. I would work out exactly what would fix it, often in detail. And then I would let it go, because there was no route from the idea to a thing that exists.
 
-Nobody ever did. Not because they were lazy. It was my problem, not theirs.
+The ideas were never the bottleneck. I had plenty of those.
 
-So at the start of June I opened Google AI Studio and started building something called Ascend. A personal system with habit tracking at the centre of it, the app I had wanted to exist for a long time.
+So at the start of June I opened Google AI Studio and built Ascend, a goal oriented project, and the first idea I ever carried all the way to something I could open and use.
 
 I was not learning to code. I was learning to describe what I wanted precisely enough that something else could build it, and then reading everything that came back until I understood why it worked.
 
-3 months later there are 7 of them, and one is a marketplace my campus actually uses.
-
-I still could not write Python from memory. I can tell you what every file in those projects does and why it is there.
+3 months later there are 7 of them. One is a marketplace my campus actually uses.
 
 **Close**
-I am not a developer, and I have shipped software that people use. Both of those are true at once.
+Every one of those started as the kind of idea I would once have let go.
 
 **Hashtags**
 #buildinpublic #promptengineering #aitools #learninginpublic
@@ -101,7 +99,7 @@ You do not need the vocabulary before you start. You pick it up on the way, one 
 A friend who codes for a living looked at what I had built and said I had done more than most CS students do.
 
 **Body**
-Ascend was the first thing I made. A personal system with habit tracking at the centre, started in Google AI Studio at the beginning of June.
+Ascend was the first thing I made. A goal oriented project, started in Google AI Studio at the beginning of June.
 
 Then I stopped. I went to Kashmir, trekked with a friend, spent time with family. After a long stretch of sitting still in front of screens it was the first thing I had done that used my body, and I came back better for it. The project was late because of it, and I would make that trade again.
 
@@ -138,7 +136,7 @@ What it actually looks like:
 
 I describe the problem rather than the solution. A seller cannot photograph 40 items because they are running a shop between classes. That is the input.
 
-Something comes back that half works. I read all of it. Not to judge the syntax, which I could not do anyway, but to check whether it understood the problem.
+Something comes back that half works. I read all of it, to check whether it understood the problem.
 
 Usually it did not, and the fix is a better description rather than better code.
 
@@ -323,7 +321,7 @@ It does one job properly now. It reads my commit history, drafts my posts, and r
 7 projects since June, and I could not have told you what a repository was when I started.
 
 **Body**
-Ascend. A personal system built around habit tracking. The first one, and the one that proved this was possible.
+Ascend. A goal oriented project. The first one, and the one that proved this was possible.
 
 Habit Arena. A competitive habit tracker, now folded into Ascend, because two apps wanting the same data is one app.
 
