@@ -2,6 +2,8 @@
 
 Three and a half weeks, three posts a week. LinkedIn only, no newsletter.
 
+**Read and copy these from the Posting Desk rather than here:** https://claude.ai/code/artifact/44ad1a83-6967-4346-aba2-613c2025d6d3
+
 Written for a stranger who has never heard of you. Read in order they tell one
 story: a marketer got tired of waiting for somebody else to build his ideas,
 opened an AI studio in June, and by September had 7 projects and a marketplace
