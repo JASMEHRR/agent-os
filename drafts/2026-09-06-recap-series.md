@@ -1,6 +1,6 @@
-# The launch series: 9 posts, in order
+# The launch series: 10 posts, in order
 
-Three weeks, three posts a week. LinkedIn only, no newsletter.
+Three and a half weeks, three posts a week. LinkedIn only, no newsletter.
 
 Written for a stranger who has never heard of you. Read in order they tell one
 story: a marketer got tired of waiting for somebody else to build his ideas,
@@ -22,12 +22,13 @@ you should decide on before posting.
 | **W2 Mon** | 4. How I actually build | Answers the "how, though" the first week provokes |
 | **W2 Wed** | 5. The GitHub realisation | The most original idea you have |
 | **W2 Fri** | 6. The tools I built for myself | Range, without needing any of them to be a startup |
-| **W3 Mon** | 7. ClipForge | First of the two real products |
+| **W3 Mon** | 7. ClipForge | First of the real products, and a market people do not know exists |
 | **W3 Wed** | 8. What ventureadda is | The one with users |
-| **W3 Fri** | 9. Everything I have built | The full list, and the invitation |
+| **W3 Fri** | 9. How Agent OS actually got built | The strongest proof of the whole argument |
+| **W4 Mon** | 10. Everything I have built | The full list, and the invitation |
 
-Week 4 picks up "The week it got real" from `2026-09-05-candidates.md`, which is
-the outage and the security hole. It lands properly only after three weeks have
+Week 4 continues with "The week it got real" from `2026-09-05-candidates.md`,
+the outage and the security hole. It lands properly only once three weeks have
 established that you are honest about what you do not know.
 
 ---
@@ -214,18 +215,22 @@ The tools you build for yourself are the ones you finish, because the person who
 ## 7. ClipForge
 
 **Hook**
-ClipForge takes long videos, cuts the moments worth keeping, and posts them to 2 platforms without me.
+Some YouTube channels want you to clip their videos. A few of them pay you for it. I automated my side of that.
 
 **Body**
-It finds the parts of a long video that work on their own, cuts them, formats them vertically, and publishes to YouTube and TikTok on a schedule.
+Clipping is a real arrangement with real rules. A channel opts in, says what it allows, and in some cases pays per view on the clips you post. Permission comes first, which is the part people assume is missing.
 
-The interesting problem was never the cutting. It was deciding what counts as a moment worth keeping, which is a judgement, and judgement is the part you cannot hand over completely.
+So ClipForge only touches channels that allow it.
 
-I have built more than one version of it. Each is tuned to a different channel, because what works as a clip on one is not what works on another, and a general setting for that would be wrong everywhere at once.
+What it does: finds the parts of a long video that work on their own, cuts them, formats them vertically, and publishes them to 2 platforms on a schedule.
+
+The interesting problem was never the cutting. It was deciding what counts as a moment worth keeping. That is a judgement, and judgement is the part you cannot hand over completely.
+
+I have built more than one version. Each is tuned to a different channel, because a clip that works on one does not work on another, and a single general setting would be wrong everywhere at once.
 
 It is also the project that taught me what a pipeline is. Not one program doing a job, but several steps that each have to survive the one before them failing. Downloads time out. Uploads get rejected. A queue that assumes everything works is a queue that stops on the first bad day.
 
-Before this I had never written anything that ran without me watching it.
+Before this I had never built anything that ran without me watching it.
 
 **Close**
 Automating something forces you to be precise about a decision you had been making on instinct.
@@ -233,9 +238,10 @@ Automating something forces you to be precise about a decision you had been maki
 **Hashtags**
 #buildinpublic #automation #contentcreation #aitools
 
-> **Read the ClipForge note at the bottom before posting this one.** There is a
-> rights question in it that I could not resolve for you, and it interacts
-> badly with another post you are planning.
+> **Lead with the permission.** It preempts the obvious objection in the first
+> line, and it is genuinely interesting: most people do not know clip programmes
+> exist, or that channels pay for this. The fact that you only touch channels
+> that allow it is the post's credibility, not its disclaimer.
 
 ---
 
@@ -273,7 +279,43 @@ It is not a startup. It is a fix for something that annoyed me daily, and now ot
 
 ---
 
-## 9. Everything I have built
+## 9. How Agent OS actually got built
+
+**Hook**
+I spent 20 days writing a 99,000 word specification. The AI built it in 3 days. It still was not what I wanted.
+
+**Body**
+Agent OS was the thing I wanted to build from the very start, and the first problem was that I did not know what I was building. An AI agent and an agentic operating system are not the same thing, and in June I could not have told you the difference.
+
+So I did not start with code. I started with three AIs doing three different jobs.
+
+Kimi K3 wrote the specification. Around 27 markdown documents. The 7 architecture ones that survive in the repository come to 99,696 words, which is the length of a novel.
+
+ChatGPT handled Kimi. Working out how to prompt one model well enough to produce that was its own task, and it was the part I understood least at the time.
+
+Claude Code built it. All of it, from those documents.
+
+The writing took 15 to 20 days. The building took 2 to 3.
+
+Then it was done, and it was not what I wanted. Not broken. Just not the thing that had been in my head.
+
+It does one job properly now. It reads my commit history, drafts my posts, and rejects any draft carrying a number it cannot trace back to something I did. Smaller than I planned, and more useful than what I planned.
+
+**Close**
+20 days describing it, 3 days building it. The describing was the work. I did not expect that to be the lesson.
+
+**Hashtags**
+#buildinpublic #promptengineering #aitools #softwarearchitecture
+
+> **The strongest argument in the series.** Everything else says the skill is
+> description rather than coding. This proves it with a ratio: 20 days writing,
+> 3 days building, and 99,696 words that are still in the repository where
+> anyone can check. Ending on "it was not what I wanted" is what makes people
+> believe the rest of it.
+
+---
+
+## 10. Everything I have built
 
 **Hook**
 7 projects since June, and I could not have told you what a repository was when I started.
@@ -308,34 +350,26 @@ If you have been waiting for somebody to build the thing you keep describing, th
 All nine pass `check()`. What a gate cannot check is whether a claim is true,
 and a lot of this came from a voice note, so read this properly.
 
-## The one real problem: ClipForge
+## Resolved: the ClipForge rights question
 
-You described it as clipping **other people's** YouTube videos and posting them
-to your own channels. If that is right, post 7 has a rights question in it that
-is the same shape as the one you already answered well elsewhere: you refused
-to take product photos off Amazon because reselling a thing and owning the
-photograph of it are different questions.
+You confirmed the channels allow clipping, and that some of them pay per view
+for it. That removes the problem entirely, and post 7 now says so in its first
+two lines rather than hoping nobody asks.
 
-Somebody will notice that. Posting "I automated cutting up other people's
-videos" three weeks after "I refused to use photos I did not own" is the kind
-of inconsistency that gets picked up in the comments, and the comment will be
-fair.
-
-Three honest ways out, and I do not know which is true for you:
-
-1. **It is your own footage,** or a channel you own. Then say so in the post
-   and the problem disappears entirely.
-2. **It is licensed or permitted** by whoever made it. Say that.
-3. **It is other people's, without permission.** Then either do not post 7, or
-   post something better: the version where you explain what you learned about
-   the rights question while building it, and what you changed. That is a
-   stronger post than the automation one, and it is consistent with who the
-   rest of the series says you are.
-
-I wrote post 7 without saying whose videos, so it is safe as drafted. But you
-know the answer and the comments will ask.
+It also made the post better. Clip programmes are a real arrangement most
+people have never heard of, so "some channels want you to clip them and a few
+will pay you" is a genuinely interesting opening, and the permission fact is
+the post's credibility rather than a disclaimer bolted on the end.
 
 ## Things I could not verify
+
+**Kimi K3.** Post 9 names it. Your note sounded like "Kimi K3" but it could
+have been K2. It is the one factual claim in that post I cannot check, and it
+is the kind of thing the audience for that post will know.
+
+**Around 27 documents.** You said 27 or 28. Post 9 says "around 27" and then
+gives the 7 architecture ones exactly, which are the ones I could count. If the
+full set still exists somewhere, the real number is better than "around".
 
 **Google AI Studio.** Your note sounded like "Google's AI studios" and you had
 separately mentioned Antigravity, which is a different Google product. Posts 1
@@ -367,5 +401,11 @@ reasonably call it 6. Posts 1, 5 and 9 all use 7, so change all three together.
 ## Numbers I did verify
 
 28 modules and 1,947 tests in Agent OS are real as of today. 50 commits on
-ventureadda in one week is real for 28 August to 2 September. Everything else
-is your account of your own year, which is yours to state.
+ventureadda in one week is real for 28 August to 2 September.
+
+**99,696 words is real and I counted it.** That is the seven architecture
+documents in `ARCHITECTURE_BASELINE/`, still in the repository, and anybody who
+doubts post 9 can be shown them. The largest single one is 28,603 words. For
+scale, a short novel is about 80,000.
+
+Everything else is your account of your own year, which is yours to state.
