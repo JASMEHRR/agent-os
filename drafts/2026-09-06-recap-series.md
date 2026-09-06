@@ -38,24 +38,26 @@ established that you are honest about what you do not know.
 ## 1. The decision
 
 **Hook**
-I used to have ideas for products and let them go, because I had no way to build them. In June that changed.
+7.35 million Pinterest impressions, and until June I still could not build any of the products I kept imagining.
 
 **Body**
 For a long time the pattern was the same. I would see a problem. I would work out exactly what would fix it, often in detail. And then I would let it go, because there was no route from the idea to a thing that exists.
 
-The ideas were never the bottleneck. I had plenty of those.
+The ideas were never the bottleneck. Marketing I could already do. Building was the part I had no way into.
 
-So at the start of June I opened Google AI Studio and built Ascend, a goal oriented project, and the first idea I ever carried all the way to something I could open and use.
+So at the start of June I opened Google AI Studio and built Ascend, and it became the first idea I ever carried all the way to something I could open and use.
 
 I was not learning to code. I was learning to describe what I wanted precisely enough that something else could build it, and then reading everything that came back until I understood why it worked.
 
 3 months later there are 7 of them. One is a marketplace my campus actually uses.
 
+Most of you have followed me for the marketing. This is what I have been doing since June.
+
 **Close**
 Every one of those started as the kind of idea I would once have let go.
 
 **Hashtags**
-#buildinpublic #promptengineering #aitools #learninginpublic
+#buildinpublic #promptengineering #digitalmarketing #learninginpublic
 
 ---
 
@@ -99,7 +101,7 @@ You do not need the vocabulary before you start. You pick it up on the way, one 
 A friend who codes for a living looked at what I had built and said I had done more than most CS students do.
 
 **Body**
-Ascend was the first thing I made. A goal oriented project, started in Google AI Studio at the beginning of June.
+Ascend was the first thing I made. A productivity suite with automation and analytics in it, started in Google AI Studio at the beginning of June.
 
 Then I stopped. I went to Kashmir, trekked with a friend, spent time with family. After a long stretch of sitting still in front of screens it was the first thing I had done that used my body, and I came back better for it. The project was late because of it, and I would make that trade again.
 
@@ -321,7 +323,7 @@ It does one job properly now. It reads my commit history, drafts my posts, and r
 7 projects since June, and I could not have told you what a repository was when I started.
 
 **Body**
-Ascend. A goal oriented project. The first one, and the one that proved this was possible.
+Ascend. A productivity suite with automation and analytics. The first one, and the one that proved this was possible.
 
 Habit Arena. A competitive habit tracker, now folded into Ascend, because two apps wanting the same data is one app.
 
