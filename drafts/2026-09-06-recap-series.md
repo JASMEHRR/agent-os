@@ -155,13 +155,13 @@ People assume building with AI means typing a wish and watching a product appear
 
 What it actually looks like:
 
-I describe the problem rather than the solution. A seller cannot photograph 40 items because they are running a shop between classes. That is the input.
+I describe the problem rather than the solution. A seller cannot photograph 40 items because they are running a shop between classes. That is the input. Add an image uploader is not.
 
-Something comes back that half works. I read all of it, to check whether it understood the problem.
+Something comes back that half works. I read all of it, to check whether it solved the problem I gave it or a nearby one.
 
-Usually it did not, and the fix is a better description rather than better code.
+Usually it solved a nearby one. So I go back and say the part I left out, and the part I left out is almost always the thing I thought was too obvious to mention.
 
-I keep the parts that are decisions and throw out the parts that are guesses. Which library to use, it can choose. Whether to take product photos from a company that owns them, I decide.
+I keep the decisions and throw out the guesses. Which library to use, it can choose. Whether to take product photos from a company that owns them, I decide.
 
 Then it breaks in front of a real user, and I read the error, and I learn one more word.
 
