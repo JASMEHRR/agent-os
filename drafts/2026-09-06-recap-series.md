@@ -7,7 +7,7 @@ Three and a half weeks, three posts a week. LinkedIn only, no newsletter.
 Written for people who know you post about marketing and have no idea you
 build software. Read in order they tell one story: somebody who kept having
 ideas and letting them go, because there was no route from an idea to a thing
-that exists, opened an AI studio in June and by September had 8 of them.
+that exists, opened an AI studio in June and by September had 7 of them.
 
 **Post 1 is the only one finished to your notes.** The rest still carry
 assumptions you have not checked yet. Do them one at a time.
@@ -64,7 +64,7 @@ I was not learning to code. I was learning to describe what I wanted precisely e
 
 That second half is the actual job. The first attempt is never right, and the fix is almost always a better description rather than better code.
 
-3 months later there are 8 of them.
+3 months later there are 7 of them.
 
 A marketplace my campus uses, where students selling out of hostel rooms get a real storefront. A tool that cuts long videos into short ones and posts them on a schedule. A platform that reads my commit history and drafts from it. A few that never left my laptop and were never meant to.
 
@@ -193,9 +193,9 @@ Then it became the most useful thing I learned all year, for two reasons.
 
 The first is that a tool which already exists is a tool built for its author. Their habit tracker fits their habits. Their clipper fits their channel. Mine fits me, and being specialised to one person is not a lesser reason to build something. It is the one thing a general product cannot do.
 
-The second is practical. I stopped starting from nothing. Now, before building anything, I go and find who has already solved it, read how they did it, and begin from there.
+The second is practical. I stopped starting from nothing. Before I build anything now, I go and find who has already solved it, read how they did it, and start from there instead of from an empty file.
 
-That single change is why the count went from 2 projects to 7. Not because I got faster at building. Because I stopped starting at zero.
+That changed how fast I could move more than anything else I picked up. The count went from 2 projects to 7, and not because I got better at building. Because I stopped starting at zero every time.
 
 **Close**
 Everything you want to build already exists somewhere. That is the good news rather than the bad.
