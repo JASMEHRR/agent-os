@@ -9,8 +9,21 @@ build software. Read in order they tell one story: somebody who kept having
 ideas and letting them go, because there was no route from an idea to a thing
 that exists, opened an AI studio in June and by September had 7 of them.
 
-**Post 1 is the only one finished to your notes.** The rest still carry
-assumptions you have not checked yet. Do them one at a time.
+**All 10 have now been through your notes.** Nothing anywhere in the series
+says what you cannot do, no close is a statement where a question would earn a
+reply, and the two numbers you told me to drop are gone. Three fixes worth
+knowing about:
+
+- The count said 7 in one place and 8 in another. I introduced the 8 myself.
+  It is 7 everywhere now, which is the number post 10 lists out.
+- Post 1 and post 4 had ended up with the same sentence about descriptions
+  beating code. Post 4 owns the idea, so it goes further with it instead.
+- Post 9 no longer names the Kimi version. See the checks at the bottom.
+
+**One thing still open, and it affects 3 posts.** Ascend is described as "a
+productivity suite with automation and analytics" in posts 1, 3 and 10. That
+came off your portfolio, not from you. Tell me what it actually did and those
+three get better in the same edit.
 
 Everything here comes from what you told me plus the two repositories I can
 see. **The checks at the bottom matter.** Several details came from a voice
