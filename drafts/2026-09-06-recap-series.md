@@ -124,14 +124,16 @@ Then I stopped. I went to Kashmir, trekked with a friend, spent time with family
 
 On 28 June I paid for Claude. That is the date the pace changed.
 
-I finished Ascend and handed it to friends. They used it. Then one of them, who comes from an actual coding background, told me I had built more than most CS students manage.
+I finished Ascend and handed it to friends. They used it, which was the first time anything I made had a user who was not me.
 
-I did not know what to do with that sentence. I am a marketer. Four weeks earlier I could not have told you what a repository was.
+Then one of them, who codes for a living, told me I had built more than most CS students manage.
+
+I did not know what to do with that sentence. A few weeks earlier I had been describing apps to people and quietly hoping somebody would build one.
 
 That is the moment this stopped being a hobby.
 
 **Close**
-Everybody remembers the first time somebody who knows better takes the work seriously. Mine was one sentence from a friend.
+Everybody remembers the first time somebody who knows better takes their work seriously. I would like to hear about yours.
 
 **Hashtags**
 #buildinpublic #learninginpublic #promptengineering #studentfounder
