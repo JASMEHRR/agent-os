@@ -86,22 +86,22 @@ What is the one you keep describing and have not built yet?
 **Body**
 I am tech savvy. I was not a coder. Those are further apart than they sound, and I found out how far by trying to build something real.
 
-The things I had to be introduced to, roughly in order:
+Every one of these arrived the same way. I got stuck, and the thing in my way turned out to have a name.
 
-GitHub. I did not know what a repository was. I have several now.
+GitHub. I did not know what a repository was. It is now where I start anything, because somebody has usually solved a version of the problem already and left their work out in the open.
 
-Firebase and Supabase. I did not know what a database rule meant, which is a little embarrassing given I later found a hole in one of my own.
+Firebase and Supabase. A database rule decides who is allowed to read and write what. Nobody mentions that until the day it matters, and then it is the only thing that matters.
 
-Netlify, Vercel, deployment. I did not know that getting something onto the internet was a separate skill from making it.
+Netlify, Vercel, deployment. Getting something onto the internet is a separate skill from making it. That surprised me more than anything else on this list.
 
-Claude Code, Codex, Antigravity. I did not know AI could hold an entire project in its head rather than answer one question at a time.
+Claude Code, Codex, Antigravity. I had been using AI one question at a time. These hold a whole project at once, and that difference is most of why any of this worked.
 
-Error names. I did not know that most errors are a sentence telling you exactly what is wrong, and that learning to read them calmly is most of the job.
+Error messages. Most of them are a sentence telling you exactly what is wrong. Learning to read one calmly, before pasting it anywhere, turned out to be a real skill.
 
-None of this came from a course. It was one blocked afternoon at a time, and each one taught me the word for the thing in my way.
+None of this came from a course. It was one blocked afternoon at a time, and each one handed me the word for the thing that was stopping me.
 
 **Close**
-You do not need the vocabulary before you start. You pick it up on the way, one stuck problem at a time.
+What is the word you are missing right now? The thing you keep working around because you do not know what it is called yet.
 
 **Hashtags**
 #learninginpublic #github #firebase #buildinpublic
