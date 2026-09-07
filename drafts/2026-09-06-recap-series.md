@@ -308,7 +308,7 @@ Agent OS was the thing I wanted to build from the very start, and the first prob
 
 So I did not start with code. I started with three AIs doing three different jobs.
 
-Kimi K3 wrote the specification. Around 27 markdown documents. The 7 architecture ones that survive in the repository come to 99,696 words, which is the length of a novel.
+Kimi wrote the specification. Around 27 markdown documents. The 7 architecture ones that survive in the repository come to 99,696 words, which is the length of a novel.
 
 ChatGPT handled Kimi. Working out how to prompt one model well enough to produce that was its own task, and it was the part I understood least at the time.
 
@@ -316,7 +316,7 @@ Claude Code built it. All of it, from those documents.
 
 The writing took 15 to 20 days. The building took 2 to 3.
 
-Then it was done, and it was not what I wanted. Not broken. Just not the thing that had been in my head.
+Then it was done, and it was not what I wanted. Not broken. Just not the one I set out to build.
 
 It does one job properly now. It reads my commit history, drafts my posts, and rejects any draft carrying a number it cannot trace back to something I did. Smaller than I planned, and more useful than what I planned.
 
@@ -352,12 +352,14 @@ ClipForge. Cuts long videos into short ones and posts them across platforms on a
 
 ventureadda. A marketplace for my campus. Live, with real sellers, students running shops from hostel rooms.
 
-Agent OS. The platform underneath my writing. It reads my commit history, drafts posts from it, and rejects any draft with a number it cannot trace back to something I did. 28 modules, 1,947 tests, and no publish button on purpose.
+Agent OS. The platform underneath my writing. It reads my commit history, drafts posts from it, and rejects any draft with a number it cannot trace back to something I did. 28 modules, 1,947 tests, and no publish button on purpose, because approving a post is my job and not the machine's.
 
 None of these existed in May. What changed was not talent. I got specific about problems, and I got good at describing them to something that could build.
 
+Three months is not a long time. It is one summer.
+
 **Close**
-If you have been waiting for somebody to build the thing you keep describing, that wait is optional now.
+If you have been waiting for somebody to build the thing you keep describing, that wait is optional now. Tell me what it is and I will tell you where I would start.
 
 **Hashtags**
 #buildinpublic #promptengineering #studentfounder #aitools
@@ -382,9 +384,12 @@ the post's credibility rather than a disclaimer bolted on the end.
 
 ## Things I could not verify
 
-**Kimi K3.** Post 9 names it. Your note sounded like "Kimi K3" but it could
-have been K2. It is the one factual claim in that post I cannot check, and it
-is the kind of thing the audience for that post will know.
+**The Kimi version, now dropped.** Your note sounded like "Kimi K3" but it
+could have been K2, and it is the kind of detail the audience for that post
+will know. Post 9 now just says "Kimi", which costs the story nothing and
+removes the only claim in it I could not check. Put the version back yourself
+if you are sure which one it was, because naming it exactly is more credible
+to that audience than leaving it off.
 
 **Around 27 documents.** You said 27 or 28. Post 9 says "around 27" and then
 gives the 7 architecture ones exactly, which are the ones I could count. If the
