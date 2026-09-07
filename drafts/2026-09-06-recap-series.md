@@ -239,11 +239,9 @@ The tools you build for yourself are the ones you finish, because the person who
 Some YouTube channels want you to clip their videos. A few of them pay you for it. I automated my side of that.
 
 **Body**
-Clipping is a real arrangement with real rules. A channel opts in, says what it allows, and in some cases pays per view on the clips you post. Permission comes first, which is the part people assume is missing.
+This is a real arrangement with real rules. A channel opts in, says what it allows, and in some cases pays per view on the clips you post. It is a distribution deal, and most people have no idea it exists.
 
-So ClipForge only touches channels that allow it.
-
-What it does: finds the parts of a long video that work on their own, cuts them, formats them vertically, and publishes them to 2 platforms on a schedule.
+ClipForge is my side of it. It finds the parts of a long video that work on their own, cuts them, formats them vertically, and publishes them to 2 platforms on a schedule.
 
 The interesting problem was never the cutting. It was deciding what counts as a moment worth keeping. That is a judgement, and judgement is the part you cannot hand over completely.
 
@@ -286,10 +284,10 @@ Orders that go over WhatsApp, because that is where these students already are. 
 
 Only students of my college can sell, and that is proved through Google rather than an emailed link nobody opens.
 
-50 commits went into it in one week.
+50 commits went into it in one week, and almost every one of them was about one of those four problems rather than the marketplace part.
 
 **Close**
-It is not a startup. It is a fix for something that annoyed me daily, and now other people use it.
+I did not set out to start anything. I set out to fix something that annoyed me daily, and now other people use it.
 
 **Hashtags**
 #campusmarketplace #buildinpublic #studentfounder #firebase
