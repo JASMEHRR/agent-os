@@ -219,11 +219,11 @@ Jarvis. It runs on my laptop, transcribes whatever I say, and gives me an interf
 
 Atlas. Give it a screenshot of any website and it writes the prompt that would let another AI build that site. It came from a problem I had constantly, which is that I could see what I wanted and could not describe it well enough.
 
-Habit Arena. A habit tracker that became a competitive one. It ended up folded into Ascend rather than living on its own, which is the right fate for a lot of side projects.
+Habit Arena. A habit tracker that turned competitive. It ended up folded into Ascend rather than living on its own, which is the right fate for a lot of side projects.
 
-None of these have users. None of them are startups. Some will never leave my laptop.
+None of these have users. None of them are startups. Nobody was ever waiting on any of them.
 
-They are also the reason I can build anything else. Each one taught me a piece I did not have: audio streams, screenshots as an input, what happens when two features want the same data.
+They are also the reason I can build anything else. Jarvis taught me how audio actually moves through a program. Atlas taught me that a screenshot is an input like any other. Habit Arena taught me what happens when two features want the same data, which is exactly why it lives inside Ascend now.
 
 **Close**
 The tools you build for yourself are the ones you finish, because the person who needs them is checking every day.
