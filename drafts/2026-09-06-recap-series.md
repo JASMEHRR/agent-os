@@ -54,7 +54,7 @@ them would be pointing at a deleted page.
 I used to have ideas for products and let them go, because I had no way to build them. In June that changed.
 
 **Body**
-For a long time the pattern was the same. I would see a problem. I would work out exactly what would fix it, often in detail. And then I would let it go, because there was no route from the idea to a thing that exists.
+For a long time the pattern was the same. I would see a problem. I would work out exactly what would fix it, often in detail, sometimes down to the screens. And then I would let it go, because there was no route from the idea to a thing that exists.
 
 The ideas were never the bottleneck. I had plenty of those. What I did not have was any way to build one.
 
@@ -62,9 +62,13 @@ So at the start of June I opened Google AI Studio and built Ascend, a productivi
 
 I was not learning to code. I was learning to describe what I wanted precisely enough that something else could build it, and then reading everything that came back until I understood why it worked.
 
-3 months later there are 8 of them. One is a marketplace my campus uses, with real sellers on it.
+That second half is the actual job. The first attempt is never right, and the fix is almost always a better description rather than better code.
 
-Most of what I have posted here has been about marketing. This is what I have been doing since June.
+3 months later there are 8 of them.
+
+A marketplace my campus uses, where students selling out of hostel rooms get a real storefront. A tool that cuts long videos into short ones and posts them on a schedule. A platform that reads my commit history and drafts from it. A few that never left my laptop and were never meant to.
+
+Not all of them are finished. One did not turn out to be the thing I had in my head. But every one of them exists, and in May not a single one would have.
 
 **Close**
 What is the one you keep describing and have not built yet?
