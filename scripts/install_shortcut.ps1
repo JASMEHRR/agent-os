@@ -21,6 +21,7 @@ $ErrorActionPreference = 'Stop'
 
 $repo = Split-Path -Parent $PSScriptRoot
 $launcher = Join-Path $repo 'PostStudio.bat'
+$icon = Join-Path $repo 'assets\post-studio.ico'
 
 if (-not (Test-Path $launcher)) {
     Write-Host "  Could not find PostStudio.bat next to this script."
@@ -45,9 +46,14 @@ foreach ($path in $targets) {
     # launcher resolves somewhere else.
     $link.WorkingDirectory = $repo
     $link.Description = 'Write a note, read the drafts, send what you approve'
-    # Windows has no icon for this worth looking at on a taskbar. Its own
-    # generic app icon is the least bad option that needs no asset shipped.
-    $link.IconLocation = "$env:SystemRoot\System32\SHELL32.dll,13"
+    # The mark from scripts/make_icon.py. Falls back to a Windows stock icon if
+    # the file is missing, because a shortcut with no icon at all is worse than
+    # a generic one and this should not fail over a picture.
+    if (Test-Path $icon) {
+        $link.IconLocation = "$icon,0"
+    } else {
+        $link.IconLocation = "$env:SystemRoot\System32\SHELL32.dll,13"
+    }
     $link.Save()
     Write-Host "  Created $path"
 }
