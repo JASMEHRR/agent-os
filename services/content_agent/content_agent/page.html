@@ -302,9 +302,13 @@ section[data-view].active { display: block; }
       <span class="hint" style="margin:0" id="mic-state"></span>
     </div>
     <input type="text" id="angle" placeholder="Optional: an angle to take (leave blank and it picks one)">
+    <!-- Newsletter is off the menu for now: there is no list to send one to,
+         and drafting into a channel with no audience spends a model call and
+         your reading time on something nobody receives. The format, its gates
+         and its tests are untouched, so putting the checkbox back is the whole
+         of turning it on again. -->
     <div class="row" id="channels">
       <label class="chan"><input type="checkbox" value="linkedin" checked> LinkedIn post</label>
-      <label class="chan"><input type="checkbox" value="newsletter"> Newsletter</label>
       <label class="chan"><input type="checkbox" value="devto"> Dev.to article</label>
     </div>
     <div class="row">
