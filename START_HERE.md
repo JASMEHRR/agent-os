@@ -3,8 +3,9 @@
 Write what you did this week. It drafts a LinkedIn post, a newsletter issue and
 a Dev.to article from the same facts. You read them and decide what goes out.
 
-Nothing is ever published automatically. It cannot be: the code has no verb
-that posts anything anywhere.
+Nothing is published without you approving it first. It can post, and it can
+send an approved post at a time you pick, but there is no path from a draft to
+LinkedIn that does not pass through you saying yes to that exact draft.
 
 ---
 
@@ -149,10 +150,15 @@ after a model gets swapped underneath.
 
 ## What it deliberately does not do
 
-- **It does not publish.** Not to LinkedIn, not anywhere. Approving marks a
-  draft ready and copies it. You paste it yourself.
+- **It does not publish anything you have not approved.** It can post now, and
+  it can post at a time you choose, but only a draft you personally approved.
+  There is no auto-approve, no timeout that counts as a yes, and no setting
+  that turns one on. The refusal is structural: a draft can only reach
+  "published" from "approved", so a bug in the scheduler cannot route around
+  it.
 - **It does not invent numbers.** Every figure comes from your note.
-- **It does not run unattended yet.** It runs when you open it.
+- **It does not decide what to post.** It decides when, and only after you
+  have said yes to what.
 
-The first one is a design decision and I would push back on changing it. The
-third is the next thing worth building.
+The first one is the design decision the rest of this hangs off, and it is the
+one I would push back hardest on changing.

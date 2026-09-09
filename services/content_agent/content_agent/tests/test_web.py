@@ -138,13 +138,99 @@ def test_discard_removes_a_draft_from_the_waiting_list(server) -> None:
 # -------------------------------------------------------------------- Safety
 
 
-def test_there_is_no_publish_route(server) -> None:
-    """The studio has no publishing verb, so the server must have no route to
-    one. Checked from the outside, because an endpoint added later would not
-    fail any test that only inspects the studio."""
-    for path in ("/api/publish", "/api/post", "/api/send", "/api/share"):
+def test_the_only_publishing_route_is_the_one_that_was_designed(server) -> None:
+    """Publishing arrived; the surface it arrived on did not widen.
+
+    `/api/publish` exists now. The others never did, and a future edit that
+    quietly adds a second door should fail here rather than in review.
+    """
+    for path in ("/api/post", "/api/send", "/api/share"):
         status, _ = call(server, path, {"draft_id": "x"})
         assert status == 404, f"{path} exists and it must not"
+
+
+def test_an_unapproved_draft_cannot_be_published_over_the_api(server) -> None:
+    """The property the old "no publish route at all" test was protecting.
+
+    Checked from the outside, over a socket, because the interesting failure
+    is a route reaching past the approval boundary rather than a studio method
+    doing so, and only one of those is visible from inside the studio.
+    """
+    _, note = call(server, "/api/note", {"body": GOOD_NOTE})
+    _, drafted = call(server, "/api/draft", {"note_id": note["note_id"]})
+    draft_id = drafted["drafts"][0]["draft_id"]
+
+    status, body = call(server, "/api/publish", {"draft_id": draft_id})
+
+    assert status == 400
+    assert "approval" in body["error"]
+
+    _, state = call(server, "/api/state")
+    assert state["waiting"][0]["draft_id"] == draft_id, "it should still be sitting there unpublished"
+
+
+def test_an_unapproved_draft_cannot_be_scheduled_over_the_api(server) -> None:
+    """Scheduling is the slower path to the same place, so it refuses too."""
+    _, note = call(server, "/api/note", {"body": GOOD_NOTE})
+    _, drafted = call(server, "/api/draft", {"note_id": note["note_id"]})
+
+    status, body = call(
+        server,
+        "/api/schedule",
+        {"draft_id": drafted["drafts"][0]["draft_id"], "when": "2026-09-10T09:00:00+00:00"},
+    )
+
+    assert status == 400
+    assert "approval" in body["error"]
+
+
+def test_a_studio_with_no_publisher_says_so_rather_than_pretending(server) -> None:
+    """The fixture wires no publisher, which is a studio without credentials.
+
+    An approved draft is as far as it can get, and the button has to say that
+    plainly: one that silently does nothing is worse than one that refuses.
+    """
+    _, note = call(server, "/api/note", {"body": GOOD_NOTE})
+    _, drafted = call(server, "/api/draft", {"note_id": note["note_id"]})
+    draft_id = drafted["drafts"][0]["draft_id"]
+    call(server, "/api/approve", {"draft_id": draft_id})
+
+    status, body = call(server, "/api/publish", {"draft_id": draft_id})
+
+    assert status == 400
+    assert "not set up" in body["error"]
+
+    _, state = call(server, "/api/state")
+    assert state["can_post"] is False
+
+
+def test_an_approved_draft_can_be_scheduled_and_shows_up_in_the_queue(server) -> None:
+    _, note = call(server, "/api/note", {"body": GOOD_NOTE})
+    _, drafted = call(server, "/api/draft", {"note_id": note["note_id"]})
+    draft_id = drafted["drafts"][0]["draft_id"]
+    call(server, "/api/approve", {"draft_id": draft_id})
+
+    status, body = call(server, "/api/schedule", {"draft_id": draft_id, "when": "2026-09-10T09:00:00+00:00"})
+
+    assert status == 200
+    assert body["draft"]["scheduled_for"].startswith("2026-09-10T09:00")
+
+    _, state = call(server, "/api/state")
+    assert [d["draft_id"] for d in state["queue"]] == [draft_id]
+    assert state["schedule"]["queued"] == 1
+
+
+def test_a_time_that_cannot_be_read_is_refused_with_the_value_in_the_message(server) -> None:
+    """A misread time is a post that goes out at the wrong hour, or never."""
+    _, note = call(server, "/api/note", {"body": GOOD_NOTE})
+    _, drafted = call(server, "/api/draft", {"note_id": note["note_id"]})
+    draft_id = drafted["drafts"][0]["draft_id"]
+    call(server, "/api/approve", {"draft_id": draft_id})
+
+    status, body = call(server, "/api/schedule", {"draft_id": draft_id, "when": "next tuesday"})
+
+    assert status == 400
+    assert "next tuesday" in body["error"]
 
 
 def test_state_changing_routes_reject_get(server) -> None:
