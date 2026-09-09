@@ -76,6 +76,7 @@ def _draft_json(draft: Any) -> dict[str, Any]:
         "outstanding": list(draft.outstanding),
         "created_at": draft.created_at.isoformat(),
         "scheduled_for": draft.scheduled_for.isoformat() if draft.scheduled_for else "",
+        "published_at": draft.published_at.isoformat() if draft.published_at else "",
         "published_url": draft.published_url,
         "failure_reason": draft.failure_reason,
     }

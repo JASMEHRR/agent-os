@@ -8,6 +8,7 @@ show up when the handler is called directly.
 from __future__ import annotations
 
 import json
+import re
 import threading
 import urllib.error
 import urllib.request
@@ -72,18 +73,42 @@ def call(base: str, path: str, payload: dict[str, Any] | None = None) -> tuple[i
 # ------------------------------------------------------------------ The page
 
 
-def test_the_page_is_served_and_is_self_contained(server) -> None:
-    """One external request only, for the webfont.
+#: Every host the page is allowed to name, and why. Anything else appearing
+#: here means a draft could reach a third party before it reached the person
+#: who wrote it, which is the thing this file exists to prevent.
+ALLOWED_HOSTS = {
+    "fonts.googleapis.com": "the webfont stylesheet",
+    "fonts.gstatic.com": "the webfont files",
+    "www.linkedin.com": "the composer, opened by you clicking a button",
+}
 
-    Anything else would mean a draft could reach a third party before it
-    reached the person who wrote it.
-    """
+
+def test_the_page_is_served_and_names_no_unexpected_host(server) -> None:
+    """The webfont is fetched. LinkedIn is opened. Nothing else is named."""
     with urllib.request.urlopen(server, timeout=10) as response:  # nosec B310
         html = response.read().decode()
 
     assert "<title>Post Studio</title>" in html
-    external = [line for line in html.splitlines() if "https://" in line and "fonts.g" not in line]
-    assert not external, f"the page reaches somewhere other than Google Fonts: {external}"
+    hosts = set(re.findall(r"https://([A-Za-z0-9.-]+)", html))
+    assert hosts <= set(ALLOWED_HOSTS), f"the page names a host nobody vetted: {hosts - set(ALLOWED_HOSTS)}"
+
+
+def test_nothing_is_fetched_from_linkedin_by_the_page_itself(server) -> None:
+    """LinkedIn is somewhere you are sent, never somewhere the page calls.
+
+    The distinction is the whole reason the host is allowed at all: a
+    `window.open` you clicked is not the same as a background request, and a
+    future edit that turned one into the other would otherwise pass silently.
+    """
+    with urllib.request.urlopen(server, timeout=10) as response:  # nosec B310
+        html = response.read().decode()
+
+    for line in html.splitlines():
+        if "linkedin.com" not in line:
+            continue
+        assert "window.open" in line or "linkedin.com/feed" in line, f"linkedin reached some other way: {line.strip()}"
+        for verb in ("fetch(", "XMLHttpRequest", "<script", "<img", "<link"):
+            assert verb not in line, f"linkedin is being loaded rather than opened: {line.strip()}"
 
 
 # ------------------------------------------------------------------ The flow
