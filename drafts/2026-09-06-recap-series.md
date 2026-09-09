@@ -71,7 +71,7 @@ For a long time the pattern was the same. I would see a problem. I would work ou
 
 The ideas were never the bottleneck. I had plenty of those. What I did not have was any way to build one.
 
-So at the start of June I opened Google AI Studio and built Ascend, a productivity suite with automation and analytics in it. It was the first idea I ever carried all the way to something I could open and use.
+So at the start of June I opened Google Antigravity and built Ascend, a productivity suite with automation and analytics in it. It was the first idea I ever carried all the way to something I could open and use.
 
 I was not learning to code. I was learning to describe what I wanted precisely enough that something else could build it, and then reading everything that came back until I understood why it worked.
 
@@ -131,7 +131,7 @@ What is the word you are missing right now? The thing you keep working around be
 A friend who codes for a living looked at what I had built and said I had done more than most CS students do.
 
 **Body**
-Ascend was the first thing I made. A productivity suite with automation and analytics in it, started in Google AI Studio at the beginning of June.
+Ascend was the first thing I made. A productivity suite with automation and analytics in it, started in Google Antigravity at the beginning of June.
 
 Then I stopped. I went to Kashmir, trekked with a friend, spent time with family. After a long stretch of sitting still in front of screens it was the first thing I had done that used my body, and I came back better for it. The project was late because of it, and I would make that trade again.
 
@@ -408,9 +408,9 @@ to that audience than leaving it off.
 gives the 7 architecture ones exactly, which are the ones I could count. If the
 full set still exists somewhere, the real number is better than "around".
 
-**Google AI Studio.** Your note sounded like "Google's AI studios" and you had
-separately mentioned Antigravity, which is a different Google product. Posts 1
-and 3 say Google AI Studio. Fix it if it was Antigravity or something else.
+**Google Antigravity: resolved.** This was open, and your published post 1
+answered it: you wrote Antigravity. Posts 1 and 3 now say the same, which
+matters because post 3 goes to the same readers who have already read post 1.
 
 **Groq or Grok.** Post 6 says Jarvis runs on "Gemini or Groq". Groq is the fast
 inference service your Agent OS already uses, Grok is xAI's model. I guessed
