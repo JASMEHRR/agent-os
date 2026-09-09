@@ -335,6 +335,15 @@ section[data-view].active { display: block; }
     <div id="approved"></div>
   </div>
 
+  <div class="panel" id="archive-panel" hidden>
+    <h2>Already posted</h2>
+    <p class="hint">
+      What has gone out, newest first. Posts you pasted into LinkedIn yourself
+      count, once you press "I posted this" on them.
+    </p>
+    <div id="archive"></div>
+  </div>
+
   <div class="panel" id="attention-panel" hidden>
     <h2>Did not work</h2>
     <p class="hint">These failed the quality rules. The reasons usually mean the note was thin.</p>
@@ -648,8 +657,25 @@ function approvedCard(d) {
         <button class="ghost" data-schedule="${d.draft_id}">${d.scheduled_for ? 'Change time' : 'Schedule it'}</button>
         ${d.scheduled_for ? `<button class="ghost" data-unschedule="${d.draft_id}">Take it off</button>` : ''}
         <button class="primary" data-post="${d.draft_id}">Post now</button>
+        <button class="ghost" data-posted="${d.draft_id}"
+                title="You pasted this into LinkedIn yourself">I posted this</button>
       </div>
       <div id="msg-${d.draft_id}"></div>
+    </div>`;
+}
+
+function archiveCard(d) {
+  const when = d.published_url
+    ? `<a href="${escapeHtml(d.published_url)}" target="_blank" rel="noopener">see it on LinkedIn</a>`
+    : '<span class="hint" style="margin:0">no link recorded</span>';
+  return `
+    <div style="margin-bottom:22px">
+      <div class="row" style="margin:0 0 4px">
+        <span class="chan-badge">${escapeHtml(d.channel)}</span>
+        <span class="pill on">posted</span>
+        ${when}
+      </div>
+      <div class="post">${escapeHtml(d.full_text)}</div>
     </div>`;
 }
 
@@ -666,6 +692,9 @@ async function refresh() {
     ? 'These are yours to send. Post one now, or give it a time and publish_due.py sends it then.'
     : 'Posting is not connected on this copy, so these are copy-and-paste only. '
       + 'Run scripts/linkedin_post.py auth, then restart the studio.';
+
+  $('archive-panel').hidden = (s.published || []).length === 0;
+  $('archive').innerHTML = (s.published || []).map(archiveCard).join('');
 
   $('attention-panel').hidden = s.attention.length === 0;
   $('attention').innerHTML = s.attention.map(d => draftCard(d, false)).join('');
@@ -740,6 +769,17 @@ function wire() {
   document.querySelectorAll('[data-schedule]').forEach(b => { b.onclick = () => schedule(b.dataset.schedule); });
   document.querySelectorAll('[data-unschedule]').forEach(b => { b.onclick = () => unschedule(b.dataset.unschedule); });
   document.querySelectorAll('[data-post]').forEach(b => { b.onclick = () => postNow(b, b.dataset.post); });
+  document.querySelectorAll('[data-posted]').forEach(b => { b.onclick = () => markPosted(b.dataset.posted); });
+}
+
+async function markPosted(id) {
+  // The link is optional on purpose: asking for a URL you have to go and find
+  // is how a two-second action becomes one nobody bothers with.
+  const url = prompt('Posted it yourself? Paste the LinkedIn link if you have it, or leave blank.') ?? '';
+  try {
+    await api('/api/mark-posted', { draft_id: id, url });
+    await refresh();
+  } catch (e) { message(`msg-${id}`, e.message, 'error'); }
 }
 
 // ------------------------------------------------------------- Scheduling
@@ -1216,6 +1256,23 @@ if (!Recognition) {
   };
 }
 
+// A copy with no password has no use for a login box, and a box that exists is
+// one styling mistake away from covering the page: that is exactly what
+// happened, and the whole studio sat behind a password prompt that no password
+// could answer. Here it is removed from the document rather than hidden, so
+// there is nothing left to reveal by accident.
+async function dropLoginWhenNotNeeded() {
+  try {
+    const res = await fetch('/healthz');
+    const { login_required } = await res.json();
+    if (!login_required) $('login')?.remove();
+  } catch (e) {
+    // A failed health check says nothing about whether a password is wanted,
+    // so the box stays and the 401 path still works.
+  }
+}
+
+dropLoginWhenNotNeeded();
 refresh();
 </script>
 </body>

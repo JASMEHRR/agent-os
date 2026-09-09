@@ -394,11 +394,27 @@ def test_hosted_still_refuses_cross_origin_writes(hosted) -> None:
 
 
 def test_the_health_check_needs_no_login(hosted) -> None:
-    """A host's health checker has no cookie. It is told the process is up,
-    and nothing else."""
+    """A host's health checker has no cookie. It is told the process is up and
+    whether a password is wanted, and nothing else.
+
+    The second fact is not a secret: the login box is visible to anyone who can
+    load the page. Everything that *is* private stays behind the cookie, and
+    the exact-keys assertion is what stops that drifting.
+    """
     status, body = call(hosted, "/healthz")
     assert status == 200
-    assert body == {"ok": True}
+    assert body == {"ok": True, "login_required": True}
+
+
+def test_the_health_check_says_no_password_is_wanted_on_a_laptop_copy(server) -> None:
+    """What the page uses to delete the login box outright.
+
+    A box that exists is a box one styling mistake away from covering the
+    screen, which is precisely what happened.
+    """
+    status, body = call(server, "/healthz")
+    assert status == 200
+    assert body == {"ok": True, "login_required": False}
 
 
 def test_capture_runs_the_refresh_first() -> None:

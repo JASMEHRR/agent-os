@@ -254,6 +254,66 @@ def test_a_publisher_that_returns_nothing_useful_publishes_without_a_link() -> N
     assert memory.get("d1").published_url == ""
 
 
+# -------------------------------------------------------------------- Archive
+
+
+def test_a_post_you_sent_by_hand_can_be_recorded_as_posted() -> None:
+    """The tagging path: mentions cannot go through the API, so those posts
+    are pasted into LinkedIn by hand and the tool has to be told."""
+    scheduler, memory = scheduler_at(NOW, draft().approve("jasmehr"))
+
+    posted = scheduler.mark_posted("d1", "https://www.linkedin.com/feed/update/urn:li:activity:5")
+
+    assert posted.state is DraftState.PUBLISHED
+    assert memory.get("d1").published_url.endswith("activity:5")
+    assert [d.draft_id for d in scheduler.published()] == ["d1"]
+
+
+def test_recording_a_hand_posted_draft_needs_no_link() -> None:
+    """Asking for a URL you have to go and find is how a two-second action
+    becomes one nobody does."""
+    scheduler, _ = scheduler_at(NOW, draft().approve("jasmehr"))
+
+    posted = scheduler.mark_posted("d1")
+
+    assert posted.state is DraftState.PUBLISHED
+    assert posted.published_url == ""
+
+
+def test_an_unapproved_draft_cannot_be_recorded_as_posted() -> None:
+    """Same boundary as sending: this is a different door to the same room."""
+    scheduler, memory = scheduler_at(NOW, draft(DraftState.DRAFTED))
+
+    with pytest.raises(NotApproved):
+        scheduler.mark_posted("d1")
+    assert memory.get("d1").state is DraftState.DRAFTED
+
+
+def test_a_posted_draft_leaves_the_approved_list_and_joins_the_archive() -> None:
+    scheduler, _ = scheduler_at(NOW, draft().approve("jasmehr"))
+    assert [d.draft_id for d in scheduler.approved()] == ["d1"]
+
+    scheduler.mark_posted("d1")
+
+    assert scheduler.approved() == []
+    assert [d.draft_id for d in scheduler.published()] == ["d1"]
+
+
+def test_the_archive_is_newest_first_and_holds_both_routes() -> None:
+    """One sent by the scheduler, one pasted by hand. Both are posted."""
+    sent = draft(draft_id="sent").approve("jasmehr")
+    by_hand = draft(draft_id="by-hand").approve("jasmehr")
+    scheduler, _ = scheduler_at(NOW, sent, by_hand)
+
+    scheduler.mark_posted("by-hand")
+    scheduler.schedule("sent", NOW - timedelta(minutes=1))
+    scheduler.publish_due(Recorder())
+
+    archived = [d.draft_id for d in scheduler.published()]
+    assert sorted(archived) == ["by-hand", "sent"]
+    assert len(archived) == 2
+
+
 def test_health_counts_the_queue_and_names_the_next_time() -> None:
     scheduler, _ = scheduler_at(NOW, draft(draft_id="d1").approve("jasmehr"))
     scheduler.schedule("d1", NOW + timedelta(hours=3))

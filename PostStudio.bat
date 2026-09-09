@@ -17,10 +17,11 @@ REM looks identical whether the server is slow to start or never started.
 python scripts\serve.py --check
 if errorlevel 1 goto :failed
 
-REM Opened before the server, because serve.py blocks once running and nothing
-REM after it would execute. The browser retries on its own during the second
-REM or so the server takes to bind.
-start "" http://127.0.0.1:8765
+REM Launched in the background because serve.py blocks once running and nothing
+REM after it would execute. open_studio.ps1 waits for the port to answer before
+REM opening anything, so there is no "cannot connect" while the server binds,
+REM and it opens an app window rather than a browser tab where it can.
+start "" /b powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\open_studio.ps1"
 
 echo   Leave this window open while you use it.
 echo   Close it, or press Ctrl-C, when you are done.

@@ -125,6 +125,32 @@ class Scheduler:
             ),
         )
 
+    def published(self) -> list[PostDraft]:
+        """What has already gone out, newest first.
+
+        Includes posts this never sent. A draft you approved and then pasted
+        into LinkedIn yourself is still published, and an archive that only
+        knew about its own sends would show an empty list to somebody who has
+        been posting all week.
+        """
+        gone: list[PostDraft] = [d for d in self._drafts.list_all() if d.state is DraftState.PUBLISHED]
+        return sorted(gone, key=lambda d: d.published_at or d.created_at, reverse=True)
+
+    def mark_posted(self, draft_id: str, url: str = "") -> PostDraft:
+        """Records that you posted an approved draft yourself.
+
+        The tagging path: mentions cannot go through the API, so a post that
+        needs them is pasted into LinkedIn by hand, and without this the tool
+        would keep offering to send something already on the feed.
+
+        It goes through `mark_published`, so it refuses a draft nobody
+        approved for exactly the same reason sending one does.
+        """
+        draft: PostDraft = self._drafts.get(draft_id)
+        posted = draft.mark_published(url.strip())
+        self._drafts.save(draft_id, posted)
+        return posted
+
     def queue(self) -> list[PostDraft]:
         """Everything waiting to go out, soonest first."""
         waiting = [

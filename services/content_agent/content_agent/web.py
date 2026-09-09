@@ -220,8 +220,13 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:  # noqa: N802 - BaseHTTPRequestHandler's naming
         if self.path == "/healthz":
             # For a host's health checker, which has no cookie and may not
-            # send our Host. It is told the process is up, and nothing else.
-            self._json({"ok": True})
+            # send our Host. It is told the process is up, and whether a
+            # password is wanted, which is not a secret: the login box is
+            # visible to anyone who can reach the page anyway. The page uses
+            # it to delete the box outright on a copy that has no password,
+            # rather than keeping a dismissed overlay one CSS bug away from
+            # covering the screen again.
+            self._json({"ok": True, "login_required": bool(self.password)})
             return
         if not self._request_is_ours():
             self._json({"error": "refused"}, 403)
@@ -297,6 +302,8 @@ class Handler(BaseHTTPRequestHandler):
                 self._schedule(payload)
             elif self.path == "/api/unschedule":
                 self._unschedule(payload)
+            elif self.path == "/api/mark-posted":
+                self._mark_posted(payload)
             elif self.path == "/api/publish":
                 self._publish(payload)
             elif self.path == "/api/track":
@@ -324,6 +331,7 @@ class Handler(BaseHTTPRequestHandler):
             "persona": self.studio.persona.health(),
             "approved": [_draft_json(d) for d in self.studio.scheduler.approved()],
             "queue": [_draft_json(d) for d in self.studio.scheduler.queue()],
+            "published": [_draft_json(d) for d in self.studio.scheduler.published()],
             "schedule": self.studio.scheduler.health(),
             "can_post": self.publisher is not None,
             "prospects": [
@@ -413,6 +421,21 @@ class Handler(BaseHTTPRequestHandler):
     def _unschedule(self, payload: dict[str, Any]) -> None:
         draft_id = str(payload.get("draft_id", ""))
         self._json({"draft": _draft_json(self.studio.scheduler.unschedule(draft_id))})
+
+    def _mark_posted(self, payload: dict[str, Any]) -> None:
+        """You posted it yourself; the archive should know.
+
+        The route the manual path needs. Mentions cannot go through the API,
+        so anything that needs a tag gets pasted into LinkedIn by hand, and
+        this is how that stops being invisible to the tool.
+        """
+        draft_id = str(payload.get("draft_id", ""))
+        try:
+            posted = self.studio.scheduler.mark_posted(draft_id, str(payload.get("url", "")))
+        except NotApproved as exc:
+            self._json({"error": str(exc)}, 400)
+            return
+        self._json({"draft": _draft_json(posted)})
 
     def _publish(self, payload: dict[str, Any]) -> None:
         """Sends one approved draft now.
