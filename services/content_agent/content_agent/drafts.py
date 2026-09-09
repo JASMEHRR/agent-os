@@ -10,6 +10,12 @@ reachable only from `APPROVED`, and only a human moves a draft into
 unapproved draft, which is the same structural refusal the rest of the system
 uses. Over a two-year unattended run, a check someone could bypass would
 eventually be bypassed; a transition that does not exist cannot be.
+
+Scheduling is deliberately *not* part of that machine. `scheduled_for` is a
+time carried by a draft you already approved, so an unattended runner decides
+only *when* something you said yes to goes out, never *whether*. Adding a
+"queued" state would have put the approval boundary inside the scheduler,
+which is exactly where it must not be.
 """
 
 from __future__ import annotations
@@ -120,6 +126,12 @@ class PostDraft:
     published_at: datetime | None = None
     published_url: str = ""
     failure_reason: str = ""
+    #: When the scheduler may publish this, in UTC. None means "approved, but
+    #: I will post it myself", which is what every draft did before scheduling
+    #: existed and is still the default. A time here is the only thing that
+    #: makes an unattended run touch a draft at all, so the opt-in is per
+    #: draft rather than a global setting somebody forgets is on.
+    scheduled_for: datetime | None = None
 
     def full_text(self) -> str:
         """What would actually be published, rendered for its channel."""
@@ -167,3 +179,32 @@ class PostDraft:
             self.transition_to(DraftState.PUBLISH_FAILED),
             failure_reason=reason[:300],
         )
+
+    # ------------------------------------------------------------- Scheduling
+
+    def schedule(self, when: datetime) -> PostDraft:
+        """Sets the time an already-approved draft may go out.
+
+        Deliberately not a state. A scheduled draft stays APPROVED, so the one
+        property that matters (`PUBLISHED` is reachable only from a state a
+        human put it in) is untouched by scheduling existing at all. A bug in
+        the scheduler can pick the wrong draft or the wrong minute; it cannot
+        pick a draft nobody approved, because `mark_published` refuses one.
+        """
+        if self.state not in (DraftState.APPROVED, DraftState.PUBLISH_FAILED):
+            raise NotApproved(f"a draft in state {self.state.value} has no approval to schedule against")
+        if when.tzinfo is None:
+            # A naive time would be compared against an aware `now` and raise
+            # deep inside the runner, hours later, with nobody watching.
+            raise ValueError("schedule times must carry a timezone")
+        return dataclasses.replace(self, scheduled_for=when)
+
+    def unschedule(self) -> PostDraft:
+        """Back to "approved, and I will post it myself"."""
+        return dataclasses.replace(self, scheduled_for=None)
+
+    def is_due(self, now: datetime) -> bool:
+        """Approved, scheduled, and the time has come."""
+        if self.state not in (DraftState.APPROVED, DraftState.PUBLISH_FAILED):
+            return False
+        return self.scheduled_for is not None and self.scheduled_for <= now

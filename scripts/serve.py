@@ -22,9 +22,11 @@ sys.path.insert(0, str(REPO))
 
 import conftest  # noqa: E402, F401 - imported for the sys.path setup it performs
 from content_agent import ContentStudio, PostDraft, WeeklyNote  # noqa: E402
+from content_agent.analytics import Analytics, ApifyMetrics, Snapshot, TrackedPost  # noqa: E402
 from content_agent.outreach import OutreachDraft, Prospect  # noqa: E402
 from content_agent.persona import CheckIn, Fact, Persona  # noqa: E402
 from content_agent.samples import Rating, VoiceLibrary, VoiceSample  # noqa: E402
+from content_agent.schedule import Publisher  # noqa: E402
 from content_agent.sync import repo_name, sync_repos  # noqa: E402
 from content_agent.web import serve  # noqa: E402
 from llm_router.backends import backends_from_environment  # noqa: E402
@@ -133,6 +135,13 @@ def build_studio() -> ContentStudio:
             SQLiteRepository(connection, "persona_facts", Fact),
             SQLiteRepository(connection, "persona_checkins", CheckIn),
         ),
+        # Durable too. A snapshot is only worth taking because the one before
+        # it is still there to compare against, so an analytics history that
+        # reset on restart would never grow past a single reading.
+        analytics=Analytics(
+            SQLiteRepository(connection, "tracked_posts", TrackedPost),
+            SQLiteRepository(connection, "post_snapshots", Snapshot),
+        ),
     )
 
 
@@ -155,16 +164,43 @@ def preflight() -> int:
     return 1
 
 
+def publisher() -> Publisher | None:
+    """The real LinkedIn poster, or nothing if this copy cannot post.
+
+    Imported here rather than at module scope so the studio still starts on a
+    machine where the posting script's dependencies or token are missing: the
+    Post and Schedule buttons then say they are not set up, which is a better
+    failure than a server that will not boot.
+    """
+    try:
+        from scripts.linkedin_post import load_credentials, post_text
+    except ImportError:
+        return None
+    creds = load_credentials()
+    if creds is None or creds.expired():
+        return None
+    return post_text
+
+
+def metrics() -> ApifyMetrics | None:
+    """Apify, if a token is set. The numbers screen degrades without one."""
+    source = ApifyMetrics()
+    return source if source.configured() else None
+
+
 if __name__ == "__main__":
     if "--check" in sys.argv:
         raise SystemExit(preflight())
     # STUDIO_PASSWORD set means "hosted": bind every interface and require a
     # login. Unset means "this laptop": loopback only, no login, because
     # reachability is the authorisation there.
+    load_env()
     serve(
         build_studio(),
         port=int(os.environ.get("PORT", PORT)),
         repos=repos_from_environment(),
         password=os.environ.get("STUDIO_PASSWORD", ""),
         before_capture=refresh_clones if clone_urls() else None,
+        publisher=publisher(),
+        metrics=metrics(),
     )

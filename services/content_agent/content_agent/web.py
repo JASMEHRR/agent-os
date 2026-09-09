@@ -11,9 +11,16 @@ Design decisions that are actually about safety rather than taste:
 * **Loopback only.** `127.0.0.1`, never `0.0.0.0`. There is no authentication
   here, so reachability *is* the authorization. Binding wider would put an
   unauthenticated approve-and-publish surface on the local network.
-* **The API has no publish endpoint**, because the studio has no publish verb.
-  Approving marks a draft ready and shows you the text. Nothing here reaches
-  LinkedIn.
+* **The publish routes cannot reach an unapproved draft.** They used not to
+  exist at all. They do now, because approving something and then having to
+  paste it yourself is a step too many for a decision already made. What makes
+  that safe is not this file: `/api/publish` and `/api/schedule` both go
+  through `PostDraft`, which raises for any state a human did not put it in.
+  This server can send a post you approved. It has no path to one you did not.
+* **Publishing is injected, never imported.** `serve` takes a publisher; with
+  none supplied the routes answer that posting is not configured. So the
+  service package still has no idea LinkedIn exists, and a studio started
+  without credentials cannot post by accident.
 * **Every mutating route is POST.** A GET that approved a draft could be
   triggered by a prefetch or a stray image tag.
 """
@@ -25,14 +32,18 @@ import hmac
 import json
 import pathlib
 from collections.abc import Callable
+from datetime import UTC, datetime
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from typing import Any
 
+from content_agent.analytics import MetricsSource
 from content_agent.capabilities import survey, totals
 from content_agent.capture import capture_week
+from content_agent.drafts import NotApproved
 from content_agent.formats import Channel
 from content_agent.outreach import OutreachChannel, prospect_from
 from content_agent.persona import Area
+from content_agent.schedule import Publisher
 from content_agent.studio import ContentStudio
 
 PAGE = (pathlib.Path(__file__).parent / "page.html").read_text(encoding="utf-8")
@@ -64,6 +75,9 @@ def _draft_json(draft: Any) -> dict[str, Any]:
         "redraft_count": draft.redraft_count,
         "outstanding": list(draft.outstanding),
         "created_at": draft.created_at.isoformat(),
+        "scheduled_for": draft.scheduled_for.isoformat() if draft.scheduled_for else "",
+        "published_url": draft.published_url,
+        "failure_reason": draft.failure_reason,
     }
 
 
@@ -96,6 +110,13 @@ class Handler(BaseHTTPRequestHandler):
     #: Run before each capture, so a hosted copy can refresh its clones and
     #: read this week rather than the week it was deployed in. Set by `serve`.
     before_capture: Callable[[], None] | None = None
+    #: How a post actually reaches LinkedIn. None means this copy cannot post
+    #: at all, which is what a studio started without credentials should be:
+    #: the routes say so rather than failing somewhere less legible.
+    publisher: Publisher | None = None
+    #: Where engagement numbers are read from. None means the numbers screen
+    #: shows what was already collected and refuses to fetch more.
+    metrics: MetricsSource | None = None
 
     # Silences the default one-line-per-request logging, which buries the
     # single line that matters (the startup URL) within seconds.
@@ -199,8 +220,13 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:  # noqa: N802 - BaseHTTPRequestHandler's naming
         if self.path == "/healthz":
             # For a host's health checker, which has no cookie and may not
-            # send our Host. It is told the process is up, and nothing else.
-            self._json({"ok": True})
+            # send our Host. It is told the process is up, and whether a
+            # password is wanted, which is not a secret: the login box is
+            # visible to anyone who can reach the page anyway. The page uses
+            # it to delete the box outright on a copy that has no password,
+            # rather than keeping a dismissed overlay one CSS bug away from
+            # covering the screen again.
+            self._json({"ok": True, "login_required": bool(self.password)})
             return
         if not self._request_is_ours():
             self._json({"error": "refused"}, 403)
@@ -223,6 +249,8 @@ class Handler(BaseHTTPRequestHandler):
                 self._voice()
             elif self.path == "/api/persona":
                 self._persona()
+            elif self.path == "/api/analytics":
+                self._analytics()
             else:
                 self._json({"error": "not found"}, 404)
         except Exception as exc:  # noqa: BLE001
@@ -270,6 +298,20 @@ class Handler(BaseHTTPRequestHandler):
                 self._confirm_fact(payload)
             elif self.path == "/api/retire-fact":
                 self._retire_fact(payload)
+            elif self.path == "/api/schedule":
+                self._schedule(payload)
+            elif self.path == "/api/unschedule":
+                self._unschedule(payload)
+            elif self.path == "/api/mark-posted":
+                self._mark_posted(payload)
+            elif self.path == "/api/publish":
+                self._publish(payload)
+            elif self.path == "/api/track":
+                self._track(payload)
+            elif self.path == "/api/untrack":
+                self._untrack(payload)
+            elif self.path == "/api/snapshot":
+                self._snapshot()
             else:
                 self._json({"error": "not found"}, 404)
         except Exception as exc:  # noqa: BLE001
@@ -287,6 +329,11 @@ class Handler(BaseHTTPRequestHandler):
             "health": self.studio.health(),
             "voice": self.studio.library.health(),
             "persona": self.studio.persona.health(),
+            "approved": [_draft_json(d) for d in self.studio.scheduler.approved()],
+            "queue": [_draft_json(d) for d in self.studio.scheduler.queue()],
+            "published": [_draft_json(d) for d in self.studio.scheduler.published()],
+            "schedule": self.studio.scheduler.health(),
+            "can_post": self.publisher is not None,
             "prospects": [
                 {
                     "prospect_id": p.prospect_id,
@@ -342,6 +389,134 @@ class Handler(BaseHTTPRequestHandler):
     def _discard(self, payload: dict[str, Any]) -> None:
         draft_id = str(payload.get("draft_id", ""))
         self._json({"draft": _draft_json(self.studio.discard(draft_id))})
+
+    # ------------------------------------------------------------- Scheduling
+
+    def _schedule(self, payload: dict[str, Any]) -> None:
+        """Queues a draft you already approved for a time you pick.
+
+        The page sends UTC. Parsing is strict and the failure is a sentence:
+        a time this misreads is a post that goes out at the wrong hour, or
+        never, and neither announces itself.
+        """
+        draft_id = str(payload.get("draft_id", ""))
+        raw = str(payload.get("when", "")).strip()
+        if not raw:
+            self._json({"error": "Pick a time first."}, 400)
+            return
+        try:
+            when = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+        except ValueError:
+            self._json({"error": f"Could not read {raw!r} as a date and time."}, 400)
+            return
+        if when.tzinfo is None:
+            when = when.replace(tzinfo=UTC)
+        try:
+            scheduled = self.studio.scheduler.schedule(draft_id, when)
+        except NotApproved as exc:
+            self._json({"error": str(exc)}, 400)
+            return
+        self._json({"draft": _draft_json(scheduled)})
+
+    def _unschedule(self, payload: dict[str, Any]) -> None:
+        draft_id = str(payload.get("draft_id", ""))
+        self._json({"draft": _draft_json(self.studio.scheduler.unschedule(draft_id))})
+
+    def _mark_posted(self, payload: dict[str, Any]) -> None:
+        """You posted it yourself; the archive should know.
+
+        The route the manual path needs. Mentions cannot go through the API,
+        so anything that needs a tag gets pasted into LinkedIn by hand, and
+        this is how that stops being invisible to the tool.
+        """
+        draft_id = str(payload.get("draft_id", ""))
+        try:
+            posted = self.studio.scheduler.mark_posted(draft_id, str(payload.get("url", "")))
+        except NotApproved as exc:
+            self._json({"error": str(exc)}, 400)
+            return
+        self._json({"draft": _draft_json(posted)})
+
+    def _publish(self, payload: dict[str, Any]) -> None:
+        """Sends one approved draft now.
+
+        Approval is checked before anything else, including whether this copy
+        can post at all. An unapproved draft has to be refused for being
+        unapproved rather than for a missing token, or the boundary starts
+        looking like a thing configuration decides.
+        """
+        draft_id = str(payload.get("draft_id", ""))
+        try:
+            self.studio.scheduler.publishable(draft_id)
+        except NotApproved as exc:
+            self._json({"error": str(exc)}, 400)
+            return
+        if self.publisher is None:
+            self._json(
+                {
+                    "error": "Posting is not set up on this copy. Run "
+                    "`python scripts/linkedin_post.py auth` first, then restart the studio."
+                },
+                400,
+            )
+            return
+        result = self.studio.scheduler.publish_now(draft_id, self.publisher)
+        if not result.published:
+            self._json({"error": result.error}, 502)
+            return
+        self._json({"published": True, "url": result.url})
+
+    # -------------------------------------------------------------- Analytics
+
+    def _analytics(self) -> None:
+        self._json(
+            {
+                "health": self.studio.analytics.health(),
+                "comparison": self.studio.analytics.compare(),
+                "can_read": self.metrics is not None,
+            }
+        )
+
+    def _track(self, payload: dict[str, Any]) -> None:
+        try:
+            post = self.studio.analytics.track(
+                str(payload.get("url", "")),
+                str(payload.get("label", "")),
+                bool(payload.get("mine", False)),
+            )
+        except ValueError as exc:
+            self._json({"error": str(exc)}, 400)
+            return
+        self._json({"post_id": post.post_id, "health": self.studio.analytics.health()})
+
+    def _untrack(self, payload: dict[str, Any]) -> None:
+        self.studio.analytics.untrack(str(payload.get("post_id", "")))
+        self._json({"health": self.studio.analytics.health()})
+
+    def _snapshot(self) -> None:
+        """Reads every tracked post's current numbers.
+
+        Slow by nature: one Apify actor run per post, sequentially, on a
+        server that handles one request at a time. That is the honest cost of
+        the only route to these numbers, and the page says so before you press
+        it rather than appearing to hang.
+        """
+        if self.metrics is None:
+            self._json(
+                {"error": "No APIFY_TOKEN is set, so there is nothing to read numbers with."},
+                400,
+            )
+            return
+        results = self.studio.analytics.snapshot_all(self.metrics)
+        self._json(
+            {
+                "results": [
+                    {"label": r.label, "taken": r.taken, "engagement": r.engagement, "error": r.error} for r in results
+                ],
+                "comparison": self.studio.analytics.compare(),
+                "health": self.studio.analytics.health(),
+            }
+        )
 
     # ----------------------------------------------------------------- Voice
 
@@ -485,6 +660,8 @@ def serve(
     repos: tuple[str, ...] = (),
     password: str = "",  # nosec B107 - empty means "no login, loopback only", not a credential
     before_capture: Callable[[], None] | None = None,
+    publisher: Publisher | None = None,
+    metrics: MetricsSource | None = None,
 ) -> HTTPServer:
     """Starts the interface. Returns the server so tests can drive it.
 
@@ -492,6 +669,11 @@ def serve(
     the server binds loopback and asks nothing, because only this machine can
     reach it. With one it binds every interface, because a host's proxy has to
     reach it, and every /api route demands the cookie a login grants.
+
+    `publisher` and `metrics` are the two outward-facing adapters, both
+    optional and both absent by default. A studio started without them drafts
+    and reviews exactly as before and says plainly that it cannot post or read
+    numbers, which is the right behaviour for a copy with no credentials.
     """
     attrs: dict[str, object] = {
         "studio": studio,
@@ -499,6 +681,8 @@ def serve(
         "password": password,
         # Wrapped so the class does not turn it into a method of the handler.
         "before_capture": None if before_capture is None else staticmethod(before_capture),
+        "publisher": None if publisher is None else staticmethod(publisher),
+        "metrics": None if metrics is None else staticmethod(metrics),
     }
     handler: type[Handler] = type("BoundHandler", (Handler,), attrs)
     bind = "0.0.0.0" if password else HOST  # nosec B104 - deliberate, gated on a password being set

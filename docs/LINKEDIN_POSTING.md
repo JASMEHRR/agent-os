@@ -4,7 +4,11 @@
 API. It is free, it is the route LinkedIn supports, and the token lives on your
 machine rather than with a company in the middle.
 
-Post Studio still does not publish. This is a separate tool you run on purpose.
+Post Studio uses this too. Once you have run `auth` below, the Review tab can
+send a draft you approved, or hold it until a time you pick and let
+`scripts/publish_due.py` send it then. Approving is still the only way anything
+reaches LinkedIn, and this file is still usable on its own for a post that
+never went through the studio.
 
 ## Once: make the app (about ten minutes)
 
@@ -66,6 +70,39 @@ cat post.txt | python scripts/linkedin_post.py post
 
 `--dry-run` first, every time. It is the only step between a draft and five
 thousand people.
+
+## Sending on a schedule
+
+Approve a draft in Post Studio's Review tab, give it a time, and it sits in
+the queue. Something has to be running to send it, and that something is:
+
+```bash
+python scripts/publish_due.py            # send anything due now
+python scripts/publish_due.py --list     # show the queue, send nothing
+python scripts/publish_due.py --dry-run  # say what would go, send nothing
+```
+
+It sends what is due and exits, so it needs to be run repeatedly. On Windows,
+Task Scheduler:
+
+1. Open **Task Scheduler**, choose **Create Task** (not the basic wizard).
+2. **Triggers**: new trigger, daily, and tick **Repeat task every 15 minutes**
+   for a duration of **Indefinitely**.
+3. **Actions**: start a program, `python`, with arguments
+   `scripts\publish_due.py`, and **Start in** set to this repository's folder.
+   The "start in" matters: without it the script cannot find `agent.db`.
+4. **Conditions**: untick "start only if on AC power" if you want it to run on
+   battery.
+
+Fifteen minutes is deliberate. A post landing at 9:07 rather than 9:00 costs
+nothing, and a schedule that fired every minute would spend the day opening a
+database to find it empty. Nothing is lost while the laptop is asleep either:
+a post that was due stays due, so the first run after it wakes sends what was
+missed rather than skipping it.
+
+A failed send lands the draft in "publish failed" with the reason attached,
+where the Review tab shows it. It keeps its time and is retried on the next
+run, so a dead network costs a delay rather than an approval.
 
 ## Wiring it into the linkedin-skills bundle
 

@@ -32,6 +32,7 @@ from collections.abc import Callable, Sequence
 from datetime import UTC, datetime
 from typing import Any, Protocol
 
+from content_agent.analytics import Analytics
 from content_agent.drafts import DraftState, PostDraft, WeeklyNote
 from content_agent.formats import (
     SPECS,
@@ -51,6 +52,7 @@ from content_agent.outreach import (
 )
 from content_agent.persona import Persona, extract_prompt, parse_proposed
 from content_agent.samples import VoiceLibrary, render_examples
+from content_agent.schedule import Scheduler
 from content_agent.voice import VOICE_BRIEF, VoiceViolation, check, redraft_instruction
 
 #: Attempts before a draft is kept as REJECTED. Three because the first fix
@@ -229,11 +231,22 @@ class ContentStudio:
         outreach: Store | None = None,
         library: VoiceLibrary | None = None,
         persona: Persona | None = None,
+        analytics: Analytics | None = None,
     ) -> None:
         self._complete = complete
         self._notes = notes
         self._drafts = drafts
         self._clock = clock
+        # The queue of things you have already said yes to. Built from the
+        # same store rather than taking one of its own: a scheduler reading a
+        # different set of drafts than the studio approves into is the bug
+        # this would eventually produce.
+        self.scheduler = Scheduler(drafts, clock)
+        # What the feed did with it. In-memory by default, like the two
+        # below: an analytics history that vanishes on restart is a worse
+        # product, not a broken one, and callers that never asked for numbers
+        # should not have to supply two more stores.
+        self.analytics: Analytics = analytics if analytics is not None else Analytics(_Memory(), _Memory(), clock)
         # The voice library is what makes the output sound like you rather
         # than like a model following rules about you. Optional so existing
         # callers keep working; with none supplied it drafts from rules alone.

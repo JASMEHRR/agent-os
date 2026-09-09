@@ -235,6 +235,13 @@ nav.tabs button[aria-current="true"] {
 section[data-view] { display: none; }
 section[data-view].active { display: block; }
 
+/* The `hidden` attribute is only a user-agent `display: none`, so any inline
+   display beats it. The login overlay sets `display:flex` inline to centre
+   its box, which meant a copy with no password at all still rendered the
+   password box over everything, dimmed and unclickable, with no way past it.
+   Panels toggled by `el.hidden` had the same latent bug. */
+[hidden] { display: none !important; }
+
 .cap { border-top: 1px solid rgb(255 255 255 / 0.08); padding: 18px 0; }
 .cap:first-of-type { border-top: 0; }
 .cap h3 { margin: 0 0 6px; font-size: 17px; font-weight: 700; display: flex;
@@ -275,6 +282,7 @@ section[data-view].active { display: block; }
 <nav class="tabs" id="tabs">
   <button data-go="write" aria-current="true">Write</button>
   <button data-go="review">Review</button>
+  <button data-go="numbers">Numbers</button>
   <button data-go="people">People</button>
   <button data-go="can">What this can do</button>
   <button data-go="me">Me</button>
@@ -294,9 +302,13 @@ section[data-view].active { display: block; }
       <span class="hint" style="margin:0" id="mic-state"></span>
     </div>
     <input type="text" id="angle" placeholder="Optional: an angle to take (leave blank and it picks one)">
+    <!-- Newsletter is off the menu for now: there is no list to send one to,
+         and drafting into a channel with no audience spends a model call and
+         your reading time on something nobody receives. The format, its gates
+         and its tests are untouched, so putting the checkbox back is the whole
+         of turning it on again. -->
     <div class="row" id="channels">
       <label class="chan"><input type="checkbox" value="linkedin" checked> LinkedIn post</label>
-      <label class="chan"><input type="checkbox" value="newsletter"> Newsletter</label>
       <label class="chan"><input type="checkbox" value="devto"> Dev.to article</label>
     </div>
     <div class="row">
@@ -317,10 +329,73 @@ section[data-view].active { display: block; }
     <div id="waiting"><p class="empty">Nothing yet. Write a note first.</p></div>
   </div>
 
+  <div class="panel" id="approved-panel" hidden>
+    <h2>Approved, not out yet</h2>
+    <p class="hint" id="post-state"></p>
+    <div id="approved"></div>
+  </div>
+
+  <div class="panel" id="archive-panel" hidden>
+    <h2>Already posted</h2>
+    <p class="hint">
+      What has gone out, newest first. Posts you pasted into LinkedIn yourself
+      count, once you press "I posted this" on them.
+    </p>
+    <div id="archive"></div>
+  </div>
+
   <div class="panel" id="attention-panel" hidden>
     <h2>Did not work</h2>
     <p class="hint">These failed the quality rules. The reasons usually mean the note was thin.</p>
     <div id="attention"></div>
+  </div>
+
+</section>
+
+<!-- ----------------------------------------------------------- NUMBERS -->
+<section data-view="numbers">
+
+  <div class="panel highlight">
+    <h2>How it did</h2>
+    <p class="hint">
+      LinkedIn's own API does not hand out post performance to an app like this,
+      so these are the public counts, read through Apify. Reactions, comments and
+      reposts: what a logged-out visitor can already see. Not impressions, because
+      nobody outside your own account can see those.
+    </p>
+    <div class="big" id="n-stats"></div>
+    <div class="row">
+      <button class="primary" id="n-read">Read the numbers now</button>
+      <span class="hint" style="margin:0" id="n-state"></span>
+    </div>
+    <div id="n-msg"></div>
+  </div>
+
+  <div class="panel">
+    <h2>You against them</h2>
+    <div id="n-compare"><p class="empty">Track a couple of posts first.</p></div>
+  </div>
+
+  <div class="panel">
+    <h2>Track a post</h2>
+    <p class="hint">
+      Paste the link to a post. Yours or somebody else's: the comparison is only
+      as good as who you pick, so choose people at roughly your stage rather than
+      accounts with a hundred thousand followers.
+    </p>
+    <input type="text" id="n-url" placeholder="www.linkedin.com/feed/update/urn:li:activity:...">
+    <div class="grid2">
+      <input type="text" id="n-label" placeholder="What to call it: 'the billboard post'">
+      <label class="chan"><input type="checkbox" id="n-mine" checked> This one is mine</label>
+    </div>
+    <div class="row">
+      <button class="primary" id="n-add">Track it</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Tracked</h2>
+    <div id="n-rows"><p class="empty">Nothing tracked yet.</p></div>
   </div>
 
 </section>
@@ -530,12 +605,96 @@ function draftCard(d, actions) {
     </div>`;
 }
 
+// A datetime-local input wants "YYYY-MM-DDTHH:MM" in the reader's own zone,
+// and the server wants UTC. Both conversions live here so the two halves
+// cannot drift: a post going out at the wrong hour is the bug this prevents.
+function localInputValue(date) {
+  const shifted = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+  return shifted.toISOString().slice(0, 16);
+}
+
+function tomorrowMorning() {
+  const when = new Date();
+  when.setDate(when.getDate() + 1);
+  when.setHours(9, 0, 0, 0);
+  return localInputValue(when);
+}
+
+function whenLocal(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleString([], {
+    weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
+  });
+}
+
+// The stat tiles are sized for short numbers, and a full weekday-and-meridiem
+// date wraps onto its own line and breaks the row it sits in.
+function whenShort(iso) {
+  if (!iso) return 'never';
+  return new Date(iso).toLocaleString([], {
+    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false,
+  });
+}
+
+function approvedCard(d) {
+  const scheduled = d.scheduled_for
+    ? `<span class="pill on">goes out ${escapeHtml(whenLocal(d.scheduled_for))}</span>`
+    : '<span class="tag ok">approved</span>';
+  const failed = d.failure_reason
+    ? `<ul class="rules"><li>last attempt failed: ${escapeHtml(d.failure_reason)}</li></ul>`
+    : '';
+  return `
+    <div style="margin-bottom:26px">
+      <div class="row" style="margin:0 0 4px">
+        <span class="chan-badge">${escapeHtml(d.channel)}</span>${scheduled}
+      </div>
+      <div class="post">${escapeHtml(d.full_text)}</div>
+      ${failed}
+      <div class="row">
+        <input type="datetime-local" data-when="${d.draft_id}"
+               value="${escapeHtml(d.scheduled_for ? localInputValue(new Date(d.scheduled_for)) : tomorrowMorning())}"
+               style="max-width:230px">
+        <button class="ghost" data-schedule="${d.draft_id}">${d.scheduled_for ? 'Change time' : 'Schedule it'}</button>
+        ${d.scheduled_for ? `<button class="ghost" data-unschedule="${d.draft_id}">Take it off</button>` : ''}
+        <button class="primary" data-post="${d.draft_id}">Post now</button>
+        <button class="ghost" data-posted="${d.draft_id}"
+                title="You pasted this into LinkedIn yourself">I posted this</button>
+      </div>
+      <div id="msg-${d.draft_id}"></div>
+    </div>`;
+}
+
+function archiveCard(d) {
+  const when = d.published_url
+    ? `<a href="${escapeHtml(d.published_url)}" target="_blank" rel="noopener">see it on LinkedIn</a>`
+    : '<span class="hint" style="margin:0">no link recorded</span>';
+  return `
+    <div style="margin-bottom:22px">
+      <div class="row" style="margin:0 0 4px">
+        <span class="chan-badge">${escapeHtml(d.channel)}</span>
+        <span class="pill on">posted</span>
+        ${when}
+      </div>
+      <div class="post">${escapeHtml(d.full_text)}</div>
+    </div>`;
+}
+
 async function refresh() {
   const s = await api('/api/state');
 
   $('waiting').innerHTML = s.waiting.length
     ? s.waiting.map(d => draftCard(d, true)).join('')
     : '<p class="empty">Nothing waiting. Write a note first.</p>';
+
+  $('approved-panel').hidden = (s.approved || []).length === 0;
+  $('approved').innerHTML = (s.approved || []).map(approvedCard).join('');
+  $('post-state').textContent = s.can_post
+    ? 'These are yours to send. Post one now, or give it a time and publish_due.py sends it then.'
+    : 'Posting is not connected on this copy, so these are copy-and-paste only. '
+      + 'Run scripts/linkedin_post.py auth, then restart the studio.';
+
+  $('archive-panel').hidden = (s.published || []).length === 0;
+  $('archive').innerHTML = (s.published || []).map(archiveCard).join('');
 
   $('attention-panel').hidden = s.attention.length === 0;
   $('attention').innerHTML = s.attention.map(d => draftCard(d, false)).join('');
@@ -607,7 +766,155 @@ function wire() {
   document.querySelectorAll('[data-note]').forEach(b => { b.onclick = () => approveNote(b.dataset.note); });
   document.querySelectorAll('[data-like]').forEach(b => { b.onclick = () => rate(b.dataset.like, true); });
   document.querySelectorAll('[data-dislike]').forEach(b => { b.onclick = () => rate(b.dataset.dislike, false); });
+  document.querySelectorAll('[data-schedule]').forEach(b => { b.onclick = () => schedule(b.dataset.schedule); });
+  document.querySelectorAll('[data-unschedule]').forEach(b => { b.onclick = () => unschedule(b.dataset.unschedule); });
+  document.querySelectorAll('[data-post]').forEach(b => { b.onclick = () => postNow(b, b.dataset.post); });
+  document.querySelectorAll('[data-posted]').forEach(b => { b.onclick = () => markPosted(b.dataset.posted); });
 }
+
+async function markPosted(id) {
+  // The link is optional on purpose: asking for a URL you have to go and find
+  // is how a two-second action becomes one nobody bothers with.
+  const url = prompt('Posted it yourself? Paste the LinkedIn link if you have it, or leave blank.') ?? '';
+  try {
+    await api('/api/mark-posted', { draft_id: id, url });
+    await refresh();
+  } catch (e) { message(`msg-${id}`, e.message, 'error'); }
+}
+
+// ------------------------------------------------------------- Scheduling
+
+async function schedule(id) {
+  const field = document.querySelector(`[data-when="${id}"]`);
+  if (!field || !field.value) { message(`msg-${id}`, 'Pick a date and time first.', 'error'); return; }
+  try {
+    // The input is in the reader's own zone; the server is told UTC, so the
+    // hour that was chosen is the hour it goes out.
+    await api('/api/schedule', { draft_id: id, when: new Date(field.value).toISOString() });
+    await refresh();
+  } catch (e) { message(`msg-${id}`, e.message, 'error'); }
+}
+
+async function unschedule(id) {
+  try {
+    await api('/api/unschedule', { draft_id: id });
+    await refresh();
+  } catch (e) { message(`msg-${id}`, e.message, 'error'); }
+}
+
+async function postNow(button, id) {
+  // Publishing is the one action here that cannot be undone, so it asks.
+  if (!confirm('Post this to LinkedIn now? This cannot be taken back.')) return;
+  button.disabled = true;
+  button.textContent = 'Posting...';
+  try {
+    const { url } = await api('/api/publish', { draft_id: id });
+    message(`msg-${id}`, url ? `Posted. ${url}` : 'Posted.', 'good');
+    await refresh();
+  } catch (e) {
+    message(`msg-${id}`, e.message, 'error');
+    button.disabled = false;
+    button.textContent = 'Post now';
+  }
+}
+
+// ---------------------------------------------------------------- Numbers
+
+function numberRow(r) {
+  const who = r.mine ? '<span class="pill on">mine</span>' : '<span class="chan-badge">theirs</span>';
+  const read = r.taken_at
+    ? `${r.likes} reactions, ${r.comments} comments, ${r.shares} reposts`
+    : 'never read yet';
+  return `<div class="person" style="padding:12px 16px">
+    <div class="row" style="margin:0;justify-content:space-between">
+      <span>
+        ${who}
+        <span style="margin-left:10px">${escapeHtml(r.label)}</span>
+        <span class="hint" style="margin:0 0 0 10px">${escapeHtml(read)}</span>
+      </span>
+      <span>
+        <b style="margin-right:12px">${r.engagement}</b>
+        <button class="danger" style="min-height:36px;padding:0 12px;font-size:13px"
+                data-untrack="${r.post_id}">Stop</button>
+      </span>
+    </div>
+  </div>`;
+}
+
+function renderComparison(c) {
+  $('n-rows').innerHTML = c.rows.length ? c.rows.map(numberRow).join('')
+    : '<p class="empty">Nothing tracked yet.</p>';
+
+  if (!c.comparable) {
+    $('n-compare').innerHTML = '<p class="empty">'
+      + 'Track at least one post of yours and one of somebody else\'s, then read the numbers.'
+      + '</p>';
+  } else {
+    const ahead = c.gap >= 0;
+    $('n-compare').innerHTML = `
+      <div class="big">
+        <div><b>${c.mine.median_engagement}</b><span>your typical post (${c.mine.posts} read)</span></div>
+        <div><b>${c.theirs.median_engagement}</b><span>theirs (${c.theirs.posts} read)</span></div>
+        <div><b>${ahead ? '+' : ''}${c.gap}</b><span>${ahead ? 'ahead' : 'behind'}, median</span></div>
+        <div><b>${c.mine.best}</b><span>your best</span></div>
+      </div>
+      <p class="hint">
+        Medians, not averages, and the count is next to each one on purpose. A median
+        of two posts is a number that can move a long way on the third.
+      </p>`;
+  }
+  document.querySelectorAll('[data-untrack]').forEach(b => {
+    b.onclick = async () => {
+      try { await api('/api/untrack', { post_id: b.dataset.untrack }); await loadNumbers(); }
+      catch (e) { message('n-msg', e.message, 'error'); }
+    };
+  });
+}
+
+async function loadNumbers() {
+  const { health, comparison, can_read } = await api('/api/analytics');
+  $('n-stats').innerHTML = `
+    <div><b>${health.tracked}</b><span>posts tracked</span></div>
+    <div><b>${health.mine}</b><span>yours</span></div>
+    <div><b>${health.snapshots}</b><span>readings taken</span></div>
+    <div><b>${escapeHtml(whenShort(health.last_read))}</b><span>last read</span></div>`;
+  $('n-read').disabled = !can_read;
+  $('n-state').textContent = can_read
+    ? 'One Apify call per tracked post, so this takes a few seconds each.'
+    : 'No APIFY_TOKEN in .env, so it can show what was already collected and nothing newer.';
+  renderComparison(comparison);
+}
+
+$('n-add').onclick = async () => {
+  try {
+    await api('/api/track', {
+      url: $('n-url').value,
+      label: $('n-label').value,
+      mine: $('n-mine').checked,
+    });
+    $('n-url').value = '';
+    $('n-label').value = '';
+    await loadNumbers();
+  } catch (e) { message('n-msg', e.message, 'error'); }
+};
+
+$('n-read').onclick = async () => {
+  $('n-read').disabled = true;
+  $('n-read').textContent = 'Reading...';
+  message('n-msg', '', '');
+  try {
+    const { results, comparison, health } = await api('/api/snapshot', {});
+    const failed = results.filter(r => !r.taken);
+    renderComparison(comparison);
+    $('n-stats').querySelector('div:nth-child(3) b').textContent = health.snapshots;
+    message('n-msg', failed.length
+      ? `Read ${results.length - failed.length} of ${results.length}. Could not read: `
+        + failed.map(r => `${r.label} (${r.error})`).join('; ')
+      : `Read all ${results.length}.`, failed.length ? 'error' : 'good');
+  } catch (e) { message('n-msg', e.message, 'error'); }
+  $('n-read').disabled = false;
+  $('n-read').textContent = 'Read the numbers now';
+};
 
 // ---------------------------------------------------------------- Voice
 
@@ -701,6 +1008,7 @@ function showView(name) {
   if (name === 'can') loadCapabilities();
   if (name === 'voice') loadVoice();
   if (name === 'me') loadMe();
+  if (name === 'numbers') loadNumbers();
 }
 
 // ------------------------------------------------------------------- Me
@@ -948,6 +1256,23 @@ if (!Recognition) {
   };
 }
 
+// A copy with no password has no use for a login box, and a box that exists is
+// one styling mistake away from covering the page: that is exactly what
+// happened, and the whole studio sat behind a password prompt that no password
+// could answer. Here it is removed from the document rather than hidden, so
+// there is nothing left to reveal by accident.
+async function dropLoginWhenNotNeeded() {
+  try {
+    const res = await fetch('/healthz');
+    const { login_required } = await res.json();
+    if (!login_required) $('login')?.remove();
+  } catch (e) {
+    // A failed health check says nothing about whether a password is wanted,
+    // so the box stays and the 401 path still works.
+  }
+}
+
+dropLoginWhenNotNeeded();
 refresh();
 </script>
 </body>
