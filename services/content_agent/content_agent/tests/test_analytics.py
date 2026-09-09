@@ -7,6 +7,9 @@ everything above it takes a `MetricsSource` that is a function in this file.
 
 from __future__ import annotations
 
+import io
+import json
+import urllib.error
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
@@ -74,9 +77,34 @@ def test_tracking_the_same_url_twice_does_not_make_two_rows() -> None:
     assert len(numbers.tracked()) == 1
 
 
+def test_a_url_pasted_without_the_scheme_still_works() -> None:
+    """What the page's own placeholder tells you to paste.
+
+    The input shows a scheme-less URL, so this is the common path rather than
+    an edge case, and a bare host that failed here would look like a rejection
+    of the post rather than of the typing.
+    """
+    numbers = analytics_at()
+
+    post = numbers.track("www.linkedin.com/feed/update/urn:li:activity:7", "pasted bare", mine=True)
+
+    assert post.url.startswith("https://")
+    assert numbers.track(f"https://{post.url.removeprefix('https://')}", "again", mine=True).post_id == post.post_id
+
+
 def test_a_url_that_is_not_linkedin_is_refused_at_the_door() -> None:
     with pytest.raises(ValueError, match="LinkedIn"):
         analytics_at().track("https://example.com/blog/1", "not a post", mine=True)
+
+
+def test_tracked_can_be_asked_for_only_yours_or_only_theirs() -> None:
+    numbers = analytics_at()
+    numbers.track(MINE, "mine", mine=True)
+    numbers.track(THEIRS, "theirs", mine=False)
+
+    assert [p.label for p in numbers.tracked(mine=True)] == ["mine"]
+    assert [p.label for p in numbers.tracked(mine=False)] == ["theirs"]
+    assert len(numbers.tracked()) == 2
 
 
 def test_an_empty_url_is_refused() -> None:
@@ -248,6 +276,48 @@ def test_missing_stats_read_as_zero_rather_than_crashing() -> None:
     assert metrics.engagement == 0
 
 
+def test_a_source_that_blows_up_in_an_unexpected_way_is_still_only_one_bad_reading() -> None:
+    """Apify is somebody else's code, so it can fail in ways this never named."""
+    numbers = analytics_at()
+    post = numbers.track(MINE, "mine", mine=True)
+
+    def exploding(post_url: str) -> PostMetrics:
+        raise KeyError("stats")
+
+    result = numbers.snapshot(post, exploding)
+
+    assert not result.taken
+    assert "KeyError" in result.error
+    assert numbers.history(post.post_id) == []
+
+
+def test_health_reports_the_split_and_when_it_last_read() -> None:
+    numbers = analytics_at()
+    mine = numbers.track(MINE, "mine", mine=True)
+    numbers.track(THEIRS, "theirs", mine=False)
+
+    assert numbers.health() == {"tracked": 2, "mine": 1, "theirs": 1, "snapshots": 0, "last_read": ""}
+
+    numbers.snapshot(mine, source_of(**{mine.url: PostMetrics(likes=1, comments=0, shares=0)}))
+
+    assert numbers.health()["snapshots"] == 1
+    assert numbers.health()["last_read"].startswith("2026-09-09T12:00")
+
+
+def test_a_stat_that_is_not_a_number_at_all_reads_as_zero() -> None:
+    """Rather than raising, because one odd field must not lose the reading."""
+    item = {
+        "post": {"text": "x"},
+        "author": {"name": "y", "followers": 1500.0},
+        "stats": {"total_reactions": "many", "comments": True, "shares": None},
+    }
+
+    metrics = parse_post_detail(item)
+
+    assert (metrics.likes, metrics.comments, metrics.shares) == (0, 0, 0)
+    assert metrics.author_followers == 1500
+
+
 def test_counts_that_arrive_as_strings_are_still_counts() -> None:
     item = {"post": {"text": "x"}, "author": {"name": "y"}, "stats": {"total_reactions": "1,024", "comments": "8"}}
 
@@ -263,3 +333,97 @@ def test_without_a_token_the_adapter_says_so_instead_of_calling_out() -> None:
     assert not source.configured()
     with pytest.raises(MetricsUnavailable, match="APIFY_TOKEN"):
         source(MINE)
+
+
+# ------------------------------------------------- The adapter, without a network
+
+
+class FakeResponse:
+    """Stands in for what `urlopen` yields, including the context manager."""
+
+    def __init__(self, body: bytes) -> None:
+        self._body = body
+
+    def read(self) -> bytes:
+        return self._body
+
+    def __enter__(self) -> FakeResponse:
+        return self
+
+    def __exit__(self, *exc: object) -> None:
+        return None
+
+
+def patch_urlopen(monkeypatch: pytest.MonkeyPatch, behaviour: Any) -> list[Any]:
+    """Replaces urlopen, and hands back the requests it was given."""
+    seen: list[Any] = []
+
+    def fake(request: Any, timeout: float = 0) -> Any:
+        seen.append(request)
+        if isinstance(behaviour, Exception):
+            raise behaviour
+        return FakeResponse(behaviour)
+
+    monkeypatch.setattr("urllib.request.urlopen", fake)
+    return seen
+
+
+def test_the_token_travels_in_a_header_never_the_url(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A token in a query string lands in proxy logs and error traces."""
+    seen = patch_urlopen(monkeypatch, json.dumps([ACTOR_ITEM]).encode())
+
+    ApifyMetrics(token="apify_secret")(MINE)
+
+    assert "apify_secret" not in seen[0].full_url
+    assert seen[0].get_header("Authorization") == "Bearer apify_secret"
+
+
+def test_a_good_response_becomes_a_reading(monkeypatch: pytest.MonkeyPatch) -> None:
+    patch_urlopen(monkeypatch, json.dumps([ACTOR_ITEM]).encode())
+
+    metrics = ApifyMetrics(token="t")(MINE)
+
+    assert metrics.engagement == 51
+
+
+def test_an_http_error_names_the_status_rather_than_leaking_a_traceback(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """401 means the token is wrong, and the person needs to be told that."""
+    error = urllib.error.HTTPError(MINE, 401, "Unauthorized", {}, io.BytesIO(b'{"error":"bad token"}'))  # type: ignore[arg-type]
+    patch_urlopen(monkeypatch, error)
+
+    with pytest.raises(MetricsUnavailable, match="HTTP 401"):
+        ApifyMetrics(token="wrong")(MINE)
+
+
+def test_a_network_that_is_not_there_is_reported_as_such(monkeypatch: pytest.MonkeyPatch) -> None:
+    patch_urlopen(monkeypatch, urllib.error.URLError("no route to host"))
+
+    with pytest.raises(MetricsUnavailable, match="could not reach Apify"):
+        ApifyMetrics(token="t")(MINE)
+
+
+def test_a_response_that_is_not_json_is_reported_rather_than_crashing(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A proxy or an error page answering instead of Apify."""
+    patch_urlopen(monkeypatch, b"<html>gateway timeout</html>")
+
+    with pytest.raises(MetricsUnavailable, match="not JSON"):
+        ApifyMetrics(token="t")(MINE)
+
+
+def test_an_empty_dataset_means_the_post_could_not_be_read(monkeypatch: pytest.MonkeyPatch) -> None:
+    patch_urlopen(monkeypatch, b"[]")
+
+    with pytest.raises(MetricsUnavailable, match="no data returned"):
+        ApifyMetrics(token="t")(MINE)
+
+
+def test_an_item_of_the_wrong_shape_is_refused(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The actor changing its output must not read as zero engagement."""
+    patch_urlopen(monkeypatch, b'["just a string"]')
+
+    with pytest.raises(MetricsUnavailable, match="unexpected item shape"):
+        ApifyMetrics(token="t")(MINE)
