@@ -319,6 +319,7 @@ section[data-view].active { display: block; }
 <nav class="tabs" id="tabs">
   <button data-go="write" aria-current="true">Write</button>
   <button data-go="review">Review</button>
+  <button data-go="archive" id="tab-archive">Archive</button>
   <button data-go="numbers">Numbers</button>
   <button data-go="people">People</button>
   <button data-go="can">What this can do</button>
@@ -372,19 +373,26 @@ section[data-view].active { display: block; }
     <div id="approved" class="cards"></div>
   </div>
 
-  <div class="panel" id="archive-panel" hidden>
-    <h2>Already posted</h2>
-    <p class="hint">
-      What has gone out, newest first. Posts you pasted into LinkedIn yourself
-      count, once you press "I posted this" on them.
-    </p>
-    <div id="archive" class="cards"></div>
-  </div>
-
   <div class="panel" id="attention-panel" hidden>
     <h2>Did not work</h2>
     <p class="hint">These failed the quality rules. The reasons usually mean the note was thin.</p>
     <div id="attention" class="cards"></div>
+  </div>
+
+</section>
+
+<!-- ----------------------------------------------------------- ARCHIVE -->
+<section data-view="archive">
+
+  <div class="panel">
+    <h2>Already posted</h2>
+    <p class="hint">
+      What has gone out, newest first, with the date and the link where there is
+      one. Posts you sent from LinkedIn yourself count, once you have pressed
+      "I posted this" on them. "Put it back" undoes a wrong one: it corrects
+      this list and does not touch LinkedIn.
+    </p>
+    <div id="archive" class="cards"><p class="empty">Nothing has gone out yet.</p></div>
   </div>
 
 </section>
@@ -758,8 +766,12 @@ async function refresh() {
     : 'Posting is not connected on this copy, so these are copy-and-paste only. '
       + 'Run scripts/linkedin_post.py auth, then restart the studio.';
 
-  $('archive-panel').hidden = (s.published || []).length === 0;
-  $('archive').innerHTML = (s.published || []).map(archiveCard).join('');
+  const posted = s.published || [];
+  $('archive').innerHTML = posted.length
+    ? posted.map(archiveCard).join('')
+    : '<p class="empty">Nothing has gone out yet.</p>';
+  // The count on the tab, so the archive is worth opening only when it is.
+  $('tab-archive').textContent = posted.length ? `Archive (${posted.length})` : 'Archive';
 
   $('attention-panel').hidden = s.attention.length === 0;
   $('attention').innerHTML = s.attention.map(d => draftCard(d, false)).join('');
