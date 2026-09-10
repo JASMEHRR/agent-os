@@ -736,6 +736,11 @@ function archiveCard(d) {
         ${link}
       </div>
       ${postBlock(d.full_text)}
+      <div class="row">
+        <button class="ghost" data-unpublish="${d.draft_id}"
+                title="Wrong button? Puts it back with the approved drafts. It does not remove anything from LinkedIn">Put it back</button>
+      </div>
+      <div id="msg-${d.draft_id}"></div>
     </div>`;
 }
 
@@ -831,6 +836,7 @@ function wire() {
   document.querySelectorAll('[data-post]').forEach(b => { b.onclick = () => postNow(b, b.dataset.post); });
   document.querySelectorAll('[data-posted]').forEach(b => { b.onclick = () => markPosted(b.dataset.posted); });
   document.querySelectorAll('[data-open]').forEach(b => { b.onclick = () => openInLinkedIn(b.dataset.open); });
+  document.querySelectorAll('[data-unpublish]').forEach(b => { b.onclick = () => unpublish(b.dataset.unpublish); });
   document.querySelectorAll('[data-more]').forEach(b => {
     b.onclick = () => {
       const post = b.previousElementSibling;
@@ -857,6 +863,13 @@ async function openInLinkedIn(id) {
     'noopener',
   );
   message(`msg-${id}`, 'Opened in LinkedIn. Tag who you want, post it, then press "I posted this".', 'good');
+}
+
+async function unpublish(id) {
+  try {
+    await api('/api/unpublish', { draft_id: id });
+    await refresh();
+  } catch (e) { message(`msg-${id}`, e.message, 'error'); }
 }
 
 async function markPosted(id) {

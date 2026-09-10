@@ -305,6 +305,8 @@ class Handler(BaseHTTPRequestHandler):
                 self._unschedule(payload)
             elif self.path == "/api/mark-posted":
                 self._mark_posted(payload)
+            elif self.path == "/api/unpublish":
+                self._unpublish(payload)
             elif self.path == "/api/publish":
                 self._publish(payload)
             elif self.path == "/api/track":
@@ -466,6 +468,21 @@ class Handler(BaseHTTPRequestHandler):
             self._json({"error": result.error}, 502)
             return
         self._json({"published": True, "url": result.url})
+
+    def _unpublish(self, payload: dict[str, Any]) -> None:
+        """Takes a draft back out of the archive.
+
+        For a record that is wrong, not a post you want removed. Nothing here
+        can delete anything from LinkedIn, and the page says so where the
+        button is rather than leaving it to be discovered.
+        """
+        draft_id = str(payload.get("draft_id", ""))
+        try:
+            restored = self.studio.scheduler.unpublish(draft_id)
+        except InvalidTransition as exc:
+            self._json({"error": str(exc)}, 400)
+            return
+        self._json({"draft": _draft_json(restored)})
 
     # -------------------------------------------------------------- Analytics
 

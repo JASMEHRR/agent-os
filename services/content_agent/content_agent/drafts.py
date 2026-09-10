@@ -51,7 +51,12 @@ TRANSITIONS: dict[DraftState, frozenset[DraftState]] = {
     DraftState.REJECTED: frozenset({DraftState.DRAFTED, DraftState.DISCARDED}),
     DraftState.APPROVED: frozenset({DraftState.PUBLISHED, DraftState.PUBLISH_FAILED, DraftState.DISCARDED}),
     DraftState.PUBLISH_FAILED: frozenset({DraftState.PUBLISHED, DraftState.DISCARDED}),
-    DraftState.PUBLISHED: frozenset(),
+    #: Back to APPROVED only, for a record that was wrong: the one-click
+    #: "already posted" is easy to press on the wrong card, and an archive
+    #: nobody can correct drifts from the truth just as surely as one that
+    #: forgets. It is not an unpublish: nothing here can reach into LinkedIn
+    #: and take a post down, and `unpublish` says so.
+    DraftState.PUBLISHED: frozenset({DraftState.APPROVED}),
     DraftState.DISCARDED: frozenset(),
 }
 
@@ -178,6 +183,27 @@ class PostDraft:
         return dataclasses.replace(
             self.transition_to(DraftState.PUBLISH_FAILED),
             failure_reason=reason[:300],
+        )
+
+    def unpublish(self) -> PostDraft:
+        """Takes a draft back out of the archive, to APPROVED.
+
+        For a record that is wrong, not for a post you want removed: nothing
+        in this system can reach into LinkedIn and delete anything, and a
+        method that implied otherwise would be a lie in a name.
+
+        `scheduled_for` is cleared, and that is the whole reason this is a
+        method rather than a `dataclasses.replace` at the call site. A draft
+        restored to APPROVED while still carrying a time in the past is due
+        the instant it lands, so the next unattended run would post it to
+        LinkedIn a second time. Correcting a mistake in the archive must not
+        be a way to publish something twice.
+        """
+        return dataclasses.replace(
+            self.transition_to(DraftState.APPROVED),
+            published_at=None,
+            published_url="",
+            scheduled_for=None,
         )
 
     # ------------------------------------------------------------- Scheduling

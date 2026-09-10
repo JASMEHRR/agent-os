@@ -151,6 +151,13 @@ class Scheduler:
         self._drafts.save(draft_id, posted)
         return posted
 
+    def unpublish(self, draft_id: str) -> PostDraft:
+        """Puts an archived draft back among the approved ones."""
+        draft: PostDraft = self._drafts.get(draft_id)
+        restored = draft.unpublish()
+        self._drafts.save(draft_id, restored)
+        return restored
+
     def queue(self) -> list[PostDraft]:
         """Everything waiting to go out, soonest first."""
         waiting = [
