@@ -76,10 +76,60 @@ body::before {
 
 /* Cards side by side wherever two fit. 430px is about the narrowest a post
    stays readable at, so this is two across on a laptop and three on a wide
-   monitor, rather than a fixed count that would be wrong on both. */
-.cards { display: grid; gap: 22px; grid-template-columns: repeat(auto-fill, minmax(430px, 1fr)); }
+   monitor, rather than a fixed count that would be wrong on both.
+   `min(430px, 100%)` because a bare 430px minimum is wider than a phone, and
+   a grid column cannot shrink below its minimum: on a 400px screen that
+   pushed the whole page sideways. */
+.cards { display: grid; gap: 22px; grid-template-columns: repeat(auto-fill, minmax(min(430px, 100%), 1fr)); }
 .card { display: flex; flex-direction: column; }
 .card .post { flex: 1; }
+
+/* ------------------------------------------------------------- archive */
+
+/* A count at the top, because the first question anyone brings to an archive
+   is "how much have I actually done", and counting cards does not answer it. */
+.arch-bar {
+  display: flex; flex-wrap: wrap; gap: 12px 30px; align-items: baseline;
+  padding: 15px 20px; margin-bottom: 18px;
+  border: 1px solid rgb(255 255 255 / 0.09);
+  border-radius: 14px;
+  background: rgb(255 255 255 / 0.025);
+}
+.arch-bar span { font-size: 14px; color: rgb(255 255 255 / 0.55); }
+.arch-bar b { font-size: 21px; color: #fff; font-weight: 700; margin-right: 7px; }
+
+.arch-tools { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 4px; }
+.arch-tools input[type=search] {
+  flex: 1 1 300px; max-width: 440px; min-height: 46px;
+  background: rgb(255 255 255 / 0.02);
+  border: 1px solid rgb(255 255 255 / 0.08);
+  box-shadow: inset 0 1.5px 3px rgb(0 0 0 / 0.25);
+  border-radius: 12px; color: inherit; font: inherit; font-size: 16px;
+  padding: 13px 16px;
+}
+.arch-tools input[type=search]:focus {
+  outline: none; border-color: rgb(255 255 255 / 0.18); background: rgb(255 255 255 / 0.04);
+}
+
+.chip {
+  min-height: 40px; padding: 0 17px; font-size: 14px; font-weight: 600;
+  background: rgb(255 255 255 / 0.05); color: rgb(255 255 255 / 0.7);
+  border: 1px solid rgb(255 255 255 / 0.12); border-radius: 999px;
+}
+.chip:hover { background: rgb(255 255 255 / 0.09); }
+.chip[aria-pressed="true"] {
+  background: rgb(34 211 238 / 0.14); color: #a5f3fc; border-color: var(--brand-400);
+}
+
+/* Months are the unit people remember posting in. Without them a long archive
+   is one undifferentiated column and "what did I ship in August" is unanswerable. */
+.month {
+  font-size: 12px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase;
+  color: rgb(255 255 255 / 0.45);
+  margin: 30px 0 15px; padding-bottom: 9px;
+  border-bottom: 1px solid rgb(255 255 255 / 0.08);
+}
+#archive > .month:first-child { margin-top: 22px; }
 
 /* A full post is 1,500 characters and ten of them is a page nobody reads.
    Clamped by default with the text still in the DOM, so "Sounds like me"
@@ -387,12 +437,21 @@ section[data-view].active { display: block; }
   <div class="panel">
     <h2>Already posted</h2>
     <p class="hint">
-      What has gone out, newest first, with the date and the link where there is
-      one. Posts you sent from LinkedIn yourself count, once you have pressed
-      "I posted this" on them. "Put it back" undoes a wrong one: it corrects
-      this list and does not touch LinkedIn.
+      Everything that has gone out, newest first, grouped by month. Posts you
+      sent from LinkedIn yourself count, once you have pressed "I posted this"
+      on them. "Put it back" undoes a wrong one: it corrects this list and does
+      not touch LinkedIn.
     </p>
-    <div id="archive" class="cards"><p class="empty">Nothing has gone out yet.</p></div>
+
+    <div class="arch-bar" id="arch-bar" hidden></div>
+
+    <div class="arch-tools" id="arch-tools" hidden>
+      <input type="search" id="arch-q" placeholder="Search everything you have posted"
+             aria-label="Search the archive" autocomplete="off">
+      <div class="row" id="arch-chips" style="margin:0"></div>
+    </div>
+
+    <div id="archive"><p class="empty">Nothing has gone out yet.</p></div>
   </div>
 
 </section>
@@ -726,9 +785,12 @@ function approvedCard(d) {
     </div>`;
 }
 
+// The archive holds every channel, so the link cannot promise LinkedIn.
+const SEE_IT = { linkedin: 'see it on LinkedIn', devto: 'see it on Dev.to', newsletter: 'see the issue' };
+
 function archiveCard(d) {
   const link = d.published_url
-    ? `<a href="${escapeHtml(d.published_url)}" target="_blank" rel="noopener">see it on LinkedIn</a>`
+    ? `<a href="${escapeHtml(d.published_url)}" target="_blank" rel="noopener">${SEE_IT[d.channel] || 'see it'}</a>`
     : '<span class="hint" style="margin:0">no link recorded</span>';
   // The date is the point of an archive: "what went out and when", not just
   // "what went out". Without it the list stops being answerable after a month.
@@ -752,6 +814,88 @@ function archiveCard(d) {
     </div>`;
 }
 
+// The archive's own state. Kept here rather than re-read from the server on
+// every keystroke: the whole list already arrived with /api/state, and
+// searching it is a filter over what we have, not a new question to ask.
+let archive = [];
+let archQuery = '';
+let archChannel = '';   // '' means every channel
+
+const UNDATED = 'Date not recorded';
+
+function archMonth(d) {
+  if (!d.published_at) return UNDATED;
+  return new Date(d.published_at).toLocaleString([], { month: 'long', year: 'numeric' });
+}
+
+function renderArchive() {
+  const bar = $('arch-bar');
+  const tools = $('arch-tools');
+  const box = $('archive');
+
+  // Nothing has ever gone out: no counts to show and nothing to search.
+  if (!archive.length) {
+    bar.hidden = true;
+    tools.hidden = true;
+    box.innerHTML = '<p class="empty">Nothing has gone out yet.</p>';
+    return;
+  }
+
+  const byChannel = {};
+  for (const d of archive) byChannel[d.channel] = (byChannel[d.channel] || 0) + 1;
+
+  const thisMonth = new Date().toLocaleString([], { month: 'long', year: 'numeric' });
+  const thisMonthCount = archive.filter(d => archMonth(d) === thisMonth).length;
+
+  bar.hidden = false;
+  bar.innerHTML = `
+    <span><b>${archive.length}</b> posted</span>
+    <span><b>${thisMonthCount}</b> this month</span>
+    ${Object.entries(byChannel).map(([c, n]) =>
+      `<span><b>${n}</b> ${escapeHtml(c)}</span>`).join('')}`;
+
+  // One chip per channel actually present, so a studio that only posts to
+  // LinkedIn never grows a row of filters that all say the same thing.
+  const channels = Object.keys(byChannel);
+  tools.hidden = false;
+  $('arch-chips').innerHTML = channels.length > 1
+    ? [['', 'All']].concat(channels.map(c => [c, c])).map(([value, label]) =>
+        `<button class="chip" data-chan="${escapeHtml(value)}"
+                 aria-pressed="${archChannel === value}">${escapeHtml(label)}</button>`).join('')
+    : '';
+
+  const q = archQuery.trim().toLowerCase();
+  const shown = archive.filter(d =>
+    (!archChannel || d.channel === archChannel)
+    && (!q || (d.full_text || '').toLowerCase().includes(q)));
+
+  if (!shown.length) {
+    box.innerHTML = '<p class="empty">Nothing here matches. Try a different word, '
+                  + 'or clear the search.</p>';
+    return;
+  }
+
+  // The server already sorts newest first, so walking it in order and starting
+  // a group whenever the month changes keeps that order without re-sorting.
+  const groups = new Map();
+  for (const d of shown) {
+    const key = archMonth(d);
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(d);
+  }
+  // Undated posts have no place in a timeline, so they go last rather than
+  // wherever their creation date happened to put them.
+  if (groups.has(UNDATED)) {
+    const undated = groups.get(UNDATED);
+    groups.delete(UNDATED);
+    groups.set(UNDATED, undated);
+  }
+
+  box.innerHTML = [...groups].map(([month, posts]) => `
+    <h3 class="month">${escapeHtml(month)} &middot; ${posts.length}</h3>
+    <div class="cards">${posts.map(archiveCard).join('')}</div>`).join('');
+}
+
 async function refresh() {
   const s = await api('/api/state');
 
@@ -766,12 +910,10 @@ async function refresh() {
     : 'Posting is not connected on this copy, so these are copy-and-paste only. '
       + 'Run scripts/linkedin_post.py auth, then restart the studio.';
 
-  const posted = s.published || [];
-  $('archive').innerHTML = posted.length
-    ? posted.map(archiveCard).join('')
-    : '<p class="empty">Nothing has gone out yet.</p>';
+  archive = s.published || [];
+  renderArchive();
   // The count on the tab, so the archive is worth opening only when it is.
-  $('tab-archive').textContent = posted.length ? `Archive (${posted.length})` : 'Archive';
+  $('tab-archive').textContent = archive.length ? `Archive (${archive.length})` : 'Archive';
 
   $('attention-panel').hidden = s.attention.length === 0;
   $('attention').innerHTML = s.attention.map(d => draftCard(d, false)).join('');
@@ -849,6 +991,13 @@ function wire() {
   document.querySelectorAll('[data-posted]').forEach(b => { b.onclick = () => markPosted(b.dataset.posted); });
   document.querySelectorAll('[data-open]').forEach(b => { b.onclick = () => openInLinkedIn(b.dataset.open); });
   document.querySelectorAll('[data-unpublish]').forEach(b => { b.onclick = () => unpublish(b.dataset.unpublish); });
+  document.querySelectorAll('[data-chan]').forEach(b => {
+    b.onclick = () => {
+      archChannel = b.dataset.chan;
+      renderArchive();
+      wire();
+    };
+  });
   document.querySelectorAll('[data-more]').forEach(b => {
     b.onclick = () => {
       const post = b.previousElementSibling;
@@ -1383,6 +1532,15 @@ async function dropLoginWhenNotNeeded() {
     // so the box stays and the 401 path still works.
   }
 }
+
+// The search box is part of the page rather than of the archive's rendered
+// output, so it is bound once. Re-binding it on every keystroke would cost it
+// focus mid-word.
+$('arch-q').oninput = (e) => {
+  archQuery = e.target.value;
+  renderArchive();
+  wire();
+};
 
 dropLoginWhenNotNeeded();
 refresh();
