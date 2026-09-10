@@ -60,11 +60,19 @@ body::before {
   z-index: 0;
 }
 
-/* 1240 rather than 780. The narrow column suited one draft at a time; with ten
-   waiting it left two thirds of a laptop screen empty and turned reviewing
-   into scrolling. Prose inside a card is still capped (.post) so the reading
-   measure does not get worse as the page gets wider. */
-.wrap { position: relative; z-index: 1; max-width: 1240px; margin: 0 auto; padding: 40px 24px 80px; }
+/* Effectively the whole window. The narrow column suited one draft at a time;
+   with ten waiting it left most of the screen empty and turned reviewing into
+   scrolling.
+
+   Going this wide is only safe because the card grid subdivides it: at 1900px
+   that is four columns of about 440px each, which is a better reading measure
+   than one 1900px line would be. The 2200 cap is for an ultrawide, where a
+   fifth and sixth column stop being useful. */
+.wrap { position: relative; z-index: 1; max-width: 2200px; margin: 0 auto; padding: 40px 28px 80px; }
+
+/* Forms are the exception: a text box the width of a wall is unpleasant to
+   type in, and unlike a grid of cards it has nothing to subdivide into. */
+.panel textarea, .panel input[type=text], .panel input[type=password] { max-width: 940px; }
 
 /* Cards side by side wherever two fit. 430px is about the narrowest a post
    stays readable at, so this is two across on a laptop and three on a wide
