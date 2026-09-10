@@ -13,7 +13,7 @@ from typing import Any
 
 import pytest
 
-from content_agent.drafts import DraftState, NotApproved, PostDraft
+from content_agent.drafts import DraftState, InvalidTransition, NotApproved, PostDraft
 from content_agent.formats import Channel
 from content_agent.schedule import Scheduler
 
@@ -312,6 +312,68 @@ def test_the_archive_is_newest_first_and_holds_both_routes() -> None:
     archived = [d.draft_id for d in scheduler.published()]
     assert sorted(archived) == ["by-hand", "sent"]
     assert len(archived) == 2
+
+
+# ------------------------------------------------------------ Un-archiving
+
+
+def test_an_archived_draft_can_be_put_back_among_the_approved() -> None:
+    """The one-click "already posted" is easy to press on the wrong card, and
+    an archive nobody can correct drifts from the truth just as surely as one
+    that forgets."""
+    scheduler, memory = scheduler_at(NOW, draft().approve("jasmehr"))
+    scheduler.mark_posted("d1", "https://example.com/1")
+
+    restored = scheduler.unpublish("d1")
+
+    assert restored.state is DraftState.APPROVED
+    assert restored.published_at is None
+    assert restored.published_url == ""
+    assert scheduler.published() == []
+    assert [d.draft_id for d in scheduler.approved()] == ["d1"]
+    assert memory.get("d1").state is DraftState.APPROVED
+
+
+def test_putting_one_back_clears_its_time_so_it_cannot_post_twice() -> None:
+    """The trap this feature would otherwise set.
+
+    A draft restored to APPROVED while still carrying a time in the past is
+    due the instant it lands, so the next unattended run would send it to
+    LinkedIn a second time. Correcting a mistake in the archive must not be a
+    way to publish something twice.
+    """
+    scheduler, _ = scheduler_at(NOW, draft().approve("jasmehr"))
+    scheduler.schedule("d1", NOW - timedelta(minutes=5))
+    publisher = Recorder()
+    scheduler.publish_due(publisher)
+    assert len(publisher.sent) == 1
+
+    scheduler.unpublish("d1")
+
+    assert scheduler.due() == [], "a restored draft must not be instantly due again"
+    assert scheduler.publish_due(publisher) == []
+    assert len(publisher.sent) == 1, "it would have gone out to LinkedIn twice"
+
+
+def test_a_draft_that_was_never_published_cannot_be_put_back() -> None:
+    scheduler, _ = scheduler_at(NOW, draft().approve("jasmehr"))
+
+    with pytest.raises(InvalidTransition):
+        scheduler.unpublish("d1")
+
+
+def test_a_restored_draft_can_be_scheduled_and_sent_again_deliberately() -> None:
+    """Putting it back is a correction, not a lock: it is an ordinary approved
+    draft again, and the ordinary route out of that still works."""
+    scheduler, memory = scheduler_at(NOW, draft().approve("jasmehr"))
+    scheduler.mark_posted("d1")
+    scheduler.unpublish("d1")
+
+    scheduler.schedule("d1", NOW - timedelta(minutes=1))
+    results = scheduler.publish_due(Recorder())
+
+    assert [r.published for r in results] == [True]
+    assert memory.get("d1").state is DraftState.PUBLISHED
 
 
 def test_health_counts_the_queue_and_names_the_next_time() -> None:
