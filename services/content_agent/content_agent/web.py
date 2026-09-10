@@ -39,7 +39,7 @@ from typing import Any
 from content_agent.analytics import MetricsSource
 from content_agent.capabilities import survey, totals
 from content_agent.capture import capture_week
-from content_agent.drafts import NotApproved
+from content_agent.drafts import InvalidTransition, NotApproved
 from content_agent.formats import Channel
 from content_agent.outreach import OutreachChannel, prospect_from
 from content_agent.persona import Area
@@ -76,6 +76,7 @@ def _draft_json(draft: Any) -> dict[str, Any]:
         "outstanding": list(draft.outstanding),
         "created_at": draft.created_at.isoformat(),
         "scheduled_for": draft.scheduled_for.isoformat() if draft.scheduled_for else "",
+        "published_at": draft.published_at.isoformat() if draft.published_at else "",
         "published_url": draft.published_url,
         "failure_reason": draft.failure_reason,
     }
@@ -431,8 +432,8 @@ class Handler(BaseHTTPRequestHandler):
         """
         draft_id = str(payload.get("draft_id", ""))
         try:
-            posted = self.studio.scheduler.mark_posted(draft_id, str(payload.get("url", "")))
-        except NotApproved as exc:
+            posted = self.studio.record_posted(draft_id, self.principal, str(payload.get("url", "")))
+        except (NotApproved, InvalidTransition) as exc:
             self._json({"error": str(exc)}, 400)
             return
         self._json({"draft": _draft_json(posted)})

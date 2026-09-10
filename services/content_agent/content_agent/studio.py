@@ -372,6 +372,24 @@ class ContentStudio:
         self._drafts.save(draft_id, approved)
         return approved
 
+    def record_posted(self, draft_id: str, principal_id: str, url: str = "") -> PostDraft:
+        """You posted this yourself. Put it in the archive from wherever it is.
+
+        The path for a draft that is already live: one imported from a file you
+        had posted weeks ago, or one you opened in LinkedIn and sent from
+        there. Asking you to press Approve first would mean saying "yes,
+        publish this" about something already published, so this does both.
+
+        Both, rather than a shortcut around the approval boundary. Pressing it
+        *is* the approval, so it is recorded as one against your name, and
+        `PUBLISHED` is still reached only from `APPROVED`. Nothing about the
+        state machine bends to make this convenient.
+        """
+        draft: PostDraft = self._drafts.get(draft_id)
+        if draft.state is DraftState.DRAFTED:
+            self.approve(draft_id, principal_id)
+        return self.scheduler.mark_posted(draft_id, url)
+
     def discard(self, draft_id: str) -> PostDraft:
         draft: PostDraft = self._drafts.get(draft_id)
         discarded = draft.transition_to(DraftState.DISCARDED)

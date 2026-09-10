@@ -23,7 +23,7 @@ refuse, fails the suite. A declaration nothing checks is a wish.
 | `persistence` | libs | S0 | implemented to stage exit criteria | 4 | 16 |
 | `agent_runtime` | services | S7 | implemented to stage exit criteria | 3 | 45 |
 | `api_gateway` | services | S8 | implemented to stage exit criteria | 6 | 44 |
-| `content_agent` | services | A1 | implemented to stage exit criteria | 13 | 175 |
+| `content_agent` | services | A1 | implemented to stage exit criteria | 13 | 181 |
 | `cost_manager` | services | S3 | implemented to stage exit criteria | 3 | 28 |
 | `decision_gateway` | services | S5 | implemented to stage exit criteria | 4 | 62 |
 | `deployment_gateway` | services | S11 | implemented to stage exit criteria | 1 | 0 |
@@ -49,7 +49,7 @@ refuse, fails the suite. A declaration nothing checks is a wish.
 
 ## Appendix B - Interface Register
 
-365 public methods across 24 Gateway facades,
+366 public methods across 24 Gateway facades,
 read by introspection so a rename cannot go unrecorded.
 
 | Module | Facade | Method |
@@ -86,6 +86,7 @@ read by introspection so a rename cannot go unrecorded.
 | `content_agent` | `ContentStudio` | `note(self, note_id: 'str') -> 'WeeklyNote'` |
 | `content_agent` | `ContentStudio` | `outreach_drafts(self) -> 'list[OutreachDraft]'` |
 | `content_agent` | `ContentStudio` | `prospects(self) -> 'list[Prospect]'` |
+| `content_agent` | `ContentStudio` | `record_posted(self, draft_id: 'str', principal_id: 'str', url: 'str' = '') -> 'PostDraft'` |
 | `cost_manager` | `CostManager` | `allocate(self, scope: 'BudgetScope', tenant_id: 'str', limit: 'float') -> 'None'` |
 | `cost_manager` | `CostManager` | `attribution(self, scope: 'BudgetScope | None' = None, principal_id: 'str | None' = None, tenant_id: 'str | None' = None) -> 'Mapping[str, Any]'` |
 | `cost_manager` | `CostManager` | `check(self, scope: 'BudgetScope', tenant_id: 'str', estimated_cost: 'float' = 0.0, dependency: 'str | None' = None) -> 'BudgetVerdict'` |

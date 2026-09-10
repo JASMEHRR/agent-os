@@ -60,7 +60,39 @@ body::before {
   z-index: 0;
 }
 
-.wrap { position: relative; z-index: 1; max-width: 780px; margin: 0 auto; padding: 40px 20px 80px; }
+/* Effectively the whole window. The narrow column suited one draft at a time;
+   with ten waiting it left most of the screen empty and turned reviewing into
+   scrolling.
+
+   Going this wide is only safe because the card grid subdivides it: at 1900px
+   that is four columns of about 440px each, which is a better reading measure
+   than one 1900px line would be. The 2200 cap is for an ultrawide, where a
+   fifth and sixth column stop being useful. */
+.wrap { position: relative; z-index: 1; max-width: 2200px; margin: 0 auto; padding: 40px 28px 80px; }
+
+/* Forms are the exception: a text box the width of a wall is unpleasant to
+   type in, and unlike a grid of cards it has nothing to subdivide into. */
+.panel textarea, .panel input[type=text], .panel input[type=password] { max-width: 940px; }
+
+/* Cards side by side wherever two fit. 430px is about the narrowest a post
+   stays readable at, so this is two across on a laptop and three on a wide
+   monitor, rather than a fixed count that would be wrong on both. */
+.cards { display: grid; gap: 22px; grid-template-columns: repeat(auto-fill, minmax(430px, 1fr)); }
+.card { display: flex; flex-direction: column; }
+.card .post { flex: 1; }
+
+/* A full post is 1,500 characters and ten of them is a page nobody reads.
+   Clamped by default with the text still in the DOM, so "Sounds like me"
+   keeps saving the whole thing and expanding costs one click. */
+.post.clamp { max-height: 13em; overflow: hidden; -webkit-mask-image: linear-gradient(#000 68%, transparent);
+              mask-image: linear-gradient(#000 68%, transparent); }
+/* Expanded, but bounded and scrolling inside itself. A card free to grow to
+   its full 1,000px sets the height of its whole grid row, so reading one post
+   left an empty column beside it the height of a screen. */
+.post:not(.clamp) { max-height: 60vh; overflow-y: auto; }
+.more { background: none; border: 0; color: var(--brand-300); cursor: pointer;
+        font: inherit; font-size: 14px; font-weight: 600; min-height: 32px; padding: 4px 0; text-align: left; }
+.more:hover { text-decoration: underline; }
 
 header { margin-bottom: 28px; }
 h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; margin: 0 0 6px; }
@@ -331,13 +363,13 @@ section[data-view].active { display: block; }
 
   <div class="panel">
     <h2>Waiting for you</h2>
-    <div id="waiting"><p class="empty">Nothing yet. Write a note first.</p></div>
+    <div id="waiting" class="cards"><p class="empty">Nothing yet. Write a note first.</p></div>
   </div>
 
   <div class="panel" id="approved-panel" hidden>
     <h2>Approved, not out yet</h2>
     <p class="hint" id="post-state"></p>
-    <div id="approved"></div>
+    <div id="approved" class="cards"></div>
   </div>
 
   <div class="panel" id="archive-panel" hidden>
@@ -346,13 +378,13 @@ section[data-view].active { display: block; }
       What has gone out, newest first. Posts you pasted into LinkedIn yourself
       count, once you press "I posted this" on them.
     </p>
-    <div id="archive"></div>
+    <div id="archive" class="cards"></div>
   </div>
 
   <div class="panel" id="attention-panel" hidden>
     <h2>Did not work</h2>
     <p class="hint">These failed the quality rules. The reasons usually mean the note was thin.</p>
-    <div id="attention"></div>
+    <div id="attention" class="cards"></div>
   </div>
 
 </section>
@@ -585,6 +617,15 @@ function escapeHtml(s) {
   ));
 }
 
+// The text, clamped, with the toggle that unclamps it. The full text stays in
+// the DOM either way, so "Sounds like me" keeps saving the whole post.
+function postBlock(text) {
+  if (!text) return '';
+  return `
+    <div class="post clamp">${escapeHtml(text)}</div>
+    <button class="more" type="button" data-more>Show all</button>`;
+}
+
 function draftCard(d, actions) {
   const tag = d.state === 'drafted'
     ? '<span class="tag ok">ready to review</span>'
@@ -596,13 +637,17 @@ function draftCard(d, actions) {
     ? `<span class="hint" style="margin:0">fixed itself ${d.redraft_count}x</span>` : '';
   const chan = `<span class="chan-badge">${escapeHtml(d.channel)}</span>`;
   return `
-    <div style="margin-bottom:26px">
+    <div class="card">
       <div class="row" style="margin:0 0 4px">${chan}${tag}${redrafts}</div>
-      ${d.full_text ? `<div class="post">${escapeHtml(d.full_text)}</div>` : ''}
+      ${postBlock(d.full_text)}
       ${rules}
       ${actions ? `<div class="row">
-        <button class="primary" data-approve="${d.draft_id}">Approve &amp; copy</button>
+        <button class="primary" data-approve="${d.draft_id}">Approve</button>
+        <button class="ghost" data-posted="${d.draft_id}"
+                title="Already live on LinkedIn: approve it and file it in the archive">Already posted</button>
         <button class="danger" data-discard="${d.draft_id}">Discard</button>
+      </div>
+      <div class="row">
         <button class="ghost" data-like="${d.draft_id}" title="Save this as an example of your voice">Sounds like me</button>
         <button class="ghost" data-dislike="${d.draft_id}">Not me</button>
       </div>` : ''}
@@ -649,38 +694,48 @@ function approvedCard(d) {
     ? `<ul class="rules"><li>last attempt failed: ${escapeHtml(d.failure_reason)}</li></ul>`
     : '';
   return `
-    <div style="margin-bottom:26px">
+    <div class="card">
       <div class="row" style="margin:0 0 4px">
         <span class="chan-badge">${escapeHtml(d.channel)}</span>${scheduled}
       </div>
-      <div class="post">${escapeHtml(d.full_text)}</div>
+      ${postBlock(d.full_text)}
       ${failed}
       <div class="row">
         <input type="datetime-local" data-when="${d.draft_id}"
                value="${escapeHtml(d.scheduled_for ? localInputValue(new Date(d.scheduled_for)) : tomorrowMorning())}"
-               style="max-width:230px">
+               style="max-width:210px">
         <button class="ghost" data-schedule="${d.draft_id}">${d.scheduled_for ? 'Change time' : 'Schedule it'}</button>
         ${d.scheduled_for ? `<button class="ghost" data-unschedule="${d.draft_id}">Take it off</button>` : ''}
-        <button class="primary" data-post="${d.draft_id}">Post now</button>
+      </div>
+      <div class="row">
+        <button class="primary" data-open="${d.draft_id}"
+                title="Opens LinkedIn's own composer with this text in it, so you can tag people">Open in LinkedIn</button>
+        <button class="ghost" data-post="${d.draft_id}">Post now</button>
         <button class="ghost" data-posted="${d.draft_id}"
-                title="You pasted this into LinkedIn yourself">I posted this</button>
+                title="You posted this yourself">I posted this</button>
       </div>
       <div id="msg-${d.draft_id}"></div>
     </div>`;
 }
 
 function archiveCard(d) {
-  const when = d.published_url
+  const link = d.published_url
     ? `<a href="${escapeHtml(d.published_url)}" target="_blank" rel="noopener">see it on LinkedIn</a>`
     : '<span class="hint" style="margin:0">no link recorded</span>';
+  // The date is the point of an archive: "what went out and when", not just
+  // "what went out". Without it the list stops being answerable after a month.
+  const when = d.published_at
+    ? `<span class="hint" style="margin:0">${escapeHtml(whenLocal(d.published_at))}</span>`
+    : '';
   return `
-    <div style="margin-bottom:22px">
+    <div class="card">
       <div class="row" style="margin:0 0 4px">
         <span class="chan-badge">${escapeHtml(d.channel)}</span>
         <span class="pill on">posted</span>
         ${when}
+        ${link}
       </div>
-      <div class="post">${escapeHtml(d.full_text)}</div>
+      ${postBlock(d.full_text)}
     </div>`;
 }
 
@@ -775,6 +830,33 @@ function wire() {
   document.querySelectorAll('[data-unschedule]').forEach(b => { b.onclick = () => unschedule(b.dataset.unschedule); });
   document.querySelectorAll('[data-post]').forEach(b => { b.onclick = () => postNow(b, b.dataset.post); });
   document.querySelectorAll('[data-posted]').forEach(b => { b.onclick = () => markPosted(b.dataset.posted); });
+  document.querySelectorAll('[data-open]').forEach(b => { b.onclick = () => openInLinkedIn(b.dataset.open); });
+  document.querySelectorAll('[data-more]').forEach(b => {
+    b.onclick = () => {
+      const post = b.previousElementSibling;
+      const clamped = post.classList.toggle('clamp');
+      b.textContent = clamped ? 'Show all' : 'Show less';
+    };
+  });
+}
+
+// -------------------------------------------------- Posting it yourself
+
+async function openInLinkedIn(id) {
+  // LinkedIn's own composer, with the text already in it. This is the route
+  // for anything that needs a tag: mentions cannot go through the API at all,
+  // and LinkedIn's drafts live in the browser's local cache rather than on
+  // their servers, so an API "draft" would not appear in the composer either.
+  // Opening the real composer sidesteps both: you tag, edit and post there.
+  const card = document.querySelector(`[data-open="${id}"]`)?.closest('.card');
+  const text = card?.querySelector('.post')?.textContent || '';
+  if (!text) { message(`msg-${id}`, 'Nothing to open.', 'error'); return; }
+  window.open(
+    'https://www.linkedin.com/feed/?shareActive=true&text=' + encodeURIComponent(text),
+    '_blank',
+    'noopener',
+  );
+  message(`msg-${id}`, 'Opened in LinkedIn. Tag who you want, post it, then press "I posted this".', 'good');
 }
 
 async function markPosted(id) {
@@ -928,7 +1010,7 @@ async function rate(id, sounds) {
     // Approving as "sounds like me" saves the text as an example. If the
     // reader edited the draft in place first, the edited version is what gets
     // saved, and that diff is the most useful signal the system receives.
-    const card = document.querySelector(`[data-like="${id}"]`)?.closest('div[style]');
+    const card = document.querySelector(`[data-like="${id}"]`)?.closest('.card');
     const edited = card?.querySelector('.post')?.textContent || '';
     const { voice } = await api('/api/rate', { draft_id: id, sounds_like_me: sounds, text: sounds ? edited : '' });
     message(`msg-${id}`, sounds
@@ -1143,10 +1225,10 @@ $('p-add').onclick = async () => {
 async function approve(id) {
   try {
     const {draft} = await api('/api/approve', {draft_id: id});
-    // Copied automatically because the next thing anyone does is copy it, and
-    // a "copy" button you have to find is a step that adds nothing.
+    // Still copied, because pasting is sometimes the fastest route and it
+    // costs nothing to have it on the clipboard already.
     await navigator.clipboard.writeText(draft.full_text).catch(() => {});
-    message(`msg-${id}`, 'Approved and copied. Paste it into LinkedIn.', 'good');
+    message(`msg-${id}`, 'Approved and copied. It is under "Approved, not out yet" now.', 'good');
     setTimeout(refresh, 1400);
   } catch (e) { message(`msg-${id}`, e.message, 'error'); }
 }
