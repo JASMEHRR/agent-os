@@ -298,3 +298,47 @@ def test_a_note_records_when_it_was_captured() -> None:
 
     assert isinstance(note, WeeklyNote)
     assert note.captured_at.tzinfo is not None
+
+
+def test_recording_a_live_post_names_who_approved_it() -> None:
+    """The one-click path for a post that is already on LinkedIn.
+
+    It is a shortcut through two clicks, not through the boundary. Pressing it
+    is the approval, so an approval is written down against a named person,
+    and PUBLISHED is still only ever reached from APPROVED. A published draft
+    with nobody's name on it would be indistinguishable from one the machine
+    published by itself.
+    """
+    studio = _studio([_payload()])
+    draft = studio.draft(studio.capture(GOOD_NOTE))
+    assert draft.state is DraftState.DRAFTED
+
+    posted = studio.record_posted(draft.draft_id, "jasmehr", "https://example.com/post")
+
+    assert posted.state is DraftState.PUBLISHED
+    assert posted.approved_by == "jasmehr"
+    assert posted.approved_at is not None
+    assert posted.published_at is not None
+    assert posted.published_url == "https://example.com/post"
+
+
+def test_recording_a_post_already_approved_does_not_approve_it_twice() -> None:
+    """Approving an APPROVED draft is not a transition the machine has."""
+    studio = _studio([_payload()])
+    draft = studio.draft(studio.capture(GOOD_NOTE))
+    studio.approve(draft.draft_id, "jasmehr")
+
+    posted = studio.record_posted(draft.draft_id, "jasmehr")
+
+    assert posted.state is DraftState.PUBLISHED
+
+
+def test_a_rejected_draft_cannot_be_recorded_as_posted() -> None:
+    """It failed the gates and was never publishable; saying it went out is a
+    claim about the world that this should refuse to record."""
+    studio = _studio([_payload(hook="em dash — here")] * MAX_REDRAFTS)
+    draft = studio.draft(studio.capture(GOOD_NOTE))
+    assert draft.state is DraftState.REJECTED
+
+    with pytest.raises((InvalidTransition, NotApproved)):
+        studio.record_posted(draft.draft_id, "jasmehr")

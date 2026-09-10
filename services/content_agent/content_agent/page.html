@@ -643,7 +643,11 @@ function draftCard(d, actions) {
       ${rules}
       ${actions ? `<div class="row">
         <button class="primary" data-approve="${d.draft_id}">Approve</button>
+        <button class="ghost" data-posted="${d.draft_id}"
+                title="Already live on LinkedIn: approve it and file it in the archive">Already posted</button>
         <button class="danger" data-discard="${d.draft_id}">Discard</button>
+      </div>
+      <div class="row">
         <button class="ghost" data-like="${d.draft_id}" title="Save this as an example of your voice">Sounds like me</button>
         <button class="ghost" data-dislike="${d.draft_id}">Not me</button>
       </div>` : ''}

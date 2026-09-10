@@ -229,6 +229,51 @@ def test_a_studio_with_no_publisher_says_so_rather_than_pretending(server) -> No
     assert state["can_post"] is False
 
 
+def test_a_draft_that_is_already_live_goes_straight_to_the_archive(server) -> None:
+    """One click for a post that exists on LinkedIn already.
+
+    Imported posts and ones sent from LinkedIn's own composer arrive here
+    already published, and pressing Approve on those would mean saying "yes,
+    publish this" about something published weeks ago.
+    """
+    _, note = call(server, "/api/note", {"body": GOOD_NOTE})
+    _, drafted = call(server, "/api/draft", {"note_id": note["note_id"]})
+    draft_id = drafted["drafts"][0]["draft_id"]
+
+    status, body = call(
+        server,
+        "/api/mark-posted",
+        {"draft_id": draft_id, "url": "https://www.linkedin.com/feed/update/urn:li:activity:9"},
+    )
+
+    assert status == 200
+    assert body["draft"]["state"] == "published"
+    assert body["draft"]["published_at"], "the archive is sorted and shown by this"
+
+    _, state = call(server, "/api/state")
+    assert state["waiting"] == [], "it should have left the review list"
+    assert [d["draft_id"] for d in state["published"]] == [draft_id]
+
+
+def test_recording_it_as_posted_still_records_who_approved_it(server) -> None:
+    """The shortcut is one click, not a hole in the approval record.
+
+    Pressing the button is the approval, so it is written down as one. A
+    published draft nobody is named on would be indistinguishable from one the
+    machine published by itself, which is the thing the whole boundary exists
+    to make impossible.
+    """
+    _, note = call(server, "/api/note", {"body": GOOD_NOTE})
+    _, drafted = call(server, "/api/draft", {"note_id": note["note_id"]})
+    draft_id = drafted["drafts"][0]["draft_id"]
+
+    call(server, "/api/mark-posted", {"draft_id": draft_id})
+
+    _, state = call(server, "/api/state")
+    assert state["health"]["publishes_without_approval"] == 0
+    assert state["published"][0]["state"] == "published"
+
+
 def test_an_approved_draft_can_be_scheduled_and_shows_up_in_the_queue(server) -> None:
     _, note = call(server, "/api/note", {"body": GOOD_NOTE})
     _, drafted = call(server, "/api/draft", {"note_id": note["note_id"]})
