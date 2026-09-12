@@ -23,7 +23,7 @@ refuse, fails the suite. A declaration nothing checks is a wish.
 | `persistence` | libs | S0 | implemented to stage exit criteria | 4 | 16 |
 | `agent_runtime` | services | S7 | implemented to stage exit criteria | 3 | 45 |
 | `api_gateway` | services | S8 | implemented to stage exit criteria | 6 | 44 |
-| `classroom_agent` | services | A4 | implemented to stage exit criteria | 3 | 29 |
+| `classroom_agent` | services | A4 | implemented to stage exit criteria | 4 | 29 |
 | `content_agent` | services | A1 | implemented to stage exit criteria | 13 | 185 |
 | `cost_manager` | services | S3 | implemented to stage exit criteria | 3 | 28 |
 | `decision_gateway` | services | S5 | implemented to stage exit criteria | 4 | 62 |
@@ -33,7 +33,7 @@ refuse, fails the suite. A declaration nothing checks is a wish.
 | `evolution_gateway` | services | S12 | implemented to stage exit criteria | 1 | 31 |
 | `governance_gateway` | services | S10 | implemented to stage exit criteria | 3 | 57 |
 | `human_interface` | services | S8 | implemented to stage exit criteria | 5 | 50 |
-| `inbox_agent` | services | A2 | implemented to stage exit criteria | 6 | 51 |
+| `inbox_agent` | services | A2 | implemented to stage exit criteria | 7 | 74 |
 | `integration_gateway` | services | S6 | implemented to stage exit criteria | 1 | 0 |
 | `integration_registry` | services | S6 | implemented to stage exit criteria | 1 | 30 |
 | `knowledge_gateway` | services | S4 | implemented to stage exit criteria | 5 | 48 |
@@ -41,7 +41,7 @@ refuse, fails the suite. A declaration nothing checks is a wish.
 | `llm_router` | services | S6 | implemented to stage exit criteria | 4 | 38 |
 | `memory_gateway` | services | S4 | implemented to stage exit criteria | 4 | 44 |
 | `observability_gateway` | services | S3 (ingestion) + S10 (interpretive) | implemented to stage exit criteria | 4 | 54 |
-| `opportunity_agent` | services | A3 | implemented to stage exit criteria | 4 | 38 |
+| `opportunity_agent` | services | A3 | implemented to stage exit criteria | 5 | 38 |
 | `plugin_manager` | services | S12 | implemented to stage exit criteria | 1 | 34 |
 | `schema_registry` | services | S0 | implemented to stage exit criteria | 1 | 6 |
 | `security_gateway` | services | S1 | implemented to stage exit criteria | 15 | 109 |

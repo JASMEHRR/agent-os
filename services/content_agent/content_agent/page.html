@@ -191,6 +191,33 @@ textarea:focus, input[type=text]:focus {
 }
 input[type=text] { margin-top: 12px; }
 
+/* The agent tabs use dropdowns, which render as a white system control on a
+   dark page unless they are told otherwise. `color-scheme` is what makes the
+   popup list itself dark too; styling the closed box alone is not enough. */
+select {
+  color-scheme: dark;
+  background: rgb(255 255 255 / 0.04);
+  border: 1px solid rgb(255 255 255 / 0.12);
+  border-radius: 12px;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  min-height: 46px;
+  padding: 0 14px;
+  cursor: pointer;
+}
+select:focus { outline: 2px solid rgb(34 211 238 / 0.6); outline-offset: 2px; }
+
+/* The add-an-opportunity form puts text inputs in a `.arch-tools` row, where
+   the archive's search styling does not reach them. */
+.arch-tools input[type=text] {
+  flex: 1 1 220px;
+  margin-top: 0;
+  min-height: 46px;
+  font-size: 15px;
+  padding: 12px 14px;
+}
+
 /* 44px minimum target: this gets used on a phone as often as a laptop. */
 button {
   font: inherit;
@@ -370,6 +397,9 @@ section[data-view].active { display: block; }
   <button data-go="write" aria-current="true">Write</button>
   <button data-go="review">Review</button>
   <button data-go="archive" id="tab-archive">Archive</button>
+  <button data-go="inbox" id="tab-inbox" hidden>Inbox</button>
+  <button data-go="apply" id="tab-apply" hidden>Apply</button>
+  <button data-go="classwork" id="tab-classwork" hidden>Classwork</button>
   <button data-go="numbers">Numbers</button>
   <button data-go="people">People</button>
   <button data-go="can">What this can do</button>
@@ -452,6 +482,117 @@ section[data-view].active { display: block; }
     </div>
 
     <div id="archive"><p class="empty">Nothing has gone out yet.</p></div>
+  </div>
+
+</section>
+
+<!-- ------------------------------------------------------------- INBOX -->
+<section data-view="inbox">
+
+  <div class="panel">
+    <h2>Your inbox</h2>
+    <p class="hint" id="inbox-hint">
+      What it judged and why. Rules decide most of it for free; the model only
+      sees what the rules could not settle; your own filters beat both.
+    </p>
+    <div class="arch-bar" id="inbox-bar" hidden></div>
+    <div id="inbox-setup"></div>
+    <div class="row">
+      <button class="primary" id="inbox-check">Check my mail now</button>
+      <button class="ghost" id="inbox-digest">Send what is waiting</button>
+      <span class="hint" id="inbox-msg" style="margin:0"></span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Your rules</h2>
+    <p class="hint">
+      These beat the scoring. "Never" wins over "always" when both match, because
+      a buzz you did not want costs more than one you missed.
+    </p>
+    <div class="arch-tools">
+      <select id="f-rule" aria-label="always or never">
+        <option value="never">Never tell me</option>
+        <option value="always">Always tell me</option>
+      </select>
+      <select id="f-match" aria-label="what to match on">
+        <option value="subject">about (subject)</option>
+        <option value="sender">from (one address)</option>
+        <option value="domain">from anyone at (domain)</option>
+      </select>
+      <input type="search" id="f-value" placeholder="canteen" aria-label="the word or address">
+      <button class="ghost" id="f-add">Add rule</button>
+    </div>
+    <div id="inbox-filters"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Recent decisions</h2>
+    <div id="inbox-recent" class="cards"><p class="empty">Nothing judged yet.</p></div>
+  </div>
+
+</section>
+
+<!-- ------------------------------------------------------------- APPLY -->
+<section data-view="apply">
+
+  <div class="panel">
+    <h2>Worth applying to</h2>
+    <p class="hint">
+      Soonest deadline first. Marking something applied stops the reminders for
+      it; anything still untouched when its deadline passes is filed as missed.
+    </p>
+    <div class="arch-bar" id="apply-bar" hidden></div>
+    <div class="row">
+      <button class="primary" id="apply-scan">Scan for new ones</button>
+      <span class="hint" id="apply-msg" style="margin:0"></span>
+    </div>
+    <div id="apply-list" class="cards"><p class="empty">Nothing open.</p></div>
+  </div>
+
+  <div class="panel">
+    <h2>Add one by hand</h2>
+    <p class="hint">
+      Anything a friend forwards you belongs here too. It gets the same deadline
+      reminders and the same stages.
+    </p>
+    <div class="arch-tools">
+      <input type="text" id="a-title" placeholder="Smart India Hackathon 2026" aria-label="title">
+      <input type="text" id="a-org" placeholder="Who is running it" aria-label="organiser">
+    </div>
+    <div class="arch-tools">
+      <input type="text" id="a-url" placeholder="Link to the listing" aria-label="link">
+      <input type="text" id="a-due" placeholder="30 Sep 2026" aria-label="deadline">
+      <select id="a-kind" aria-label="what kind">
+        <option value="competition">Competition</option>
+        <option value="internship">Internship</option>
+        <option value="hackathon">Hackathon</option>
+        <option value="scholarship">Scholarship</option>
+        <option value="certification">Certification</option>
+        <option value="job">Job</option>
+      </select>
+      <button class="ghost" id="a-add">Add it</button>
+    </div>
+  </div>
+
+</section>
+
+<!-- --------------------------------------------------------- CLASSWORK -->
+<section data-view="classwork">
+
+  <div class="panel">
+    <h2>Still to hand in</h2>
+    <p class="hint">
+      Read straight from Google Classroom, read-only. Turn work in there and this
+      catches up on the next check.
+    </p>
+    <div class="arch-bar" id="class-bar" hidden></div>
+    <div id="class-setup"></div>
+    <div class="row">
+      <button class="primary" id="class-check">Check Classroom now</button>
+      <span class="hint" id="class-msg" style="margin:0"></span>
+    </div>
+    <div id="class-list" class="cards"><p class="empty">Nothing outstanding.</p></div>
   </div>
 
 </section>
@@ -1533,6 +1674,229 @@ async function dropLoginWhenNotNeeded() {
   }
 }
 
+// ===================================================== the three agent tabs
+//
+// Each tab is one GET that renders the whole screen and a few POSTs that
+// return the fresh state with them, so a button press is a single round trip
+// rather than an act-then-reload that can show a stale screen on a slow link.
+//
+// A tab whose agent is not wired up stays hidden entirely. An empty screen
+// reads as "nothing to do", which is a different and much worse message than
+// "this is not connected yet".
+
+function agentTab(id, configured) {
+  $(`tab-${id}`).hidden = !configured;
+}
+
+function statTile(rows) {
+  return rows.filter(([, n]) => n !== undefined && n !== null)
+             .map(([label, n]) => `<span><b>${n}</b> ${escapeHtml(label)}</span>`).join('');
+}
+
+function importanceTag(level) {
+  const cls = level === 'urgent' ? 'bad' : level === 'important' ? 'ok' : '';
+  return `<span class="tag ${cls}">${escapeHtml(level)}</span>`;
+}
+
+// ------------------------------------------------------------------- inbox
+
+async function loadInbox() {
+  const s = await api('/api/inbox');
+  agentTab('inbox', !s.absent);
+  if (s.absent) return;
+
+  $('inbox-bar').hidden = false;
+  $('inbox-bar').innerHTML = statTile([
+    ['judged', s.counts?.decided], ['texted', s.counts?.texted], ['waiting', s.counts?.waiting],
+  ]);
+
+  $('inbox-setup').innerHTML = s.configured ? ''
+    : `<p class="empty">The mailbox is not connected, so nothing is being read yet.
+       Run <code>python scripts/inbox_watch.py --check</code> to see what is missing.</p>`;
+  $('inbox-check').disabled = !s.configured;
+  $('inbox-digest').disabled = !s.configured;
+
+  $('inbox-filters').innerHTML = (s.filters || []).length
+    ? (s.filters || []).map(f => `
+        <div class="row" style="margin-top:8px">
+          <span class="pill ${f.rule === 'never' ? 'off' : 'on'}">${escapeHtml(f.rule)}</span>
+          <span>${escapeHtml(f.describes)}</span>
+          <span class="hint" style="margin:0">${f.hits ? `${f.hits} hits` : 'not fired yet'}</span>
+          <button class="ghost" data-unfilter="${f.filter_id}">Remove</button>
+        </div>`).join('')
+    : '<p class="empty">No rules yet. Add one above when it gets something wrong.</p>';
+
+  $('inbox-recent').innerHTML = (s.recent || []).length
+    ? (s.recent || []).map(a => `
+        <div class="card">
+          <div class="row" style="margin:0 0 4px">
+            ${importanceTag(a.importance)}
+            <span class="hint" style="margin:0">${escapeHtml(a.sender)}</span>
+            ${a.pending ? '<span class="pill off">waiting</span>' : '<span class="pill on">texted</span>'}
+          </div>
+          <div class="post">${escapeHtml(a.subject)}</div>
+          <p class="hint" style="margin:8px 0 0">${escapeHtml(a.held_because || a.reason)}</p>
+        </div>`).join('')
+    : '<p class="empty">Nothing judged yet. Press "Check my mail now".</p>';
+}
+
+// ------------------------------------------------------------------- apply
+
+async function loadApply() {
+  const s = await api('/api/apply');
+  agentTab('apply', !s.absent);
+  if (s.absent) return;
+
+  const counts = s.counts || {};
+  $('apply-bar').hidden = false;
+  $('apply-bar').innerHTML = statTile([
+    ['open', (s.open || []).length], ['closing this week', (s.closing || []).length],
+    ['applied', counts.applied], ['advanced', counts.advanced],
+    ['won', counts.won], ['missed', counts.missed],
+  ]);
+
+  const STAGE_WORDS = {
+    applied: 'I applied', advanced: 'Got through', won: 'Won it',
+    rejected: 'Rejected', skipped: 'Not for me', interested: 'Back on',
+  };
+
+  $('apply-list').innerHTML = (s.open || []).length
+    ? (s.open || []).map(o => `
+        <div class="card">
+          <div class="row" style="margin:0 0 4px">
+            <span class="chan-badge">${escapeHtml(o.kind)}</span>
+            <span class="pill on">${escapeHtml(o.stage)}</span>
+            ${o.days_left === null
+              ? '<span class="hint" style="margin:0">no deadline</span>'
+              : o.closing_soon
+                // Urgency belongs on the date, not on the stage pill. Colouring
+                // the pill made one control carry two unrelated facts.
+                ? `<span class="tag bad">${o.days_left === 0 ? 'closes TODAY' : `${o.days_left}d left`}</span>`
+                : `<span class="hint" style="margin:0">${o.days_left}d left</span>`}
+          </div>
+          <div class="post">${escapeHtml(o.title)}</div>
+          <p class="hint" style="margin:8px 0 0">${escapeHtml(o.organiser)}${
+            o.matched_on.length ? ' &middot; ' + escapeHtml(o.matched_on.join(', ')) : ''}</p>
+          ${o.url ? `<p style="margin:8px 0 0"><a href="${escapeHtml(o.url)}" target="_blank"
+             rel="noopener">open the listing</a></p>` : ''}
+          <div class="row">
+            ${(o.next_stages || []).map(st =>
+              `<button class="ghost" data-stage="${o.id}" data-to="${st}">${
+                escapeHtml(STAGE_WORDS[st] || st)}</button>`).join('')}
+          </div>
+        </div>`).join('')
+    : '<p class="empty">Nothing open. Add one below, or press "Scan for new ones".</p>';
+}
+
+// --------------------------------------------------------------- classwork
+
+async function loadClasswork() {
+  const s = await api('/api/classwork');
+  agentTab('classwork', !s.absent);
+  if (s.absent) return;
+
+  const counts = s.counts || {};
+  $('class-bar').hidden = !s.configured;
+  $('class-bar').innerHTML = statTile([
+    ['outstanding', counts.outstanding], ['overdue', counts.overdue], ['due today', counts.due_today],
+  ]);
+
+  $('class-setup').innerHTML = s.configured
+    ? (s.error ? `<p class="empty">Classroom would not answer: ${escapeHtml(s.error)}</p>` : '')
+    : `<p class="empty">Google Classroom is not connected.
+       Run <code>python scripts/classroom_watch.py --auth</code> once.</p>`;
+  $('class-check').disabled = !s.configured;
+
+  $('class-list').innerHTML = (s.outstanding || []).length
+    ? (s.outstanding || []).map(a => `
+        <div class="card">
+          <div class="row" style="margin:0 0 4px">
+            <span class="chan-badge">${escapeHtml(a.course)}</span>
+            ${a.overdue ? '<span class="tag bad">overdue</span>'
+                        : `<span class="tag ok">${escapeHtml(a.state)}</span>`}
+            <span class="hint" style="margin:0">${escapeHtml(a.describes.split('(').pop().replace(')', ''))}</span>
+          </div>
+          <div class="post">${escapeHtml(a.title)}</div>
+          ${a.link ? `<p style="margin:8px 0 0"><a href="${escapeHtml(a.link)}" target="_blank"
+             rel="noopener">open in Classroom</a></p>` : ''}
+        </div>`).join('')
+    : '<p class="empty">Nothing outstanding. That is the good outcome.</p>';
+}
+
+async function loadAgents() {
+  // Independently, so one unconfigured agent cannot blank the other two tabs.
+  await Promise.allSettled([loadInbox(), loadApply(), loadClasswork()]);
+  wireAgents();
+}
+
+function say(where, text) {
+  $(where).textContent = text;
+  setTimeout(() => { if ($(where).textContent === text) $(where).textContent = ''; }, 6000);
+}
+
+async function agentAction(button, where, url, body, then) {
+  const was = button.textContent;
+  button.disabled = true;
+  button.textContent = 'Working...';
+  try {
+    const answer = await api(url, body || {});
+    if (answer.error) say(where, answer.error);
+    else if (then) then(answer);
+  } catch (e) {
+    say(where, String(e.message || e));
+  } finally {
+    button.disabled = false;
+    button.textContent = was;
+  }
+}
+
+function wireAgents() {
+  document.querySelectorAll('[data-unfilter]').forEach(b => {
+    b.onclick = () => agentAction(b, 'inbox-msg', '/api/inbox/unfilter',
+      { filter_id: b.dataset.unfilter }, () => loadInbox().then(wireAgents));
+  });
+  document.querySelectorAll('[data-stage]').forEach(b => {
+    b.onclick = () => agentAction(b, 'apply-msg', '/api/apply/stage',
+      { id: b.dataset.stage, stage: b.dataset.to }, () => loadApply().then(wireAgents));
+  });
+}
+
+function wireAgentButtons() {
+  $('f-add').onclick = () => agentAction($('f-add'), 'inbox-msg', '/api/inbox/filter', {
+    rule: $('f-rule').value, match: $('f-match').value, value: $('f-value').value,
+  }, () => { $('f-value').value = ''; loadInbox().then(wireAgents); });
+
+  $('inbox-check').onclick = () => agentAction($('inbox-check'), 'inbox-msg', '/api/inbox/check', {}, a => {
+    const r = a.result || {};
+    say('inbox-msg', `${r.seen} new, ${r.alerted} texted, ${r.held} held, ${r.noise} ignored`);
+    loadInbox().then(wireAgents);
+  });
+
+  $('inbox-digest').onclick = () => agentAction($('inbox-digest'), 'inbox-msg', '/api/inbox/check', {},
+    () => loadInbox().then(wireAgents));
+
+  $('apply-scan').onclick = () => agentAction($('apply-scan'), 'apply-msg', '/api/apply/scan', {}, a => {
+    const r = a.result || {};
+    say('apply-msg', `${r.found} seen, ${r.added} kept, ${r.reminded} reminders`
+      + (r.errors?.length ? ` - ${r.errors[0]}` : ''));
+    loadApply().then(wireAgents);
+  });
+
+  $('a-add').onclick = () => agentAction($('a-add'), 'apply-msg', '/api/apply/add', {
+    title: $('a-title').value, organiser: $('a-org').value, url: $('a-url').value,
+    due: $('a-due').value, kind: $('a-kind').value,
+  }, () => {
+    ['a-title', 'a-org', 'a-url', 'a-due'].forEach(f => { $(f).value = ''; });
+    loadApply().then(wireAgents);
+  });
+
+  $('class-check').onclick = () => agentAction($('class-check'), 'class-msg', '/api/classwork/check', {}, a => {
+    const r = a.result || {};
+    say('class-msg', `${r.outstanding} outstanding, ${r.overdue} overdue, ${r.reminded} nudges`);
+    loadClasswork().then(wireAgents);
+  });
+}
+
 // The search box is part of the page rather than of the archive's rendered
 // output, so it is bound once. Re-binding it on every keystroke would cost it
 // focus mid-word.
@@ -1542,8 +1906,10 @@ $('arch-q').oninput = (e) => {
   wire();
 };
 
+wireAgentButtons();
 dropLoginWhenNotNeeded();
 refresh();
+loadAgents();
 </script>
 </body>
 </html>

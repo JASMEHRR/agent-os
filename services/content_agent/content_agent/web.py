@@ -34,7 +34,7 @@ import pathlib
 from collections.abc import Callable
 from datetime import UTC, datetime
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from typing import Any
+from typing import Any, Protocol
 
 from content_agent.analytics import MetricsSource
 from content_agent.capabilities import survey, totals
@@ -60,6 +60,17 @@ HOST = "127.0.0.1"
 #: That is DNS rebinding, and the Host header is what distinguishes it, since
 #: the rebound request carries the attacker's hostname rather than ours.
 ALLOWED_HOSTS = frozenset({"127.0.0.1", "localhost", "[::1]"})
+
+
+class Panel(Protocol):
+    """What every agent tab needs: one read that renders the whole screen.
+
+    Declared here rather than imported, so `content_agent` stays independent
+    of the agents it hosts a tab for. Each agent supplies the adapter; this
+    module knows only the shape.
+    """
+
+    def state(self) -> dict[str, Any]: ...
 
 
 def _draft_json(draft: Any) -> dict[str, Any]:
@@ -118,6 +129,12 @@ class Handler(BaseHTTPRequestHandler):
     #: Where engagement numbers are read from. None means the numbers screen
     #: shows what was already collected and refuses to fetch more.
     metrics: MetricsSource | None = None
+    #: The three agent tabs. None means the tab is hidden entirely rather than
+    #: shown empty: a screen with nothing on it reads as "nothing to do", and
+    #: "not wired up yet" is a different thing that deserves different words.
+    inbox: Any = None
+    apply_panel: Any = None
+    classwork: Any = None
 
     # Silences the default one-line-per-request logging, which buries the
     # single line that matters (the startup URL) within seconds.
@@ -252,6 +269,12 @@ class Handler(BaseHTTPRequestHandler):
                 self._persona()
             elif self.path == "/api/analytics":
                 self._analytics()
+            elif self.path == "/api/inbox":
+                self._panel(self.inbox)
+            elif self.path == "/api/apply":
+                self._panel(self.apply_panel)
+            elif self.path == "/api/classwork":
+                self._panel(self.classwork)
             else:
                 self._json({"error": "not found"}, 404)
         except Exception as exc:  # noqa: BLE001
@@ -315,6 +338,20 @@ class Handler(BaseHTTPRequestHandler):
                 self._untrack(payload)
             elif self.path == "/api/snapshot":
                 self._snapshot()
+            elif self.path == "/api/inbox/filter":
+                self._inbox_filter(payload)
+            elif self.path == "/api/inbox/unfilter":
+                self._inbox_unfilter(payload)
+            elif self.path == "/api/inbox/check":
+                self._panel_action(self.inbox, "check_now")
+            elif self.path == "/api/apply/add":
+                self._apply_add(payload)
+            elif self.path == "/api/apply/stage":
+                self._apply_stage(payload)
+            elif self.path == "/api/apply/scan":
+                self._panel_action(self.apply_panel, "scan")
+            elif self.path == "/api/classwork/check":
+                self._panel_action(self.classwork, "check_now")
             else:
                 self._json({"error": "not found"}, 404)
         except Exception as exc:  # noqa: BLE001
@@ -511,6 +548,86 @@ class Handler(BaseHTTPRequestHandler):
         self.studio.analytics.untrack(str(payload.get("post_id", "")))
         self._json({"health": self.studio.analytics.health()})
 
+    # ------------------------------------------------------- the agent tabs
+    #
+    # Three tabs over three agents that live in their own packages. The panel
+    # objects are supplied by `serve`; this module holds no import from them,
+    # so an agent can change its internals without touching the web layer.
+
+    def _panel(self, panel: Any) -> None:
+        """One read that renders a whole tab, or an honest "not wired up"."""
+        if panel is None:
+            self._json({"configured": False, "absent": True})
+            return
+        self._json(panel.state())
+
+    def _panel_action(self, panel: Any, method: str) -> None:
+        """Runs a named action and returns the fresh state with it.
+
+        The state rides along so a button press is one round trip: acting and
+        then re-reading would show a screen from before the action on a slow
+        link, which is exactly when it matters.
+        """
+        if panel is None:
+            self._json({"error": "that agent is not set up on this copy."}, 400)
+            return
+        try:
+            result = getattr(panel, method)()
+        except RuntimeError as exc:
+            self._json({"error": str(exc)}, 400)
+            return
+        self._json({"result": result, "state": panel.state()})
+
+    def _inbox_filter(self, payload: dict[str, Any]) -> None:
+        if self.inbox is None:
+            self._json({"error": "the inbox agent is not set up on this copy."}, 400)
+            return
+        try:
+            self.inbox.add_filter(
+                str(payload.get("rule", "")), str(payload.get("match", "")), str(payload.get("value", ""))
+            )
+        except ValueError as exc:
+            # A filter that could never fire is refused with the reason, which
+            # is the one thing a form needs back.
+            self._json({"error": str(exc)}, 400)
+            return
+        self._json(self.inbox.state())
+
+    def _inbox_unfilter(self, payload: dict[str, Any]) -> None:
+        if self.inbox is None:
+            self._json({"error": "the inbox agent is not set up on this copy."}, 400)
+            return
+        self.inbox.remove_filter(str(payload.get("filter_id", "")))
+        self._json(self.inbox.state())
+
+    def _apply_add(self, payload: dict[str, Any]) -> None:
+        if self.apply_panel is None:
+            self._json({"error": "the opportunity agent is not set up on this copy."}, 400)
+            return
+        try:
+            self.apply_panel.add(
+                title=str(payload.get("title", "")),
+                organiser=str(payload.get("organiser", "")),
+                url=str(payload.get("url", "")),
+                due=str(payload.get("due", "")),
+                kind=str(payload.get("kind", "competition")),
+            )
+        except ValueError as exc:
+            self._json({"error": str(exc)}, 400)
+            return
+        self._json(self.apply_panel.state())
+
+    def _apply_stage(self, payload: dict[str, Any]) -> None:
+        if self.apply_panel is None:
+            self._json({"error": "the opportunity agent is not set up on this copy."}, 400)
+            return
+        try:
+            self.apply_panel.move(str(payload.get("id", "")), str(payload.get("stage", "")))
+        except Exception as exc:  # noqa: BLE001 - StageError and NotFound both say the useful thing
+            self._json({"error": str(exc)}, 400)
+            return
+        self._json(self.apply_panel.state())
+
     def _snapshot(self) -> None:
         """Reads every tracked post's current numbers.
 
@@ -680,6 +797,9 @@ def serve(
     before_capture: Callable[[], None] | None = None,
     publisher: Publisher | None = None,
     metrics: MetricsSource | None = None,
+    inbox: Any = None,
+    apply_panel: Any = None,
+    classwork: Any = None,
 ) -> HTTPServer:
     """Starts the interface. Returns the server so tests can drive it.
 
@@ -697,6 +817,9 @@ def serve(
         "studio": studio,
         "repos": repos,
         "password": password,
+        "inbox": inbox,
+        "apply_panel": apply_panel,
+        "classwork": classwork,
         # Wrapped so the class does not turn it into a method of the handler.
         "before_capture": None if before_capture is None else staticmethod(before_capture),
         "publisher": None if publisher is None else staticmethod(publisher),
