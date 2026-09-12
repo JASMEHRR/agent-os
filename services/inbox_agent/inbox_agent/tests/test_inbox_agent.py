@@ -406,7 +406,7 @@ def test_callmebot_reports_a_refusal_rather_than_claiming_success(monkeypatch: p
         def __exit__(self, *exc: object) -> None:
             return None
 
-    monkeypatch.setattr(notify.urllib.request, "urlopen", lambda *a, **k: Response())
+    monkeypatch.setattr("inbox_agent.notify.urllib.request.urlopen", lambda *a, **k: Response())
     with pytest.raises(NotifyError, match="refused"):
         notify.CallMeBot(phone="+910000000000", apikey="wrong").send("hello")
 
@@ -515,10 +515,8 @@ class FakeImap:
 
 
 def imap_with(uids: list[str], monkeypatch: pytest.MonkeyPatch) -> tuple[ImapSource, FakeImap]:
-    from inbox_agent import sources
-
     fake = FakeImap(uids)
-    monkeypatch.setattr(sources.imaplib, "IMAP4_SSL", lambda host, port: fake)
+    monkeypatch.setattr("inbox_agent.sources.imaplib.IMAP4_SSL", lambda host, port: fake)
     return ImapSource(host="imap.test", username="u", password="p"), fake
 
 

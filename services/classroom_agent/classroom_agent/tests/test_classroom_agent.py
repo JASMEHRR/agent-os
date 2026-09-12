@@ -199,7 +199,7 @@ def test_turning_something_in_stops_the_reminders() -> None:
     watcher, said = build(work(hours=2))
     watcher.check()
     said.clear()
-    watcher.source = Source(work(hours=2, state=State.TURNED_IN))  # type: ignore[attr-defined]
+    watcher.source = Source(work(hours=2, state=State.TURNED_IN))
     report = watcher.check()
     assert report.outstanding == 0
     assert said == []
@@ -210,7 +210,7 @@ def test_an_extended_deadline_re_arms_the_ladder() -> None:
     watcher, said = build(work(hours=2))
     watcher.check()
     said.clear()
-    watcher.source = Source(work(hours=70))  # type: ignore[attr-defined]
+    watcher.source = Source(work(hours=70))
     watcher.check()
     assert said, "the extended deadline should nudge again"
 
@@ -247,7 +247,7 @@ def test_a_classroom_outage_is_reported_not_raised() -> None:
             raise ClassroomError("HTTP 503")
 
     watcher, _ = build()
-    watcher.source = Broken()  # type: ignore[attr-defined]
+    watcher.source = Broken()
     report = watcher.check()
     assert report.errors and "503" in report.errors[0]
 
@@ -262,7 +262,7 @@ def test_a_nudge_is_recorded_against_its_rung() -> None:
 
 
 def test_courses_and_coursework_are_stitched_together() -> None:
-    pages = {
+    pages: dict[str, dict[str, object]] = {
         "courses": {"courses": [{"id": "c1", "name": "Operating Systems"}]},
         "courseWork": {
             "courseWork": [{"id": "w1", "title": "Lab 3", "dueDate": {"year": 2026, "month": 9, "day": 30}}]

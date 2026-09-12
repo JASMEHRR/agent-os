@@ -168,7 +168,7 @@ class ImapSource:
         """
         start = (int(last_uid) + 1) if last_uid.isdigit() else 1
         with self._mailbox() as client:
-            status, data = client.uid("SEARCH", None, f"UID {start}:*")
+            status, data = client.uid("SEARCH", f"UID {start}:*")
             if status != "OK" or not data or not data[0]:
                 return []
             # The `UID n:*` form always returns at least the newest message
