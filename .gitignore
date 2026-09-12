@@ -67,3 +67,6 @@ demo.db-shm
 
 # LinkedIn token from scripts/linkedin_post.py. Posts as you; never commit it.
 .linkedin.json
+
+# Google Classroom refresh token from scripts/classroom_watch.py --auth.
+.google.json

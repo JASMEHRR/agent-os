@@ -14,7 +14,7 @@ refuse, fails the suite. A declaration nothing checks is a wish.
 
 ## Appendix A - Module Register
 
-28 modules, 0 construction-blocked by CIR-001.
+31 modules, 0 construction-blocked by CIR-001.
 
 | Module | Layer | Stage | Status | Source files | Tests |
 |---|---|---|---|---|---|
@@ -23,6 +23,7 @@ refuse, fails the suite. A declaration nothing checks is a wish.
 | `persistence` | libs | S0 | implemented to stage exit criteria | 4 | 16 |
 | `agent_runtime` | services | S7 | implemented to stage exit criteria | 3 | 45 |
 | `api_gateway` | services | S8 | implemented to stage exit criteria | 6 | 44 |
+| `classroom_agent` | services | A4 | implemented to stage exit criteria | 3 | 29 |
 | `content_agent` | services | A1 | implemented to stage exit criteria | 13 | 185 |
 | `cost_manager` | services | S3 | implemented to stage exit criteria | 3 | 28 |
 | `decision_gateway` | services | S5 | implemented to stage exit criteria | 4 | 62 |
@@ -32,6 +33,7 @@ refuse, fails the suite. A declaration nothing checks is a wish.
 | `evolution_gateway` | services | S12 | implemented to stage exit criteria | 1 | 31 |
 | `governance_gateway` | services | S10 | implemented to stage exit criteria | 3 | 57 |
 | `human_interface` | services | S8 | implemented to stage exit criteria | 5 | 50 |
+| `inbox_agent` | services | A2 | implemented to stage exit criteria | 6 | 51 |
 | `integration_gateway` | services | S6 | implemented to stage exit criteria | 1 | 0 |
 | `integration_registry` | services | S6 | implemented to stage exit criteria | 1 | 30 |
 | `knowledge_gateway` | services | S4 | implemented to stage exit criteria | 5 | 48 |
@@ -39,6 +41,7 @@ refuse, fails the suite. A declaration nothing checks is a wish.
 | `llm_router` | services | S6 | implemented to stage exit criteria | 4 | 38 |
 | `memory_gateway` | services | S4 | implemented to stage exit criteria | 4 | 44 |
 | `observability_gateway` | services | S3 (ingestion) + S10 (interpretive) | implemented to stage exit criteria | 4 | 54 |
+| `opportunity_agent` | services | A3 | implemented to stage exit criteria | 4 | 38 |
 | `plugin_manager` | services | S12 | implemented to stage exit criteria | 1 | 34 |
 | `schema_registry` | services | S0 | implemented to stage exit criteria | 1 | 6 |
 | `security_gateway` | services | S1 | implemented to stage exit criteria | 15 | 109 |
@@ -49,7 +52,7 @@ refuse, fails the suite. A declaration nothing checks is a wish.
 
 ## Appendix B - Interface Register
 
-366 public methods across 24 Gateway facades,
+383 public methods across 27 Gateway facades,
 read by introspection so a rename cannot go unrecorded.
 
 | Module | Facade | Method |
@@ -70,6 +73,11 @@ read by introspection so a rename cannot go unrecorded.
 | `api_gateway` | `APIGateway` | `now()` |
 | `api_gateway` | `APIGateway` | `register_route(self, route: 'Route') -> 'Route'` |
 | `api_gateway` | `APIGateway` | `request_ids()` |
+| `classroom_agent` | `ClassroomWatcher` | `announce(a, why)` |
+| `classroom_agent` | `ClassroomWatcher` | `check(self) -> 'WatchReport'` |
+| `classroom_agent` | `ClassroomWatcher` | `now()` |
+| `classroom_agent` | `ClassroomWatcher` | `outstanding(self) -> 'list[Assignment]'` |
+| `classroom_agent` | `ClassroomWatcher` | `summary(self) -> 'str'` |
 | `content_agent` | `ContentStudio` | `add_prospect(self, prospect: 'Prospect') -> 'Prospect'` |
 | `content_agent` | `ContentStudio` | `approve(self, draft_id: 'str', principal_id: 'str') -> 'PostDraft'` |
 | `content_agent` | `ContentStudio` | `approve_note(self, draft_id: 'str', principal_id: 'str') -> 'OutreachDraft'` |
@@ -243,6 +251,11 @@ read by introspection so a rename cannot go unrecorded.
 | `human_interface` | `HumanInterface` | `reject(self, request_id: 'str', principal_id: 'str', note: 'str' = '') -> 'ApprovalRecord'` |
 | `human_interface` | `HumanInterface` | `resume(self, principal_id: 'str', note: 'str' = '') -> 'None'` |
 | `human_interface` | `HumanInterface` | `submit_approval(self, request: 'ApprovalRequest') -> 'ApprovalRecord'` |
+| `inbox_agent` | `InboxAgent` | `in_quiet_hours(self, when: 'datetime') -> 'bool'` |
+| `inbox_agent` | `InboxAgent` | `now()` |
+| `inbox_agent` | `InboxAgent` | `pending(self) -> 'list[Alert]'` |
+| `inbox_agent` | `InboxAgent` | `run_once(self) -> 'RunReport'` |
+| `inbox_agent` | `InboxAgent` | `send_digest(self, when: 'datetime | None' = None) -> 'bool'` |
 | `integration_gateway` | `IntegrationGateway` | `alternatives(self, abstraction: 'str', tenant_id: 'str') -> 'list[str]'` |
 | `integration_gateway` | `IntegrationGateway` | `blocker(self) -> 'str'` |
 | `integration_gateway` | `IntegrationGateway` | `check_approval(self, manifest: 'IntegrationManifest', approved_instances: 'set[str] | None' = None) -> 'None'` |
@@ -355,6 +368,13 @@ read by introspection so a rename cannot go unrecorded.
 | `observability_gateway` | `ObservabilityGateway` | `record_sli(self, name: 'str', observed: 'float') -> 'SLIReading'` |
 | `observability_gateway` | `ObservabilityGateway` | `register_journal(self, subsystem: 'str', journal: 'Any') -> 'None'` |
 | `observability_gateway` | `ObservabilityGateway` | `sink_for(self, _source_identity: 'str') -> 'Callable[[Signal], None]'` |
+| `opportunity_agent` | `OpportunityTracker` | `announce(o, why)` |
+| `opportunity_agent` | `OpportunityTracker` | `by_stage(self) -> 'dict[Stage, int]'` |
+| `opportunity_agent` | `OpportunityTracker` | `closing_within(self, days: 'int', today: 'date | None' = None) -> 'list[Opportunity]'` |
+| `opportunity_agent` | `OpportunityTracker` | `move(self, opportunity_id: 'str', stage: 'Stage', note: 'str' = '') -> 'Opportunity'` |
+| `opportunity_agent` | `OpportunityTracker` | `now()` |
+| `opportunity_agent` | `OpportunityTracker` | `open_ones(self) -> 'list[Opportunity]'` |
+| `opportunity_agent` | `OpportunityTracker` | `scan(self) -> 'ScanReport'` |
 | `plugin_manager` | `PluginManager` | `catalogue(self, state: 'PluginState | None' = None) -> 'list[PluginRecord]'` |
 | `plugin_manager` | `PluginManager` | `disable(self, plugin_id: 'str', principal_id: 'str', reason: 'str' = '') -> 'PluginRecord'` |
 | `plugin_manager` | `PluginManager` | `discover(self, manifest: 'PluginManifest') -> 'PluginRecord'` |
@@ -430,17 +450,20 @@ rather than restatements; both are explained in the source.
 |---|---|
 | `agent_runtime` | agent manifests, reputation, drift baselines, agent journal |
 | `api_gateway` | routes, rate-limit buckets, idempotency keys, ingress journal |
+| `classroom_agent` | classroom nudges |
 | `content_agent` | weekly notes, post drafts |
 | `cost_manager` | budgets, ledger entries, circuit breakers |
 | `decision_gateway` | decision records, standing orders (11.19 pre-authorization), decision journal |
 | `event_bus` | event streams, consumer groups, dead letters |
 | `governance_gateway` | governance artifacts, policy hierarchy, stewardships, governance journal |
 | `human_interface` | approvals, overrides, standing orders (05.18.5 delegation; duplicates Decision's, see note), digests, panic journal |
+| `inbox_agent` | inbox alerts, inbox watermark, inbox filters |
 | `knowledge_gateway` | beliefs, ontology, contradictions, knowledge journal |
 | `learning_gateway` | learning entries, patterns, failure library, learning journal |
 | `llm_router` | prompt templates, response cache, router journal |
 | `memory_gateway` | memory entries, provenance, memory journal |
 | `observability_gateway` | telemetry store, SLI/SLO registry, observability journal |
+| `opportunity_agent` | opportunities, opportunity reminders |
 | `plugin_manager` | plugin manifests, plugin grants, plugin journal |
 | `security_gateway` | identities, credentials, tokens, roles, delegations, security journal |
 | `tool_executor` | sandboxes, execution records, executor journal |
