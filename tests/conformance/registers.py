@@ -91,6 +91,9 @@ MODULE_STAGES: dict[str, str] = {
     # and the register showing a stage the build plan does not contain is the
     # correct way to say that this was built outside it.
     "content_agent": "A1",
+    # A2, for the same reason A1 exists: the second module built *on* the
+    # platform rather than as part of it.
+    "inbox_agent": "A2",
 }
 
 #: Modules whose construction CIR-001 blocks.
@@ -191,6 +194,7 @@ MODULE_FACADES: dict[str, str] = {
     "evolution_gateway": "EvolutionGateway",
     "plugin_manager": "PluginManager",
     "content_agent": "ContentStudio",
+    "inbox_agent": "InboxAgent",
 }
 
 
@@ -275,6 +279,7 @@ DATA_OWNERSHIP: dict[str, tuple[str, ...]] = {
     "llm_router": ("prompt templates", "response cache", "router journal"),
     "tool_executor": ("sandboxes", "execution records", "executor journal"),
     "content_agent": ("weekly notes", "post drafts"),
+    "inbox_agent": ("inbox alerts", "inbox watermark", "inbox filters"),
 }
 
 

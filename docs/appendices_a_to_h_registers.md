@@ -14,7 +14,7 @@ refuse, fails the suite. A declaration nothing checks is a wish.
 
 ## Appendix A - Module Register
 
-28 modules, 0 construction-blocked by CIR-001.
+29 modules, 0 construction-blocked by CIR-001.
 
 | Module | Layer | Stage | Status | Source files | Tests |
 |---|---|---|---|---|---|
@@ -32,6 +32,7 @@ refuse, fails the suite. A declaration nothing checks is a wish.
 | `evolution_gateway` | services | S12 | implemented to stage exit criteria | 1 | 31 |
 | `governance_gateway` | services | S10 | implemented to stage exit criteria | 3 | 57 |
 | `human_interface` | services | S8 | implemented to stage exit criteria | 5 | 50 |
+| `inbox_agent` | services | A2 | implemented to stage exit criteria | 6 | 44 |
 | `integration_gateway` | services | S6 | implemented to stage exit criteria | 1 | 0 |
 | `integration_registry` | services | S6 | implemented to stage exit criteria | 1 | 30 |
 | `knowledge_gateway` | services | S4 | implemented to stage exit criteria | 5 | 48 |
@@ -49,7 +50,7 @@ refuse, fails the suite. A declaration nothing checks is a wish.
 
 ## Appendix B - Interface Register
 
-366 public methods across 24 Gateway facades,
+371 public methods across 25 Gateway facades,
 read by introspection so a rename cannot go unrecorded.
 
 | Module | Facade | Method |
@@ -243,6 +244,11 @@ read by introspection so a rename cannot go unrecorded.
 | `human_interface` | `HumanInterface` | `reject(self, request_id: 'str', principal_id: 'str', note: 'str' = '') -> 'ApprovalRecord'` |
 | `human_interface` | `HumanInterface` | `resume(self, principal_id: 'str', note: 'str' = '') -> 'None'` |
 | `human_interface` | `HumanInterface` | `submit_approval(self, request: 'ApprovalRequest') -> 'ApprovalRecord'` |
+| `inbox_agent` | `InboxAgent` | `in_quiet_hours(self, when: 'datetime') -> 'bool'` |
+| `inbox_agent` | `InboxAgent` | `now()` |
+| `inbox_agent` | `InboxAgent` | `pending(self) -> 'list[Alert]'` |
+| `inbox_agent` | `InboxAgent` | `run_once(self) -> 'RunReport'` |
+| `inbox_agent` | `InboxAgent` | `send_digest(self, when: 'datetime | None' = None) -> 'bool'` |
 | `integration_gateway` | `IntegrationGateway` | `alternatives(self, abstraction: 'str', tenant_id: 'str') -> 'list[str]'` |
 | `integration_gateway` | `IntegrationGateway` | `blocker(self) -> 'str'` |
 | `integration_gateway` | `IntegrationGateway` | `check_approval(self, manifest: 'IntegrationManifest', approved_instances: 'set[str] | None' = None) -> 'None'` |
@@ -436,6 +442,7 @@ rather than restatements; both are explained in the source.
 | `event_bus` | event streams, consumer groups, dead letters |
 | `governance_gateway` | governance artifacts, policy hierarchy, stewardships, governance journal |
 | `human_interface` | approvals, overrides, standing orders (05.18.5 delegation; duplicates Decision's, see note), digests, panic journal |
+| `inbox_agent` | inbox alerts, inbox watermark, inbox filters |
 | `knowledge_gateway` | beliefs, ontology, contradictions, knowledge journal |
 | `learning_gateway` | learning entries, patterns, failure library, learning journal |
 | `llm_router` | prompt templates, response cache, router journal |
