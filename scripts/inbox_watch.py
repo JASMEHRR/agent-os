@@ -24,7 +24,7 @@ from datetime import UTC, datetime
 REPO = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
 
-from env_file import load  # noqa: E402
+import conftest  # noqa: E402, F401 - imported for the sys.path setup it performs
 from inbox_agent import (  # noqa: E402
     Alert,
     CallMeBot,
@@ -38,10 +38,9 @@ from inbox_agent import (  # noqa: E402
 )
 from inbox_agent.filters import Filter, FilterBook, new_filter  # noqa: E402
 from inbox_agent.sources import KNOWN_HOSTS  # noqa: E402
-
-import conftest  # noqa: E402, F401 - imported for the sys.path setup it performs
 from llm_router.backends import backends_from_environment  # noqa: E402
 from persistence import SQLiteRepository, open_database  # noqa: E402
+from scripts.env_file import load  # noqa: E402
 
 DB = pathlib.Path(os.environ.get("DB_PATH", REPO / "agent.db"))
 

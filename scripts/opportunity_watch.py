@@ -20,11 +20,12 @@ import sys
 REPO = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
 
-from env_file import load  # noqa: E402
+import conftest  # noqa: E402, F401 - imported for the sys.path setup it performs
 from inbox_agent.notify import Console, Notifier  # noqa: E402
 from opportunity_agent import (  # noqa: E402
     JsonFeed,
     Kind,
+    ListingSource,
     Matcher,
     Opportunity,
     OpportunityTracker,
@@ -34,9 +35,8 @@ from opportunity_agent import (  # noqa: E402
     make,
     parse_date,
 )
-
-import conftest  # noqa: E402, F401 - imported for the sys.path setup it performs
 from persistence import SQLiteRepository, open_database  # noqa: E402
+from scripts.env_file import load  # noqa: E402
 
 DB = pathlib.Path(os.environ.get("DB_PATH", REPO / "agent.db"))
 
@@ -49,7 +49,7 @@ def build(notifier: Notifier) -> OpportunityTracker:
     connection = open_database(DB)
     store: SQLiteRepository[Opportunity] = SQLiteRepository(connection, "opportunities", Opportunity)
 
-    sources: list = []
+    sources: list[ListingSource] = []
     # A feed is used only when one is configured; otherwise the tracker runs
     # on what you add by hand, which is a complete way to use it.
     if os.environ.get("OPPORTUNITY_FEED_URL"):
