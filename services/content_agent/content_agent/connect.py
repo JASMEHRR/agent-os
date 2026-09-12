@@ -81,9 +81,28 @@ GROUPS: tuple[Group, ...] = (
         requires=("GROQ_API_KEY",),
     ),
     Group(
+        "google",
+        "Sign in with Google",
+        "One sign-in covers Gmail and Classroom. Read-only both times: it cannot send, "
+        "delete or change anything, and Google enforces that rather than this app promising it.",
+        (
+            Setting(
+                "GOOGLE_CLIENT_ID",
+                "Client ID",
+                "console.cloud.google.com - OAuth client, type Desktop app.",
+                secret=False,
+                placeholder="....apps.googleusercontent.com",
+            ),
+            Setting("GOOGLE_CLIENT_SECRET", "Client secret", ""),
+        ),
+        requires=("GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET"),
+        then="Then run once in a terminal: python scripts/google_auth.py - "
+        "that is the normal Google prompt, and it connects both agents at once.",
+    ),
+    Group(
         "mail",
-        "College email",
-        "Read-only. The Inbox agent watches it and never marks, moves or deletes anything.",
+        "College email without Google",
+        "Only if your college does not run on Gmail. Needs an app password rather than a sign-in.",
         (
             Setting(
                 "EMAIL_PROVIDER",
@@ -104,7 +123,7 @@ GROUPS: tuple[Group, ...] = (
             ),
         ),
         requires=("COLLEGE_EMAIL", "EMAIL_PASSWORD"),
-        then="Run it with --dry-run for a day before letting it text you.",
+        then="If you signed in with Google above, leave all of this empty - it is not used.",
     ),
     Group(
         "whatsapp",
@@ -122,23 +141,6 @@ GROUPS: tuple[Group, ...] = (
         ),
         requires=("WHATSAPP_TO",),
         then="Twilio is used when its keys are set; otherwise CallMeBot. Neither set means alerts print instead.",
-    ),
-    Group(
-        "google",
-        "Google Classroom",
-        "Read-only, and only your own submissions. It cannot see another student's work.",
-        (
-            Setting(
-                "GOOGLE_CLIENT_ID",
-                "Client ID",
-                "console.cloud.google.com - OAuth client, type Desktop app.",
-                secret=False,
-                placeholder="....apps.googleusercontent.com",
-            ),
-            Setting("GOOGLE_CLIENT_SECRET", "Client secret", ""),
-        ),
-        requires=("GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET"),
-        then="Then run once in a terminal: python scripts/classroom_watch.py --auth",
     ),
     Group(
         "you",

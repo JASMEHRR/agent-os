@@ -24,7 +24,7 @@ refuse, fails the suite. A declaration nothing checks is a wish.
 | `agent_runtime` | services | S7 | implemented to stage exit criteria | 3 | 45 |
 | `api_gateway` | services | S8 | implemented to stage exit criteria | 6 | 44 |
 | `classroom_agent` | services | A4 | implemented to stage exit criteria | 4 | 29 |
-| `content_agent` | services | A1 | implemented to stage exit criteria | 14 | 204 |
+| `content_agent` | services | A1 | implemented to stage exit criteria | 14 | 206 |
 | `cost_manager` | services | S3 | implemented to stage exit criteria | 3 | 28 |
 | `decision_gateway` | services | S5 | implemented to stage exit criteria | 4 | 62 |
 | `deployment_gateway` | services | S11 | implemented to stage exit criteria | 1 | 0 |
@@ -33,7 +33,7 @@ refuse, fails the suite. A declaration nothing checks is a wish.
 | `evolution_gateway` | services | S12 | implemented to stage exit criteria | 1 | 31 |
 | `governance_gateway` | services | S10 | implemented to stage exit criteria | 3 | 57 |
 | `human_interface` | services | S8 | implemented to stage exit criteria | 5 | 50 |
-| `inbox_agent` | services | A2 | implemented to stage exit criteria | 7 | 74 |
+| `inbox_agent` | services | A2 | implemented to stage exit criteria | 8 | 89 |
 | `integration_gateway` | services | S6 | implemented to stage exit criteria | 1 | 0 |
 | `integration_registry` | services | S6 | implemented to stage exit criteria | 1 | 30 |
 | `knowledge_gateway` | services | S4 | implemented to stage exit criteria | 5 | 48 |
