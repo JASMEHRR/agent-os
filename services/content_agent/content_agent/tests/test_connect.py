@@ -171,3 +171,18 @@ def test_required_keys_actually_exist_among_the_groups_settings() -> None:
     for group in GROUPS:
         keys = {s.key for s in group.settings}
         assert set(group.requires) <= keys, f"{group.group_id} requires a key it does not offer"
+
+
+def test_no_two_groups_share_an_id() -> None:
+    """A duplicate id silently shadows one group in anything keyed by it."""
+    ids = [g.group_id for g in GROUPS]
+    assert len(ids) == len(set(ids)), f"duplicate group id in {ids}"
+
+
+def test_no_setting_appears_in_two_groups() -> None:
+    """The same key in two places means one screen with two sources of truth."""
+    seen: dict[str, str] = {}
+    for group in GROUPS:
+        for setting in group.settings:
+            assert setting.key not in seen, f"{setting.key} is in both {seen[setting.key]} and {group.group_id}"
+            seen[setting.key] = group.group_id

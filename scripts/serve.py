@@ -17,6 +17,7 @@ import json
 import os
 import pathlib
 import sys
+from typing import Any
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
@@ -36,6 +37,7 @@ from content_agent.web import serve  # noqa: E402
 from inbox_agent import CallMeBot, Console, ImapSource, InboxAgent, Notifier, Triage, Twilio, Watermark  # noqa: E402
 from inbox_agent.agent import Alert  # noqa: E402
 from inbox_agent.filters import Filter, FilterBook  # noqa: E402
+from inbox_agent.gmail import GmailSource  # noqa: E402
 from inbox_agent.panel import InboxPanel  # noqa: E402
 from inbox_agent.sources import KNOWN_HOSTS  # noqa: E402
 from llm_router.backends import backends_from_environment  # noqa: E402
@@ -107,6 +109,58 @@ def refresh_clones() -> None:
 # an absent tab correctly reads as "not wired up".
 
 
+def _google() -> tuple[str, list[str]]:
+    """The shared refresh token and the scopes it was granted.
+
+    `("", [])` when nobody has signed in, which every caller treats as "that
+    half of the setup is not done" rather than as an error.
+    """
+    token_file = REPO / ".google.json"
+    if not token_file.exists() or not os.environ.get("GOOGLE_CLIENT_ID"):
+        return "", []
+    try:
+        saved = json.loads(token_file.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return "", []
+    return str(saved.get("refresh_token", "")), [str(s) for s in saved.get("scopes", [])]
+
+
+def _mail_source() -> tuple[Any, str]:
+    """Gmail over OAuth when Google is signed in, IMAP otherwise.
+
+    That order because the OAuth grant is read-only by Google's enforcement
+    rather than by this client's own promise, and because it is the one the
+    person has already clicked through a prompt for.
+
+    The scope is checked rather than assumed: a token granted for Classroom
+    alone is a real state, and using it for Gmail would fail at the first
+    request with a 403 that looks like something else.
+    """
+    token, scopes = _google()
+    if token and any("gmail" in scope for scope in scopes):
+        return (
+            GmailSource(
+                client_id=os.environ["GOOGLE_CLIENT_ID"],
+                client_secret=os.environ["GOOGLE_CLIENT_SECRET"],
+                refresh_token=token,
+            ),
+            "Gmail, signed in with Google",
+        )
+
+    host = os.environ.get("IMAP_HOST") or KNOWN_HOSTS.get(os.environ.get("EMAIL_PROVIDER", "").lower(), "")
+    if host and os.environ.get("COLLEGE_EMAIL") and os.environ.get("EMAIL_PASSWORD"):
+        return (
+            ImapSource(
+                host=host,
+                username=os.environ["COLLEGE_EMAIL"],
+                password=os.environ["EMAIL_PASSWORD"],
+                mailbox=os.environ.get("IMAP_MAILBOX", "INBOX"),
+            ),
+            f"{host} over IMAP",
+        )
+    return None, ""
+
+
 def inbox_panel() -> InboxPanel | None:
     """The Inbox tab. Present whenever the database is, because the filters
     and the record of past decisions are worth seeing even before the mailbox
@@ -115,27 +169,16 @@ def inbox_panel() -> InboxPanel | None:
     filters: SQLiteRepository[Filter] = SQLiteRepository(connection, "inbox_filters", Filter)
     alerts: SQLiteRepository[Alert] = SQLiteRepository(connection, "inbox_alerts", Alert)
 
-    host = os.environ.get("IMAP_HOST") or KNOWN_HOSTS.get(os.environ.get("EMAIL_PROVIDER", "").lower(), "")
-    ready = bool(host and os.environ.get("COLLEGE_EMAIL") and os.environ.get("EMAIL_PASSWORD"))
-    if not ready:
-        missing = [
-            name
-            for name, value in (
-                ("EMAIL_PROVIDER or IMAP_HOST", host),
-                ("COLLEGE_EMAIL", os.environ.get("COLLEGE_EMAIL", "")),
-                ("EMAIL_PASSWORD", os.environ.get("EMAIL_PASSWORD", "")),
-            )
-            if not value
-        ]
-        return InboxPanel(filters=filters, alerts=alerts, setup=f"missing: {', '.join(missing)}")
+    source, how = _mail_source()
+    if source is None:
+        return InboxPanel(
+            filters=filters,
+            alerts=alerts,
+            setup="sign in with Google, or fill in the college email fields",
+        )
 
     agent = InboxAgent(
-        source=ImapSource(
-            host=host,
-            username=os.environ["COLLEGE_EMAIL"],
-            password=os.environ["EMAIL_PASSWORD"],
-            mailbox=os.environ.get("IMAP_MAILBOX", "INBOX"),
-        ),
+        source=source,
         triage=Triage(
             me=os.environ.get("COLLEGE_EMAIL", ""),
             vip_senders=_words("VIP_SENDERS"),
@@ -150,7 +193,7 @@ def inbox_panel() -> InboxPanel | None:
         quiet_until=int(os.environ.get("QUIET_UNTIL", "7")),
         max_per_hour=int(os.environ.get("MAX_ALERTS_PER_HOUR", "6")),
     )
-    return InboxPanel(filters=filters, alerts=alerts, agent=agent, setup="")
+    return InboxPanel(filters=filters, alerts=alerts, agent=agent, setup=how)
 
 
 def apply_panel() -> ApplyPanel:
