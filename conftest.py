@@ -36,5 +36,7 @@ for lib in (
     "services/plugin_manager",
     "services/content_agent",
     "services/inbox_agent",
+    "services/opportunity_agent",
+    "services/classroom_agent",
 ):
     sys.path.insert(0, str(ROOT / lib))

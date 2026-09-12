@@ -50,7 +50,7 @@ class Notifier(Protocol):
 def _post(url: str, data: bytes, headers: dict[str, str]) -> str:
     request = urllib.request.Request(url, data=data, headers=headers, method="POST")
     try:
-        with urllib.request.urlopen(request, timeout=TIMEOUT_SECONDS) as response:  # noqa: S310 - https, fixed hosts
+        with urllib.request.urlopen(request, timeout=TIMEOUT_SECONDS) as response:  # nosec B310 # noqa: S310
             return str(response.read().decode("utf-8", errors="replace"))
     except urllib.error.HTTPError as exc:
         detail = exc.read().decode("utf-8", errors="replace")[:400]
@@ -75,7 +75,7 @@ class CallMeBot:
         query = urllib.parse.urlencode({"phone": self.phone, "text": text[:MAX_CHARS], "apikey": self.apikey})
         url = f"{self.endpoint}?{query}"
         try:
-            with urllib.request.urlopen(url, timeout=TIMEOUT_SECONDS) as response:  # noqa: S310 - https, fixed host
+            with urllib.request.urlopen(url, timeout=TIMEOUT_SECONDS) as response:  # nosec B310 # noqa: S310
                 body = response.read().decode("utf-8", errors="replace")
         except urllib.error.HTTPError as exc:
             raise NotifyError(f"HTTP {exc.code} from CallMeBot") from exc

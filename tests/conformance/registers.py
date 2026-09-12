@@ -94,6 +94,8 @@ MODULE_STAGES: dict[str, str] = {
     # A2, for the same reason A1 exists: the second module built *on* the
     # platform rather than as part of it.
     "inbox_agent": "A2",
+    "opportunity_agent": "A3",
+    "classroom_agent": "A4",
 }
 
 #: Modules whose construction CIR-001 blocks.
@@ -195,6 +197,8 @@ MODULE_FACADES: dict[str, str] = {
     "plugin_manager": "PluginManager",
     "content_agent": "ContentStudio",
     "inbox_agent": "InboxAgent",
+    "opportunity_agent": "OpportunityTracker",
+    "classroom_agent": "ClassroomWatcher",
 }
 
 
@@ -280,6 +284,8 @@ DATA_OWNERSHIP: dict[str, tuple[str, ...]] = {
     "tool_executor": ("sandboxes", "execution records", "executor journal"),
     "content_agent": ("weekly notes", "post drafts"),
     "inbox_agent": ("inbox alerts", "inbox watermark", "inbox filters"),
+    "opportunity_agent": ("opportunities", "opportunity reminders"),
+    "classroom_agent": ("classroom nudges",),
 }
 
 
