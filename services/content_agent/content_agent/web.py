@@ -135,6 +135,10 @@ class Handler(BaseHTTPRequestHandler):
     inbox: Any = None
     apply_panel: Any = None
     classwork: Any = None
+    #: The Connect screen. None on a copy where writing credentials from the
+    #: page is not wanted, and the screen then says to use the host's own
+    #: secret manager instead.
+    connect: Any = None
 
     # Silences the default one-line-per-request logging, which buries the
     # single line that matters (the startup URL) within seconds.
@@ -275,6 +279,8 @@ class Handler(BaseHTTPRequestHandler):
                 self._panel(self.apply_panel)
             elif self.path == "/api/classwork":
                 self._panel(self.classwork)
+            elif self.path == "/api/connect":
+                self._panel(self.connect)
             else:
                 self._json({"error": "not found"}, 404)
         except Exception as exc:  # noqa: BLE001
@@ -352,6 +358,8 @@ class Handler(BaseHTTPRequestHandler):
                 self._panel_action(self.apply_panel, "scan")
             elif self.path == "/api/classwork/check":
                 self._panel_action(self.classwork, "check_now")
+            elif self.path == "/api/connect/save":
+                self._connect_save(payload)
             else:
                 self._json({"error": "not found"}, 404)
         except Exception as exc:  # noqa: BLE001
@@ -628,6 +636,23 @@ class Handler(BaseHTTPRequestHandler):
             return
         self._json(self.apply_panel.state())
 
+    def _connect_save(self, payload: dict[str, Any]) -> None:
+        if self.connect is None:
+            self._json({"error": "this copy does not set credentials from the page."}, 400)
+            return
+        changes = payload.get("changes")
+        if not isinstance(changes, dict):
+            self._json({"error": "nothing to save."}, 400)
+            return
+        try:
+            state = self.connect.save({str(k): str(v) for k, v in changes.items()})
+        except (ValueError, OSError) as exc:
+            # A refused key or an unwritable file both need the same thing
+            # back: what went wrong, next to the field the person just filled.
+            self._json({"error": str(exc)}, 400)
+            return
+        self._json(state)
+
     def _snapshot(self) -> None:
         """Reads every tracked post's current numbers.
 
@@ -800,6 +825,7 @@ def serve(
     inbox: Any = None,
     apply_panel: Any = None,
     classwork: Any = None,
+    connect: Any = None,
 ) -> HTTPServer:
     """Starts the interface. Returns the server so tests can drive it.
 
@@ -820,6 +846,7 @@ def serve(
         "inbox": inbox,
         "apply_panel": apply_panel,
         "classwork": classwork,
+        "connect": connect,
         # Wrapped so the class does not turn it into a method of the handler.
         "before_capture": None if before_capture is None else staticmethod(before_capture),
         "publisher": None if publisher is None else staticmethod(publisher),

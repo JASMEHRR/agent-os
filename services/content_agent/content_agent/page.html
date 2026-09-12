@@ -371,6 +371,24 @@ ul.rules { margin: 12px 0 0; padding-left: 20px; color: rgb(255 255 255 / 0.65);
 }
 .back:hover { background: rgb(255 255 255 / 0.06); color: #fff; }
 
+/* ------------------------------------------------------- the connect screen */
+
+.cgroup {
+  border: 1px solid rgb(255 255 255 / 0.09);
+  border-radius: 16px;
+  padding: 20px 22px 22px;
+  margin-bottom: 18px;
+  background: rgb(255 255 255 / 0.02);
+}
+.cfields { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); }
+.cfield { display: flex; flex-direction: column; gap: 6px; }
+.clabel { font-size: 14px; font-weight: 600; color: rgb(255 255 255 / 0.8); }
+.chelp { font-size: 13px; color: rgb(255 255 255 / 0.45); line-height: 1.45; }
+.cfield input, .cfield select { margin-top: 0; font-size: 15px; padding: 12px 14px; min-height: 46px; width: 100%; }
+/* A password field in a proportional face turns every dot into a different
+   width, which makes a mistyped key impossible to count. */
+.cfield input[type=password] { font-family: "SF Mono", Menlo, Consolas, monospace; letter-spacing: 0.12em; }
+
 nav.tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 24px; }
 nav.tabs button {
   min-height: 42px; padding: 0 16px; font-size: 15px;
@@ -442,9 +460,29 @@ section[data-view].active { display: block; }
   <button data-go="me" data-app="posts">Me</button>
   <button data-go="can" data-app="system">What this can do</button>
   <button data-go="health" data-app="system">Health</button>
+  <button data-go="connect" data-app="connect" id="tab-connect">Connect</button>
 </nav>
 
 <!-- ------------------------------------------------------------- WRITE -->
+<!-- ----------------------------------------------------------- CONNECT -->
+<section data-view="connect">
+
+  <div class="panel">
+    <h2>Connect your accounts</h2>
+    <p class="hint" id="connect-where">
+      Everything below is written to a file beside the repo that git ignores.
+      Nothing you type here is ever shown back to you, and nothing leaves this
+      machine except to the service it belongs to.
+    </p>
+    <div id="connect-groups"></div>
+    <div class="row">
+      <button class="primary" id="connect-save">Save everything</button>
+      <span class="hint" id="connect-msg" style="margin:0"></span>
+    </div>
+  </div>
+
+</section>
+
 <!-- -------------------------------------------------------------- HOME -->
 <section data-view="home" class="active">
 
@@ -1467,6 +1505,8 @@ const APPS = [
     what: 'Competitions, internships and certifications, with the deadlines you must not miss.' },
   { id: 'classwork', icon: '\u2630', name: 'Classwork', opens: 'classwork',
     what: 'What is still to hand in, straight from Google Classroom.' },
+  { id: 'connect', icon: '\u26AD', name: 'Connect', opens: 'connect',
+    what: 'Hook the agents up to your email, WhatsApp, Google and the model. No text editor needed.' },
   { id: 'system', icon: '\u2699', name: 'Under the hood', opens: 'can',
     what: 'What this can actually do, and whether every part of it is healthy.' },
 ];
@@ -1505,6 +1545,7 @@ const STRAPLINE = {
   inbox: 'It reads your mail so you do not have to keep checking it.',
   apply: 'It remembers the deadline you were going to remember.',
   classwork: 'What is still to hand in, and how long you have.',
+  connect: 'Paste a key once. Nothing here is ever shown back to you.',
   system: 'What this can do, proven by test rather than claimed.',
 };
 
@@ -1974,9 +2015,100 @@ async function loadClasswork() {
     : '<p class="empty">Nothing outstanding. That is the good outcome.</p>';
 }
 
+// ----------------------------------------------------------------- connect
+
+//: Fields the person has typed into but not saved. Kept out of the DOM read
+//: at save time so a secret already stored is not re-sent as the literal
+//: word it is displayed as.
+const pending = {};
+
+function connectField(f) {
+  const id = `set-${f.key}`;
+  if (f.choices.length) {
+    return `
+      <label class="cfield">
+        <span class="clabel">${escapeHtml(f.label)}</span>
+        <select id="${id}" data-set="${f.key}">
+          ${f.choices.map(c => `<option value="${escapeHtml(c)}"${
+            c === f.value ? ' selected' : ''}>${escapeHtml(c)}</option>`).join('')}
+        </select>
+        ${f.help ? `<span class="chelp">${escapeHtml(f.help)}</span>` : ''}
+      </label>`;
+  }
+  // A stored secret shows as a placeholder saying it is set, with an empty
+  // box: typing replaces it, leaving it alone keeps it. Rendering the value
+  // would put it in the DOM, in a screenshot, and in a screen share.
+  const ph = f.secret && f.set ? 'saved - type to replace' : f.placeholder;
+  return `
+    <label class="cfield">
+      <span class="clabel">${escapeHtml(f.label)}${
+        f.set ? ' <span class="pill on">set</span>' : ''}</span>
+      <input type="${f.secret ? 'password' : 'text'}" id="${id}" data-set="${f.key}"
+             value="${escapeHtml(f.secret ? '' : f.value)}"
+             placeholder="${escapeHtml(ph)}" autocomplete="off" spellcheck="false">
+      ${f.help ? `<span class="chelp">${escapeHtml(f.help)}</span>` : ''}
+    </label>`;
+}
+
+async function loadConnect() {
+  const s = await api('/api/connect');
+  agentTab('connect', !s.absent);
+  if (s.absent) return;
+
+  const done = s.groups.filter(g => g.connected).length;
+  setStatus('connect', `${done} of ${s.groups.length} connected`,
+            done === s.groups.length ? '' : 'warn');
+
+  $('connect-where').textContent =
+    `Saved to ${s.path}, which git ignores. Nothing typed here is ever shown back to you.`
+    + ' Saved values take effect when you restart the studio.';
+
+  $('connect-groups').innerHTML = s.groups.map(g => `
+    <div class="cgroup">
+      <div class="row" style="margin:0 0 4px">
+        <span class="pill ${g.connected ? 'on' : 'off'}">${g.connected ? 'connected' : 'not yet'}</span>
+        <b style="font-size:17px">${escapeHtml(g.name)}</b>
+      </div>
+      <p class="hint" style="margin:0 0 14px">${escapeHtml(g.what)}</p>
+      <div class="cfields">${g.settings.map(connectField).join('')}</div>
+      ${g.then ? `<p class="chelp" style="margin:12px 0 0">${escapeHtml(g.then)}</p>` : ''}
+    </div>`).join('');
+
+  document.querySelectorAll('[data-set]').forEach(el => {
+    el.oninput = () => { pending[el.dataset.set] = el.value; };
+    el.onchange = () => { pending[el.dataset.set] = el.value; };
+  });
+}
+
+async function saveConnect() {
+  // Only what was actually touched. Sending every field would overwrite a
+  // stored secret with the empty box that represents it.
+  const changes = {};
+  for (const [key, value] of Object.entries(pending)) changes[key] = value;
+  if (!Object.keys(changes).length) {
+    say('connect-msg', 'Nothing changed.');
+    return;
+  }
+  await agentAction($('connect-save'), 'connect-msg', '/api/connect/save', { changes }, () => {
+    for (const key of Object.keys(pending)) delete pending[key];
+    say('connect-msg', 'Saved. Restart the studio for it to take effect.');
+    loadConnect();
+  });
+}
+
 async function loadAgents() {
-  // Independently, so one unconfigured agent cannot blank the other two tabs.
-  await Promise.allSettled([loadInbox(), loadApply(), loadClasswork()]);
+  // Independently, so one unconfigured agent cannot blank the other tabs.
+  // Settled rather than all, but a rejection is reported: swallowing it whole
+  // is how a missing element becomes a screen stuck on "loading..." with
+  // nothing anywhere saying why.
+  const named = { inbox: loadInbox, apply: loadApply, classwork: loadClasswork, connect: loadConnect };
+  const done = await Promise.allSettled(Object.values(named).map(fn => fn()));
+  Object.keys(named).forEach((id, i) => {
+    if (done[i].status === 'rejected') {
+      console.error(`${id} tab failed to load:`, done[i].reason);
+      setStatus(id, 'could not load', 'warn');
+    }
+  });
   wireAgents();
 }
 
@@ -2040,6 +2172,8 @@ function wireAgentButtons() {
     ['a-title', 'a-org', 'a-url', 'a-due'].forEach(f => { $(f).value = ''; });
     loadApply().then(wireAgents);
   });
+
+  $('connect-save').onclick = saveConnect;
 
   $('class-check').onclick = () => agentAction($('class-check'), 'class-msg', '/api/classwork/check', {}, a => {
     const r = a.result || {};

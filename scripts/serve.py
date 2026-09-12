@@ -26,6 +26,7 @@ from classroom_agent import Assignment, ClassroomWatcher, GoogleClassroom, Nudge
 from classroom_agent.panel import ClassworkPanel  # noqa: E402
 from content_agent import ContentStudio, PostDraft, WeeklyNote  # noqa: E402
 from content_agent.analytics import Analytics, ApifyMetrics, Snapshot, TrackedPost  # noqa: E402
+from content_agent.connect import ConnectPanel  # noqa: E402
 from content_agent.outreach import OutreachDraft, Prospect  # noqa: E402
 from content_agent.persona import CheckIn, Fact, Persona  # noqa: E402
 from content_agent.samples import Rating, VoiceLibrary, VoiceSample  # noqa: E402
@@ -41,6 +42,7 @@ from llm_router.backends import backends_from_environment  # noqa: E402
 from opportunity_agent import Matcher, Opportunity, OpportunityTracker, Profile, Reminder  # noqa: E402
 from opportunity_agent.panel import ApplyPanel  # noqa: E402
 from persistence import SQLiteRepository, open_database  # noqa: E402
+from scripts.env_file import ENV_FILE  # noqa: E402
 from scripts.env_file import load as load_env  # noqa: E402
 
 #: On this laptop, beside the repo. On a host, wherever the persistent volume
@@ -339,4 +341,5 @@ if __name__ == "__main__":
         inbox=inbox_panel(),
         apply_panel=apply_panel(),
         classwork=classwork_panel(),
+        connect=ConnectPanel(ENV_FILE),
     )
