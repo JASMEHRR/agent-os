@@ -487,6 +487,14 @@ section[data-view].active { display: block; }
 <!-- -------------------------------------------------------------- HOME -->
 <section data-view="home" class="active">
 
+  <div class="panel highlight" id="first-run" hidden>
+    <h2>Start here</h2>
+    <p class="hint" id="first-run-what"></p>
+    <div class="row">
+      <button class="primary" id="first-run-go">Open Connect</button>
+    </div>
+  </div>
+
   <div class="panel">
     <h2>Your agents</h2>
     <p class="hint">
@@ -1164,9 +1172,13 @@ async function refresh() {
   // The count on the tab, so the archive is worth opening only when it is.
   $('tab-archive').textContent = archive.length ? `Archive (${archive.length})` : 'Archive';
 
-  setStatus('posts', s.waiting.length ? `${s.waiting.length} waiting for you to read`
-    : (s.approved || []).length ? `${(s.approved || []).length} approved and ready`
-    : 'nothing waiting',
+  // "nothing waiting" with no model connected reads as ready, and pressing
+  // the button then fails. Say which of the two it is.
+  setStatus('posts',
+    s.waiting.length ? `${s.waiting.length} waiting for you to read`
+      : (s.approved || []).length ? `${(s.approved || []).length} approved and ready`
+      : s.can_draft === false ? 'no model connected yet'
+      : 'nothing waiting',
     s.waiting.length ? 'warn' : (s.approved || []).length ? '' : 'quiet');
 
   $('attention-panel').hidden = s.attention.length === 0;
@@ -2179,6 +2191,19 @@ async function loadConnect() {
   const done = s.groups.filter(g => g.connected).length;
   setStatus('connect', `${done} of ${s.groups.length} connected`,
             done === s.groups.length ? '' : 'warn');
+
+  // A copy with nothing connected needs to be told where to begin. Seven
+  // cards with no obvious first move is the state a first-time user is in,
+  // and "0 of 6 connected" on the sixth card is not a signpost.
+  const first = $('first-run');
+  first.hidden = done !== 0;
+  if (!first.hidden) {
+    $('first-run-what').textContent =
+      'Nothing is connected yet, so most of this is waiting on you. It takes a'
+      + ' minute: a free key for writing posts, and one Google sign-in for mail'
+      + ' and classwork. Apply works right now without either.';
+    $('first-run-go').onclick = () => openApp('connect');
+  }
 
   $('connect-where').textContent =
     `Saved to ${s.path}, which git ignores. Nothing typed here is ever shown back to you.`

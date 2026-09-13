@@ -128,6 +128,11 @@ class Handler(BaseHTTPRequestHandler):
     #: Where engagement numbers are read from. None means the numbers screen
     #: shows what was already collected and refuses to fetch more.
     metrics: MetricsSource | None = None
+    #: Whether any model is connected. False means the studio opened without
+    #: one, which is a supported state: everything except drafting works, and
+    #: the page has to say so rather than showing "nothing waiting", which
+    #: reads as ready.
+    can_draft: bool = True
     #: The three agent tabs. None means the tab is hidden entirely rather than
     #: shown empty: a screen with nothing on it reads as "nothing to do", and
     #: "not wired up yet" is a different thing that deserves different words.
@@ -399,6 +404,7 @@ class Handler(BaseHTTPRequestHandler):
             "published": [_draft_json(d) for d in self.studio.scheduler.published()],
             "schedule": self.studio.scheduler.health(),
             "can_post": self.publisher is not None,
+            "can_draft": self.can_draft,
             "prospects": [
                 {
                     "prospect_id": p.prospect_id,
@@ -862,6 +868,7 @@ def serve(
     classwork: Any = None,
     connect: Any = None,
     scheduler: Any = None,
+    can_draft: bool = True,
 ) -> HTTPServer:
     """Starts the interface. Returns the server so tests can drive it.
 
@@ -884,6 +891,7 @@ def serve(
         "classwork": classwork,
         "connect": connect,
         "scheduler": scheduler,
+        "can_draft": can_draft,
         # Wrapped so the class does not turn it into a method of the handler.
         "before_capture": None if before_capture is None else staticmethod(before_capture),
         "publisher": None if publisher is None else staticmethod(publisher),

@@ -547,4 +547,5 @@ if __name__ == "__main__":
         classwork=classwork,
         connect=ConnectPanel(ENV_FILE),
         scheduler=automatic(inbox, apply_tab, classwork),
+        can_draft=model_ready(),
     )

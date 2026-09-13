@@ -605,3 +605,33 @@ def test_pressing_a_scheduler_button_on_a_copy_that_runs_nothing_is_refused(serv
     status, body = call(server, "/api/automatic/run", {"job_id": "mail"})
     assert status == 400
     assert "nothing runs automatically" in body["error"]
+
+
+def test_a_studio_with_a_model_says_it_can_draft(server: str) -> None:
+    status, body = call(server, "/api/state")
+    assert status == 200
+    assert body["can_draft"] is True
+
+
+def test_a_studio_without_a_model_says_so_rather_than_looking_ready() -> None:
+    """ "nothing waiting" and "no model connected yet" are different screens.
+
+    The first reads as ready and makes the button fail when pressed; the
+    second tells you what to do. The page cannot tell them apart without
+    being told, so the capability is reported like `can_post` is.
+    """
+    studio = ContentStudio(
+        complete=lambda prompt, max_tokens: CANNED,
+        notes=InMemoryRepository(),
+        drafts=InMemoryRepository(),
+    )
+    httpd = serve(studio, port=0, forever=False, can_draft=False)
+    thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    thread.start()
+    try:
+        status, body = call(f"http://{HOST}:{httpd.server_address[1]}", "/api/state")
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+    assert status == 200
+    assert body["can_draft"] is False

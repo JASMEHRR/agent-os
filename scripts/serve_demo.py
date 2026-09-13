@@ -19,6 +19,7 @@ import conftest  # noqa: E402, F401 - imported for the sys.path setup it perform
 from content_agent import ContentStudio, PostDraft, WeeklyNote  # noqa: E402
 from content_agent.web import serve  # noqa: E402
 from persistence import SQLiteRepository, open_database  # noqa: E402
+from scripts.serve import sibling_repos  # noqa: E402
 
 LINKEDIN = {
     "hook": "I spent 3 attempts learning that a free API tier fails differently than a paid one.",
@@ -104,7 +105,9 @@ def main() -> None:
         notes=SQLiteRepository(connection, "demo_notes", WeeklyNote),
         drafts=SQLiteRepository(connection, "demo_drafts", PostDraft),
     )
-    serve(studio, port=8766, repos=(str(REPO), str(REPO.parent / "ventureadda")))
+    # The same discovery the real studio uses, rather than a folder name that
+    # happens to exist on one machine.
+    serve(studio, port=8766, repos=sibling_repos())
 
 
 if __name__ == "__main__":
