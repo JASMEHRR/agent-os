@@ -17,6 +17,7 @@ put one keystroke between a model and your real profile.
 
 from __future__ import annotations
 
+import os
 import pathlib
 import sys
 
@@ -25,12 +26,20 @@ sys.path.insert(0, str(REPO))
 
 import conftest  # noqa: E402, F401 - imported for the sys.path setup it performs
 from content_agent import ContentStudio, DraftState, PostDraft, WeeklyNote  # noqa: E402
+from content_agent.owner import Owner  # noqa: E402
 from llm_router.backends import backends_from_environment  # noqa: E402
 from persistence import SQLiteRepository, open_database  # noqa: E402
 from scripts.env_file import load as load_env  # noqa: E402
 
 DB_PATH = REPO / "agent.db"
-PRINCIPAL = "jasmehr"
+
+
+#: Who an approval from this command line is recorded as. Read from the same
+#: OWNER_NAME the studio uses, so the audit trail says the same thing whether
+#: a draft was approved from the browser or from a terminal.
+def principal() -> str:
+    return Owner(name=os.environ.get("OWNER_NAME", "")).principal
+
 
 RULE = "-" * 68
 
@@ -134,7 +143,7 @@ def cmd_review(studio: ContentStudio) -> int:
         _show(draft)
         choice = input("\n[a]pprove  [d]iscard  [s]kip  > ").strip().lower()
         if choice == "a":
-            approved = studio.approve(draft.draft_id, PRINCIPAL)
+            approved = studio.approve(draft.draft_id, principal())
             print(f"\nApproved as {approved.approved_by}. Copy the text above into LinkedIn.")
         elif choice == "d":
             studio.discard(draft.draft_id)

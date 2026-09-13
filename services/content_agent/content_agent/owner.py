@@ -23,6 +23,11 @@ from dataclasses import dataclass
 #: What the briefs call somebody who has not said who they are.
 ANONYMOUS = "the person using this"
 
+#: What the audit trail records when nobody has said who they are. A real
+#: word rather than an empty string, because "approved by" followed by
+#: nothing reads as a missing record rather than an unnamed one.
+ANONYMOUS_PRINCIPAL = "owner"
+
 
 @dataclass(frozen=True)
 class Owner:
@@ -50,6 +55,23 @@ class Owner:
     @property
     def named(self) -> bool:
         return bool(self.name.strip() or self.about.strip())
+
+    @property
+    def principal(self) -> str:
+        """Who an approval is recorded as having come from.
+
+        A different thing from `who`, which is prose for a prompt. This goes
+        into the audit trail on every approved draft, so it is a slug: lower
+        case, no spaces, stable for as long as the name is.
+
+        `ANONYMOUS_PRINCIPAL` rather than a name is the honest default. The
+        record said "jasmehr" on every copy of this program, which meant a
+        friend's approvals were attributed to somebody who had never seen the
+        post - a quiet falsehood in the one record that exists to be true.
+        """
+        slug = "-".join(self.name.lower().split())
+        kept = "".join(c for c in slug if c.isalnum() or c == "-").strip("-")
+        return kept or ANONYMOUS_PRINCIPAL
 
     def fill(self, brief: str) -> str:
         """Substitutes `{who}` in a brief.

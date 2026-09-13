@@ -507,3 +507,101 @@ def test_capture_runs_the_refresh_first() -> None:
     assert status == 200
     assert calls == ["refreshed"]
     assert body["repos"] == []
+
+
+# ------------------------------------------------------- The Automatic tab
+
+
+class FakeScheduler:
+    """Stands in for `SchedulerPanel`.
+
+    A fake rather than the real one on purpose: the web layer holds no import
+    from any agent package, and a test that reached for `scheduler.panel`
+    would quietly make it depend on one.
+    """
+
+    def __init__(self) -> None:
+        self.calls: list[tuple[str, str]] = []
+
+    def state(self) -> dict[str, Any]:
+        return {"running": True, "jobs": [{"job_id": "mail"}], "counts": {"jobs": 1}}
+
+    def run_now(self, job_id: str) -> dict[str, Any]:
+        self.calls.append(("run_now", job_id))
+        return {}
+
+    def pause(self, job_id: str) -> dict[str, Any]:
+        self.calls.append(("pause", job_id))
+        return {}
+
+    def resume(self, job_id: str) -> dict[str, Any]:
+        if job_id != "mail":
+            raise KeyError(job_id)
+        self.calls.append(("resume", job_id))
+        return {}
+
+
+def _with_scheduler(panel: Any) -> Any:
+    studio = ContentStudio(
+        complete=lambda prompt, max_tokens: CANNED,
+        notes=InMemoryRepository(),
+        drafts=InMemoryRepository(),
+    )
+    httpd = serve(studio, port=0, forever=False, scheduler=panel)
+    thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    thread.start()
+    return httpd, f"http://{HOST}:{httpd.server_address[1]}"
+
+
+def test_a_copy_that_runs_nothing_says_so_rather_than_showing_an_empty_tab(server: str) -> None:
+    status, body = call(server, "/api/automatic")
+    assert status == 200
+    assert body == {"configured": False, "absent": True}
+
+
+def test_the_automatic_tab_reads_the_scheduler() -> None:
+    panel = FakeScheduler()
+    httpd, base = _with_scheduler(panel)
+    try:
+        status, body = call(base, "/api/automatic")
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+    assert status == 200
+    assert body["running"] is True and body["jobs"][0]["job_id"] == "mail"
+
+
+@pytest.mark.parametrize(
+    ("route", "method"),
+    [("run", "run_now"), ("pause", "pause"), ("resume", "resume")],
+)
+def test_each_button_reaches_its_method_and_returns_the_fresh_state(route: str, method: str) -> None:
+    panel = FakeScheduler()
+    httpd, base = _with_scheduler(panel)
+    try:
+        status, body = call(base, f"/api/automatic/{route}", {"job_id": "mail"})
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+    assert status == 200
+    assert panel.calls == [(method, "mail")]
+    assert body["counts"] == {"jobs": 1}
+
+
+def test_a_job_the_page_knows_about_but_this_copy_does_not_is_a_bad_request() -> None:
+    """Which happens the moment an agent is connected or disconnected without
+    a reload - a stale page, not a broken server, so not a 500."""
+    httpd, base = _with_scheduler(FakeScheduler())
+    try:
+        status, body = call(base, "/api/automatic/resume", {"job_id": "ghost"})
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+    assert status == 400
+    assert "no such job" in body["error"]
+
+
+def test_pressing_a_scheduler_button_on_a_copy_that_runs_nothing_is_refused(server: str) -> None:
+    status, body = call(server, "/api/automatic/run", {"job_id": "mail"})
+    assert status == 400
+    assert "nothing runs automatically" in body["error"]

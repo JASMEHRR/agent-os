@@ -38,5 +38,6 @@ for lib in (
     "services/inbox_agent",
     "services/opportunity_agent",
     "services/classroom_agent",
+    "services/scheduler",
 ):
     sys.path.insert(0, str(ROOT / lib))

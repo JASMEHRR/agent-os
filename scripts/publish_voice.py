@@ -43,11 +43,11 @@ def render_samples(library: VoiceLibrary) -> str:
         return "# Voice samples\n\nNone approved yet.\n"
     blocks = []
     for sample in samples[:12]:
-        tag = f"{sample.channel.value}" + (", edited by Jasmehr" if sample.edited else "")
+        tag = f"{sample.channel.value}" + (", edited by hand" if sample.edited else "")
         blocks.append(f"## {tag}\n\n{sample.text}\n")
     return (
-        "# Voice samples\n\nPosts Jasmehr approved as sounding like him. Match the register, not the content.\n\n"
-        + "\n".join(blocks)
+        "# Voice samples\n\nPosts the owner approved as sounding like them. "
+        "Match the register, not the content.\n\n" + "\n".join(blocks)
     )
 
 

@@ -30,9 +30,9 @@ the gap described in section 3.
 
 | | |
 |---|---|
-| Tracked files | 477 |
-| Python | ~60,500 lines across 26 modules |
-| Tests | 2,027 passing, 96.9% coverage |
+| Tracked files | 514 |
+| Python | ~54,400 lines across 32 modules |
+| Tests | 2,277 passing, 96.6% coverage |
 | Specification documents | 7 ratified, immutable |
 | Module design docs | 19 |
 | Non-violable rules extracted and tracked | 464 |
@@ -42,22 +42,30 @@ the gap described in section 3.
 
 ## 2. What runs today
 
-**One thing: Post Studio.** It is the content agent — the user writes what they
-did that week, it drafts a LinkedIn post, a newsletter issue and a Dev.to
-article from the same facts, and a human approves each draft before anything
-leaves the machine.
+**One application, with five screens behind a home page.** One command starts
+it; the home screen lists what is set up and what is not.
 
 ```bash
-python scripts/serve.py          # http://127.0.0.1:7860
+python scripts/serve.py          # http://127.0.0.1:8765
 ```
 
-Needs `GROQ_API_KEY` in `.env` (copy `.env.example`). Everything persists to
-`agent.db` beside the repo. See `START_HERE.md` for the end-user walkthrough
-and `docs/HOSTING.md` for deploying it.
+| App | Module | What it does |
+|---|---|---|
+| Posts | `content_agent` (A1) | Write what you did; it drafts a LinkedIn post, a newsletter and an article from the same facts. A human approves every draft. |
+| Inbox | `inbox_agent` (A2) | Reads new mail over Gmail OAuth or IMAP, triages it against rules you can edit, and texts you only what matters. |
+| Apply | `opportunity_agent` (A3) | Tracks competitions and internships through their stages and reminds you before each closes. |
+| Classwork | `classroom_agent` (A4) | Reads Google Classroom, read-only, and nudges before an assignment is due. |
+| Automatic | `scheduler` (A5) | Runs the other four on their own cadences and shows when each last ran and what it found. |
+
+Nothing is required to start it. With no keys at all the studio opens, says
+what is missing, and the **Connect** screen is where you supply it — no text
+editor, no `.env` unless you prefer one. Everything persists to `agent.db`
+beside the repo. See `START_HERE.md` for the end-user walkthrough and
+`docs/HOSTING.md` for deploying it.
 
 It is worth reading `services/content_agent/` first even though it is the least
-architecturally interesting module, because it is the only one where you can
-watch the ideas do something.
+architecturally interesting module, because it is the one where you can watch
+the ideas do something.
 
 Other entry points, all local scripts rather than services:
 
@@ -68,17 +76,28 @@ Other entry points, all local scripts rather than services:
 | `scripts/linkedin_post.py` | LinkedIn OAuth and posting |
 | `scripts/import_drafts.py` | Imports markdown drafts into the studio |
 | `scripts/publish_voice.py` | Builds a voice persona from rated samples |
+| `scripts/google_auth.py` | One Google sign-in covering Gmail and Classroom |
 
 ---
 
 ## 3. What is built but does not run
 
-**The other twenty-five modules are libraries with tests. Nothing runs them.**
+**Almost none of the platform is reached by the thing that runs.**
 
-There is no process that starts `agent_runtime`. There is no socket behind
-`api_gateway`. There is no broker behind `event_bus`, and no database behind the
-repositories except SQLite and an in-memory adapter. The whole system is
-in-process.
+Twenty-seven of the thirty-two modules build the platform. The application
+imports exactly two of them — `persistence` for storage and `llm_router` for
+the model. The other twenty-five are libraries with tests and no caller.
+
+The five applied modules do run: `scheduler` starts them on a background
+thread for as long as the studio is open, which is what makes them agents
+rather than buttons. It is worth being precise about how little that is — one
+thread, in one process, for as long as a browser tab is open. Close the laptop
+and nothing checks your mail.
+
+Beneath that, nothing. There is no process that starts `agent_runtime`. There
+is no socket behind `api_gateway`. There is no broker behind `event_bus`, and
+no database behind the repositories except SQLite and an in-memory adapter.
+The whole system is in-process.
 
 This is deliberate and the code says so. From
 `services/api_gateway/api_gateway/ingress.py`:

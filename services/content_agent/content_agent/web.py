@@ -111,7 +111,6 @@ class Handler(BaseHTTPRequestHandler):
     """Routes. Kept in one class because there are six of them."""
 
     studio: ContentStudio
-    principal: str = "jasmehr"
     #: Repositories capture reads, commit messages only. Set by `serve`.
     #: Empty means the button produces nothing, which the page reports.
     repos: tuple[str, ...] = ()
@@ -135,6 +134,9 @@ class Handler(BaseHTTPRequestHandler):
     inbox: Any = None
     apply_panel: Any = None
     classwork: Any = None
+    #: The Automatic tab, over the background scheduler. None means this copy
+    #: runs nothing on its own and every agent waits to be pressed.
+    scheduler: Any = None
     #: The Connect screen. None on a copy where writing credentials from the
     #: page is not wanted, and the screen then says to use the host's own
     #: secret manager instead.
@@ -281,6 +283,8 @@ class Handler(BaseHTTPRequestHandler):
                 self._panel(self.classwork)
             elif self.path == "/api/connect":
                 self._panel(self.connect)
+            elif self.path == "/api/automatic":
+                self._panel(self.scheduler)
             else:
                 self._json({"error": "not found"}, 404)
         except Exception as exc:  # noqa: BLE001
@@ -360,6 +364,8 @@ class Handler(BaseHTTPRequestHandler):
                 self._panel_action(self.classwork, "check_now")
             elif self.path == "/api/connect/save":
                 self._connect_save(payload)
+            elif self.path in ("/api/automatic/run", "/api/automatic/pause", "/api/automatic/resume"):
+                self._automatic(self.path.rsplit("/", 1)[1], payload)
             else:
                 self._json({"error": "not found"}, 404)
         except Exception as exc:  # noqa: BLE001
@@ -369,6 +375,17 @@ class Handler(BaseHTTPRequestHandler):
             self._json({"error": f"{type(exc).__name__}: {exc}"}, 500)
 
     # ---------------------------------------------------------------- Actions
+
+    @property
+    def principal(self) -> str:
+        """Who an approval on this copy is recorded as coming from.
+
+        Read from the studio's owner rather than fixed at import, so the
+        audit trail names whoever is actually running this. It used to say
+        "jasmehr" on every copy, which attributed a friend's approvals to
+        somebody who had never seen the post.
+        """
+        return self.studio.owner.principal
 
     def _state(self) -> dict[str, Any]:
         return {
@@ -585,6 +602,24 @@ class Handler(BaseHTTPRequestHandler):
             self._json({"error": str(exc)}, 400)
             return
         self._json({"result": result, "state": panel.state()})
+
+    def _automatic(self, action: str, payload: dict[str, Any]) -> None:
+        """Run, pause or resume one scheduled job.
+
+        The job id comes from the page, so an unknown one is a bad request
+        rather than a 500: `KeyError` here means the page is out of step with
+        the jobs this copy actually has, which happens the moment an agent is
+        connected or disconnected without a reload.
+        """
+        if self.scheduler is None:
+            self._json({"error": "nothing runs automatically on this copy."}, 400)
+            return
+        try:
+            getattr(self.scheduler, "run_now" if action == "run" else action)(str(payload.get("job_id", "")))
+        except KeyError as exc:
+            self._json({"error": f"no such job: {exc}"}, 400)
+            return
+        self._json(self.scheduler.state())
 
     def _inbox_filter(self, payload: dict[str, Any]) -> None:
         if self.inbox is None:
@@ -826,6 +861,7 @@ def serve(
     apply_panel: Any = None,
     classwork: Any = None,
     connect: Any = None,
+    scheduler: Any = None,
 ) -> HTTPServer:
     """Starts the interface. Returns the server so tests can drive it.
 
@@ -847,6 +883,7 @@ def serve(
         "apply_panel": apply_panel,
         "classwork": classwork,
         "connect": connect,
+        "scheduler": scheduler,
         # Wrapped so the class does not turn it into a method of the handler.
         "before_capture": None if before_capture is None else staticmethod(before_capture),
         "publisher": None if publisher is None else staticmethod(publisher),

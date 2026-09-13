@@ -1,4 +1,4 @@
-"""Jasmehr's LinkedIn voice, as enforceable rules rather than a prompt.
+"""The house LinkedIn voice, as enforceable rules rather than a prompt.
 
 The rules live in the `linkedin-content` skill as prose. Prose in a prompt is
 advice: a model follows it most of the time, drifts on a bad generation, and

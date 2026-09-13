@@ -13,10 +13,12 @@ it. None of these are needed on a laptop.
 
 from __future__ import annotations
 
+import atexit
 import json
 import os
 import pathlib
 import sys
+from datetime import timedelta
 from typing import Any
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
@@ -46,6 +48,8 @@ from llm_router.backends import backends_from_environment  # noqa: E402
 from opportunity_agent import Matcher, Opportunity, OpportunityTracker, Profile, Reminder  # noqa: E402
 from opportunity_agent.panel import ApplyPanel  # noqa: E402
 from persistence import SQLiteRepository, open_database  # noqa: E402
+from scheduler import Job, JobState, schedule  # noqa: E402
+from scheduler.panel import SchedulerPanel  # noqa: E402
 from scripts.env_file import ENV_FILE  # noqa: E402
 from scripts.env_file import load as load_env  # noqa: E402
 
@@ -54,14 +58,29 @@ from scripts.env_file import load as load_env  # noqa: E402
 DB_PATH = pathlib.Path(os.environ.get("DB_PATH", str(REPO / "agent.db")))
 PORT = 8765
 
-#: Repositories the "pull from git" button reads, commit messages only.
-#: Override with REPOS in .env as a semicolon-separated list of paths.
-DEFAULT_REPOS = (
-    str(REPO),
-    str(REPO.parent / "ventureadda"),
-    str(REPO.parent / "ASCEND"),
-    str(REPO.parent / "clipforge"),
-)
+#: How many sibling checkouts the "pull from git" button will read without
+#: being told to. A folder of forty clones would make one button press walk
+#: forty git histories, so past this it asks for REPOS rather than guessing.
+MAX_DISCOVERED_REPOS = 8
+
+
+def sibling_repos() -> tuple[str, ...]:
+    """This repository, plus any other git checkout sitting beside it.
+
+    This used to be a hardcoded list of four project names - which worked
+    perfectly on one laptop and named four folders that do not exist on
+    anybody else's. Reading the disk finds whatever is actually there, and
+    finds it for everyone.
+    """
+    found = [str(REPO)]
+    try:
+        siblings = sorted(REPO.parent.iterdir())
+    except OSError:
+        return tuple(found)
+    for path in siblings:
+        if path != REPO and (path / ".git").exists():
+            found.append(str(path))
+    return tuple(found[:MAX_DISCOVERED_REPOS])
 
 
 #: Clones made from REPO_URLS live beside the database, which on a host is
@@ -74,7 +93,7 @@ def checkouts() -> tuple[str, ...]:
     raw = os.environ.get("REPOS", "")
     if raw.strip():
         return tuple(part.strip() for part in raw.split(";") if part.strip())
-    return tuple(p for p in DEFAULT_REPOS if pathlib.Path(p).exists())
+    return sibling_repos()
 
 
 def clone_urls() -> tuple[str, ...]:
@@ -250,6 +269,104 @@ def classwork_panel() -> ClassworkPanel:
     )
 
 
+# ------------------------------------------------------------- running alone
+#
+# Until now every agent waited to be pressed. The mailbox was checked when
+# somebody opened the Inbox tab; the deadline reminders fired when somebody
+# opened Apply. Closing the window turned the whole thing off, which makes
+# these tools rather than agents.
+#
+# These are the cadences that change that. Each is overridable from .env,
+# because "how often should this check" is a preference and five minutes is
+# only a good default for a mailbox somebody is actually waiting on.
+
+
+def _minutes(name: str, fallback: float) -> float:
+    try:
+        return max(1.0, float(os.environ.get(name, fallback)))
+    except ValueError:
+        return fallback
+
+
+def jobs(inbox: Any, apply_tab: Any, classwork: Any) -> list[Job | None]:
+    """What runs on its own, given whichever agents are actually set up.
+
+    Returns `None` for an agent that is not connected rather than a job that
+    would fail on every tick and fill the Automatic tab with red.
+    """
+
+    def poll_mail() -> str:
+        r = inbox.check_now()
+        if r["failures"]:
+            # Surfaced rather than swallowed: a poll that read nothing because
+            # the connection broke must not report "nothing new".
+            raise RuntimeError("; ".join(r["failures"]))
+        return f"{r['seen']} new, {r['alerted']} texted, {r['held']} held"
+
+    def scan_deadlines() -> str:
+        r = apply_tab.scan()
+        if r["errors"]:
+            raise RuntimeError("; ".join(r["errors"]))
+        return f"{r['added']} added, {r['reminded']} reminders, {r['missed']} missed"
+
+    def check_classwork() -> str:
+        r = classwork.check_now()
+        if r["errors"]:
+            raise RuntimeError("; ".join(r["errors"]))
+        return f"{r['outstanding']} outstanding, {r['overdue']} overdue, {r['reminded']} nudges"
+
+    return [
+        Job(
+            job_id="mail",
+            label="Check my email",
+            every=timedelta(minutes=_minutes("INBOX_EVERY_MINUTES", 5)),
+            run=poll_mail,
+            describes="Reads new mail and texts you the ones that matter",
+        )
+        if inbox is not None and inbox.agent is not None
+        else None,
+        Job(
+            job_id="deadlines",
+            label="Watch my deadlines",
+            every=timedelta(minutes=_minutes("APPLY_EVERY_MINUTES", 6 * 60)),
+            run=scan_deadlines,
+            describes="Reminds you before anything you are tracking closes",
+        )
+        if apply_tab is not None
+        else None,
+        Job(
+            job_id="classwork",
+            label="Watch my classwork",
+            every=timedelta(minutes=_minutes("CLASSWORK_EVERY_MINUTES", 3 * 60)),
+            run=check_classwork,
+            describes="Nudges you before an assignment is due",
+        )
+        if classwork is not None and classwork.watcher is not None
+        else None,
+    ]
+
+
+def automatic(inbox: Any, apply_tab: Any, classwork: Any) -> SchedulerPanel | None:
+    """The running scheduler, or None when nothing is connected to run.
+
+    A scheduler with no jobs would show an empty tab that reads as "nothing to
+    do"; no tab at all correctly reads as "not wired up yet", which is the
+    same rule the three agent tabs follow.
+    """
+    built = schedule(
+        jobs(inbox, apply_tab, classwork),
+        SQLiteRepository(open_database(DB_PATH), "scheduler_runs", JobState),
+    )
+    if not built.jobs:
+        return None
+    built.start()
+    # Registered so Ctrl-C stops the thread before the database closes under
+    # it. The thread is a daemon, so this is about a clean last write rather
+    # than about the process being able to exit.
+    atexit.register(built.stop)
+    return SchedulerPanel(built)
+
+
 def _words(name: str) -> frozenset[str]:
     return frozenset(w.strip().lower() for w in os.environ.get(name, "").split(",") if w.strip())
 
@@ -411,6 +528,7 @@ if __name__ == "__main__":
     # login. Unset means "this laptop": loopback only, no login, because
     # reachability is the authorisation there.
     load_env()
+    inbox, apply_tab, classwork = inbox_panel(), apply_panel(), classwork_panel()
     serve(
         build_studio(),
         port=int(os.environ.get("PORT", PORT)),
@@ -419,8 +537,9 @@ if __name__ == "__main__":
         before_capture=refresh_clones if clone_urls() else None,
         publisher=publisher(),
         metrics=metrics(),
-        inbox=inbox_panel(),
-        apply_panel=apply_panel(),
-        classwork=classwork_panel(),
+        inbox=inbox,
+        apply_panel=apply_tab,
+        classwork=classwork,
         connect=ConnectPanel(ENV_FILE),
+        scheduler=automatic(inbox, apply_tab, classwork),
     )

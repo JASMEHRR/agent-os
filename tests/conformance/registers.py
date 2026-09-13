@@ -96,6 +96,9 @@ MODULE_STAGES: dict[str, str] = {
     "inbox_agent": "A2",
     "opportunity_agent": "A3",
     "classroom_agent": "A4",
+    # A5 is not an agent but the thing that starts them: until it existed each
+    # of A1-A4 could do its work and none of them ever began on their own.
+    "scheduler": "A5",
 }
 
 #: Modules whose construction CIR-001 blocks.
@@ -199,6 +202,7 @@ MODULE_FACADES: dict[str, str] = {
     "inbox_agent": "InboxAgent",
     "opportunity_agent": "OpportunityTracker",
     "classroom_agent": "ClassroomWatcher",
+    "scheduler": "Scheduler",
 }
 
 
@@ -286,6 +290,7 @@ DATA_OWNERSHIP: dict[str, tuple[str, ...]] = {
     "inbox_agent": ("inbox alerts", "inbox watermark", "inbox filters"),
     "opportunity_agent": ("opportunities", "opportunity reminders"),
     "classroom_agent": ("classroom nudges",),
+    "scheduler": ("job runs",),
 }
 
 
