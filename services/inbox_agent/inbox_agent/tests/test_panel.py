@@ -254,6 +254,7 @@ def test_the_apply_panel_reads_the_trackers_clock_not_the_wall_clock() -> None:
 
 def test_the_classwork_panel_reads_the_watchers_clock() -> None:
     panel = classwork(work(hours=30))
+    assert panel.watcher is not None  # `classwork()` always builds one; mypy cannot know that
     assert panel.state()["outstanding"][0]["hours_left"] == 30.0
     panel.watcher.now = lambda: NOW + timedelta(hours=20)
     assert panel.state()["outstanding"][0]["hours_left"] == 10.0
