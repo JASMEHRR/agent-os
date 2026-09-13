@@ -47,6 +47,14 @@ TRANSPORT_COOLDOWN_SECONDS = 5.0
 
 REQUEST_TIMEOUT_SECONDS = 30.0
 
+#: `urllib.request` sends "Python-urllib/x.y" by default, which is on the
+#: blocklist Cloudflare's bot check matches against. That check runs in front
+#: of both providers' APIs, so the default header turns a valid key into a
+#: 403 before the request ever reaches Groq or Gemini. A named User-Agent,
+#: the same idea as the official `groq-python` SDK sending its own, is enough
+#: to clear it without pretending to be a browser.
+USER_AGENT = "agent-os-llm-router/1.0 (+https://github.com/jasmehr/agent-os)"
+
 
 class BackendNotConfigured(RuntimeError):
     """Raised when a backend is asked to run without a usable API key.
@@ -120,7 +128,7 @@ class HTTPBackend:
         request = urllib.request.Request(
             url,
             data=payload,
-            headers={"Content-Type": "application/json", **headers},
+            headers={"Content-Type": "application/json", "User-Agent": USER_AGENT, **headers},
             method="POST",
         )
         try:
@@ -133,12 +141,22 @@ class HTTPBackend:
             if exc.code == 429:
                 self._go_dark(RATE_LIMIT_COOLDOWN_SECONDS, f"rate limited: {detail}")
                 raise TierRateLimited(f"{self.model} is rate limited") from exc
-            if exc.code in (401, 403):
+            if exc.code == 401:
                 # Not a cooldown. A bad key does not heal in sixty seconds, and
                 # pretending it might would hide a configuration error behind
                 # what looks like transient unavailability.
                 self._go_dark(float("inf"), f"auth rejected: {detail}")
                 raise BackendNotConfigured(f"{self.model} rejected the API key") from exc
+            if exc.code == 403:
+                # Unlike 401, a 403 here is ambiguous: it is what a rejected
+                # key looks like, but it is also what Cloudflare's bot check
+                # in front of these APIs returns for a request it does not
+                # like the look of - same status code, unrelated to the key.
+                # Going dark forever on that would misdiagnose a transport
+                # hiccup as a bad key and silently disable a working tier for
+                # the rest of the process. A cooldown, not a permanent verdict.
+                self._go_dark(RATE_LIMIT_COOLDOWN_SECONDS, f"forbidden: {detail}")
+                raise TierRateLimited(f"{self.model} refused the request (403)") from exc
             self._go_dark(TRANSPORT_COOLDOWN_SECONDS, f"http {exc.code}: {detail}")
             raise
         except (urllib.error.URLError, TimeoutError) as exc:
@@ -216,7 +234,12 @@ class GeminiBackend(HTTPBackend):
 #: on ours.
 DEFAULT_NANO_MODEL = "llama-3.1-8b-instant"
 DEFAULT_STANDARD_MODEL = "llama-3.3-70b-versatile"
-DEFAULT_PREMIUM_MODEL = "gemini-2.0-flash"
+#: A self-updating alias rather than a pinned version: "gemini-2.0-flash",
+#: the previous default, was retired off this same list before anyone
+#: noticed, because nothing here checks a default against what the provider
+#: still serves. The alias is Google's own answer to that; pointing at it
+#: trades a small amount of version control for not going stale unattended.
+DEFAULT_PREMIUM_MODEL = "gemini-flash-latest"
 
 
 def backends_from_environment() -> dict[str, HTTPBackend]:

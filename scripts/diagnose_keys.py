@@ -23,10 +23,16 @@ import urllib.request
 REPO = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
 
+import conftest  # noqa: E402, F401 - imported for the sys.path setup it performs
+from llm_router.backends import DEFAULT_PREMIUM_MODEL, USER_AGENT  # noqa: E402
 from scripts.env_file import ENV_FILE  # noqa: E402
 from scripts.env_file import load as load_env  # noqa: E402
 
-EXPECTED_PREFIX = {"GROQ_API_KEY": "gsk_", "GEMINI_API_KEY": "AIza"}
+#: Google has issued at least two live prefixes for Gemini keys ("AIza", the
+#: documented one, and "AQ.A", seen on a real working key) -- so this is the
+#: set of forms known to work, not a spec, and a key outside it is a lead,
+#: not a verdict.
+EXPECTED_PREFIX = {"GROQ_API_KEY": ("gsk_",), "GEMINI_API_KEY": ("AIza", "AQ.A")}
 
 
 def inspect(name: str) -> str | None:
@@ -42,12 +48,12 @@ def inspect(name: str) -> str | None:
     notes = []
     if raw != stripped:
         notes.append("has surrounding whitespace or quotes -- setx keeps them, and they break the header")
-    if prefix != want:
-        other = next((k for k, v in EXPECTED_PREFIX.items() if v == prefix), None)
+    if prefix not in want:
+        other = next((k for k, v in EXPECTED_PREFIX.items() if prefix in v), None)
         if other:
             notes.append(f"this looks like a {other} value; the two keys may be swapped")
         else:
-            notes.append(f"expected it to start with {want!r}, got {prefix!r}")
+            notes.append(f"expected it to start with one of {want!r}, got {prefix!r}")
 
     print(f"{name:<16} len={len(stripped):<4} starts with {prefix!r}")
     for note in notes:
@@ -59,7 +65,7 @@ def list_gemini_models(key: str) -> None:
     """A 404 on generateContent almost always means the model name, not the path."""
     request = urllib.request.Request(
         "https://generativelanguage.googleapis.com/v1beta/models",
-        headers={"x-goog-api-key": key},
+        headers={"x-goog-api-key": key, "User-Agent": USER_AGENT},
     )
     try:
         with urllib.request.urlopen(request, timeout=30) as response:  # nosec B310
@@ -82,14 +88,15 @@ def list_gemini_models(key: str) -> None:
         print(f"  {name}")
     if usable:
         print(
-            f"\n  Set PREMIUM_MODEL to one of the above. Current: {os.environ.get('PREMIUM_MODEL', 'gemini-2.0-flash')}"
+            f"\n  Set PREMIUM_MODEL to one of the above. Current: "
+            f"{os.environ.get('PREMIUM_MODEL', DEFAULT_PREMIUM_MODEL)}"
         )
 
 
 def check_groq(key: str) -> None:
     request = urllib.request.Request(
         "https://api.groq.com/openai/v1/models",
-        headers={"Authorization": f"Bearer {key}"},
+        headers={"Authorization": f"Bearer {key}", "User-Agent": USER_AGENT},
     )
     try:
         with urllib.request.urlopen(request, timeout=30) as response:  # nosec B310

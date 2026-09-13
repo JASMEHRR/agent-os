@@ -38,7 +38,7 @@ refuse, fails the suite. A declaration nothing checks is a wish.
 | `integration_registry` | services | S6 | implemented to stage exit criteria | 1 | 30 |
 | `knowledge_gateway` | services | S4 | implemented to stage exit criteria | 5 | 48 |
 | `learning_gateway` | services | S9 | implemented to stage exit criteria | 4 | 68 |
-| `llm_router` | services | S6 | implemented to stage exit criteria | 4 | 38 |
+| `llm_router` | services | S6 | implemented to stage exit criteria | 4 | 40 |
 | `memory_gateway` | services | S4 | implemented to stage exit criteria | 4 | 44 |
 | `observability_gateway` | services | S3 (ingestion) + S10 (interpretive) | implemented to stage exit criteria | 4 | 54 |
 | `opportunity_agent` | services | A3 | implemented to stage exit criteria | 5 | 38 |

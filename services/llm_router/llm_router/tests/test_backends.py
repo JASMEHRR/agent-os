@@ -18,6 +18,7 @@ import pytest
 
 from llm_router.backends import (
     RATE_LIMIT_COOLDOWN_SECONDS,
+    USER_AGENT,
     BackendNotConfigured,
     GeminiBackend,
     GroqBackend,
@@ -141,6 +142,45 @@ def test_a_rejected_key_darkens_permanently_rather_than_for_a_cooldown(monkeypat
         backend.complete("x", 10)
     assert not backend.available()
     assert backend.status()["dark_for_seconds"] == -1.0, "permanent darkness is reported as such"
+
+
+def test_a_forbidden_response_darkens_for_a_cooldown_not_permanently(monkeypatch) -> None:
+    """403 is not proof of a bad key.
+
+    Cloudflare's bot check sits in front of both providers and answers a
+    request it does not like the look of with 403 too - the same code a
+    rejected key gets. Treating every 403 as a dead key would let one bot
+    check false positive disable a working tier for the rest of the process,
+    which is indistinguishable from the key actually being wrong. A cooldown
+    lets the tier be tried again instead of a silent, permanent verdict.
+    """
+    backend = GroqBackend(api_key="k", model="m")
+    monkeypatch.setattr(urllib.request, "urlopen", _refusing_with(403, "forbidden"))
+
+    with pytest.raises(TierRateLimited):
+        backend.complete("x", 10)
+    assert not backend.available()
+    assert backend.status()["dark_for_seconds"] <= RATE_LIMIT_COOLDOWN_SECONDS
+
+
+def test_the_request_identifies_itself_instead_of_using_urllibs_default(monkeypatch) -> None:
+    """`urllib.request`'s default User-Agent ("Python-urllib/x.y") is exactly
+    the kind of generic-scripting-language signature Cloudflare's bot check
+    blocklists, which turns a valid key into a 403 before it reaches the
+    provider at all. A named header is enough to clear that check."""
+    backend = GroqBackend(api_key="k", model="m")
+    captured: dict[str, Any] = {}
+
+    def capture(request: Any, timeout: float) -> Any:
+        captured["headers"] = request.headers
+        raise _http_error(500, "unused")
+
+    monkeypatch.setattr(urllib.request, "urlopen", capture)
+
+    with pytest.raises(urllib.error.HTTPError):
+        backend.complete("x", 10)
+
+    assert captured["headers"].get("User-agent") == USER_AGENT
 
 
 def test_an_unconfigured_backend_is_unavailable_rather_than_raising() -> None:
