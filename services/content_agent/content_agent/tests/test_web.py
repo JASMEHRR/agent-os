@@ -774,3 +774,26 @@ def test_a_hosted_copy_offers_no_button_at_all(server: str) -> None:
 
     status, body = call(server, "/api/google/start", {})
     assert status == 400 and "hosted" in body["error"]
+
+
+def test_the_page_still_loads_with_a_query_string(server: str) -> None:
+    """The route used to be matched against the whole path including its
+    query, so anything with one fell through to a 404."""
+    status, page = get_html(server, "/?utm_source=anywhere")
+    assert status == 200 and "<!doctype" in page.lower()
+
+
+def test_a_sign_in_reply_at_the_front_door_is_explained() -> None:
+    """What an older `http://localhost:8765/` left in somebody's Google
+    console produces. It used to answer `{"error": "not found"}`: true about
+    the route table, useless to the person three console pages deep who has
+    just been told their setup worked."""
+    httpd, base = _with_google(FakeGoogle())
+    try:
+        status, page = get_html(base, "/?code=abc&state=xyz")
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+    assert status == 200
+    assert "wrong address" in page.lower()
+    assert "not found" not in page

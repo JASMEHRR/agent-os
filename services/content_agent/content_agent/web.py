@@ -272,34 +272,49 @@ class Handler(BaseHTTPRequestHandler):
         if self.path.startswith("/api/") and not self._authorized():
             self._json({"error": "login required", "login": True}, 401)
             return
+        # Split once, here. The route used to be matched against the whole
+        # path including its query string, so `/?code=...` matched nothing and
+        # answered `{"error": "not found"}` - which is a true statement about
+        # a route table and tells a person nothing at all.
+        parsed = urlparse(self.path)
+        route, query = parsed.path, parse_qs(parsed.query)
+
         try:
-            if self.path in ("/", "/index.html"):
+            if route in ("/", "/index.html"):
+                # An OAuth reply that landed on the root rather than on the
+                # callback, which is what an older `http://localhost:8765/`
+                # still sitting in somebody's Google console produces. Saying
+                # so beats serving the app over the top of it, which looks
+                # like the sign-in silently did nothing.
+                if "code" in query and "state" in query:
+                    self._stray_code()
+                    return
                 self._send(200, PAGE.encode("utf-8"), "text/html; charset=utf-8")
-            elif self.path == "/api/state":
+            elif route == "/api/state":
                 self._json(self._state())
-            elif self.path == "/api/capabilities":
+            elif route == "/api/capabilities":
                 self._json({"capabilities": survey(), "totals": totals()})
-            elif self.path == "/api/capture":
+            elif route == "/api/capture":
                 self._capture()
-            elif self.path == "/api/voice":
+            elif route == "/api/voice":
                 self._voice()
-            elif self.path == "/api/persona":
+            elif route == "/api/persona":
                 self._persona()
-            elif self.path == "/api/analytics":
+            elif route == "/api/analytics":
                 self._analytics()
-            elif self.path == "/api/inbox":
+            elif route == "/api/inbox":
                 self._panel(self.inbox)
-            elif self.path == "/api/apply":
+            elif route == "/api/apply":
                 self._panel(self.apply_panel)
-            elif self.path == "/api/classwork":
+            elif route == "/api/classwork":
                 self._panel(self.classwork)
-            elif self.path == "/api/connect":
+            elif route == "/api/connect":
                 self._panel(self.connect)
-            elif self.path == "/api/automatic":
+            elif route == "/api/automatic":
                 self._panel(self.scheduler)
-            elif self.path == "/api/google":
+            elif route == "/api/google":
                 self._panel(self.google)
-            elif self.path.startswith("/oauth/google"):
+            elif route.startswith("/oauth/google"):
                 self._google_callback()
             else:
                 self._json({"error": "not found"}, 404)
@@ -700,6 +715,27 @@ class Handler(BaseHTTPRequestHandler):
             "Press the button again and leave every box ticked."
         )
         self._done_page("Connected" if not missing else "Partly connected", body)
+
+    def _stray_code(self) -> None:
+        """A Google sign-in reply that arrived at the wrong address.
+
+        Which is what an older `http://localhost:8765/` left over in somebody's
+        Google console produces: Google sends the code to the root, the root is
+        the app, and the app has no idea that is what just happened.
+
+        This used to answer `{"error": "not found"}` - correct about the route
+        table, and no help whatsoever to the person reading it, who is three
+        console pages deep and has just been told their setup worked.
+        """
+        where = getattr(self.google, "redirect_uri", "") if self.google else ""
+        self._done_page(
+            "Almost - wrong address",
+            "That was a Google sign-in reply, but it came back to the app's front door "
+            "rather than to the page that handles it. The redirect URI saved in your Google "
+            "console is an old one."
+            + (f" It should be exactly: {where}" if where else "")
+            + " Fix it there, then press Sign in with Google again.",
+        )
 
     def _done_page(self, title: str, body: str) -> None:
         """The little page Google's redirect lands on.
