@@ -635,3 +635,142 @@ def test_a_studio_without_a_model_says_so_rather_than_looking_ready() -> None:
         httpd.server_close()
     assert status == 200
     assert body["can_draft"] is False
+
+
+# ------------------------------------------------- Sign in with Google
+
+
+class FakeGoogle:
+    """Stands in for `GoogleSignIn`, for the same reason `FakeScheduler` does:
+    the web layer holds no import from the thing it hosts."""
+
+    def __init__(self, *, fail: str = "") -> None:
+        self.fail = fail
+        self.completed: list[tuple[str, str]] = []
+        self.forgot = False
+
+    def state(self) -> dict[str, Any]:
+        return {"configured": True, "connected": False, "granted": [], "can_start": True}
+
+    def begin(self) -> str:
+        if self.fail:
+            raise RuntimeError(self.fail)
+        return "https://accounts.google.com/o/oauth2/v2/auth?state=abc"
+
+    def complete(self, code: str, state: str) -> dict[str, Any]:
+        if self.fail:
+            raise RuntimeError(self.fail)
+        self.completed.append((code, state))
+        return {"connected": True, "granted": ["openid"], "missing": []}
+
+    def forget(self) -> dict[str, Any]:
+        self.forgot = True
+        return {"connected": False, "deleted": True}
+
+
+def _with_google(panel: Any) -> Any:
+    studio = ContentStudio(
+        complete=lambda prompt, max_tokens: CANNED,
+        notes=InMemoryRepository(),
+        drafts=InMemoryRepository(),
+    )
+    httpd = serve(studio, port=0, forever=False, google=panel)
+    thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    thread.start()
+    return httpd, f"http://{HOST}:{httpd.server_address[1]}"
+
+
+def get_html(base: str, path: str) -> tuple[int, str]:
+    request = urllib.request.Request(f"{base}{path}")
+    try:
+        with urllib.request.urlopen(request, timeout=10) as response:  # nosec B310
+            return response.status, response.read().decode()
+    except urllib.error.HTTPError as exc:
+        return exc.code, exc.read().decode()
+
+
+def test_the_button_hands_back_a_url_to_open() -> None:
+    httpd, base = _with_google(FakeGoogle())
+    try:
+        status, body = call(base, "/api/google/start", {})
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+    assert status == 200
+    assert body["url"].startswith("https://accounts.google.com/")
+
+
+def test_pressing_the_button_too_early_returns_the_reason(server: str) -> None:
+    """The message is the whole value of this route on a copy that is not
+    ready: a 500 would say the app is broken, which it is not."""
+    httpd, base = _with_google(FakeGoogle(fail="Paste your Google Client ID first."))
+    try:
+        status, body = call(base, "/api/google/start", {})
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+    assert status == 400
+    assert "Client ID" in body["error"]
+
+
+def test_the_callback_completes_the_sign_in() -> None:
+    panel = FakeGoogle()
+    httpd, base = _with_google(panel)
+    try:
+        status, page = get_html(base, "/oauth/google?code=xyz&state=abc")
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+    assert status == 200
+    assert panel.completed == [("xyz", "abc")]
+    assert "Connected" in page
+
+
+def test_a_refusal_from_google_is_explained_rather_than_swallowed() -> None:
+    panel = FakeGoogle()
+    httpd, base = _with_google(panel)
+    try:
+        status, page = get_html(base, "/oauth/google?error=access_denied")
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+    assert status == 200
+    assert panel.completed == [], "it tried to exchange a code Google never sent"
+    assert "access_denied" in page
+    assert "college" in page, "the most likely cause is not mentioned"
+
+
+def test_the_callback_page_escapes_what_google_sends_back() -> None:
+    """The one page in this app a stranger can cause you to open, carrying a
+    value they chose. Interpolating it raw would be a scripting hole."""
+    httpd, base = _with_google(FakeGoogle())
+    try:
+        _, page = get_html(base, "/oauth/google?error=%3Cimg%20src%3Dx%20onerror%3Dalert(1)%3E")
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+    assert "<img" not in page
+    assert "&lt;img" in page
+
+
+def test_disconnecting_goes_through_the_panel() -> None:
+    panel = FakeGoogle()
+    httpd, base = _with_google(panel)
+    try:
+        status, body = call(base, "/api/google/forget", {})
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+    assert status == 200 and panel.forgot is True
+    assert body["connected"] is False
+
+
+def test_a_hosted_copy_offers_no_button_at_all(server: str) -> None:
+    """Google would send the browser back to the viewer's own machine rather
+    than to the host, so the flow cannot complete there. Saying so beats a
+    button that fails halfway through somebody's Google account."""
+    status, body = call(server, "/api/google")
+    assert status == 200 and body == {"configured": False, "absent": True}
+
+    status, body = call(server, "/api/google/start", {})
+    assert status == 400 and "hosted" in body["error"]

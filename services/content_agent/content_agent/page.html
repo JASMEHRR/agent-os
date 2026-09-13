@@ -2245,6 +2245,85 @@ async function loadClasswork() {
     : '<p class="empty">Nothing outstanding. That is the good outcome.</p>';
 }
 
+// ------------------------------------------------------- sign in with Google
+
+//: What `/api/google` last said. Held here so `connectField` can render the
+//: block synchronously with the rest of the group rather than the button
+//: appearing a beat after the fields it belongs with.
+let google = { absent: true };
+
+function googleBlock() {
+  if (google.absent) {
+    return `<p class="chelp" style="margin:12px 0 0">
+      This copy is hosted, so Google would send you back to your own machine rather than to
+      it. Sign in on a copy running on your laptop, then put the token it saves
+      (<code>.google.json</code>) wherever this one keeps its secrets.</p>`;
+  }
+  if (google.connected) {
+    return `
+      <div class="row" style="margin-top:14px">
+        <span class="pill on">signed in</span>
+        <span class="hint" style="margin:0">Gmail and Classroom are connected.</span>
+        <button class="subtle" id="google-forget">Disconnect</button>
+      </div>`;
+  }
+  return `
+    <div class="row" style="margin-top:14px">
+      <button class="primary" id="google-go" ${google.can_start ? '' : 'disabled'}>
+        Sign in with Google</button>
+      <span class="hint" id="google-msg" style="margin:0">${
+        google.can_start
+          ? 'Opens the normal Google prompt in a new tab.'
+          : 'Fill in the two boxes above and press Save everything first.'}</span>
+    </div>`;
+}
+
+//: Polls while a sign-in is happening in the other tab. The callback lands on
+//: this server, not on this page, so nothing here would otherwise ever learn
+//: that it worked - and a screen that stays on "not yet" after you have just
+//: signed in reads as a failure.
+let googleWatch = 0;
+
+function watchForGoogle() {
+  clearInterval(googleWatch);
+  let tries = 0;
+  googleWatch = setInterval(async () => {
+    tries += 1;
+    // Two minutes is longer than the prompt takes and short enough that a
+    // tab left open overnight is not polling into next week.
+    if (tries > 60) return clearInterval(googleWatch);
+    try {
+      const fresh = await api('/api/google');
+      if (fresh.connected) {
+        clearInterval(googleWatch);
+        google = fresh;
+        loadConnect().then(wireConnect);
+        say('connect-msg', 'Signed in with Google. Restart the studio to switch Inbox and Classwork on.');
+      }
+    } catch (e) { clearInterval(googleWatch); }
+  }, 2000);
+}
+
+function wireGoogle() {
+  const go = $('google-go');
+  if (go) {
+    go.onclick = () => agentAction(go, 'google-msg', '/api/google/start', {}, answer => {
+      // A named window, so pressing the button twice reuses the one tab
+      // rather than leaving a row of half-finished Google prompts open.
+      window.open(answer.url, 'google-signin');
+      say('google-msg', 'Finish in the other tab. This will notice when you do.');
+      watchForGoogle();
+    });
+  }
+  const forget = $('google-forget');
+  if (forget) {
+    forget.onclick = () => agentAction(forget, 'connect-msg', '/api/google/forget', {}, () => {
+      say('connect-msg', 'Disconnected here. Remove the grant at myaccount.google.com/permissions too.');
+      loadConnect().then(wireConnect);
+    });
+  }
+}
+
 // --------------------------------------------------------------- automatic
 
 //: How long ago, in words. "4 minutes ago" is the one thing this screen has to
@@ -2408,6 +2487,10 @@ async function loadConnect() {
     `Saved to ${s.path}, which git ignores. Nothing typed here is ever shown back to you.`
     + ' Saved values take effect when you restart the studio.';
 
+  // Before the groups render, so the Google block appears with the fields it
+  // belongs to rather than a beat later.
+  try { google = await api('/api/google'); } catch (e) { google = { absent: true }; }
+
   $('connect-groups').innerHTML = s.groups.map(g => `
     <div class="cgroup">
       <div class="row" style="margin:0 0 4px">
@@ -2416,13 +2499,19 @@ async function loadConnect() {
       </div>
       <p class="hint" style="margin:0 0 14px">${escapeHtml(g.what)}</p>
       <div class="cfields">${g.settings.map(connectField).join('')}</div>
+      ${g.id === 'google' ? googleBlock() : ''}
       ${g.then ? `<p class="chelp" style="margin:12px 0 0">${escapeHtml(g.then)}</p>` : ''}
     </div>`).join('');
 
+  wireConnect();
+}
+
+function wireConnect() {
   document.querySelectorAll('[data-set]').forEach(el => {
     el.oninput = () => { pending[el.dataset.set] = el.value; };
     el.onchange = () => { pending[el.dataset.set] = el.value; };
   });
+  wireGoogle();
 }
 
 async function saveConnect() {
@@ -2437,6 +2526,9 @@ async function saveConnect() {
   await agentAction($('connect-save'), 'connect-msg', '/api/connect/save', { changes }, () => {
     for (const key of Object.keys(pending)) delete pending[key];
     say('connect-msg', 'Saved. Restart the studio for it to take effect.');
+    // Re-read rather than leave the screen as it was: saving the client id is
+    // exactly what makes "Sign in with Google" pressable, and a button still
+    // greyed out after the save that enables it reads as broken.
     loadConnect();
   });
 }
