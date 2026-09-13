@@ -63,8 +63,17 @@ def _post(url: str, data: bytes, headers: dict[str, str]) -> str:
 class CallMeBot:
     """WhatsApp to your own number via the CallMeBot relay.
 
-    Setup, once: message +34 644 94 46 04 on WhatsApp with
-    "I allow callmebot to send me messages", and it replies with the API key.
+    Setup, once: follow callmebot.com/blog/free-api-whatsapp-messages, message
+    the number *that page* publishes with "I allow callmebot to send me
+    messages", and it replies with the API key.
+
+    Deliberately not writing the number down here. It was hardcoded in this
+    docstring and in the Connect screen until somebody looked at the contact
+    card and asked whether it was really right - a fair question nobody could
+    answer from inside this repository. CallMeBot has changed the number
+    before, a stale one in help text sends a person to message a stranger, and
+    a number nothing here can verify has no business being presented as
+    though it were checked.
     """
 
     phone: str

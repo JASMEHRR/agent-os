@@ -139,7 +139,9 @@ GROUPS: tuple[Group, ...] = (
             Setting(
                 "CALLMEBOT_APIKEY",
                 "CallMeBot key",
-                'Message +34 644 94 46 04 on WhatsApp with "I allow callmebot to send me messages".',
+                "Get it from callmebot.com/blog/free-api-whatsapp-messages - message the number "
+                "*that page* gives you, not one written down anywhere else. It has changed before, "
+                "and an out-of-date one is a stranger's WhatsApp.",
             ),
             Setting("TWILIO_ACCOUNT_SID", "Twilio SID", "Only if you would rather use Twilio than CallMeBot."),
             Setting("TWILIO_AUTH_TOKEN", "Twilio auth token", ""),
