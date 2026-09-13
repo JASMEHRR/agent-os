@@ -2199,9 +2199,10 @@ async function loadConnect() {
   first.hidden = done !== 0;
   if (!first.hidden) {
     $('first-run-what').textContent =
-      'Nothing is connected yet, so most of this is waiting on you. It takes a'
-      + ' minute: a free key for writing posts, and one Google sign-in for mail'
-      + ' and classwork. Apply works right now without either.';
+      'Nothing is connected yet. A free key for writing posts takes about a'
+      + ' minute and is the one worth doing first. Google, for mail and'
+      + ' classwork, is fiddlier - START_HERE.md walks through it. Apply works'
+      + ' right now without any of it.';
     $('first-run-go').onclick = () => openApp('connect');
   }
 

@@ -17,7 +17,7 @@ read-only by the permission Google itself enforces.
 
 ---
 
-## First time: one minute
+## First time
 
 ### 1. Open it
 
@@ -33,16 +33,45 @@ The **Connect** app is where everything gets hooked up — no text editor, no
 files to find. Each box says what it is for and where to get it.
 
 - **A model.** Free Groq key from **https://console.groq.com/keys**. Starts
-  with `gsk_`. No card. Posts needs this; nothing else does.
-- **Google.** One sign-in, the normal Google prompt, covers both Inbox and
-  Classwork. It asks for read-only, which is enforced by Google rather than
-  promised by this program, and you can take it back in one click at
-  myaccount.google.com/permissions.
+  with `gsk_`. No card, about a minute. Posts needs this; nothing else does.
 - **Your name.** Worth doing before anything else. Without it, drafts are
-  written for "the person using this" rather than for you.
+  written for "the person using this" rather than for you. Ten seconds.
 - **WhatsApp**, if you want the Inbox agent to text you rather than print.
+- **Google**, for Inbox and Classwork. **This one is genuinely fiddly and
+  takes about fifteen minutes the first time** — see below.
 
 Restart the studio after saving, and what you connected turns on.
+
+**Do the first three and stop there if you like.** Posts and Apply work
+completely with no Google at all, and that is most of what this does.
+
+#### Google, honestly
+
+The sign-in itself is the normal Google prompt and takes one click. Getting to
+that prompt is the fiddly part, and no button in this app can remove it:
+Google will not let a program read your mail unless *you* register the program
+with them first.
+
+1. At **console.cloud.google.com**, make a project, then an **OAuth client** of
+   type **Desktop app**. Enable the **Gmail API** and the **Classroom API** on
+   it. Add yourself as a test user on the consent screen.
+2. Paste the client ID and secret into the Google box in Connect.
+3. Then, once, in a terminal in this folder:
+
+   ```bash
+   python scripts/google_auth.py
+   ```
+
+   Your browser opens, you click Continue, and that is the last time.
+
+It asks for read-only, and read-only is enforced by Google rather than promised
+by this program — the permission it holds cannot send, delete or mark anything,
+whatever the code later tries. Take it back any time in one click at
+**myaccount.google.com/permissions**.
+
+One thing this cannot route around: some colleges lock their Google Workspace
+so that third-party apps cannot be authorised at all. If yours does, the
+consent screen refuses and there is nothing to be done about it from here.
 
 Everything you paste there goes into a `.env` file next to the app, which is
 ignored by git. Nothing is ever sent anywhere except the service it belongs
