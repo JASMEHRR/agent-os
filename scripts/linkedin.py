@@ -66,7 +66,12 @@ def _studio() -> ContentStudio:
                 return str(output["text"])
             except Exception as exc:  # noqa: BLE001 - try the next tier, report if none work
                 last = exc
-        raise RuntimeError(f"every model tier refused: {last}")
+        # A 404 here is almost always a stale Gemini model name, not a bad key - see
+        # diagnose_keys.py, which asks the key itself which models it can reach.
+        raise RuntimeError(
+            f"every model tier refused. Last error: {last}. "
+            "If that is a 404 from Gemini, run: python scripts/diagnose_keys.py"
+        )
 
     connection = open_database(DB_PATH)
     return ContentStudio(

@@ -28,7 +28,6 @@ import conftest  # noqa: E402, F401 - imported for the sys.path setup it perform
 from inbox_agent import (  # noqa: E402
     Alert,
     CallMeBot,
-    Telegram,
     Console,
     ImapSource,
     InboxAgent,
@@ -123,7 +122,12 @@ def build_triage(book: FilterBook | None = None) -> tuple[Triage, str]:
                 return str(output["text"])
             except Exception as exc:  # noqa: BLE001 - fall to the next tier
                 last = exc
-        raise RuntimeError(f"every model tier refused. Last error: {last}")
+        # A 404 here is almost always a stale Gemini model name, not a bad key - see
+        # diagnose_keys.py, which asks the key itself which models it can reach.
+        raise RuntimeError(
+            f"every model tier refused. Last error: {last}. "
+            "If that is a 404 from Gemini, run: python scripts/diagnose_keys.py"
+        )
 
     return (
         Triage(

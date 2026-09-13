@@ -453,7 +453,12 @@ def build_studio() -> ContentStudio:
                 last = exc
         # Named rather than generic: "rate limited" and "bad key" need
         # different responses from the person reading it.
-        raise RuntimeError(f"every model tier refused. Last error: {last}")
+        # A 404 here is almost always a stale Gemini model name, not a bad key - see
+        # diagnose_keys.py, which asks the key itself which models it can reach.
+        raise RuntimeError(
+            f"every model tier refused. Last error: {last}. "
+            "If that is a 404 from Gemini, run: python scripts/diagnose_keys.py"
+        )
 
     return _studio_with(complete)
 
