@@ -85,6 +85,13 @@ minutes, deadlines every six hours, classwork every three. The **Automatic**
 tab shows each one — when it last ran, what it found, and buttons to run it
 now or pause it.
 
+**The mail agent arrives switched off**, and the Automatic tab is where you
+turn it on. That is deliberate: it is the one that can reach your phone, and
+opening an app should not be what starts the messages. Leave it off for a day
+first and read the Inbox tab — it records every decision it would have made,
+and the filters are how you correct the ones it got wrong. Turn it on when you
+agree with it.
+
 To keep them running when the studio is **closed**:
 
 ```bash

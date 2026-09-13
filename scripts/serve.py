@@ -322,6 +322,11 @@ def jobs(inbox: Any, apply_tab: Any, classwork: Any) -> list[Job | None]:
             every=timedelta(minutes=_minutes("INBOX_EVERY_MINUTES", 5)),
             run=poll_mail,
             describes="Reads new mail and texts you the ones that matter",
+            # Off until you turn it on. This is the one job that can reach
+            # your phone, and opening the app should not be what starts the
+            # messages - particularly before you have seen what it considers
+            # important enough to send.
+            starts_paused=True,
         )
         if inbox is not None and inbox.agent is not None
         else None,

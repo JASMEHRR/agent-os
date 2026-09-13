@@ -49,6 +49,10 @@ class SchedulerPanel:
             # A job backing off is not the same as a job on its cadence, and
             # the row should say which without the reader doing arithmetic.
             "backing_off": state.failures > 0 and not state.paused,
+            # Never switched on, as against switched off after running. The
+            # screen says "not turned on yet" rather than "paused", because
+            # "paused" implies the owner did something and they did not.
+            "never_on": state.paused and job.starts_paused and state.last_finished is None,
         }
 
     def state(self) -> dict[str, Any]:

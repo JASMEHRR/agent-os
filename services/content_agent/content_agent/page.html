@@ -2115,7 +2115,8 @@ async function loadAutomatic() {
     ? s.jobs.map(j => `
         <div class="card">
           <div class="row" style="margin:0 0 4px">
-            ${j.paused ? '<span class="tag">paused</span>'
+            ${j.never_on ? '<span class="tag">not turned on</span>'
+              : j.paused ? '<span class="tag">paused</span>'
               : j.outcome === 'failed' ? '<span class="tag bad">failing</span>'
               : j.outcome === 'never' ? '<span class="tag">not run yet</span>'
               : '<span class="tag ok">working</span>'}
@@ -2124,14 +2125,16 @@ async function loadAutomatic() {
           <div style="font-size:17px;font-weight:700;margin:2px 0 0">${escapeHtml(j.label)}</div>
           <p class="hint" style="margin:4px 0 0">${escapeHtml(j.describes)}</p>
           <p class="hint" style="margin:4px 0 0">
-            Last run ${escapeHtml(ago(j.last_run))}${j.detail ? ': ' + escapeHtml(j.detail) : ''}
+            ${j.never_on ? 'Never run. It will not text you until you turn it on.'
+              : `Last run ${escapeHtml(ago(j.last_run))}${j.detail ? ': ' + escapeHtml(j.detail) : ''}`}
             &middot; next ${escapeHtml(soon(j.in_minutes))}
             ${j.backing_off ? ' &middot; slowing down after ' + j.failures
                + ' failure' + (j.failures === 1 ? '' : 's') : ''}
           </p>
           <div class="row" style="margin:8px 0 0">
             <button data-auto-run="${escapeHtml(j.job_id)}">Run now</button>
-            <button data-auto-${j.paused ? 'resume' : 'pause'}="${escapeHtml(j.job_id)}">${j.paused ? 'Turn back on' : 'Pause'}</button>
+            <button class="${j.never_on ? 'primary' : ''}" data-auto-${j.paused ? 'resume' : 'pause'}="${escapeHtml(j.job_id)}">${
+              j.never_on ? 'Turn it on' : j.paused ? 'Turn back on' : 'Pause'}</button>
           </div>
         </div>`).join('')
     : '<p class="empty">Nothing is set up to run yet. Connect an agent first.</p>';

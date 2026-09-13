@@ -94,3 +94,31 @@ def test_a_paused_job_is_not_counted_as_failing() -> None:
     screen.scheduler.tick()
     screen.pause("mail")
     assert screen.state()["counts"]["failing"] == 0
+
+
+def test_a_job_never_turned_on_reads_differently_from_one_you_paused() -> None:
+    """ "paused" implies the owner did something. On a job that has never been
+    switched on they did not, and the row has to offer the switch instead."""
+    clock = {"now": NOW}
+    job = Job(
+        job_id="mail",
+        label="Check my email",
+        every=every(5),
+        run=lambda: "3 new",
+        starts_paused=True,
+    )
+    scheduler = Scheduler(jobs=(job,), states=InMemoryRepository(), now=lambda: clock["now"])
+    screen = SchedulerPanel(scheduler)
+
+    row = screen.state()["jobs"][0]
+    assert row["never_on"] is True and row["paused"] is True
+
+    screen.resume("mail")
+    scheduler.tick()
+    on = screen.state()["jobs"][0]
+    assert on["never_on"] is False and on["paused"] is False
+
+    screen.pause("mail")
+    off = screen.state()["jobs"][0]
+    assert off["paused"] is True
+    assert off["never_on"] is False, "it has run; this is a pause, not an un-started job"

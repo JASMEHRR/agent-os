@@ -63,6 +63,13 @@ class Job:
     run: Callable[[], str]
     #: One line for the panel, explaining what this job is for.
     describes: str = ""
+    #: Off until the owner turns it on, the first time only.
+    #:
+    #: For the job that texts you. An agent that can reach your phone should
+    #: be switched on by a person who knew they were doing it - opening the
+    #: app should not be what starts the messages. After the first time the
+    #: stored state decides, so turning it on is a decision that sticks.
+    starts_paused: bool = False
 
 
 @dataclass(frozen=True)

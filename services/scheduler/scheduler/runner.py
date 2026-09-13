@@ -79,16 +79,25 @@ class Scheduler:
     _thread: threading.Thread | None = field(default=None, init=False, repr=False)
     _stop: threading.Event = field(default_factory=threading.Event, init=False, repr=False)
     _lock: threading.RLock = field(default_factory=threading.RLock, init=False, repr=False)
-    #: When this scheduler started. A job that has never run is due from here,
-    #: not from the epoch. Set on `start`, and lazily on first use so that
-    #: `tick()` works in a test that never starts a thread.
+    #: When this scheduler came into existence. A job that has never run is
+    #: due from here, not from the epoch.
     _floor: datetime | None = field(default=None, init=False, repr=False)
+
+    def __post_init__(self) -> None:
+        # Set here rather than lazily on first read, which was a trap worth
+        # recording: `due()` computed `when = self.now()` and *then* touched
+        # `self.floor`, so on a fresh scheduler the floor landed a few
+        # microseconds after the moment it was being compared against and
+        # nothing was ever due on the first call. `start()` happened to hide
+        # it by setting the floor first; `tick()` called directly - which is
+        # exactly what `watch.py --once` does - did not.
+        self._floor = self.now()
 
     # ------------------------------------------------------------------ state
 
     @property
     def floor(self) -> datetime:
-        if self._floor is None:
+        if self._floor is None:  # pragma: no cover - __post_init__ always sets it
             self._floor = self.now()
         return self._floor
 
@@ -99,13 +108,22 @@ class Scheduler:
         raise KeyError(f"no job called '{job_id}'")
 
     def state_of(self, job_id: str) -> JobState:
-        """The remembered state, or a blank one for a job never yet run."""
+        """The remembered state, or a blank one for a job never yet run.
+
+        The blank one honours `starts_paused`, and only the blank one: once a
+        row exists it is the answer, so a job the owner switched on stays on
+        through every restart.
+        """
+        blank = JobState(job_id=job_id, paused=self._starts_paused(job_id))
         if self.states is None:
-            return JobState(job_id=job_id)
+            return blank
         try:
             return self.states.get(job_id)
         except NotFound:
-            return JobState(job_id=job_id)
+            return blank
+
+    def _starts_paused(self, job_id: str) -> bool:
+        return any(j.starts_paused for j in self.jobs if j.job_id == job_id)
 
     def _remember(self, state: JobState) -> JobState:
         if self.states is not None:

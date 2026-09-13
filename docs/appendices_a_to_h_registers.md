@@ -43,7 +43,7 @@ refuse, fails the suite. A declaration nothing checks is a wish.
 | `observability_gateway` | services | S3 (ingestion) + S10 (interpretive) | implemented to stage exit criteria | 4 | 54 |
 | `opportunity_agent` | services | A3 | implemented to stage exit criteria | 5 | 38 |
 | `plugin_manager` | services | S12 | implemented to stage exit criteria | 1 | 34 |
-| `scheduler` | services | A5 | implemented to stage exit criteria | 4 | 41 |
+| `scheduler` | services | A5 | implemented to stage exit criteria | 4 | 47 |
 | `schema_registry` | services | S0 | implemented to stage exit criteria | 1 | 6 |
 | `security_gateway` | services | S1 | implemented to stage exit criteria | 15 | 109 |
 | `tool_executor` | services | S6 | implemented to stage exit criteria | 2 | 0 |

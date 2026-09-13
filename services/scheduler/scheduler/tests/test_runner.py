@@ -256,3 +256,80 @@ def test_the_loop_survives_a_broken_repository() -> None:
 def test_schedule_drops_the_jobs_an_unconfigured_agent_did_not_produce() -> None:
     job, _ = counting()
     assert schedule([job, None, None]).jobs == (job,)
+
+
+# ------------------------------------------------------ switched off at first
+
+
+def texting(starts_paused: bool = True) -> tuple[Scheduler, list[int]]:
+    calls: list[int] = []
+
+    def run() -> str:
+        calls.append(1)
+        return "texted"
+
+    job = Job(job_id="mail", label="Mail", every=every(5), run=run, starts_paused=starts_paused)
+    states: InMemoryRepository[JobState] = InMemoryRepository()
+    return Scheduler(jobs=(job,), states=states, now=Clock()), calls
+
+
+def test_a_job_that_starts_paused_does_not_run_on_first_open() -> None:
+    """The one job that can reach your phone. Opening the app should not be
+    what starts the messages."""
+    scheduler, calls = texting()
+    scheduler.tick()
+    assert calls == []
+    assert scheduler.state_of("mail").paused is True
+
+
+def test_turning_it_on_sticks() -> None:
+    """Once it is a decision the owner made, the stored row is the answer and
+    `starts_paused` stops applying - otherwise every restart would switch it
+    back off and the switch would be meaningless."""
+    scheduler, calls = texting()
+    scheduler.resume("mail")
+    scheduler.tick()
+    assert calls == [1]
+
+    restarted = Scheduler(jobs=scheduler.jobs, states=scheduler.states, now=Clock())
+    assert restarted.state_of("mail").paused is False
+
+
+def test_pausing_it_again_also_sticks() -> None:
+    scheduler, _ = texting()
+    scheduler.resume("mail")
+    scheduler.pause("mail")
+    restarted = Scheduler(jobs=scheduler.jobs, states=scheduler.states, now=Clock())
+    assert restarted.state_of("mail").paused is True
+
+
+def test_jobs_that_only_read_are_on_from_the_start() -> None:
+    """Nothing is at stake in a deadline scan finding nothing, so making the
+    owner switch it on would be ceremony rather than consent."""
+    scheduler, calls = texting(starts_paused=False)
+    scheduler.tick()
+    assert calls == [1]
+
+
+def test_the_very_first_tick_on_a_fresh_scheduler_runs_what_is_due() -> None:
+    """A regression, and one that reading the code did not show.
+
+    `due()` computed `when = self.now()` and *then* read `self.floor`, which
+    was set lazily - so on a fresh scheduler the floor landed microseconds
+    after the moment it was compared against and nothing was due. `start()`
+    hid it by setting the floor first. `tick()` called directly, which is
+    exactly what `watch.py --once` does, silently did nothing and reported
+    "nothing was due".
+
+    Deliberately built with the real clock: an injected one is frozen, so
+    `floor == when` and the bug cannot reproduce.
+    """
+    calls: list[int] = []
+
+    def run() -> str:
+        calls.append(1)
+        return "polled"
+
+    job = Job(job_id="poll", label="Poll", every=every(5), run=run)
+    Scheduler(jobs=(job,), states=InMemoryRepository()).tick()
+    assert calls == [1]
