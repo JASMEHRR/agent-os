@@ -88,6 +88,14 @@ class GoogleSignIn:
     #: Where Google sends the browser back to. The studio's own address, which
     #: is what removes the second server and the port clash with it.
     redirect_uri: str
+    #: Whether the *running* process picked the credentials up when it
+    #: started. The token is written to disk the moment the button succeeds,
+    #: but the agents read their credentials from the environment once, at
+    #: startup - so a copy that was already open when you signed in is
+    #: connected on disk and blind in memory. That gap is where people have
+    #: been getting stuck, staring at a tab that says "not connected" with a
+    #: valid token sitting next to it.
+    live: bool = True
     exchange: Callable[[dict[str, str]], dict[str, Any]] = field(default=_exchange, repr=False)
     mint: Callable[[], str] = field(default=lambda: secrets.token_urlsafe(24), repr=False)
 
@@ -140,6 +148,10 @@ class GoogleSignIn:
             # a trailing slash. Printing the exact bytes that will be sent
             # removes the guess.
             "redirect_uri": self.redirect_uri,
+            # True only when all three links hold: saved, signed in, and read
+            # by this process. The page says "restart" rather than "connected"
+            # on the difference.
+            "in_use": bool(granted) and self.live,
         }
 
     # --------------------------------------------------------------- the flow

@@ -461,6 +461,8 @@ def google_signin(port: int) -> GoogleSignIn:
         token_path=REPO / ".google.json",
         scopes=("openid", "email", *GMAIL_SCOPES, *CLASSROOM_SCOPES),
         redirect_uri=f"http://{HOST}:{port}/oauth/google",
+        # Read once, here, because that is exactly when the agents read it too.
+        live=bool(os.environ.get("GOOGLE_CLIENT_ID")),
     )
 
 

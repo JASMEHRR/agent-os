@@ -586,6 +586,13 @@ section[data-view].active { display: block; }
   color: var(--brand-300); word-break: break-all;
   background: rgb(0 0 0 / 0.3); border-radius: 8px; padding: 8px 11px;
 }
+.restart {
+  margin-top: 14px; padding: 14px 16px;
+  border: 1px solid rgb(251 191 36 / 0.3); border-radius: 12px;
+  background: rgb(251 191 36 / 0.07);
+}
+.restart .clabel { color: #fcd34d; }
+
 .redirect button { min-height: 34px; padding: 0 13px; font-size: 13px; border-radius: 9px; }
 
 .rule.always { border-left-color: var(--ok); }
@@ -2275,10 +2282,25 @@ function googleBlock() {
       (<code>.google.json</code>) wherever this one keeps its secrets.</p>`;
   }
   if (google.connected) {
+    // Signed in on disk, but this copy of the app started before that
+    // happened and reads its credentials once, at startup. So the token is
+    // real and the agents cannot see it - which showed up as "nothing is
+    // connected" on two tabs with a perfectly good sign-in behind them, and
+    // is the single thing that has cost the most time here.
+    const stale = google.in_use === false;
     return `
+      ${stale ? `<div class="restart">
+        <p class="clabel" style="margin:0 0 4px">Signed in. One more step.</p>
+        <p class="chelp" style="margin:0">
+          This window started before you signed in, and it only reads your
+          credentials when it starts. <b>Stop the studio and run it again</b> -
+          then Inbox and Classwork will be there.</p>
+      </div>` : ''}
       <div class="row" style="margin-top:14px">
-        <span class="pill on">signed in</span>
-        <span class="hint" style="margin:0">Gmail and Classroom are connected.</span>
+        <span class="pill ${stale ? 'off' : 'on'}">${stale ? 'restart needed' : 'signed in'}</span>
+        <span class="hint" style="margin:0">${
+          stale ? 'Gmail and Classroom are granted, but not loaded yet.'
+                : 'Gmail and Classroom are connected.'}</span>
         <button class="subtle" id="google-forget">Disconnect</button>
       </div>`;
   }
