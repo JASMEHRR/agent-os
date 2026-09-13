@@ -80,9 +80,88 @@ body::before {
    `min(430px, 100%)` because a bare 430px minimum is wider than a phone, and
    a grid column cannot shrink below its minimum: on a 400px screen that
    pushed the whole page sideways. */
-.cards { display: grid; gap: 22px; grid-template-columns: repeat(auto-fill, minmax(min(430px, 100%), 1fr)); }
-.card { display: flex; flex-direction: column; }
+.cards { display: grid; gap: 18px; grid-template-columns: repeat(auto-fill, minmax(min(430px, 100%), 1fr)); }
+
+/* A card had no card in it. `.card` set a flex column and nothing else, so
+   every one of these screens borrowed its edges from whatever happened to be
+   inside: the dark `.post` block on Review and Archive, and on Automatic -
+   which has no `.post` - nothing at all, so three jobs floated on the panel
+   with no boundary between them and no way to see where one ended.
+
+   Now the card draws itself, and what is inside is free to be a heading, a
+   sentence or a quoted post without any of them having to pretend to be the
+   container. Matched to `.cgroup` on the Connect screen, which had already
+   solved this for the same reason. */
+.card {
+  display: flex; flex-direction: column;
+  padding: 18px 20px 20px;
+  border: 1px solid rgb(255 255 255 / 0.09);
+  border-radius: 16px;
+  background: rgb(255 255 255 / 0.02);
+}
 .card .post { flex: 1; }
+
+/* The last button row sits on the floor of the card, so a row of cards has
+   its actions on one line even when their text runs to different lengths.
+   `padding-top` rather than a margin: an `auto` margin collapses to nothing
+   once the card is full, and the buttons would touch the text above. */
+.card > .row:last-child { margin-top: auto; padding-top: 14px; }
+
+/* Buttons inside a card are one step down from buttons that act on a screen.
+   At the page scale, five of them - approve, already posted, discard, sounds
+   like me, not me - wrapped onto three lines inside one 430px card and read
+   as the loudest thing on a page whose subject is the post above them. */
+.card button { min-height: 38px; padding: 0 14px; font-size: 14px; border-radius: 10px; }
+.card .row { gap: 8px; }
+
+/* A title is a line of text, not a body of one. Apply put its listing titles
+   in a `.post` box, which is a block styled to hold 1,500 characters: one
+   line of title left a tall empty well under it, and `flex: 1` then stretched
+   that well to the height of the tallest card in the row. */
+.card-title { font-size: 17px; font-weight: 700; line-height: 1.35; margin: 2px 0 0; }
+.card-sub { color: rgb(255 255 255 / 0.5); font-size: 14px; margin: 4px 0 0; }
+
+/* The card already draws an edge, so the quoted post inside it does not need
+   a second one of equal weight. Two borders 18px apart read as a box in a box
+   rather than as a quotation. */
+.card .post { border-color: rgb(255 255 255 / 0.04); }
+
+/* A link sitting in a card's badge row is metadata, like the date beside it.
+   At body size "see it on LinkedIn" was larger than everything it shared the
+   row with, and wrapped onto a line of its own rather than sitting in it. */
+.card > .row a { font-size: 14px; }
+
+/* Rating a draft is not the same kind of act as approving one. Five buttons
+   of equal weight asked the reader to work out which three decided the post's
+   fate and which two only taught the voice - so the pair that teaches is
+   quieter, sits under a rule, and is introduced by the question it answers.
+   Most people will not otherwise guess what "Sounds like me" does. */
+.card .row.teach {
+  gap: 6px; margin-top: 12px; padding-top: 12px;
+  border-top: 1px solid rgb(255 255 255 / 0.07);
+}
+/* The question takes a line to itself, so the pair of answers stays together
+   on the next one. Left to wrap naturally, "Not me" fell below "Sounds like
+   me" and the two halves of one choice ended up on different rows. */
+.card .row.teach .hint { flex: 1 0 100%; }
+/* `.subtle`, not `.quiet`: `quiet` is already a status *tone* on the home
+   cards, and a button class of the same name put a border round four of them.
+   Caught by looking at the screen, which is the only place it was visible. */
+.subtle {
+  background: transparent; color: rgb(255 255 255 / 0.62);
+  border: 1px solid rgb(255 255 255 / 0.12);
+}
+.subtle:hover:not(:disabled) { background: rgb(255 255 255 / 0.07); color: #fff; }
+/* A filled secondary button reads as heavy at card scale - two of them beside
+   each other on the Automatic tab looked like a pair of grey slabs, and the
+   one that mattered could not be told from the one that did not. */
+.card .ghost, .rule .ghost {
+  background: transparent; color: rgb(255 255 255 / 0.62); border-color: rgb(255 255 255 / 0.12);
+}
+.card .ghost:hover:not(:disabled), .rule .ghost:hover:not(:disabled) {
+  background: rgb(255 255 255 / 0.07); color: #fff;
+}
+.card .row.teach button { min-height: 32px; padding: 0 11px; font-size: 13px; }
 
 /* ------------------------------------------------------------- archive */
 
@@ -170,7 +249,23 @@ h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.09em;
      color: var(--brand-300); margin: 0 0 4px; font-weight: 700; }
 .hint { color: rgb(255 255 255 / 0.5); font-size: 14px; margin: 0 0 16px; }
 
-textarea, input[type=text] {
+/* Every text-entry type, not just `text`.
+
+   It used to name `textarea, input[type=text]` alone, which meant the password
+   boxes on the Connect screen - and only those - fell through to the browser's
+   default: pale grey, square, sitting on a near-black page. The screen where
+   you paste your keys was the one screen that looked unfinished, which is a
+   bad place to lose someone's confidence. `date` and `datetime-local` are here
+   for the same reason: the schedule box on Review had the same problem. */
+textarea,
+input[type=text],
+input[type=password],
+input[type=search],
+input[type=email],
+input[type=tel],
+input[type=number],
+input[type=date],
+input[type=datetime-local] {
   width: 100%;
   background: rgb(255 255 255 / 0.02);
   backdrop-filter: blur(12px);
@@ -184,12 +279,25 @@ textarea, input[type=text] {
   resize: vertical;
 }
 textarea { min-height: 150px; line-height: 1.6; }
-textarea:focus, input[type=text]:focus {
+textarea:focus,
+input[type=text]:focus,
+input[type=password]:focus,
+input[type=search]:focus,
+input[type=email]:focus,
+input[type=tel]:focus,
+input[type=number]:focus,
+input[type=date]:focus,
+input[type=datetime-local]:focus {
   outline: none;
   border-color: rgb(255 255 255 / 0.18);
   background: rgb(255 255 255 / 0.04);
 }
+/* The calendar and clear glyphs the browser draws inside a date field are
+   black by default, which on this ground is a control you cannot see. */
+::-webkit-calendar-picker-indicator, ::-webkit-search-cancel-button { filter: invert(1); opacity: 0.55; }
+::-webkit-calendar-picker-indicator:hover { opacity: 1; }
 input[type=text] { margin-top: 12px; }
+input[type=datetime-local] { width: auto; min-width: 250px; }
 
 /* The agent tabs use dropdowns, which render as a white system control on a
    dark page unless they are told otherwise. `color-scheme` is what makes the
@@ -311,6 +419,22 @@ button:focus-visible { outline: 2px solid rgb(34 211 238 / 0.6); outline-offset:
 .stats { display: flex; gap: 24px; flex-wrap: wrap; color: rgb(255 255 255 / 0.55); font-size: 14px; }
 .stats b { color: rgb(255 255 255 / 0.9); font-weight: 700; }
 
+/* Every link in the app was the browser's default: royal blue, fully
+   underlined, and purple once visited. On a near-black page with cyan as the
+   only accent, "open the listing" and "see it on LinkedIn" were the two most
+   eye-catching things on their screens and neither deserved to be.
+
+   Underlined on the bottom border rather than with `text-decoration`, which
+   sits closer to the glyphs and cuts through every descender. */
+a {
+  color: var(--brand-300);
+  text-decoration: none;
+  border-bottom: 1px solid rgb(103 232 249 / 0.28);
+  transition: border-color 0.15s ease;
+}
+a:hover { border-bottom-color: var(--brand-300); }
+a:focus-visible { outline: 2px solid rgb(34 211 238 / 0.6); outline-offset: 3px; border-radius: 3px; }
+
 .empty { color: rgb(255 255 255 / 0.45); font-size: 15px; margin: 0; }
 ul.rules { margin: 12px 0 0; padding-left: 20px; color: rgb(255 255 255 / 0.65); font-size: 14px; }
 
@@ -354,7 +478,13 @@ ul.rules { margin: 12px 0 0; padding-left: 20px; color: rgb(255 255 255 / 0.65);
   transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
 }
 .app:hover { border-color: var(--brand-400); background: rgb(34 211 238 / 0.06); transform: translateY(-2px); }
-.app .icon { font-size: 30px; line-height: 1; }
+.app .icon {
+  width: 28px; height: 28px; display: block;
+  fill: none; stroke: var(--brand-300); stroke-width: 1.6;
+  stroke-linecap: round; stroke-linejoin: round;
+  opacity: 0.75; transition: opacity 0.15s ease;
+}
+.app:hover .icon { opacity: 1; }
 .app .name { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; color: #fff; }
 /* `font-weight` explicitly, because `.app` is a button and would otherwise
    inherit the 600 every other button in this page wants. */
@@ -427,6 +557,27 @@ section[data-view].active { display: block; }
 .big b { display: block; font-size: 28px; font-weight: 800; letter-spacing: -0.02em; }
 .big span { color: rgb(255 255 255 / 0.5); font-size: 13px; }
 
+/* One filter rule. Laid out as a row with the sentence taking the slack, so
+   Remove lands in the same place on every line: the buttons used to follow
+   the text inline and each one started wherever its rule happened to end,
+   which read as a broken list rather than a column of controls.
+
+   The pill that used to sit at the front is gone with it. It said "ALWAYS"
+   immediately before a sentence beginning "Always tell me", and the tinted
+   left edge carries the same signal without saying the word twice. */
+.rule {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  padding: 11px 16px; margin-top: 8px;
+  border: 1px solid rgb(255 255 255 / 0.08);
+  border-left: 3px solid rgb(255 255 255 / 0.2);
+  border-radius: 11px;
+  background: rgb(255 255 255 / 0.02);
+}
+.rule.always { border-left-color: var(--ok); }
+.rule.never { border-left-color: var(--warn); }
+.rule .rule-text { flex: 1 1 260px; font-size: 15px; }
+.rule button { min-height: 34px; padding: 0 13px; font-size: 13px; border-radius: 9px; }
+
 .person { border: 1px solid rgb(255 255 255 / 0.1); border-radius: 13px;
           padding: 16px; margin-bottom: 14px; }
 .person .who { font-weight: 700; font-size: 16px; }
@@ -434,7 +585,15 @@ section[data-view].active { display: block; }
 .person .why { color: rgb(255 255 255 / 0.75); font-size: 14px; }
 
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-@media (max-width: 620px) { .grid2 { grid-template-columns: 1fr; } }
+
+/* On a phone the density argument loses to the finger. Buttons inside a card
+   are stepped down to 38px because at page scale they shouted over the post
+   they act on - but 38px is under the 44px target the rest of this file is
+   built to, and a thumb cannot see the reasoning. */
+@media (max-width: 620px) {
+  .grid2 { grid-template-columns: 1fr; }
+  .card button, .card .row.teach button, .rule button { min-height: 44px; font-size: 15px; }
+}
 </style>
 
 </head>
@@ -971,9 +1130,11 @@ function draftCard(d, actions) {
                 title="Already live on LinkedIn: approve it and file it in the archive">Already posted</button>
         <button class="danger" data-discard="${d.draft_id}">Discard</button>
       </div>
-      <div class="row">
-        <button class="ghost" data-like="${d.draft_id}" title="Save this as an example of your voice">Sounds like me</button>
-        <button class="ghost" data-dislike="${d.draft_id}">Not me</button>
+      <div class="row teach">
+        <span class="hint" style="margin:0">Does this sound like you?</span>
+        <button class="subtle" data-like="${d.draft_id}"
+                title="Save this as an example of your voice">Sounds like me</button>
+        <button class="subtle" data-dislike="${d.draft_id}">Not me</button>
       </div>` : ''}
       <div id="msg-${d.draft_id}"></div>
     </div>`;
@@ -1185,8 +1346,10 @@ async function refresh() {
   $('attention').innerHTML = s.attention.map(d => draftCard(d, false)).join('');
 
   const h = s.health;
-  setStatus('system', `${h.drafts} drafts, ${h.needs_attention} failed`,
-            h.needs_attention ? 'warn' : 'quiet');
+  // Quiet whatever the numbers say. A rejected draft is already amber on the
+  // Posts card, where it can actually be acted on; repeating it here only
+  // spent the one colour that means "this wants you" on a reference screen.
+  setStatus('system', `${h.drafts} drafts, ${h.needs_attention} failed`, 'quiet');
 
   $('stats').innerHTML = `
     <span><b>${h.drafts}</b> drafts</span>
@@ -1528,26 +1691,56 @@ async function approveNote(id) {
 // The apps, and which view each opens on. Order is the order on the home
 // screen: what you write with first, then the three that watch things for you,
 // then the one you only open when something is wrong.
+//: Drawn rather than typed. These were single Unicode characters, which is
+//: cheap and looks it: each one arrives in whatever weight and size the
+//: reader's font happens to give it, several are emoji on some platforms, and
+//: the one standing for Connect was U+26AD - the *marriage* symbol. Strokes
+//: on a 24 grid inherit `currentColor`, so they sit in the palette and change
+//: with the card rather than beside it.
+const ICON = {
+  posts: '<path d="M4 20.5 5.4 16 16 5.4l3 3L8.4 19 4 20.5Z"/><path d="m14 7.4 3 3"/>',
+  inbox: '<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m3.8 7.4 7 5.2a2 2 0 0 0 2.4 0l7-5.2"/>',
+  apply: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/>',
+  classwork: '<path d="M12 7.2A4 4 0 0 0 8.4 5H4v13h4.4a4 4 0 0 1 3.6 2.2"/>'
+    + '<path d="M12 7.2A4 4 0 0 1 15.6 5H20v13h-4.4a4 4 0 0 0-3.6 2.2"/><path d="M12 7.2v13"/>',
+  automatic: '<path d="M20.5 12a8.5 8.5 0 1 1-2.6-6.1"/><path d="M20.8 4.2v4.6h-4.6"/>',
+  connect: '<path d="M10.5 13.5a4.2 4.2 0 0 0 6.3.5l2.5-2.5a4.2 4.2 0 0 0-6-6L12 6.9"/>'
+    + '<path d="M13.5 10.5a4.2 4.2 0 0 0-6.3-.5l-2.5 2.5a4.2 4.2 0 0 0 6 6L12 17.1"/>',
+  system: '<path d="M5 20v-6M5 10V4M12 20v-9M12 7V4M19 20v-4M19 12V4"/>'
+    + '<path d="M2.6 14h4.8M9.6 7h4.8M16.6 16h4.8"/>',
+};
+
+// The apps, and which view each opens on. Order is the order on the home
+// screen: what you write with first, then the three that watch things for you,
+// then the one you only open when something is wrong.
 const APPS = [
-  { id: 'posts', icon: '\u270E', name: 'Posts', opens: 'write',
+  { id: 'posts', name: 'Posts', opens: 'write',
     what: 'Write what you did. It drafts a LinkedIn post, a newsletter and an article from the same facts.' },
-  { id: 'inbox', icon: '\u2709', name: 'Inbox', opens: 'inbox',
+  { id: 'inbox', name: 'Inbox', opens: 'inbox',
     what: 'Watches your college mail and texts you only what actually matters.' },
-  { id: 'apply', icon: '\u25CE', name: 'Apply', opens: 'apply',
+  { id: 'apply', name: 'Apply', opens: 'apply',
     what: 'Competitions, internships and certifications, with the deadlines you must not miss.' },
-  { id: 'classwork', icon: '\u2630', name: 'Classwork', opens: 'classwork',
+  { id: 'classwork', name: 'Classwork', opens: 'classwork',
     what: 'What is still to hand in, straight from Google Classroom.' },
-  { id: 'automatic', icon: '\u21BB', name: 'Automatic', opens: 'automatic',
+  { id: 'automatic', name: 'Automatic', opens: 'automatic',
     what: 'What each agent does on its own, when it last ran, and what it found.' },
-  { id: 'connect', icon: '\u26AD', name: 'Connect', opens: 'connect',
+  { id: 'connect', name: 'Connect', opens: 'connect',
     what: 'Hook the agents up to your email, WhatsApp, Google and the model. No text editor needed.' },
-  { id: 'system', icon: '\u2699', name: 'Under the hood', opens: 'can',
+  { id: 'system', name: 'Under the hood', opens: 'can',
     what: 'What this can actually do, and whether every part of it is healthy.' },
 ];
 
 //: Live one-liners for the home cards. Filled by the loaders as their data
 //: arrives, so the home screen is never waiting on all four to answer.
 const appStatus = {};
+
+//: What a home card says when its agent is not present on this copy at all.
+//: Four loaders used to return early here without touching the status, which
+//: left the card reading "loading..." for as long as the app stayed open -
+//: indistinguishable from a request that hung.
+function notHere(id) {
+  setStatus(id, 'not set up on this copy', 'quiet');
+}
 
 function setStatus(id, text, tone) {
   appStatus[id] = { text, tone: tone || '' };
@@ -1559,7 +1752,7 @@ function renderApps() {
     const st = appStatus[app.id] || { text: 'loading...', tone: 'quiet' };
     return `
       <button class="app" data-app-open="${app.id}">
-        <span class="icon" aria-hidden="true">${app.icon}</span>
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${ICON[app.id] || ''}</svg>
         <span class="name">${escapeHtml(app.name)}</span>
         <span class="what">${escapeHtml(app.what)}</span>
         <span class="status ${st.tone}">${escapeHtml(st.text)}</span>
@@ -1917,7 +2110,7 @@ function importanceTag(level) {
 async function loadInbox() {
   const s = await api('/api/inbox');
   agentTab('inbox', !s.absent);
-  if (s.absent) return;
+  if (s.absent) { notHere('inbox'); return; }
 
   const waiting = s.counts?.waiting || 0;
   setStatus('inbox', !s.configured ? 'not connected yet'
@@ -1938,9 +2131,8 @@ async function loadInbox() {
 
   $('inbox-filters').innerHTML = (s.filters || []).length
     ? (s.filters || []).map(f => `
-        <div class="row" style="margin-top:8px">
-          <span class="pill ${f.rule === 'never' ? 'off' : 'on'}">${escapeHtml(f.rule)}</span>
-          <span>${escapeHtml(f.describes)}</span>
+        <div class="rule ${escapeHtml(f.rule)}">
+          <span class="rule-text">${escapeHtml(f.describes)}</span>
           <span class="hint" style="margin:0">${f.hits ? `${f.hits} hits` : 'not fired yet'}</span>
           <button class="ghost" data-unfilter="${f.filter_id}">Remove</button>
         </div>`).join('')
@@ -1954,8 +2146,8 @@ async function loadInbox() {
             <span class="hint" style="margin:0">${escapeHtml(a.sender)}</span>
             ${a.pending ? '<span class="pill off">waiting</span>' : '<span class="pill on">texted</span>'}
           </div>
-          <div class="post">${escapeHtml(a.subject)}</div>
-          <p class="hint" style="margin:8px 0 0">${escapeHtml(a.held_because || a.reason)}</p>
+          <p class="card-title">${escapeHtml(a.subject)}</p>
+          <p class="card-sub">${escapeHtml(a.held_because || a.reason)}</p>
         </div>`).join('')
     : '<p class="empty">Nothing judged yet. Press "Check my mail now".</p>';
 }
@@ -1965,7 +2157,7 @@ async function loadInbox() {
 async function loadApply() {
   const s = await api('/api/apply');
   agentTab('apply', !s.absent);
-  if (s.absent) return;
+  if (s.absent) { notHere('apply'); return; }
 
   const counts = s.counts || {};
   const closing = (s.closing || []).length;
@@ -1999,11 +2191,11 @@ async function loadApply() {
                 ? `<span class="tag bad">${o.days_left === 0 ? 'closes TODAY' : `${o.days_left}d left`}</span>`
                 : `<span class="hint" style="margin:0">${o.days_left}d left</span>`}
           </div>
-          <div class="post">${escapeHtml(o.title)}</div>
-          <p class="hint" style="margin:8px 0 0">${escapeHtml(o.organiser)}${
+          <p class="card-title">${escapeHtml(o.title)}</p>
+          <p class="card-sub">${escapeHtml(o.organiser)}${
             o.matched_on.length ? ' &middot; ' + escapeHtml(o.matched_on.join(', ')) : ''}</p>
-          ${o.url ? `<p style="margin:8px 0 0"><a href="${escapeHtml(o.url)}" target="_blank"
-             rel="noopener">open the listing</a></p>` : ''}
+          ${o.url ? `<p class="card-sub" style="margin-top:10px"><a href="${escapeHtml(o.url)}"
+             target="_blank" rel="noopener">open the listing</a></p>` : ''}
           <div class="row">
             ${(o.next_stages || []).map(st =>
               `<button class="ghost" data-stage="${o.id}" data-to="${st}">${
@@ -2018,7 +2210,7 @@ async function loadApply() {
 async function loadClasswork() {
   const s = await api('/api/classwork');
   agentTab('classwork', !s.absent);
-  if (s.absent) return;
+  if (s.absent) { notHere('classwork'); return; }
 
   const counts = s.counts || {};
   setStatus('classwork', !s.configured ? 'not connected yet'
@@ -2046,9 +2238,9 @@ async function loadClasswork() {
                         : `<span class="tag ok">${escapeHtml(a.state)}</span>`}
             <span class="hint" style="margin:0">${escapeHtml(a.describes.split('(').pop().replace(')', ''))}</span>
           </div>
-          <div class="post">${escapeHtml(a.title)}</div>
-          ${a.link ? `<p style="margin:8px 0 0"><a href="${escapeHtml(a.link)}" target="_blank"
-             rel="noopener">open in Classroom</a></p>` : ''}
+          <p class="card-title">${escapeHtml(a.title)}</p>
+          ${a.link ? `<p class="card-sub" style="margin-top:10px"><a href="${escapeHtml(a.link)}"
+             target="_blank" rel="noopener">open in Classroom</a></p>` : ''}
         </div>`).join('')
     : '<p class="empty">Nothing outstanding. That is the good outcome.</p>';
 }
@@ -2122,12 +2314,12 @@ async function loadAutomatic() {
               : '<span class="tag ok">working</span>'}
             <span class="hint" style="margin:0">${escapeHtml(everyWords(j.every_minutes))}</span>
           </div>
-          <div style="font-size:17px;font-weight:700;margin:2px 0 0">${escapeHtml(j.label)}</div>
-          <p class="hint" style="margin:4px 0 0">${escapeHtml(j.describes)}</p>
-          <p class="hint" style="margin:4px 0 0">
+          <p class="card-title">${escapeHtml(j.label)}</p>
+          <p class="card-sub">${escapeHtml(j.describes)}</p>
+          <p class="card-sub">
             ${j.never_on ? 'Never run. It will not text you until you turn it on.'
               : `Last run ${escapeHtml(ago(j.last_run))}${j.detail ? ': ' + escapeHtml(j.detail) : ''}`}
-            &middot; next ${escapeHtml(soon(j.in_minutes))}
+            ${j.never_on ? '' : '&middot; next ' + escapeHtml(soon(j.in_minutes))}
             ${j.backing_off ? ' &middot; slowing down after ' + j.failures
                + ' failure' + (j.failures === 1 ? '' : 's') : ''}
           </p>
@@ -2189,11 +2381,14 @@ function connectField(f) {
 async function loadConnect() {
   const s = await api('/api/connect');
   agentTab('connect', !s.absent);
-  if (s.absent) return;
+  if (s.absent) { notHere('connect'); return; }
 
   const done = s.groups.filter(g => g.connected).length;
-  setStatus('connect', `${done} of ${s.groups.length} connected`,
-            done === s.groups.length ? '' : 'warn');
+  // Amber only while nothing at all is connected. Partial progress is a fact
+  // about setup, not a thing asking for attention, and when five of the seven
+  // home cards were amber none of them read as urgent.
+  setStatus('connect', done ? `${done} of ${s.groups.length} connected` : 'nothing connected yet',
+            done ? '' : 'warn');
 
   // A copy with nothing connected needs to be told where to begin. Seven
   // cards with no obvious first move is the state a first-time user is in,
