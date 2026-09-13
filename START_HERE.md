@@ -37,8 +37,9 @@ files to find. Each box says what it is for and where to get it.
 - **Your name.** Worth doing before anything else. Without it, drafts are
   written for "the person using this" rather than for you. Ten seconds.
 - **WhatsApp**, if you want the Inbox agent to text you rather than print.
-- **Google**, for Inbox and Classwork. **This one is genuinely fiddly and
-  takes about fifteen minutes the first time** — see below.
+- **Google**, for Inbox and Classwork. One button once it is set up, but
+  **setting it up is genuinely fiddly and takes about fifteen minutes the
+  first time** — see below.
 
 Restart the studio after saving, and what you connected turns on.
 
@@ -47,36 +48,52 @@ completely with no Google at all, and that is most of what this does.
 
 #### Google, honestly
 
-The sign-in itself is the normal Google prompt and takes one click. Getting to
-that prompt is the fiddly part, and no button in this app can remove it:
-Google will not let a program read your mail unless *you* register the program
-with them first.
+The sign-in itself is one button in the app. Getting Google to *allow* that
+button is the fiddly part, and no app can remove it: Google will not let a
+program read your mail unless **you** register the program with them first.
 
-1. At **console.cloud.google.com**, make a project, then an **OAuth client** of
-   type **Desktop app**. Enable the **Gmail API** and the **Classroom API** on
-   it. Add yourself as a test user on the consent screen.
-2. Paste the client ID and secret into the Google box in Connect.
-3. Then, once, in a terminal in this folder:
+1. At **console.cloud.google.com**, make a project.
+2. **APIs & Services → Library** → enable the **Gmail API** and the
+   **Google Classroom API**.
+3. **OAuth consent screen** → External → and under **Test users**, add the
+   address you are going to sign in as. If you skip this, Google refuses that
+   account outright.
+4. **Credentials → Create credentials → OAuth client ID → Web application.**
+   It must be **Web application**, not Desktop app: a Desktop app client has
+   nowhere to put a redirect URI, and that is what produces
+   **Error 400: redirect_uri_mismatch** at the consent screen.
 
-   ```bash
-   python scripts/google_auth.py
-   ```
+   Under **Authorised redirect URIs**, paste the address the Connect screen
+   shows you — it prints the exact one, with a Copy button, because Google
+   matches it character for character and a retyped `localhost` or a stale
+   port fails the same way.
 
-   Your browser opens, you click Continue, and that is the last time.
+5. Copy the Client ID and secret into the Google box in **Connect**, press
+   **Save everything**, then press **Sign in with Google**.
 
-It asks for read-only, and read-only is enforced by Google rather than promised
-by this program — the permission it holds cannot send, delete or mark anything,
-whatever the code later tries. Take it back any time in one click at
-**myaccount.google.com/permissions**.
+A tab opens with the normal Google prompt. It will call the app unverified,
+because it is yours and Google has not reviewed it — **Advanced → Go to Post
+Studio (unsafe)** is the way past, and the warning is accurate: you are
+trusting an app you built. Leave every permission box ticked; unticking one
+leaves one of the two agents unable to work, and the app will tell you so.
+
+Then restart the studio, and Inbox and Classwork turn on.
+
+**Signing in as a different account from the one that owns the project is
+fine, and normal.** Make the project on whichever Google account you like; the
+account whose mail gets read is simply the one you pick at the prompt. Just
+make sure that second address is on the Test users list from step 3.
+
+Everything asked for is read-only, and read-only is enforced by Google rather
+than promised by this program — the permission it holds cannot send, delete or
+mark anything, whatever the code later tries. Take it back any time in one
+click at **myaccount.google.com/permissions**.
 
 One thing this cannot route around: some colleges lock their Google Workspace
 so that third-party apps cannot be authorised at all. If yours does, the
 consent screen refuses and there is nothing to be done about it from here.
 
-Everything you paste there goes into a `.env` file next to the app, which is
-ignored by git. Nothing is ever sent anywhere except the service it belongs
-to, and the Connect screen never shows a saved secret back to you — so a key
-in a box always means a key you just typed.
+---
 
 ### 3. Let it run on its own
 

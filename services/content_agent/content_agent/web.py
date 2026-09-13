@@ -29,12 +29,14 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+import html
 import json
 import pathlib
 from collections.abc import Callable
 from datetime import UTC, datetime
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from typing import Any, Protocol
+from urllib.parse import parse_qs, urlparse
 
 from content_agent.analytics import MetricsSource
 from content_agent.capabilities import survey, totals
@@ -146,6 +148,11 @@ class Handler(BaseHTTPRequestHandler):
     #: page is not wanted, and the screen then says to use the host's own
     #: secret manager instead.
     connect: Any = None
+    #: The Sign in with Google button. None on a hosted copy, where Google
+    #: would send the browser back to the viewer's own machine rather than to
+    #: this server, so the flow cannot complete and the screen says so instead
+    #: of offering a button that would fail halfway.
+    google: Any = None
 
     # Silences the default one-line-per-request logging, which buries the
     # single line that matters (the startup URL) within seconds.
@@ -265,31 +272,50 @@ class Handler(BaseHTTPRequestHandler):
         if self.path.startswith("/api/") and not self._authorized():
             self._json({"error": "login required", "login": True}, 401)
             return
+        # Split once, here. The route used to be matched against the whole
+        # path including its query string, so `/?code=...` matched nothing and
+        # answered `{"error": "not found"}` - which is a true statement about
+        # a route table and tells a person nothing at all.
+        parsed = urlparse(self.path)
+        route, query = parsed.path, parse_qs(parsed.query)
+
         try:
-            if self.path in ("/", "/index.html"):
+            if route in ("/", "/index.html"):
+                # An OAuth reply that landed on the root rather than on the
+                # callback, which is what an older `http://localhost:8765/`
+                # still sitting in somebody's Google console produces. Saying
+                # so beats serving the app over the top of it, which looks
+                # like the sign-in silently did nothing.
+                if "code" in query and "state" in query:
+                    self._stray_code()
+                    return
                 self._send(200, PAGE.encode("utf-8"), "text/html; charset=utf-8")
-            elif self.path == "/api/state":
+            elif route == "/api/state":
                 self._json(self._state())
-            elif self.path == "/api/capabilities":
+            elif route == "/api/capabilities":
                 self._json({"capabilities": survey(), "totals": totals()})
-            elif self.path == "/api/capture":
+            elif route == "/api/capture":
                 self._capture()
-            elif self.path == "/api/voice":
+            elif route == "/api/voice":
                 self._voice()
-            elif self.path == "/api/persona":
+            elif route == "/api/persona":
                 self._persona()
-            elif self.path == "/api/analytics":
+            elif route == "/api/analytics":
                 self._analytics()
-            elif self.path == "/api/inbox":
+            elif route == "/api/inbox":
                 self._panel(self.inbox)
-            elif self.path == "/api/apply":
+            elif route == "/api/apply":
                 self._panel(self.apply_panel)
-            elif self.path == "/api/classwork":
+            elif route == "/api/classwork":
                 self._panel(self.classwork)
-            elif self.path == "/api/connect":
+            elif route == "/api/connect":
                 self._panel(self.connect)
-            elif self.path == "/api/automatic":
+            elif route == "/api/automatic":
                 self._panel(self.scheduler)
+            elif route == "/api/google":
+                self._panel(self.google)
+            elif route.startswith("/oauth/google"):
+                self._google_callback()
             else:
                 self._json({"error": "not found"}, 404)
         except Exception as exc:  # noqa: BLE001
@@ -371,6 +397,10 @@ class Handler(BaseHTTPRequestHandler):
                 self._connect_save(payload)
             elif self.path in ("/api/automatic/run", "/api/automatic/pause", "/api/automatic/resume"):
                 self._automatic(self.path.rsplit("/", 1)[1], payload)
+            elif self.path == "/api/google/start":
+                self._google_start()
+            elif self.path == "/api/google/forget":
+                self._google_forget()
             else:
                 self._json({"error": "not found"}, 404)
         except Exception as exc:  # noqa: BLE001
@@ -627,6 +657,109 @@ class Handler(BaseHTTPRequestHandler):
             return
         self._json(self.scheduler.state())
 
+    # ------------------------------------------------------ Sign in with Google
+
+    def _google_start(self) -> None:
+        """Hands the page the URL to open. Nothing is saved until it comes back."""
+        if self.google is None:
+            self._json({"error": "a hosted copy cannot sign in to Google from here."}, 400)
+            return
+        try:
+            self._json({"url": self.google.begin()})
+        except Exception as exc:  # noqa: BLE001 - reported to the button that asked
+            self._json({"error": str(exc)}, 400)
+
+    def _google_forget(self) -> None:
+        if self.google is None:
+            self._json({"error": "a hosted copy cannot sign in to Google from here."}, 400)
+            return
+        self._json(self.google.forget())
+
+    def _google_callback(self) -> None:
+        """Where Google sends the browser back to.
+
+        A GET that changes state, which nothing else here is allowed to be -
+        and it has to be, because that is the shape of an OAuth redirect. The
+        `state` token is what makes it safe, and `GoogleSignIn.complete`
+        refuses anything that does not carry one it minted.
+
+        The reply is a page rather than JSON: a person is looking at this tab,
+        not a script.
+        """
+        params = parse_qs(urlparse(self.path).query)
+        if self.google is None:
+            self._done_page("Not connected", "A hosted copy cannot sign in to Google from here.")
+            return
+
+        refused = params.get("error", [""])[0]
+        if refused:
+            hint = (
+                " If your college runs the account, it may block third-party apps entirely."
+                if refused == "access_denied"
+                else ""
+            )
+            self._done_page("Not connected", f"Google said: {refused}.{hint}")
+            return
+
+        try:
+            result = self.google.complete(params.get("code", [""])[0], params.get("state", [""])[0])
+        except Exception as exc:  # noqa: BLE001 - shown to the person in the tab
+            self._done_page("Not connected", str(exc))
+            return
+
+        missing = result.get("missing") or []
+        body = (
+            "You can close this tab. The app has it."
+            if not missing
+            else "Connected, but some permissions were not granted, so part of this will not work. "
+            "Press the button again and leave every box ticked."
+        )
+        self._done_page("Connected" if not missing else "Partly connected", body)
+
+    def _stray_code(self) -> None:
+        """A Google sign-in reply that arrived at the wrong address.
+
+        Which is what an older `http://localhost:8765/` left over in somebody's
+        Google console produces: Google sends the code to the root, the root is
+        the app, and the app has no idea that is what just happened.
+
+        This used to answer `{"error": "not found"}` - correct about the route
+        table, and no help whatsoever to the person reading it, who is three
+        console pages deep and has just been told their setup worked.
+        """
+        where = getattr(self.google, "redirect_uri", "") if self.google else ""
+        self._done_page(
+            "Almost - wrong address",
+            "That was a Google sign-in reply, but it came back to the app's front door "
+            "rather than to the page that handles it. The redirect URI saved in your Google "
+            "console is an old one."
+            + (f" It should be exactly: {where}" if where else "")
+            + " Fix it there, then press Sign in with Google again.",
+        )
+
+    def _done_page(self, title: str, body: str) -> None:
+        """The little page Google's redirect lands on.
+
+        Styled to match the studio rather than left as browser default, because
+        it is the last thing somebody sees in a flow whose whole point was to
+        stop feeling like a script.
+
+        Both halves are escaped. `body` carries Google's own words back, and
+        Google's words here are whatever was in the query string - which on
+        this route is a value a stranger could put in a link. Interpolating it
+        raw would be a scripting hole on the one page in this app that a
+        third party can cause you to open.
+        """
+        safe_title, safe_body = html.escape(title), html.escape(body)
+        page = f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>{safe_title}</title></head>
+<body style="margin:0;min-height:100vh;display:grid;place-items:center;background:#02040a;
+color:#fff;font:16px/1.6 ui-sans-serif,system-ui,sans-serif">
+<div style="max-width:30rem;padding:40px 28px;text-align:center">
+<h1 style="font-size:26px;margin:0 0 10px;letter-spacing:-0.02em">{safe_title}</h1>
+<p style="margin:0;color:rgba(255,255,255,0.62)">{safe_body}</p></div></body></html>"""
+        self._send(200, page.encode("utf-8"), "text/html; charset=utf-8")
+
     def _inbox_filter(self, payload: dict[str, Any]) -> None:
         if self.inbox is None:
             self._json({"error": "the inbox agent is not set up on this copy."}, 400)
@@ -868,6 +1001,7 @@ def serve(
     classwork: Any = None,
     connect: Any = None,
     scheduler: Any = None,
+    google: Any = None,
     can_draft: bool = True,
 ) -> HTTPServer:
     """Starts the interface. Returns the server so tests can drive it.
@@ -891,6 +1025,7 @@ def serve(
         "classwork": classwork,
         "connect": connect,
         "scheduler": scheduler,
+        "google": google,
         "can_draft": can_draft,
         # Wrapped so the class does not turn it into a method of the handler.
         "before_capture": None if before_capture is None else staticmethod(before_capture),

@@ -27,9 +27,11 @@ sys.path.insert(0, str(REPO))
 import conftest  # noqa: E402, F401 - imported for the sys.path setup it performs
 from classroom_agent import Assignment, ClassroomWatcher, GoogleClassroom, Nudge  # noqa: E402
 from classroom_agent.panel import ClassworkPanel  # noqa: E402
+from classroom_agent.source import SCOPES as CLASSROOM_SCOPES  # noqa: E402
 from content_agent import ContentStudio, PostDraft, WeeklyNote  # noqa: E402
 from content_agent.analytics import Analytics, ApifyMetrics, Snapshot, TrackedPost  # noqa: E402
 from content_agent.connect import ConnectPanel  # noqa: E402
+from content_agent.google_signin import GoogleSignIn  # noqa: E402
 from content_agent.outreach import OutreachDraft, Prospect  # noqa: E402
 from content_agent.owner import Owner  # noqa: E402
 from content_agent.persona import CheckIn, Fact, Persona  # noqa: E402
@@ -37,10 +39,11 @@ from content_agent.samples import Rating, VoiceLibrary, VoiceSample  # noqa: E40
 from content_agent.schedule import Publisher  # noqa: E402
 from content_agent.studio import Completion  # noqa: E402
 from content_agent.sync import repo_name, sync_repos  # noqa: E402
-from content_agent.web import serve  # noqa: E402
+from content_agent.web import HOST, serve  # noqa: E402
 from inbox_agent import CallMeBot, Console, ImapSource, InboxAgent, Notifier, Triage, Twilio, Watermark  # noqa: E402
 from inbox_agent.agent import Alert  # noqa: E402
 from inbox_agent.filters import Filter, FilterBook  # noqa: E402
+from inbox_agent.gmail import SCOPES as GMAIL_SCOPES  # noqa: E402
 from inbox_agent.gmail import GmailSource  # noqa: E402
 from inbox_agent.panel import InboxPanel  # noqa: E402
 from inbox_agent.sources import KNOWN_HOSTS  # noqa: E402
@@ -439,6 +442,28 @@ def build_studio() -> ContentStudio:
     return _studio_with(complete)
 
 
+def google_signin(port: int) -> GoogleSignIn:
+    """The Sign in with Google button.
+
+    The redirect goes to this server, on the port it is actually listening on.
+    That is the fix for the reason this never worked from the terminal script:
+    that script stood up its own catcher on 8765, which is the studio's port,
+    so the callback could only arrive while the studio was shut - and the
+    studio is where you had just typed the client id.
+
+    `openid` and `email` are asked for so the grant can be attributed to an
+    address afterwards; neither reaches any data. The rest is the union of
+    what the two agents need, in one consent, because Google issues one
+    refresh token per consent and a second would overwrite the first.
+    """
+    return GoogleSignIn(
+        env_path=ENV_FILE,
+        token_path=REPO / ".google.json",
+        scopes=("openid", "email", *GMAIL_SCOPES, *CLASSROOM_SCOPES),
+        redirect_uri=f"http://{HOST}:{port}/oauth/google",
+    )
+
+
 def _owner() -> Owner:
     """Who this copy drafts as. Empty is a real answer, not a missing one."""
     return Owner(name=os.environ.get("OWNER_NAME", ""), about=os.environ.get("OWNER_ABOUT", ""))
@@ -538,10 +563,15 @@ if __name__ == "__main__":
     # login. Unset means "this laptop": loopback only, no login, because
     # reachability is the authorisation there.
     load_env()
+    port = int(os.environ.get("PORT", PORT))
     inbox, apply_tab, classwork = inbox_panel(), apply_panel(), classwork_panel()
+    # A hosted copy gets no button: Google would redirect the viewer's browser
+    # to their own machine rather than to this server, so the only thing that
+    # can work there is the terminal script.
+    hosted = bool(os.environ.get("STUDIO_PASSWORD", ""))
     serve(
         build_studio(),
-        port=int(os.environ.get("PORT", PORT)),
+        port=port,
         repos=repos_from_environment(),
         password=os.environ.get("STUDIO_PASSWORD", ""),
         before_capture=refresh_clones if clone_urls() else None,
@@ -551,6 +581,7 @@ if __name__ == "__main__":
         apply_panel=apply_tab,
         classwork=classwork,
         connect=ConnectPanel(ENV_FILE),
+        google=None if hosted else google_signin(port),
         scheduler=automatic(inbox, apply_tab, classwork),
         can_draft=model_ready(),
     )

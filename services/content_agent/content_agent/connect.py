@@ -92,16 +92,17 @@ GROUPS: tuple[Group, ...] = (
             Setting(
                 "GOOGLE_CLIENT_ID",
                 "Client ID",
-                "console.cloud.google.com: new project, OAuth client of type Desktop app. "
-                "Enable the Gmail and Classroom APIs on it, and add yourself as a test user.",
+                "console.cloud.google.com: new project, then Credentials -> OAuth client ID -> "
+                "Web application. Enable the Gmail and Classroom APIs, and add the address you "
+                "will sign in as under Test users. The redirect URI it needs is below.",
                 secret=False,
                 placeholder="....apps.googleusercontent.com",
             ),
             Setting("GOOGLE_CLIENT_SECRET", "Client secret", ""),
         ),
         requires=("GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET"),
-        then="Then run once in a terminal: python scripts/google_auth.py - "
-        "that is the normal Google prompt, and it connects both agents at once.",
+        then="Save, then press Sign in with Google. One prompt connects both agents; "
+        "leave every box ticked or one of them will not be able to work.",
     ),
     Group(
         "mail",

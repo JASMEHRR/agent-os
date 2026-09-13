@@ -76,7 +76,7 @@ Other entry points, all local scripts rather than services:
 | `scripts/linkedin_post.py` | LinkedIn OAuth and posting |
 | `scripts/import_drafts.py` | Imports markdown drafts into the studio |
 | `scripts/publish_voice.py` | Builds a voice persona from rated samples |
-| `scripts/google_auth.py` | One Google sign-in covering Gmail and Classroom |
+| `scripts/google_auth.py` | Reports or deletes the Google token; signing in is a button in the app |
 | `scripts/watch.py` | Runs the agents with no browser; `--once` for cron, otherwise set it to start at login |
 
 ---
