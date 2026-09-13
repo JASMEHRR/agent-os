@@ -59,11 +59,14 @@ program read your mail unless **you** register the program with them first.
    address you are going to sign in as. If you skip this, Google refuses that
    account outright.
 4. **Credentials → Create credentials → OAuth client ID → Web application.**
-   Under **Authorised redirect URIs**, add exactly:
+   It must be **Web application**, not Desktop app: a Desktop app client has
+   nowhere to put a redirect URI, and that is what produces
+   **Error 400: redirect_uri_mismatch** at the consent screen.
 
-   ```
-   http://127.0.0.1:8765/oauth/google
-   ```
+   Under **Authorised redirect URIs**, paste the address the Connect screen
+   shows you — it prints the exact one, with a Copy button, because Google
+   matches it character for character and a retyped `localhost` or a stale
+   port fails the same way.
 
 5. Copy the Client ID and secret into the Google box in **Connect**, press
    **Save everything**, then press **Sign in with Google**.

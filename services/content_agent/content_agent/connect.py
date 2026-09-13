@@ -93,9 +93,8 @@ GROUPS: tuple[Group, ...] = (
                 "GOOGLE_CLIENT_ID",
                 "Client ID",
                 "console.cloud.google.com: new project, then Credentials -> OAuth client ID -> "
-                "Web application, with http://127.0.0.1:8765/oauth/google as an authorised "
-                "redirect URI. Enable the Gmail and Classroom APIs, and add the address you "
-                "will sign in as under Test users.",
+                "Web application. Enable the Gmail and Classroom APIs, and add the address you "
+                "will sign in as under Test users. The redirect URI it needs is below.",
                 secret=False,
                 placeholder="....apps.googleusercontent.com",
             ),

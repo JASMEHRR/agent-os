@@ -573,6 +573,21 @@ section[data-view].active { display: block; }
   border-radius: 11px;
   background: rgb(255 255 255 / 0.02);
 }
+/* The one string Google has to be given verbatim, so it is set apart from
+   the prose around it and selectable as a unit rather than as a phrase inside
+   a sentence. */
+.redirect {
+  margin-top: 14px; padding: 14px 16px;
+  border: 1px solid rgb(34 211 238 / 0.22); border-radius: 12px;
+  background: rgb(34 211 238 / 0.05);
+}
+.redirect code {
+  font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 14px;
+  color: var(--brand-300); word-break: break-all;
+  background: rgb(0 0 0 / 0.3); border-radius: 8px; padding: 8px 11px;
+}
+.redirect button { min-height: 34px; padding: 0 13px; font-size: 13px; border-radius: 9px; }
+
 .rule.always { border-left-color: var(--ok); }
 .rule.never { border-left-color: var(--warn); }
 .rule .rule-text { flex: 1 1 260px; font-size: 15px; }
@@ -2268,6 +2283,7 @@ function googleBlock() {
       </div>`;
   }
   return `
+    ${redirectBlock()}
     <div class="row" style="margin-top:14px">
       <button class="primary" id="google-go" ${google.can_start ? '' : 'disabled'}>
         Sign in with Google</button>
@@ -2275,6 +2291,32 @@ function googleBlock() {
         google.can_start
           ? 'Opens the normal Google prompt in a new tab.'
           : 'Fill in the two boxes above and press Save everything first.'}</span>
+    </div>`;
+}
+
+//: The exact string Google has to have on file.
+//:
+//: `redirect_uri_mismatch` is the commonest way this setup fails, and it
+//: fails on Google's screen rather than in here, so the app never sees it and
+//: cannot explain it afterwards. Google matches this character for character,
+//: and anybody retyping it from prose lands on `localhost` instead of
+//: `127.0.0.1`, or last week's port. So it is printed, once, next to the
+//: fields it belongs with, with a button that puts it on the clipboard.
+function redirectBlock() {
+  if (!google.redirect_uri) return '';
+  return `
+    <div class="redirect">
+      <p class="clabel" style="margin:0 0 6px">Google needs this exact address on file</p>
+      <div class="row" style="margin:0">
+        <code id="google-redirect">${escapeHtml(google.redirect_uri)}</code>
+        <button class="subtle" id="google-copy">Copy</button>
+      </div>
+      <p class="chelp" style="margin:8px 0 0">
+        In console.cloud.google.com, your client must be of type <b>Web application</b> -
+        a Desktop app client has nowhere to put this, which is the usual cause of
+        <b>Error 400: redirect_uri_mismatch</b>. Paste it under
+        <b>Authorised redirect URIs</b>, save, and give Google a minute.
+      </p>
     </div>`;
 }
 
@@ -2314,6 +2356,14 @@ function wireGoogle() {
       say('google-msg', 'Finish in the other tab. This will notice when you do.');
       watchForGoogle();
     });
+  }
+  const copy = $('google-copy');
+  if (copy) {
+    copy.onclick = async () => {
+      await navigator.clipboard.writeText(google.redirect_uri).catch(() => {});
+      copy.textContent = 'Copied';
+      setTimeout(() => { copy.textContent = 'Copy'; }, 2000);
+    };
   }
   const forget = $('google-forget');
   if (forget) {

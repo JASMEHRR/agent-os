@@ -129,6 +129,17 @@ class GoogleSignIn:
             # What the button should say, so the page does not re-derive the
             # rule and get a different answer from this one.
             "can_start": self.configured(),
+            # Shown on the screen, to be copied into Google's console.
+            #
+            # `redirect_uri_mismatch` is the single most common way an OAuth
+            # setup fails, and it fails at the consent screen rather than
+            # here, so the app never sees it and cannot explain it. Google
+            # matches this string character for character - scheme, host,
+            # port and path - and a person reconstructing it by hand from
+            # prose gets `localhost` for `127.0.0.1`, or the wrong port, or
+            # a trailing slash. Printing the exact bytes that will be sent
+            # removes the guess.
+            "redirect_uri": self.redirect_uri,
         }
 
     # --------------------------------------------------------------- the flow
