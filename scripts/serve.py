@@ -29,9 +29,11 @@ from content_agent import ContentStudio, PostDraft, WeeklyNote  # noqa: E402
 from content_agent.analytics import Analytics, ApifyMetrics, Snapshot, TrackedPost  # noqa: E402
 from content_agent.connect import ConnectPanel  # noqa: E402
 from content_agent.outreach import OutreachDraft, Prospect  # noqa: E402
+from content_agent.owner import Owner  # noqa: E402
 from content_agent.persona import CheckIn, Fact, Persona  # noqa: E402
 from content_agent.samples import Rating, VoiceLibrary, VoiceSample  # noqa: E402
 from content_agent.schedule import Publisher  # noqa: E402
+from content_agent.studio import Completion  # noqa: E402
 from content_agent.sync import repo_name, sync_repos  # noqa: E402
 from content_agent.web import serve  # noqa: E402
 from inbox_agent import CallMeBot, Console, ImapSource, InboxAgent, Notifier, Triage, Twilio, Watermark  # noqa: E402
@@ -277,10 +279,21 @@ def build_studio() -> ContentStudio:
     chain = [backends[name] for name in order]
 
     if not any(b.available() for b in chain):
-        print("\n  No model configured.")
-        print("  Copy .env.example to .env and put your Groq key in it.")
-        print("  Free key: https://console.groq.com/keys\n")
-        raise SystemExit(1)
+        # Deliberately not an exit. The Connect screen exists so nobody has to
+        # edit a file to supply a key - and refusing to start without one made
+        # that screen unreachable until you had already done the thing it
+        # replaces. Everything except drafting works without a model, so the
+        # studio opens, says what is missing, and lets you fix it in the app.
+        print("\n  No model connected yet. Opening anyway - use the Connect screen.")
+        print("  Free Groq key: https://console.groq.com/keys\n")
+
+        def refuse(prompt: str, max_tokens: int) -> str:
+            raise RuntimeError(
+                "No model is connected yet. Open the Connect screen and paste a Groq key, "
+                "then restart. A free one takes a minute: https://console.groq.com/keys"
+            )
+
+        return _studio_with(refuse)
 
     def complete(prompt: str, max_tokens: int) -> str:
         last: Exception | None = None
@@ -296,9 +309,31 @@ def build_studio() -> ContentStudio:
         # different responses from the person reading it.
         raise RuntimeError(f"every model tier refused. Last error: {last}")
 
+    return _studio_with(complete)
+
+
+def _owner() -> Owner:
+    """Who this copy drafts as. Empty is a real answer, not a missing one."""
+    return Owner(name=os.environ.get("OWNER_NAME", ""), about=os.environ.get("OWNER_ABOUT", ""))
+
+
+def model_ready() -> bool:
+    """Whether anything can actually draft. Read by the page, so the Write tab
+    can say why the button will not work rather than failing when pressed."""
+    return any(b.available() for b in backends_from_environment().values())
+
+
+def _studio_with(complete: Completion) -> ContentStudio:
+    """The studio, given whatever can (or cannot) generate text.
+
+    Split out so the no-model path builds exactly the same object with exactly
+    the same storage - the only difference being what happens if you press
+    "Write my drafts".
+    """
     connection = open_database(DB_PATH)
     return ContentStudio(
         complete=complete,
+        owner=_owner(),
         notes=SQLiteRepository(connection, "linkedin_notes", WeeklyNote),
         drafts=SQLiteRepository(connection, "linkedin_drafts", PostDraft),
         prospects=SQLiteRepository(connection, "prospects", Prospect),
@@ -334,12 +369,15 @@ def preflight() -> int:
     backends = backends_from_environment()
     if any(b.available() for b in backends.values()):
         return 0
+    # A warning, not a refusal. The studio starts without a model and the
+    # Connect screen is how you add one, so blocking the launcher here would
+    # leave a first-time user with no way in at all.
     print("")
-    print("  No model configured.")
-    print("  Copy .env.example to .env and put your free Groq key in it.")
-    print("  Get a free one at https://console.groq.com/keys")
+    print("  No model connected yet - opening anyway.")
+    print("  Add a free Groq key in the Connect tab once it opens.")
+    print("  https://console.groq.com/keys")
     print("")
-    return 1
+    return 0
 
 
 def publisher() -> Publisher | None:

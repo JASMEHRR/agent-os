@@ -9,7 +9,6 @@ go from interested to won.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import UTC, datetime
 from typing import Any
 
 from opportunity_agent.opportunities import TRANSITIONS, Kind, Opportunity, Stage
@@ -58,7 +57,10 @@ class ApplyPanel:
     tracker: OpportunityTracker
 
     def state(self) -> dict[str, Any]:
-        today = datetime.now(UTC).date()
+        # The tracker's clock, not the wall clock. Two clocks in one screen
+        # means the card can say "5 days left" while the reminder ladder
+        # believes it is 4, and neither is wrong from where it is standing.
+        today = self.tracker.now().date()
         rows = self.tracker.open_ones()
         counts = {s.value: n for s, n in self.tracker.by_stage().items()}
         return {

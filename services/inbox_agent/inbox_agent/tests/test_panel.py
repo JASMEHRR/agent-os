@@ -238,3 +238,22 @@ def test_check_now_refuses_politely_when_not_connected() -> None:
 
 def test_check_now_runs_the_watcher_when_connected() -> None:
     assert classwork(work()).check_now()["outstanding"] == 1
+
+
+def test_the_apply_panel_reads_the_trackers_clock_not_the_wall_clock() -> None:
+    """Two clocks in one screen means the card and the reminder ladder can
+    disagree about how many days are left, and neither is wrong locally."""
+    panel = apply_panel(listing(days=5))
+    row = panel.state()["open"][0]
+    assert row["days_left"] == 5, "the panel used the real today instead of NOW"
+
+    # Move the tracker's clock; the panel must move with it.
+    panel.tracker.now = lambda: NOW + timedelta(days=3)
+    assert panel.state()["open"][0]["days_left"] == 2
+
+
+def test_the_classwork_panel_reads_the_watchers_clock() -> None:
+    panel = classwork(work(hours=30))
+    assert panel.state()["outstanding"][0]["hours_left"] == 30.0
+    panel.watcher.now = lambda: NOW + timedelta(hours=20)
+    assert panel.state()["outstanding"][0]["hours_left"] == 10.0

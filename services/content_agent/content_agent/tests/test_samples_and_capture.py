@@ -67,7 +67,7 @@ def test_approved_samples_reach_the_prompt() -> None:
 
     studio.draft(studio.capture(NOTE))
 
-    assert "approved as sounding like him" in seen[0]
+    assert "approved as sounding like them" in seen[0]
     assert "free tier stops answering" in seen[0]
 
 

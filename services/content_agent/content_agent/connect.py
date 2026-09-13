@@ -145,8 +145,23 @@ GROUPS: tuple[Group, ...] = (
     Group(
         "you",
         "About you",
-        "What the Apply agent matches listings against. No account needed.",
+        "Who the posts are written as, and what the Apply agent matches listings against. "
+        "No account needed for any of it.",
         (
+            Setting(
+                "OWNER_NAME",
+                "Your name",
+                "Posts are drafted as you. Leave it empty and they are written as nobody in particular.",
+                secret=False,
+                placeholder="Priya",
+            ),
+            Setting(
+                "OWNER_ABOUT",
+                "In a few words",
+                "How you would introduce yourself. It goes straight into the brief.",
+                secret=False,
+                placeholder="21, a marketer and builder",
+            ),
             Setting(
                 "GRAD_YEAR",
                 "Graduating in",
@@ -164,7 +179,7 @@ GROUPS: tuple[Group, ...] = (
             ),
             Setting("AVOID", "Never tell you about", "Comma separated.", secret=False, placeholder="unpaid, mlm"),
         ),
-        requires=("GRAD_YEAR",),
+        requires=("OWNER_NAME",),
     ),
     Group(
         "numbers",

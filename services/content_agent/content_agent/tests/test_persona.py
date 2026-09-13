@@ -64,7 +64,7 @@ def test_confirmed_facts_reach_every_drafting_prompt() -> None:
 
     studio.draft(studio.capture(NOTE))
 
-    assert "confirmed by him" in seen[0]
+    assert "confirmed by them" in seen[0]
     assert "thesis on AI in marketing" in seen[0]
 
 
