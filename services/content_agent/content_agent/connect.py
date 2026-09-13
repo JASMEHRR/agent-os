@@ -84,12 +84,16 @@ GROUPS: tuple[Group, ...] = (
         "google",
         "Sign in with Google",
         "One sign-in covers Gmail and Classroom. Read-only both times: it cannot send, "
-        "delete or change anything, and Google enforces that rather than this app promising it.",
+        "delete or change anything, and Google enforces that rather than this app promising it. "
+        "The sign-in is one click; getting to it takes about fifteen minutes the first time, "
+        "because Google will not let a program read your mail until you register it with them. "
+        "Everything except Inbox and Classwork works without any of this.",
         (
             Setting(
                 "GOOGLE_CLIENT_ID",
                 "Client ID",
-                "console.cloud.google.com - OAuth client, type Desktop app.",
+                "console.cloud.google.com: new project, OAuth client of type Desktop app. "
+                "Enable the Gmail and Classroom APIs on it, and add yourself as a test user.",
                 secret=False,
                 placeholder="....apps.googleusercontent.com",
             ),

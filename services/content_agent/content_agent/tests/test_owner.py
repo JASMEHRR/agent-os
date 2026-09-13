@@ -81,3 +81,34 @@ def test_the_briefs_never_assume_a_gender() -> None:
         assert "him" not in words
         assert "she" not in words
         assert "her" not in words
+
+
+# ------------------------------------------------- who the audit trail names
+
+
+def test_nobody_configured_is_recorded_as_the_owner_not_as_a_stranger() -> None:
+    """The record used to say "jasmehr" on every copy of this program, which
+    attributed a friend's approvals to somebody who had never seen the post."""
+    assert Owner().principal == "owner"
+
+
+def test_a_name_becomes_a_slug() -> None:
+    assert Owner(name="Ada Lovelace").principal == "ada-lovelace"
+
+
+def test_punctuation_and_spacing_do_not_reach_the_record() -> None:
+    """An id with quotes or spaces in it is one that reads badly everywhere it
+    is later shown, and this one is shown on every approved draft."""
+    assert Owner(name="  J.  O'Neill  ").principal == "j-oneill"
+
+
+def test_a_name_with_nothing_usable_in_it_falls_back_rather_than_emptying() -> None:
+    """ "approved by" followed by nothing reads as a missing record rather than
+    an unnamed one."""
+    assert Owner(name="!!!").principal == "owner"
+
+
+def test_about_alone_does_not_invent_an_identifier() -> None:
+    """A description is not a name. "someone who is 21, a marketer" is right
+    for a brief and wrong for an audit trail."""
+    assert Owner(about="21, a marketer").principal == "owner"

@@ -454,6 +454,7 @@ section[data-view].active { display: block; }
   <button data-go="inbox" data-app="inbox" id="tab-inbox" hidden>Inbox</button>
   <button data-go="apply" data-app="apply" id="tab-apply" hidden>Apply</button>
   <button data-go="classwork" data-app="classwork" id="tab-classwork" hidden>Classwork</button>
+  <button data-go="automatic" data-app="automatic" id="tab-automatic" hidden>Automatic</button>
   <button data-go="numbers" data-app="posts">Numbers</button>
   <button data-go="people" data-app="posts">People</button>
   <button data-go="voice" data-app="posts">Voice</button>
@@ -485,6 +486,14 @@ section[data-view].active { display: block; }
 
 <!-- -------------------------------------------------------------- HOME -->
 <section data-view="home" class="active">
+
+  <div class="panel highlight" id="first-run" hidden>
+    <h2>Start here</h2>
+    <p class="hint" id="first-run-what"></p>
+    <div class="row">
+      <button class="primary" id="first-run-go">Open Connect</button>
+    </div>
+  </div>
 
   <div class="panel">
     <h2>Your agents</h2>
@@ -681,6 +690,25 @@ section[data-view].active { display: block; }
       <span class="hint" id="class-msg" style="margin:0"></span>
     </div>
     <div id="class-list" class="cards"><p class="empty">Nothing outstanding.</p></div>
+  </div>
+
+</section>
+
+<!-- --------------------------------------------------------- AUTOMATIC -->
+<section data-view="automatic">
+
+  <div class="panel">
+    <h2>What runs on its own</h2>
+    <p class="hint">
+      These run in the background while the studio is open, whether or not you are
+      looking at them. Each row says when it last ran and what it found, because a
+      loop that works and a loop that died at 3am look identical otherwise.
+    </p>
+    <div class="arch-bar" id="auto-bar" hidden></div>
+    <div class="row">
+      <span class="hint" id="auto-msg" style="margin:0"></span>
+    </div>
+    <div id="auto-list" class="cards"><p class="empty">Nothing is set up to run yet.</p></div>
   </div>
 
 </section>
@@ -1144,9 +1172,13 @@ async function refresh() {
   // The count on the tab, so the archive is worth opening only when it is.
   $('tab-archive').textContent = archive.length ? `Archive (${archive.length})` : 'Archive';
 
-  setStatus('posts', s.waiting.length ? `${s.waiting.length} waiting for you to read`
-    : (s.approved || []).length ? `${(s.approved || []).length} approved and ready`
-    : 'nothing waiting',
+  // "nothing waiting" with no model connected reads as ready, and pressing
+  // the button then fails. Say which of the two it is.
+  setStatus('posts',
+    s.waiting.length ? `${s.waiting.length} waiting for you to read`
+      : (s.approved || []).length ? `${(s.approved || []).length} approved and ready`
+      : s.can_draft === false ? 'no model connected yet'
+      : 'nothing waiting',
     s.waiting.length ? 'warn' : (s.approved || []).length ? '' : 'quiet');
 
   $('attention-panel').hidden = s.attention.length === 0;
@@ -1505,6 +1537,8 @@ const APPS = [
     what: 'Competitions, internships and certifications, with the deadlines you must not miss.' },
   { id: 'classwork', icon: '\u2630', name: 'Classwork', opens: 'classwork',
     what: 'What is still to hand in, straight from Google Classroom.' },
+  { id: 'automatic', icon: '\u21BB', name: 'Automatic', opens: 'automatic',
+    what: 'What each agent does on its own, when it last ran, and what it found.' },
   { id: 'connect', icon: '\u26AD', name: 'Connect', opens: 'connect',
     what: 'Hook the agents up to your email, WhatsApp, Google and the model. No text editor needed.' },
   { id: 'system', icon: '\u2699', name: 'Under the hood', opens: 'can',
@@ -1540,11 +1574,12 @@ function renderApps() {
 //: leaving it up over a screen listing five agents would be false advertising
 //: for four of them.
 const STRAPLINE = {
-  home: 'Five agents. Each runs on its own, and stops where it needs you.',
+  home: 'Five agents. They run on their own, and stop where they need you.',
   posts: 'Write once. It drafts everywhere. You decide what goes out.',
   inbox: 'It reads your mail so you do not have to keep checking it.',
   apply: 'It remembers the deadline you were going to remember.',
   classwork: 'What is still to hand in, and how long you have.',
+  automatic: 'It keeps working while you are not looking. Here is the proof.',
   connect: 'Paste a key once. Nothing here is ever shown back to you.',
   system: 'What this can do, proven by test rather than claimed.',
 };
@@ -1583,6 +1618,9 @@ function showView(name) {
   if (name === 'voice') loadVoice();
   if (name === 'me') loadMe();
   if (name === 'numbers') loadNumbers();
+  // Re-read on open rather than trusting what was loaded at startup: every
+  // row on this tab is "how long ago", which is wrong the moment it is stale.
+  if (name === 'automatic') loadAutomatic().then(wireAutomatic);
 }
 
 // ------------------------------------------------------------------- Me
@@ -2015,6 +2053,104 @@ async function loadClasswork() {
     : '<p class="empty">Nothing outstanding. That is the good outcome.</p>';
 }
 
+// --------------------------------------------------------------- automatic
+
+//: How long ago, in words. "4 minutes ago" is the one thing this screen has to
+//: say well: an exact timestamp makes the reader do the subtraction, which is
+//: the work they opened this tab to avoid.
+function ago(iso) {
+  if (!iso) return 'never';
+  const mins = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins} min ago`;
+  const hours = Math.round(mins / 60);
+  if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+  const days = Math.round(hours / 24);
+  return `${days} day${days === 1 ? '' : 's'} ago`;
+}
+
+function soon(minutes) {
+  if (minutes === null || minutes === undefined) return 'paused';
+  if (minutes <= 0) return 'any moment';
+  if (minutes < 60) return `in ${Math.round(minutes)} min`;
+  return `in ${Math.round(minutes / 60)} hour${Math.round(minutes / 60) === 1 ? '' : 's'}`;
+}
+
+function everyWords(minutes) {
+  if (minutes < 60) return `every ${minutes} min`;
+  const hours = minutes / 60;
+  return `every ${hours % 1 ? hours.toFixed(1) : hours} hour${hours === 1 ? '' : 's'}`;
+}
+
+async function loadAutomatic() {
+  const s = await api('/api/automatic');
+  agentTab('automatic', !s.absent);
+  if (s.absent) {
+    setStatus('automatic', 'nothing runs yet', 'quiet');
+    return;
+  }
+
+  const counts = s.counts || {};
+  // A copy that stood down is not stopped and not broken. Saying so is the
+  // difference between "the watcher has this" and rows that never move.
+  const other = s.stood_down_to || '';
+  setStatus('automatic',
+    other ? 'handled elsewhere'
+      : counts.failing ? `${counts.failing} failing`
+      : !s.running ? 'stopped'
+      : `${counts.jobs} running on their own`,
+    counts.failing ? 'warn' : (other || s.running) ? '' : 'quiet');
+
+  $('auto-msg').textContent = other
+    ? `${other} is running these right now, so this window is staying out of its way. `
+      + 'Close it and this window picks them up.'
+    : '';
+
+  $('auto-bar').hidden = false;
+  $('auto-bar').innerHTML = statTile([
+    ['running', counts.jobs - (counts.paused || 0)], ['paused', counts.paused], ['failing', counts.failing],
+  ]);
+
+  $('auto-list').innerHTML = (s.jobs || []).length
+    ? s.jobs.map(j => `
+        <div class="card">
+          <div class="row" style="margin:0 0 4px">
+            ${j.never_on ? '<span class="tag">not turned on</span>'
+              : j.paused ? '<span class="tag">paused</span>'
+              : j.outcome === 'failed' ? '<span class="tag bad">failing</span>'
+              : j.outcome === 'never' ? '<span class="tag">not run yet</span>'
+              : '<span class="tag ok">working</span>'}
+            <span class="hint" style="margin:0">${escapeHtml(everyWords(j.every_minutes))}</span>
+          </div>
+          <div style="font-size:17px;font-weight:700;margin:2px 0 0">${escapeHtml(j.label)}</div>
+          <p class="hint" style="margin:4px 0 0">${escapeHtml(j.describes)}</p>
+          <p class="hint" style="margin:4px 0 0">
+            ${j.never_on ? 'Never run. It will not text you until you turn it on.'
+              : `Last run ${escapeHtml(ago(j.last_run))}${j.detail ? ': ' + escapeHtml(j.detail) : ''}`}
+            &middot; next ${escapeHtml(soon(j.in_minutes))}
+            ${j.backing_off ? ' &middot; slowing down after ' + j.failures
+               + ' failure' + (j.failures === 1 ? '' : 's') : ''}
+          </p>
+          <div class="row" style="margin:8px 0 0">
+            <button data-auto-run="${escapeHtml(j.job_id)}">Run now</button>
+            <button class="${j.never_on ? 'primary' : ''}" data-auto-${j.paused ? 'resume' : 'pause'}="${escapeHtml(j.job_id)}">${
+              j.never_on ? 'Turn it on' : j.paused ? 'Turn back on' : 'Pause'}</button>
+          </div>
+        </div>`).join('')
+    : '<p class="empty">Nothing is set up to run yet. Connect an agent first.</p>';
+}
+
+function wireAutomatic() {
+  const act = (attr, url) => document.querySelectorAll(`[data-auto-${attr}]`).forEach(b => {
+    b.onclick = () => agentAction(b, 'auto-msg', `/api/automatic/${url}`,
+      { job_id: b.dataset[`auto${attr[0].toUpperCase()}${attr.slice(1)}`] },
+      () => loadAutomatic().then(wireAutomatic));
+  });
+  act('run', 'run');
+  act('pause', 'pause');
+  act('resume', 'resume');
+}
+
 // ----------------------------------------------------------------- connect
 
 //: Fields the person has typed into but not saved. Kept out of the DOM read
@@ -2059,6 +2195,20 @@ async function loadConnect() {
   setStatus('connect', `${done} of ${s.groups.length} connected`,
             done === s.groups.length ? '' : 'warn');
 
+  // A copy with nothing connected needs to be told where to begin. Seven
+  // cards with no obvious first move is the state a first-time user is in,
+  // and "0 of 6 connected" on the sixth card is not a signpost.
+  const first = $('first-run');
+  first.hidden = done !== 0;
+  if (!first.hidden) {
+    $('first-run-what').textContent =
+      'Nothing is connected yet. A free key for writing posts takes about a'
+      + ' minute and is the one worth doing first. Google, for mail and'
+      + ' classwork, is fiddlier - START_HERE.md walks through it. Apply works'
+      + ' right now without any of it.';
+    $('first-run-go').onclick = () => openApp('connect');
+  }
+
   $('connect-where').textContent =
     `Saved to ${s.path}, which git ignores. Nothing typed here is ever shown back to you.`
     + ' Saved values take effect when you restart the studio.';
@@ -2101,7 +2251,8 @@ async function loadAgents() {
   // Settled rather than all, but a rejection is reported: swallowing it whole
   // is how a missing element becomes a screen stuck on "loading..." with
   // nothing anywhere saying why.
-  const named = { inbox: loadInbox, apply: loadApply, classwork: loadClasswork, connect: loadConnect };
+  const named = { inbox: loadInbox, apply: loadApply, classwork: loadClasswork,
+                  automatic: loadAutomatic, connect: loadConnect };
   const done = await Promise.allSettled(Object.values(named).map(fn => fn()));
   Object.keys(named).forEach((id, i) => {
     if (done[i].status === 'rejected') {
@@ -2110,6 +2261,7 @@ async function loadAgents() {
     }
   });
   wireAgents();
+  wireAutomatic();
 }
 
 function say(where, text) {

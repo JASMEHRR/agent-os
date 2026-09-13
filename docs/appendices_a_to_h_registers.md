@@ -14,7 +14,7 @@ refuse, fails the suite. A declaration nothing checks is a wish.
 
 ## Appendix A - Module Register
 
-31 modules, 0 construction-blocked by CIR-001.
+32 modules, 0 construction-blocked by CIR-001.
 
 | Module | Layer | Stage | Status | Source files | Tests |
 |---|---|---|---|---|---|
@@ -24,7 +24,7 @@ refuse, fails the suite. A declaration nothing checks is a wish.
 | `agent_runtime` | services | S7 | implemented to stage exit criteria | 3 | 45 |
 | `api_gateway` | services | S8 | implemented to stage exit criteria | 6 | 44 |
 | `classroom_agent` | services | A4 | implemented to stage exit criteria | 4 | 29 |
-| `content_agent` | services | A1 | implemented to stage exit criteria | 15 | 218 |
+| `content_agent` | services | A1 | implemented to stage exit criteria | 15 | 230 |
 | `cost_manager` | services | S3 | implemented to stage exit criteria | 3 | 28 |
 | `decision_gateway` | services | S5 | implemented to stage exit criteria | 4 | 62 |
 | `deployment_gateway` | services | S11 | implemented to stage exit criteria | 1 | 0 |
@@ -43,6 +43,7 @@ refuse, fails the suite. A declaration nothing checks is a wish.
 | `observability_gateway` | services | S3 (ingestion) + S10 (interpretive) | implemented to stage exit criteria | 4 | 54 |
 | `opportunity_agent` | services | A3 | implemented to stage exit criteria | 5 | 38 |
 | `plugin_manager` | services | S12 | implemented to stage exit criteria | 1 | 34 |
+| `scheduler` | services | A5 | implemented to stage exit criteria | 4 | 47 |
 | `schema_registry` | services | S0 | implemented to stage exit criteria | 1 | 6 |
 | `security_gateway` | services | S1 | implemented to stage exit criteria | 15 | 109 |
 | `tool_executor` | services | S6 | implemented to stage exit criteria | 2 | 0 |
@@ -52,7 +53,7 @@ refuse, fails the suite. A declaration nothing checks is a wish.
 
 ## Appendix B - Interface Register
 
-383 public methods across 27 Gateway facades,
+394 public methods across 28 Gateway facades,
 read by introspection so a rename cannot go unrecorded.
 
 | Module | Facade | Method |
@@ -390,6 +391,17 @@ read by introspection so a rename cannot go unrecorded.
 | `plugin_manager` | `PluginManager` | `revoke(self, plugin_id: 'str', principal_id: 'str', permissions: 'frozenset[str]') -> 'PluginRecord'` |
 | `plugin_manager` | `PluginManager` | `subscribed_events(self, plugin_id: 'str') -> 'frozenset[str]'` |
 | `plugin_manager` | `PluginManager` | `uninstall(self, plugin_id: 'str', principal_id: 'str') -> 'PluginRecord'` |
+| `scheduler` | `Scheduler` | `due(self, at: 'datetime | None' = None) -> 'list[Job]'` |
+| `scheduler` | `Scheduler` | `job(self, job_id: 'str') -> 'Job'` |
+| `scheduler` | `Scheduler` | `log(*args, sep=' ', end='\n', file=None, flush=False)` |
+| `scheduler` | `Scheduler` | `now() -> 'datetime'` |
+| `scheduler` | `Scheduler` | `pause(self, job_id: 'str') -> 'JobState'` |
+| `scheduler` | `Scheduler` | `resume(self, job_id: 'str') -> 'JobState'` |
+| `scheduler` | `Scheduler` | `run_job(self, job_id: 'str') -> 'JobState'` |
+| `scheduler` | `Scheduler` | `start(self) -> 'bool'` |
+| `scheduler` | `Scheduler` | `state_of(self, job_id: 'str') -> 'JobState'` |
+| `scheduler` | `Scheduler` | `stop(self, timeout: 'float' = 5.0) -> 'None'` |
+| `scheduler` | `Scheduler` | `tick(self, at: 'datetime | None' = None) -> 'list[JobState]'` |
 | `security_gateway` | `SecurityGateway` | `authenticate(self, principal_id: 'str', credential_id: 'str', presented_hash: 'str', claiming_type: 'PrincipalType', ttl: 'timedelta | None' = None, workspace_ids: 'tuple[str, ...]' = (), task_timeout_seconds: 'int' = 300, max_retries: 'int' = 3) -> 'tuple[str, TokenClaims]'` |
 | `security_gateway` | `SecurityGateway` | `authorize(self, token: 'str', request: 'AuthorizationRequest') -> 'AuthorizationResult'` |
 | `security_gateway` | `SecurityGateway` | `bootstrap_human_sovereign(self, principal_id: 'str', name: 'str', tenant_id: 'str') -> 'Principal'` |
@@ -465,6 +477,7 @@ rather than restatements; both are explained in the source.
 | `observability_gateway` | telemetry store, SLI/SLO registry, observability journal |
 | `opportunity_agent` | opportunities, opportunity reminders |
 | `plugin_manager` | plugin manifests, plugin grants, plugin journal |
+| `scheduler` | job runs |
 | `security_gateway` | identities, credentials, tokens, roles, delegations, security journal |
 | `tool_executor` | sandboxes, execution records, executor journal |
 | `tool_gateway` | invocation contracts, invocation records, tool journal |

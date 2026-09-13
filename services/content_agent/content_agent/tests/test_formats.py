@@ -274,7 +274,7 @@ def test_the_ai_vocabulary_is_rejected_not_merely_discouraged() -> None:
 
 def test_words_he_actually_uses_are_not_caught() -> None:
     """A gate that fires on a legitimate sentence teaches you to ignore it.
-    "robust" is in his own commit log; "navigate" and "journey" are ordinary
+    "robust" turns up in real commit logs; "navigate" and "journey" are ordinary
     in marketing writing."""
     from content_agent.voice import check
 
