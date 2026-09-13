@@ -9,7 +9,7 @@ thing off.
 This is the missing half: a background thread that asks each job whether it is
 due and runs the ones that are.
 
-Four properties it has to have, each of which cost something to get right:
+Five properties it has to have, each of which cost something to get right:
 
 **A failing job cannot stop the others.** Every run is wrapped; an exception
 is recorded against that job and the loop continues. A scheduler that dies on
@@ -30,6 +30,11 @@ button pressed while the loop is mid-tick waits its turn rather than sending
 the same alert from two threads. The cost is that a slow job delays the
 others by its own duration, which is the right trade for jobs measured in
 seconds and a heartbeat measured in tens of them.
+
+**Nor twice in two processes.** The studio you have open and the watcher you
+set to start at login are both copies of this, and both would poll the same
+mailbox. One holds a lease and the others stand down; see `lease.py` for why
+it is a lease rather than a lock file.
 """
 
 from __future__ import annotations
@@ -41,6 +46,7 @@ from datetime import UTC, datetime, timedelta
 
 from persistence.repository import NotFound, Repository
 from scheduler.jobs import Job, JobState, failed, started, succeeded
+from scheduler.lease import Leases
 
 #: How often the loop wakes to ask what is due. Not a job's cadence - the
 #: finest granularity the scheduler can resolve. Thirty seconds keeps a
@@ -65,6 +71,10 @@ class Scheduler:
     #: Where the loop's own trouble goes. Print by default; the studio passes
     #: something that reaches the page.
     log: Callable[[str], None] = print
+    #: Which copy is allowed to run these jobs. None means "assume this is the
+    #: only one", which is right for a test and for a single process; with one
+    #: supplied, a second copy stands down instead of texting you twice.
+    lease: Leases | None = None
 
     _thread: threading.Thread | None = field(default=None, init=False, repr=False)
     _stop: threading.Event = field(default_factory=threading.Event, init=False, repr=False)
@@ -129,9 +139,24 @@ class Scheduler:
             return self._remember(succeeded(state, self.now(), detail or "done"))
 
     def tick(self, at: datetime | None = None) -> list[JobState]:
-        """Runs everything due once. The whole loop, minus the thread."""
+        """Runs everything due once. The whole loop, minus the thread.
+
+        Checked on every tick rather than once at startup: a copy can lose the
+        lease mid-run - a laptop asleep past the stale window, another copy
+        taking over - and the right response is to stop running the jobs, not
+        to keep going on a claim that has moved on.
+        """
+        if self.lease is not None:
+            if self.lease.held_by_other():
+                return []
+            self.lease.beat()
         when = at or self.now()
         return [self.run_job(job.job_id) for job in self.due(when)]
+
+    @property
+    def stood_down_to(self) -> str:
+        """What other copy is running these jobs, or "" if this one is."""
+        return self.lease.held_by_other() if self.lease is not None else ""
 
     # ------------------------------------------------------------------ owner
 
@@ -175,20 +200,34 @@ class Scheduler:
     def running(self) -> bool:
         return self._thread is not None and self._thread.is_alive()
 
-    def start(self) -> None:
-        """Starts the loop. Ticks once immediately, then on the heartbeat."""
+    def start(self) -> bool:
+        """Starts the loop. Ticks once immediately, then on the heartbeat.
+
+        The loop starts even when another copy holds the lease, and this is
+        the fix for a bug that was invisible until two processes were run for
+        real: refusing to start meant that closing the watcher left the studio
+        sitting there forever, having decided once, at open, that somebody
+        else had the work. Whether to run is a per-tick question, so `tick`
+        asks it and this does not. An idle loop costs a wakeup every thirty
+        seconds, and buys a studio that picks the jobs up within one of them.
+        """
         if self.running or not self.jobs:
-            return
+            return False
         self._floor = self.now()
         self._stop.clear()
         self._thread = threading.Thread(target=self._loop, name="agent-os-scheduler", daemon=True)
         self._thread.start()
+        return True
 
     def stop(self, timeout: float = 5.0) -> None:
         self._stop.set()
         thread, self._thread = self._thread, None
         if thread is not None:
             thread.join(timeout=timeout)
+        # After the thread is down, never before: releasing while it could
+        # still tick would let another copy start on top of this one.
+        if self.lease is not None:
+            self.lease.release()
 
     def _loop(self) -> None:
         self._safely_tick()
@@ -213,7 +252,11 @@ def every(minutes: float) -> timedelta:
     return timedelta(minutes=minutes)
 
 
-def schedule(jobs: Iterable[Job | None], states: Repository[JobState] | None = None) -> Scheduler:
+def schedule(
+    jobs: Iterable[Job | None],
+    states: Repository[JobState] | None = None,
+    lease: Leases | None = None,
+) -> Scheduler:
     """Builds a scheduler from jobs, dropping the ones that are None.
 
     Composition hands this whatever the configured agents produced, and an
@@ -221,4 +264,4 @@ def schedule(jobs: Iterable[Job | None], states: Repository[JobState] | None = N
     fail on every tick. Accepting the Nones here keeps that decision at the
     one place that knows which agents exist.
     """
-    return Scheduler(jobs=tuple(job for job in jobs if job is not None), states=states)
+    return Scheduler(jobs=tuple(job for job in jobs if job is not None), states=states, lease=lease)

@@ -244,7 +244,7 @@ def test_a_captured_note_is_substantive_enough_to_draft_from(repo: pathlib.Path)
 
 @pytest.fixture
 def explained(tmp_path: pathlib.Path) -> pathlib.Path:
-    """A repository whose commits explain themselves, like his actually do."""
+    """A repository whose commits explain themselves, as good ones do."""
     path = tmp_path / "explained"
     path.mkdir()
 

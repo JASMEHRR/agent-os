@@ -43,7 +43,7 @@ refuse, fails the suite. A declaration nothing checks is a wish.
 | `observability_gateway` | services | S3 (ingestion) + S10 (interpretive) | implemented to stage exit criteria | 4 | 54 |
 | `opportunity_agent` | services | A3 | implemented to stage exit criteria | 5 | 38 |
 | `plugin_manager` | services | S12 | implemented to stage exit criteria | 1 | 34 |
-| `scheduler` | services | A5 | implemented to stage exit criteria | 3 | 27 |
+| `scheduler` | services | A5 | implemented to stage exit criteria | 4 | 41 |
 | `schema_registry` | services | S0 | implemented to stage exit criteria | 1 | 6 |
 | `security_gateway` | services | S1 | implemented to stage exit criteria | 15 | 109 |
 | `tool_executor` | services | S6 | implemented to stage exit criteria | 2 | 0 |
@@ -398,7 +398,7 @@ read by introspection so a rename cannot go unrecorded.
 | `scheduler` | `Scheduler` | `pause(self, job_id: 'str') -> 'JobState'` |
 | `scheduler` | `Scheduler` | `resume(self, job_id: 'str') -> 'JobState'` |
 | `scheduler` | `Scheduler` | `run_job(self, job_id: 'str') -> 'JobState'` |
-| `scheduler` | `Scheduler` | `start(self) -> 'None'` |
+| `scheduler` | `Scheduler` | `start(self) -> 'bool'` |
 | `scheduler` | `Scheduler` | `state_of(self, job_id: 'str') -> 'JobState'` |
 | `scheduler` | `Scheduler` | `stop(self, timeout: 'float' = 5.0) -> 'None'` |
 | `scheduler` | `Scheduler` | `tick(self, at: 'datetime | None' = None) -> 'list[JobState]'` |

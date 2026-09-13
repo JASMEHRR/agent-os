@@ -2079,11 +2079,20 @@ async function loadAutomatic() {
   }
 
   const counts = s.counts || {};
+  // A copy that stood down is not stopped and not broken. Saying so is the
+  // difference between "the watcher has this" and rows that never move.
+  const other = s.stood_down_to || '';
   setStatus('automatic',
-    counts.failing ? `${counts.failing} failing`
+    other ? 'handled elsewhere'
+      : counts.failing ? `${counts.failing} failing`
       : !s.running ? 'stopped'
       : `${counts.jobs} running on their own`,
-    counts.failing ? 'warn' : s.running ? '' : 'quiet');
+    counts.failing ? 'warn' : (other || s.running) ? '' : 'quiet');
+
+  $('auto-msg').textContent = other
+    ? `${other} is running these right now, so this window is staying out of its way. `
+      + 'Close it and this window picks them up.'
+    : '';
 
   $('auto-bar').hidden = false;
   $('auto-bar').innerHTML = statTile([

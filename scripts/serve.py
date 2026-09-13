@@ -48,7 +48,7 @@ from llm_router.backends import backends_from_environment  # noqa: E402
 from opportunity_agent import Matcher, Opportunity, OpportunityTracker, Profile, Reminder  # noqa: E402
 from opportunity_agent.panel import ApplyPanel  # noqa: E402
 from persistence import SQLiteRepository, open_database  # noqa: E402
-from scheduler import Job, JobState, schedule  # noqa: E402
+from scheduler import Job, JobState, Lease, Leases, schedule  # noqa: E402
 from scheduler.panel import SchedulerPanel  # noqa: E402
 from scripts.env_file import ENV_FILE  # noqa: E402
 from scripts.env_file import load as load_env  # noqa: E402
@@ -353,9 +353,14 @@ def automatic(inbox: Any, apply_tab: Any, classwork: Any) -> SchedulerPanel | No
     do"; no tab at all correctly reads as "not wired up yet", which is the
     same rule the three agent tabs follow.
     """
+    connection = open_database(DB_PATH)
     built = schedule(
         jobs(inbox, apply_tab, classwork),
-        SQLiteRepository(open_database(DB_PATH), "scheduler_runs", JobState),
+        SQLiteRepository(connection, "scheduler_runs", JobState),
+        # So opening the studio beside a running watcher does not poll the
+        # same mailbox twice. Whichever holds the lease does the work; the
+        # other shows what it is doing.
+        Leases(store=SQLiteRepository(connection, "scheduler_lease", Lease), describes="Post Studio"),
     )
     if not built.jobs:
         return None

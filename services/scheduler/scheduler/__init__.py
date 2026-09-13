@@ -17,12 +17,17 @@ from scheduler.jobs import (
     started,
     succeeded,
 )
+from scheduler.lease import LEASE_ID, STALE_AFTER, Lease, Leases
 from scheduler.runner import HEARTBEAT, Scheduler, every, schedule
 
 __all__ = [
     "BACKOFF_CEILING",
     "DETAIL_LIMIT",
     "HEARTBEAT",
+    "LEASE_ID",
+    "STALE_AFTER",
+    "Lease",
+    "Leases",
     "MAX_BACKOFF",
     "Job",
     "JobState",

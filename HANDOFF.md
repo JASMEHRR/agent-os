@@ -77,6 +77,7 @@ Other entry points, all local scripts rather than services:
 | `scripts/import_drafts.py` | Imports markdown drafts into the studio |
 | `scripts/publish_voice.py` | Builds a voice persona from rated samples |
 | `scripts/google_auth.py` | One Google sign-in covering Gmail and Classroom |
+| `scripts/watch.py` | Runs the agents with no browser; `--once` for cron, otherwise set it to start at login |
 
 ---
 
@@ -89,10 +90,15 @@ imports exactly two of them — `persistence` for storage and `llm_router` for
 the model. The other twenty-five are libraries with tests and no caller.
 
 The five applied modules do run: `scheduler` starts them on a background
-thread for as long as the studio is open, which is what makes them agents
-rather than buttons. It is worth being precise about how little that is — one
-thread, in one process, for as long as a browser tab is open. Close the laptop
-and nothing checks your mail.
+thread, which is what makes them agents rather than buttons. It runs inside
+the studio while that is open, and inside `scripts/watch.py` when it is not —
+one lease in the database decides which, so the two never poll the same
+mailbox and text you twice.
+
+It is worth being precise about how little that is. One thread, in one
+process, started by a person or by their operating system's login hook. There
+is no supervisor, no restart on crash, and nothing that runs on a machine you
+are not sitting at.
 
 Beneath that, nothing. There is no process that starts `agent_runtime`. There
 is no socket behind `api_gateway`. There is no broker behind `event_bus`, and

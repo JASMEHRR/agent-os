@@ -1,45 +1,75 @@
 # Post Studio
 
-Write what you did this week. It drafts a LinkedIn post, a newsletter issue and
-a Dev.to article from the same facts. You read them and decide what goes out.
+Five small agents behind one home screen. Open it and they are listed; click
+one to go in.
 
-Nothing is published without you approving it first. It can post, and it can
-send an approved post at a time you pick, but there is no path from a draft to
-LinkedIn that does not pass through you saying yes to that exact draft.
+| | What it does | What it needs |
+|---|---|---|
+| **Posts** | You write what you did this week; it drafts a LinkedIn post, a newsletter and an article from the same facts. | A free Groq key |
+| **Inbox** | Reads your new mail, works out what actually matters, and texts you about that only. | Sign in with Google |
+| **Apply** | Competitions and internships, tracked through their stages, with a nudge before each closes. | Nothing |
+| **Classwork** | What is still to hand in, from Google Classroom. | Sign in with Google |
+| **Automatic** | Shows what each of the others is doing on its own, when it last ran, and what it found. | Nothing |
+
+Nothing is published, sent or texted without you. Posts asks before anything
+reaches LinkedIn; Inbox only ever reads, never sends or deletes; Classwork is
+read-only by the permission Google itself enforces.
 
 ---
 
-## First time: two minutes
+## First time: one minute
 
-### 1. Get a free Groq key
-
-Go to **https://console.groq.com/keys**, sign in, create a key. It starts with
-`gsk_`. Free, no card.
-
-### 2. Put it in a file
-
-In this folder there is a file called `.env.example`. Make a copy of it named
-exactly `.env`, open it in Notepad, and paste your key after the `=`:
-
-```
-GROQ_API_KEY=gsk_your_key_here
-```
-
-No quotes. No spaces around the `=`. Save it.
-
-`.env` is ignored by git, so the key never leaves your machine.
-
-### 3. Open it
+### 1. Open it
 
 Double-click **`PostStudio.bat`**.
 
-A black window appears (leave it open) and your browser opens the studio. If
-the browser shows an error for a second, refresh it: the server takes about a
-second to start.
+A black window appears (leave it open) and your browser opens the studio.
+**You do not need to set anything up first.** It opens with nothing
+configured, and tells you what is missing.
+
+### 2. Press Connect
+
+The **Connect** app is where everything gets hooked up — no text editor, no
+files to find. Each box says what it is for and where to get it.
+
+- **A model.** Free Groq key from **https://console.groq.com/keys**. Starts
+  with `gsk_`. No card. Posts needs this; nothing else does.
+- **Google.** One sign-in, the normal Google prompt, covers both Inbox and
+  Classwork. It asks for read-only, which is enforced by Google rather than
+  promised by this program, and you can take it back in one click at
+  myaccount.google.com/permissions.
+- **Your name.** Worth doing before anything else. Without it, drafts are
+  written for "the person using this" rather than for you.
+- **WhatsApp**, if you want the Inbox agent to text you rather than print.
+
+Restart the studio after saving, and what you connected turns on.
+
+Everything you paste there goes into a `.env` file next to the app, which is
+ignored by git. Nothing is ever sent anywhere except the service it belongs
+to, and the Connect screen never shows a saved secret back to you — so a key
+in a box always means a key you just typed.
+
+### 3. Let it run on its own
+
+The agents check on their own while the studio is open: mail every five
+minutes, deadlines every six hours, classwork every three. The **Automatic**
+tab shows each one — when it last ran, what it found, and buttons to run it
+now or pause it.
+
+To keep them running when the studio is **closed**:
+
+```bash
+python scripts/watch.py
+```
+
+No window, no browser. On Windows, Task Scheduler → "When I log on" → run
+`pythonw scripts\watch.py` and it starts with your computer. Running it at
+the same time as the studio is fine: they agree between themselves which one
+does the work, so you never get texted twice about one email.
 
 ---
 
-## Using it
+## Using Posts
 
 1. **Press "Pull this week from my git."** The box fills itself from your
    commit messages. Or type what you did, or press "Speak it instead" and talk.
@@ -85,10 +115,66 @@ worst thing that could go on your real profile.
 
 ---
 
+## Using the other three
+
+### Inbox
+
+It reads new mail and decides, for each one, whether it is worth interrupting
+you. **Urgent** texts you immediately, even at two in the morning. **Important**
+texts you too, unless it is quiet hours or you have already had your hourly
+share — then it waits, and the "send digest" button sends everything waiting as
+one message. **Routine** and **bulk** never text you at all; routine still shows
+on the tab so you can see what it decided.
+
+**It will get some of these wrong at first, and the fix is the filter box.**
+Tell it what you want and what you do not — "always tell me about anything
+from the placement cell", "never tell me about anything with 'webinar' in the
+subject" — and your rules beat its scoring every time. Each rule shows how
+many times it has fired, so you can see which are doing work.
+
+It never sends, deletes or marks anything. It cannot: the permission it asks
+Google for does not include those.
+
+Two settings worth knowing, both in Connect: **quiet hours** (11pm to 7am by
+default, when nothing buzzes) and **most texts per hour** (six). The second
+one exists because an agent that can text you is an agent that can text you
+forty times, and a cap is the only real protection against that.
+
+Before you let it text you, leave it a day on the Inbox tab and read the
+decisions. It shows every one it made and why.
+
+### Apply
+
+Add anything you might go for — a competition, an internship, a certification
+— with its closing date. It tracks which stage each one is at and reminds you
+before the date, once per rung: a week out, three days, the day before, the
+day itself. Never twice for the same rung, which is the difference between a
+reminder and a nag.
+
+Moving something to "applied" stops the closing reminders, because once you
+have applied the date is no longer something you can act on.
+
+### Classwork
+
+Reads Google Classroom, read-only, and shows what is still to hand in with how
+long you have. It nudges before each is due and marks anything already overdue.
+Turn work in on Classroom as normal; this catches up on its next check.
+
+---
+
 ## When something goes wrong
 
-**"No model configured"** in the black window
-: The `.env` file is missing or the key is wrong. Check step 2.
+**"No model connected yet"** in the black window
+: Expected on a fresh copy — it opens anyway. Put a Groq key in the Connect
+  app and restart. Everything except drafting works without one.
+
+**A tab is missing from an app**
+: That agent is not connected yet. A tab that is not wired up is hidden rather
+  than shown empty, because an empty screen reads as "nothing to do".
+
+**The Automatic tab says something else is running these**
+: `scripts/watch.py` is running in the background and has the jobs. That is
+  working as intended. Stop it and this window picks them up within a minute.
 
 **"That is too short to write from"**
 : Your note needs a few more sentences. See "what makes a good note" above.
@@ -137,7 +223,7 @@ real drafts.
 
 | What | Where |
 |---|---|
-| Your notes and drafts | `agent.db` (git-ignored, survives restarts) |
+| Everything you have written, rated, tracked and been alerted about | `agent.db` (git-ignored, survives restarts) |
 | Your API keys | `.env` (git-ignored, never committed) |
 | The voice rules | `services/content_agent/content_agent/voice.py` |
 | The per-channel rules | `services/content_agent/content_agent/formats.py` |

@@ -142,7 +142,7 @@ class InboxAgent:
         return sum(1 for a in self.alerts.list_all() if a.sent_at is not None and a.sent_at >= cutoff)
 
     def pending(self) -> list[Alert]:
-        """Everything judged worth telling him that has not been told yet."""
+        """Everything judged worth telling you that has not been told yet."""
         return sorted((a for a in self.alerts.list_all() if a.pending), key=lambda a: a.decided_at)
 
     def _seen_before(self, message_id: str) -> bool:

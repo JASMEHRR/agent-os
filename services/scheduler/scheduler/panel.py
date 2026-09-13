@@ -56,6 +56,10 @@ class SchedulerPanel:
         rows = [self._row(job, self.scheduler.state_of(job.job_id), now) for job in self.scheduler.jobs]
         return {
             "running": self.scheduler.running,
+            # What this copy stood down to, if anything. The tab says "the
+            # background watcher is running these" rather than showing rows
+            # that never move and look broken.
+            "stood_down_to": self.scheduler.stood_down_to,
             "heartbeat_seconds": int(self.scheduler.heartbeat.total_seconds()),
             "jobs": rows,
             "counts": {
