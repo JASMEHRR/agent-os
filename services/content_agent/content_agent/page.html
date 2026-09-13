@@ -2267,6 +2267,38 @@ async function loadClasswork() {
     : '<p class="empty">Nothing outstanding. That is the good outcome.</p>';
 }
 
+// ------------------------------------------------------------------ telegram
+
+//: The one step that stops people: a bot cannot start a conversation, so the
+//: chat id only exists once you have said something to it - and every guide
+//: to this then tells you to open a URL and find an integer in raw JSON.
+//: Pressing a button instead is the whole difference between two minutes and
+//: giving up.
+function telegramBlock() {
+  return `
+    <div class="row" style="margin-top:14px">
+      <button class="subtle" id="tg-find">Find my chat ID</button>
+      <span class="hint" id="tg-msg" style="margin:0">
+        Save the token first, message your bot on Telegram, then press this.</span>
+    </div>`;
+}
+
+function wireTelegram() {
+  const find = $('tg-find');
+  if (!find) return;
+  find.onclick = () => agentAction(find, 'tg-msg', '/api/telegram/find', {}, answer => {
+    const box = $('set-TELEGRAM_CHAT_ID');
+    if (box) {
+      box.value = answer.chat_id;
+      // Into the same pending bag a typed value goes into, so "Save
+      // everything" saves it without the person having to retype what the
+      // app just found for them.
+      pending['TELEGRAM_CHAT_ID'] = answer.chat_id;
+    }
+    say('tg-msg', `Found it: ${answer.chat_id}. Press Save everything.`);
+  });
+}
+
 // ------------------------------------------------------- sign in with Google
 
 //: What `/api/google` last said. Held here so `connectField` can render the
@@ -2572,6 +2604,7 @@ async function loadConnect() {
       <p class="hint" style="margin:0 0 14px">${escapeHtml(g.what)}</p>
       <div class="cfields">${g.settings.map(connectField).join('')}</div>
       ${g.id === 'google' ? googleBlock() : ''}
+      ${g.id === 'telegram' ? telegramBlock() : ''}
       ${g.then ? `<p class="chelp" style="margin:12px 0 0">${escapeHtml(g.then)}</p>` : ''}
     </div>`).join('');
 
@@ -2584,6 +2617,7 @@ function wireConnect() {
     el.onchange = () => { pending[el.dataset.set] = el.value; };
   });
   wireGoogle();
+  wireTelegram();
 }
 
 async function saveConnect() {

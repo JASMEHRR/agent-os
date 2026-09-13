@@ -131,9 +131,35 @@ GROUPS: tuple[Group, ...] = (
         then="If you signed in with Google above, leave all of this empty - it is not used.",
     ),
     Group(
+        "telegram",
+        "Telegram (recommended)",
+        "Where every agent's alert lands. One setup serves all of them, it is free, "
+        "and it is the only one of these with no third party in the middle that can be down.",
+        (
+            Setting(
+                "TELEGRAM_TOKEN",
+                "Bot token",
+                "Message @BotFather on Telegram, send /newbot, answer two questions. "
+                "It replies with a token like 123456789:AAE...",
+                placeholder="123456789:AAE...",
+            ),
+            Setting(
+                "TELEGRAM_CHAT_ID",
+                "Your chat ID",
+                "Open your new bot and send it anything - 'hi' will do - then press Find it "
+                "below. A bot cannot message you first, so that step is not optional.",
+                secret=False,
+                placeholder="press Find it",
+            ),
+        ),
+        requires=("TELEGRAM_TOKEN", "TELEGRAM_CHAT_ID"),
+    ),
+    Group(
         "whatsapp",
         "WhatsApp",
-        "Where every agent's alert lands. One setup serves all of them.",
+        "Only if you would rather have these on WhatsApp than Telegram. Both routes to it "
+        "cost more setup and give less back: CallMeBot is one person's free relay and does "
+        "go down, and Twilio needs an account.",
         (
             Setting("WHATSAPP_TO", "Your number, with country code", "", secret=False, placeholder="+919876543210"),
             Setting(
@@ -147,7 +173,8 @@ GROUPS: tuple[Group, ...] = (
             Setting("TWILIO_AUTH_TOKEN", "Twilio auth token", ""),
         ),
         requires=("WHATSAPP_TO",),
-        then="Twilio is used when its keys are set; otherwise CallMeBot. Neither set means alerts print instead.",
+        then="Telegram wins if it is set. Then Twilio, then CallMeBot. None of them set means "
+        "alerts print to the black window instead, which is the right way to start.",
     ),
     Group(
         "you",

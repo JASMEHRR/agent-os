@@ -28,6 +28,7 @@ import conftest  # noqa: E402, F401 - imported for the sys.path setup it perform
 from inbox_agent import (  # noqa: E402
     Alert,
     CallMeBot,
+    Telegram,
     Console,
     ImapSource,
     InboxAgent,

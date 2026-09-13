@@ -36,7 +36,12 @@ files to find. Each box says what it is for and where to get it.
   with `gsk_`. No card, about a minute. Posts needs this; nothing else does.
 - **Your name.** Worth doing before anything else. Without it, drafts are
   written for "the person using this" rather than for you. Ten seconds.
-- **WhatsApp**, if you want the Inbox agent to text you rather than print.
+- **Telegram**, if you want the agents to message your phone rather than just
+  print on screen. Two minutes: message **@BotFather**, send `/newbot`, paste
+  the token it gives you, say "hi" to your new bot, then press **Find my chat
+  ID**. Free, official, and nothing in the middle that can be down.
+  (WhatsApp is still there if you prefer it, but both routes to it cost more
+  setup and give less back.)
 - **Google**, for Inbox and Classwork. One button once it is set up, but
   **setting it up is genuinely fiddly and takes about fifteen minutes the
   first time** — see below.

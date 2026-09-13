@@ -153,6 +153,10 @@ class Handler(BaseHTTPRequestHandler):
     #: this server, so the flow cannot complete and the screen says so instead
     #: of offering a button that would fail halfway.
     google: Any = None
+    #: Looks up the Telegram chat id from the saved bot token. Injected, so
+    #: this module goes on knowing nothing about Telegram; None means the
+    #: button is not offered.
+    find_chat_id: Callable[[], str] | None = None
 
     # Silences the default one-line-per-request logging, which buries the
     # single line that matters (the startup URL) within seconds.
@@ -401,6 +405,8 @@ class Handler(BaseHTTPRequestHandler):
                 self._google_start()
             elif self.path == "/api/google/forget":
                 self._google_forget()
+            elif self.path == "/api/telegram/find":
+                self._telegram_find()
             else:
                 self._json({"error": "not found"}, 404)
         except Exception as exc:  # noqa: BLE001
@@ -716,6 +722,21 @@ class Handler(BaseHTTPRequestHandler):
         )
         self._done_page("Connected" if not missing else "Partly connected", body)
 
+    def _telegram_find(self) -> None:
+        """Reads the chat id off whatever was last said to the bot.
+
+        The step every guide to this turns into "open a URL, find an integer
+        in the JSON", which is where people stop. Injected like everything
+        else here, so this module still knows nothing about Telegram.
+        """
+        if self.find_chat_id is None:
+            self._json({"error": "this copy cannot look that up."}, 400)
+            return
+        try:
+            self._json({"chat_id": self.find_chat_id()})
+        except Exception as exc:  # noqa: BLE001 - reported to the button that asked
+            self._json({"error": str(exc)}, 400)
+
     def _stray_code(self) -> None:
         """A Google sign-in reply that arrived at the wrong address.
 
@@ -1002,6 +1023,7 @@ def serve(
     connect: Any = None,
     scheduler: Any = None,
     google: Any = None,
+    find_chat_id: Callable[[], str] | None = None,
     can_draft: bool = True,
 ) -> HTTPServer:
     """Starts the interface. Returns the server so tests can drive it.
@@ -1026,6 +1048,7 @@ def serve(
         "connect": connect,
         "scheduler": scheduler,
         "google": google,
+        "find_chat_id": None if find_chat_id is None else staticmethod(find_chat_id),
         "can_draft": can_draft,
         # Wrapped so the class does not turn it into a method of the handler.
         "before_capture": None if before_capture is None else staticmethod(before_capture),

@@ -40,7 +40,17 @@ from content_agent.schedule import Publisher  # noqa: E402
 from content_agent.studio import Completion  # noqa: E402
 from content_agent.sync import repo_name, sync_repos  # noqa: E402
 from content_agent.web import HOST, serve  # noqa: E402
-from inbox_agent import CallMeBot, Console, ImapSource, InboxAgent, Notifier, Triage, Twilio, Watermark  # noqa: E402
+from inbox_agent import (  # noqa: E402
+    CallMeBot,
+    Console,
+    ImapSource,
+    InboxAgent,
+    Notifier,
+    Telegram,
+    Triage,
+    Twilio,
+    Watermark,
+)
 from inbox_agent.agent import Alert  # noqa: E402
 from inbox_agent.filters import Filter, FilterBook  # noqa: E402
 from inbox_agent.gmail import SCOPES as GMAIL_SCOPES  # noqa: E402
@@ -386,6 +396,12 @@ def _words(name: str) -> frozenset[str]:
 
 def _notifier() -> Notifier:
     """Where an agent's alert goes. One setup serves all three."""
+    # Telegram first: an official API with nothing in the middle of it. The
+    # two WhatsApp routes below are kept because the original ask was for
+    # WhatsApp, but one of them is a hobby relay and the other needs an
+    # account, and both have cost more evenings than they have saved.
+    if os.environ.get("TELEGRAM_TOKEN") and os.environ.get("TELEGRAM_CHAT_ID"):
+        return Telegram(token=os.environ["TELEGRAM_TOKEN"], chat_id=os.environ["TELEGRAM_CHAT_ID"])
     if os.environ.get("TWILIO_ACCOUNT_SID"):
         return Twilio(
             account_sid=os.environ["TWILIO_ACCOUNT_SID"],
@@ -464,6 +480,22 @@ def google_signin(port: int) -> GoogleSignIn:
         # Read once, here, because that is exactly when the agents read it too.
         live=bool(os.environ.get("GOOGLE_CLIENT_ID")),
     )
+
+
+def telegram_chat_id() -> str:
+    """The chat id for the token currently saved, looked up on demand.
+
+    Reads `.env` rather than the environment for the same reason the Google
+    button does: you have just typed the token in, and making you restart
+    before the app will use it puts the manual step straight back.
+    """
+    from content_agent.connect import read
+    from inbox_agent import find_chat_id
+
+    token = read(ENV_FILE).get("TELEGRAM_TOKEN", "")
+    if not token:
+        raise RuntimeError("Paste your bot token above and press Save everything first.")
+    return find_chat_id(token)
 
 
 def _owner() -> Owner:
@@ -584,6 +616,7 @@ if __name__ == "__main__":
         classwork=classwork,
         connect=ConnectPanel(ENV_FILE),
         google=None if hosted else google_signin(port),
+        find_chat_id=telegram_chat_id,
         scheduler=automatic(inbox, apply_tab, classwork),
         can_draft=model_ready(),
     )

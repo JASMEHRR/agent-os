@@ -11,13 +11,15 @@ character snippet, never a whole message, and never at all in rules-only mode.
 
 from inbox_agent.agent import Alert, InboxAgent, RunReport, Watermark
 from inbox_agent.messages import Email
-from inbox_agent.notify import CallMeBot, Console, Notifier, NotifyError, Twilio
+from inbox_agent.notify import CallMeBot, Console, Notifier, NotifyError, Telegram, Twilio, find_chat_id
 from inbox_agent.sources import ImapSource, MailSource, to_email
 from inbox_agent.triage import Importance, Signal, Triage, Verdict
 
 __all__ = [
     "Alert",
     "CallMeBot",
+    "Telegram",
+    "find_chat_id",
     "Console",
     "Email",
     "ImapSource",
