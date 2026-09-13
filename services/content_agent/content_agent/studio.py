@@ -50,6 +50,7 @@ from content_agent.outreach import (
     Prospect,
     check_note,
 )
+from content_agent.owner import Owner
 from content_agent.persona import Persona, extract_prompt, parse_proposed
 from content_agent.samples import VoiceLibrary, render_examples
 from content_agent.schedule import Scheduler
@@ -100,29 +101,31 @@ def _prompt(
     correction: str = "",
     examples: str = "",
     persona: str = "",
+    owner: Owner | None = None,
 ) -> str:
+    owner = owner or Owner()
     angle = f"\nAngle to take: {note.angle}" if note.angle else ""
     correction_block = f"\n\n{correction}" if correction else ""
-    # Order matters. Rules, then who he is, then examples of how he writes,
+    # Order matters. Rules, then who they are, then examples of how they write,
     # then the notes. The persona is context the post may draw on; the notes
     # are the facts it must not stray from, so they come last and closest.
     persona_block = f"\n\n{persona}" if persona else ""
     examples_block = f"\n\n{examples}" if examples else ""
     keys = ", ".join(f'"{field}": "..."' for field in spec.fields)
-    return f"""{VOICE_BRIEF}
+    return f"""{owner.fill(VOICE_BRIEF)}
 
 {spec.brief}{persona_block}{examples_block}
 
 Aim for roughly {spec.target_words} words.
 
-Here are this week's notes, in Jasmehr's own words. Every factual claim and
+Here are this week's notes, in their own words. Every factual claim and
 every number must come from these notes. Invent nothing.
 
 Write from the sharpest thing in the notes rather than about all of it. One
 story, the most specific one, told with the detail that is already there: the
 thing that broke, the number, the decision that was argued over. Where a note
-has said something well, keep his words. A summary of his sentence is always
-flatter than his sentence, and a post that surveys the week says nothing about
+has said something well, keep their words. A summary of a sentence is always
+flatter than the sentence, and a post that surveys the week says nothing about
 any of it.
 
 ---
@@ -133,7 +136,13 @@ Return ONLY a JSON object, no prose around it, with exactly these keys:
 {{{keys}}}"""
 
 
-def _note_prompt(prospect: Prospect, channel: OutreachChannel, correction: str = "") -> str:
+def _note_prompt(
+    prospect: Prospect,
+    channel: OutreachChannel,
+    correction: str = "",
+    owner: Owner | None = None,
+) -> str:
+    owner = owner or Owner()
     correction_block = ("\n\n" + correction) if correction else ""
     fields = '{"subject": "...", "body": "..."}' if channel is OutreachChannel.EMAIL else '{"body": "..."}'
     limit = (
@@ -141,7 +150,7 @@ def _note_prompt(prospect: Prospect, channel: OutreachChannel, correction: str =
         if channel is OutreachChannel.LINKEDIN_NOTE
         else "Keep it to four short sentences. It is a cold email."
     )
-    return f"""{OUTREACH_BRIEF}
+    return f"""{owner.fill(OUTREACH_BRIEF)}
 
 {limit}
 
@@ -232,8 +241,12 @@ class ContentStudio:
         library: VoiceLibrary | None = None,
         persona: Persona | None = None,
         analytics: Analytics | None = None,
+        owner: Owner | None = None,
     ) -> None:
         self._complete = complete
+        # Who the drafts are written as. Unset means the briefs say "the
+        # person using this" rather than naming somebody who is not here.
+        self.owner = owner if owner is not None else Owner()
         self._notes = notes
         self._drafts = drafts
         self._clock = clock
@@ -302,7 +315,8 @@ class ContentStudio:
         outstanding: tuple[str, ...] = ()
 
         for attempt in range(MAX_REDRAFTS):
-            parsed = _parse(self._complete(_prompt(note, spec, correction, examples, self.persona.render()), budget))
+            prompt = _prompt(note, spec, correction, examples, self.persona.render(), self.owner)
+            parsed = _parse(self._complete(prompt, budget))
             hook, body, close, tags = _extract(parsed, channel)
             last = (hook, body, close, tags)
 
@@ -471,7 +485,7 @@ class ContentStudio:
         outstanding: tuple[str, ...] = ()
 
         for attempt in range(MAX_REDRAFTS):
-            parsed = _parse(self._complete(_note_prompt(prospect, channel, correction), 600))
+            parsed = _parse(self._complete(_note_prompt(prospect, channel, correction, self.owner), 600))
             subject = str(parsed.get("subject", "")).strip()
             body = str(parsed.get("body", "")).strip()
 

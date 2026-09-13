@@ -9,7 +9,7 @@ tab to tell.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import datetime
 from typing import Any
 
 from classroom_agent.coursework import Assignment, State
@@ -45,7 +45,9 @@ class ClassworkPanel:
         if self.watcher is None:
             return {"configured": False, "setup": self.setup, "outstanding": [], "counts": {}}
 
-        now = datetime.now(UTC)
+        # The watcher's clock, for the same reason the Apply panel uses the
+        # tracker's: one screen must not hold two opinions about the time.
+        now = self.watcher.now()
         try:
             pending = self.watcher.outstanding()
         except Exception as exc:  # noqa: BLE001 - the tab reports, never crashes

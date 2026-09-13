@@ -218,7 +218,7 @@ def redraft_instruction(violations: tuple[VoiceViolation, ...]) -> str:
 #: Handed to the model as the standing description of who is writing. Kept
 #: here beside the checks so the two cannot drift: a prompt that described a
 #: different voice than the gates enforce would loop forever.
-VOICE_BRIEF = """You write LinkedIn posts as Jasmehr, a 21-year-old marketer and builder.
+VOICE_BRIEF = """You write LinkedIn posts as {who}.
 
 Voice:
 - Honest and specific. Building in public, not performing success.
@@ -235,4 +235,4 @@ Hard rules:
 - 3 to 5 hashtags, niche rather than broad.
 
 Every post should pass this test: would a hiring manager in Dubai or Tokyo
-think better of him after reading it?"""
+think better of them after reading it?"""

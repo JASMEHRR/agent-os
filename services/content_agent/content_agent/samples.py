@@ -155,7 +155,7 @@ def render_examples(samples: list[VoiceSample], channel: Channel) -> str:
     if not samples:
         return ""
     borrowed = any(s.channel is not channel for s in samples)
-    header = "Here is writing Jasmehr has approved as sounding like him."
+    header = "Here is writing they have approved as sounding like them."
     if borrowed:
         header += " Some are from other channels; match the voice, not the format."
     header += " Match this register. Do not copy the content."

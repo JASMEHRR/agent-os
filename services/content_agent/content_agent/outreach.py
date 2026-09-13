@@ -234,7 +234,7 @@ _COMMON = frozenset(
 )
 
 
-BRIEF = """Write a short outreach note. You are Jasmehr, 21, a marketer and builder.
+BRIEF = """Write a short outreach note. You are {who}.
 
 Rules, all of them hard:
 - Address them by first name.

@@ -30,6 +30,8 @@ import uuid
 from datetime import UTC, datetime
 from typing import Any, Protocol
 
+from content_agent.owner import Owner
+
 
 class Area(enum.Enum):
     """Where in your life a fact sits. Chosen so each maps to a kind of post."""
@@ -159,14 +161,14 @@ class Persona:
             lines.extend(f"- {f.text}" for f in chosen)
         if not lines:
             return ""
-        return "What is true about Jasmehr right now, confirmed by him:\n" + "\n".join(lines)
+        return "What is true about them right now, confirmed by them:\n" + "\n".join(lines)
 
     def render_markdown(self) -> str:
         """For publishing to the repo, so the weekly cloud run can read it."""
         body = self.render()
         if not body:
             return "# Persona\n\nNothing confirmed yet.\n"
-        return "# Persona\n\n" + body.replace("What is true about Jasmehr right now, confirmed by him:\n", "") + "\n"
+        return "# Persona\n\n" + body.replace("What is true about them right now, confirmed by them:\n", "") + "\n"
 
     def health(self) -> dict[str, Any]:
         active = self.facts()
@@ -180,29 +182,30 @@ class Persona:
 
 # --------------------------------------------------------------- Extraction
 
-EXTRACT_BRIEF = """You are listening to Jasmehr describe his week and his life. Your only
-job is to notice what is worth remembering about him as a person, so that
-posts written later can draw on it.
+EXTRACT_BRIEF = """You are listening to {who} describe their week and their life.
+Your only job is to notice what is worth remembering about them as a person, so
+that posts written later can draw on it.
 
 Extract short facts, each one sentence, each tagged with exactly one area from:
 life, college, trying, building, learning, goals, opinions, audience.
 
 Rules:
-- Only what he actually said. Do not infer, flatter, or complete his thought.
+- Only what they actually said. Do not infer, flatter, or finish their thought.
 - Specific beats general. "Started a 5am gym routine and hated it by Thursday"
   is worth keeping. "Is working on fitness" is not.
-- Opinions matter: anything he believes that a reasonable person might not.
-- Skip anything that is already obvious from the facts he has confirmed before.
-- 3 to 8 facts. Fewer if he said less. Never pad.
+- Opinions matter: anything they believe that a reasonable person might not.
+- Skip anything already obvious from the facts they have confirmed before.
+- 3 to 8 facts. Fewer if they said less. Never pad.
 
 Return ONLY a JSON array like: [{"area": "trying", "text": "..."}, ...]"""
 
 
-def extract_prompt(said: str, already_known: str) -> str:
+def extract_prompt(said: str, already_known: str, owner: Owner | None = None) -> str:
+    owner = owner or Owner()
     known = f"\n\nAlready confirmed, do not repeat:\n{already_known}" if already_known else ""
-    return f"""{EXTRACT_BRIEF}{known}
+    return f"""{owner.fill(EXTRACT_BRIEF)}{known}
 
-What he said:
+What they said:
 ---
 {said}
 ---"""
