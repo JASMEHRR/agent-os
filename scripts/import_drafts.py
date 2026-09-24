@@ -123,6 +123,14 @@ class ImportResult:
     violations: tuple[str, ...] = ()
 
 
+def open_stores(db_path: pathlib.Path) -> tuple[SQLiteRepository[WeeklyNote], SQLiteRepository[PostDraft]]:
+    connection = open_database(db_path)
+    return (
+        SQLiteRepository(connection, "linkedin_notes", WeeklyNote),
+        SQLiteRepository(connection, "linkedin_drafts", PostDraft),
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     args = sys.argv[1:] if argv is None else argv
     dry_run = "--dry-run" in args
@@ -134,10 +142,30 @@ def main(argv: list[str] | None = None) -> int:
         print("\n  No markdown files to read.\n")
         return 1
 
-    connection = open_database(DB_PATH)
-    notes = SQLiteRepository(connection, "linkedin_notes", WeeklyNote)
-    drafts = SQLiteRepository(connection, "linkedin_drafts", PostDraft)
+    notes, drafts = open_stores(DB_PATH)
+    results = import_files(paths, notes, drafts, dry_run=dry_run)
 
+    imported = sum(1 for r in results if r.imported)
+    skipped = sum(1 for r in results if not r.imported and r.reason == "already in the studio")
+    print("")
+    if dry_run:
+        would = sum(1 for r in results if r.reason == "dry run")
+        print(f"  Dry run: {would} would be imported, {skipped} already there.")
+    else:
+        print(f"  Imported {imported}. Skipped {skipped} already there.")
+        if imported:
+            print("  They are in the Review tab now, waiting for you to approve them.")
+    print("")
+    return 0
+
+
+def import_files(
+    paths: list[pathlib.Path],
+    notes: SQLiteRepository[WeeklyNote],
+    drafts: SQLiteRepository[PostDraft],
+    dry_run: bool = False,
+) -> list[ImportResult]:
+    """Every post in `paths` not already in `drafts`, saved as DRAFTED."""
     # One read of what is already there, so a file of forty posts does not
     # become forty scans of the table.
     known: set[str] = {" ".join(d.hook.split()) for d in drafts.list_all()}
@@ -199,18 +227,7 @@ def main(argv: list[str] | None = None) -> int:
             flag = f"  [{len(broken)} rule(s) to look at]" if broken else ""
             print(f"    - {post.title[:52]:<52} imported{flag}")
 
-    imported = sum(1 for r in results if r.imported)
-    skipped = sum(1 for r in results if not r.imported and r.reason == "already in the studio")
-    print("")
-    if dry_run:
-        would = sum(1 for r in results if r.reason == "dry run")
-        print(f"  Dry run: {would} would be imported, {skipped} already there.")
-    else:
-        print(f"  Imported {imported}. Skipped {skipped} already there.")
-        if imported:
-            print("  They are in the Review tab now, waiting for you to approve them.")
-    print("")
-    return 0
+    return results
 
 
 if __name__ == "__main__":

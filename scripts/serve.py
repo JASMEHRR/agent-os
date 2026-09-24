@@ -291,6 +291,25 @@ def _minutes(name: str, fallback: float) -> float:
         return fallback
 
 
+def pull_drafts_now() -> str:
+    """Drafts pushed to origin/master, into Review as DRAFTED. Raises on failure.
+
+    Imported here rather than at the top because `import_drafts` imports this
+    module for DB_PATH.
+    """
+    from scripts.pull_drafts import run
+
+    return run(REPO, DB_PATH)
+
+
+def pull_drafts_at_startup() -> None:
+    """The same pull, for startup, where nothing it does may stop the studio."""
+    try:
+        print(f"  Drafts: {pull_drafts_now()}")
+    except Exception as exc:  # noqa: BLE001 - offline or a git error must not block startup
+        print(f"  Drafts: not pulled ({exc}). Starting anyway.")
+
+
 def jobs(inbox: Any, apply_tab: Any, classwork: Any) -> list[Job | None]:
     """What runs on its own, given whichever agents are actually set up.
 
@@ -350,6 +369,15 @@ def jobs(inbox: Any, apply_tab: Any, classwork: Any) -> list[Job | None]:
             describes="Nudges you before an assignment is due",
         )
         if classwork is not None and classwork.watcher is not None
+        else None,
+        Job(
+            job_id="drafts",
+            label="Receive my drafts",
+            every=timedelta(minutes=_minutes("DRAFTS_EVERY_MINUTES", 30)),
+            run=pull_drafts_now,
+            describes="Pulls drafts pushed to the repo into Review, for you to approve",
+        )
+        if (REPO / ".git").exists()
         else None,
     ]
 
@@ -563,6 +591,7 @@ if __name__ == "__main__":
     # login. Unset means "this laptop": loopback only, no login, because
     # reachability is the authorisation there.
     load_env()
+    pull_drafts_at_startup()
     port = int(os.environ.get("PORT", PORT))
     inbox, apply_tab, classwork = inbox_panel(), apply_panel(), classwork_panel()
     # A hosted copy gets no button: Google would redirect the viewer's browser
