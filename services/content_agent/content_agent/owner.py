@@ -2,7 +2,7 @@
 
 The briefs were written naming one person, which is right for the copy he
 runs and wrong for every other copy. A friend testing this would have posts
-drafted as a 21-year-old marketer called Jasmehr, in his voice, about his
+drafted as a 21-year-old marketer called JasMehr, in his voice, about his
 week - which is not a bug you notice from the code, only from the output.
 
 So the name is a setting, and every brief takes it. Two rules hold:

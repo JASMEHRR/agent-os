@@ -251,7 +251,7 @@ ACTOR_ITEM: dict[str, Any] = {
         "created_at": "2026-09-07 09:00:00",
         "urn": {"activity_urn": "7000000000000000001"},
     },
-    "author": {"name": "Jasmehr", "followers": 5000},
+    "author": {"name": "JasMehr", "followers": 5000},
     "stats": {"total_reactions": 42, "comments": 7, "shares": 2},
 }
 
@@ -262,7 +262,7 @@ def test_the_actors_nested_item_flattens_to_a_reading() -> None:
     assert (metrics.likes, metrics.comments, metrics.shares) == (42, 7, 2)
     assert metrics.engagement == 51
     assert metrics.author_followers == 5000
-    assert metrics.author_name == "Jasmehr"
+    assert metrics.author_name == "JasMehr"
 
 
 def test_a_nulled_shell_is_an_error_rather_than_a_reading_of_zero() -> None:

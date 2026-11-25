@@ -1,6 +1,6 @@
 # Building a business with zero money
 
-For Jasmehr, September 2026. Written to be acted on, not admired. Every
+For JasMehr, September 2026. Written to be acted on, not admired. Every
 recommendation here costs nothing recurring, and the ones that need a
 one-time identity step say so.
 

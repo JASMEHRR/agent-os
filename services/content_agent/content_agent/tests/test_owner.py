@@ -12,7 +12,7 @@ from content_agent.owner import ANONYMOUS, Owner
 from content_agent.persona import EXTRACT_BRIEF, extract_prompt
 from content_agent.voice import VOICE_BRIEF
 
-JASMEHR = Owner(name="Jasmehr", about="21, a marketer and builder")
+JASMEHR = Owner(name="JasMehr", about="21, a marketer and builder")
 
 
 def test_nobody_is_named_until_somebody_says_who_they_are() -> None:
@@ -22,7 +22,7 @@ def test_nobody_is_named_until_somebody_says_who_they_are() -> None:
 
 
 def test_a_name_and_a_description_read_as_one_phrase() -> None:
-    assert JASMEHR.who == "Jasmehr, 21, a marketer and builder"
+    assert JASMEHR.who == "JasMehr, 21, a marketer and builder"
 
 
 def test_a_name_on_its_own_is_enough() -> None:
@@ -43,12 +43,12 @@ def test_whitespace_and_a_trailing_comma_do_not_reach_the_prompt() -> None:
 def test_no_brief_still_names_the_person_it_was_written_for() -> None:
     """The whole point: the briefs must carry a slot, not a name."""
     for brief in (VOICE_BRIEF, EXTRACT_BRIEF):
-        assert "Jasmehr" not in brief
+        assert "JasMehr" not in brief
         assert "{who}" in brief
 
 
 def test_the_configured_name_actually_reaches_the_voice_brief() -> None:
-    assert "Jasmehr, 21, a marketer and builder" in JASMEHR.fill(VOICE_BRIEF)
+    assert "JasMehr, 21, a marketer and builder" in JASMEHR.fill(VOICE_BRIEF)
 
 
 def test_an_unconfigured_studio_says_the_person_using_this() -> None:
@@ -59,17 +59,17 @@ def test_filling_a_brief_containing_json_braces_does_not_raise() -> None:
     """`str.format` would raise on the `{"area": ...}` example in the brief."""
     filled = JASMEHR.fill(EXTRACT_BRIEF)
     assert '{"area"' in filled
-    assert "Jasmehr" in filled
+    assert "JasMehr" in filled
 
 
 def test_the_persona_prompt_carries_the_name_through() -> None:
     prompt = extract_prompt("I shipped the billboard this week.", "", JASMEHR)
-    assert "Jasmehr" in prompt
+    assert "JasMehr" in prompt
     assert "billboard" in prompt
 
 
 def test_the_persona_prompt_without_an_owner_names_nobody() -> None:
-    assert "Jasmehr" not in extract_prompt("I shipped something.", "")
+    assert "JasMehr" not in extract_prompt("I shipped something.", "")
 
 
 def test_the_briefs_never_assume_a_gender() -> None:
