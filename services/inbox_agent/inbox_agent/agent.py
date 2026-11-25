@@ -33,13 +33,17 @@ from __future__ import annotations
 import dataclasses
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime, timedelta, timezone, tzinfo
 
 from inbox_agent.messages import Email
 from inbox_agent.notify import Notifier, NotifyError
 from inbox_agent.sources import MailSource
 from inbox_agent.triage import Importance, Triage, Verdict
 from persistence.repository import NotFound, Repository
+
+#: India has no daylight saving, so a fixed offset is exact and needs no tz database
+#: (Windows ships without one, so ZoneInfo would need the tzdata package).
+IST = timezone(timedelta(hours=5, minutes=30), "IST")
 
 #: Where the watermark lives. One row, because there is one mailbox.
 WATERMARK_ID = "watermark"
@@ -113,6 +117,9 @@ class InboxAgent:
     #: end exclusive, and the window is allowed to wrap midnight.
     quiet_from: int = 23
     quiet_until: int = 7
+    #: The clock quiet hours are read on. Fixed, not the machine's own zone, so
+    #: the same mail is held at the same hour on the laptop and on a UTC server.
+    tz: tzinfo = IST
     #: Individual alerts per rolling hour before the agent starts collecting.
     max_per_hour: int = 6
     #: Messages examined per poll. Bounds the first run against a full mailbox.
@@ -129,7 +136,7 @@ class InboxAgent:
             return Watermark()
 
     def in_quiet_hours(self, when: datetime) -> bool:
-        hour = when.astimezone().hour
+        hour = when.astimezone(self.tz).hour
         if self.quiet_from == self.quiet_until:
             return False
         if self.quiet_from < self.quiet_until:

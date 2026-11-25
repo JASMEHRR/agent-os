@@ -12,7 +12,7 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from inbox_agent.agent import WATERMARK_ID, Alert, InboxAgent, Watermark
+from inbox_agent.agent import IST, WATERMARK_ID, Alert, InboxAgent, Watermark
 from inbox_agent.filters import FilterBook, new_filter
 from inbox_agent.messages import Email
 from inbox_agent.notify import Console, NotifyError
@@ -81,7 +81,7 @@ def build(
         alerts=InMemoryRepository(),
         watermarks=InMemoryRepository(),
         now=lambda: now,
-        **kwargs,  # type: ignore[arg-type]
+        **{"tz": UTC, **kwargs},  # type: ignore[arg-type]
     )
     return agent, console, source
 
@@ -560,3 +560,12 @@ def test_the_connection_is_closed_even_when_the_fetch_raises(monkeypatch: pytest
     with pytest.raises(RuntimeError):
         source.fetch_since("", 10)
     assert fake.logged_out
+
+
+def test_quiet_hours_follow_india_time_by_default_not_the_machine() -> None:
+    agent, _, _ = build()
+    agent.tz = IST
+    # 20:30 UTC is 2:00 in India, 02:00 UTC is 7:30 in India.
+    assert agent.in_quiet_hours(datetime(2026, 9, 12, 20, 30, tzinfo=UTC))
+    assert not agent.in_quiet_hours(datetime(2026, 9, 12, 2, 0, tzinfo=UTC))
+    assert InboxAgent.__dataclass_fields__["tz"].default is IST
